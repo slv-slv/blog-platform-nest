@@ -1,79 +1,96 @@
-import { Controller } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Query,
+  Res,
+} from '@nestjs/common';
+import { Response } from 'express';
+import { BlogsQueryRepository } from './blogs.query-repository.js';
+import { BlogsRepository } from './blogs.repository.js';
+import { PagingParams } from '../../../common/types/paging-params.js';
+import { BlogsPaginatedType, BlogType, CreateBlogInputDto, UpdateBlogInputDto } from './blogs.types.js';
+import { BlogsService } from './blogs.service.js';
 
 @Controller('blogs')
 export class BlogsController {
-  async getAllBlogs(@Query('searchNameTerm') searchNameTerm: string | null = null, @Res() res: Response) {
+  constructor(
+    private readonly blogsService: BlogsService,
+    private readonly blogsRepo: BlogsRepository,
+    private readonly blogsQueryRepository: BlogsQueryRepository,
+  ) {}
+
+  @Get()
+  async getAllBlogs(
+    @Res({ passthrough: true }) res: Response,
+    @Query('searchNameTerm') searchNameTerm: string | null = null,
+  ): Promise<BlogsPaginatedType> {
     const pagingParams = res.locals.pagingParams as PagingParams;
 
-    const blogs = await this.blogsQueryRepo.getAllBlogs(searchNameTerm, pagingParams);
+    const blogs = await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
     return blogs;
   }
 
-  async getPostsByBlogId(req: Request, res: Response) {
-    const pagingParams = res.locals.pagingParams;
-    const blogId = req.params.blogId;
-    const userId = res.locals.userId;
+  // @Get(':blogId/posts')
+  // async getPostsByBlogId(
+  //   @Param('blogId') blogId: string,
+  //   @Res({ passthrough: true }) res: Response,
+  // ): Promise<> {
+  //   const pagingParams = res.locals.pagingParams;
+  //   const userId = res.locals.userId;
 
-    const blog = await this.blogsRepo.findBlog(blogId);
-    if (!blog) {
-      res.status(HTTP_STATUS.NOT_FOUND_404).json({ error: 'Blog not found' });
-      return;
-    }
+  //   const blog = await this.blogsRepo.findBlog(blogId);
+  //   if (!blog) {
+  //     throw new NotFoundException('Blog not found');
+  //   }
 
-    const posts = await this.postsQueryRepo.getPosts(userId, pagingParams, blogId);
-    res.status(HTTP_STATUS.OK_200).json(posts);
-  }
+  //   const posts = await this.postsQueryRepository.getPosts(userId, pagingParams, blogId);
+  //   return posts;
+  // }
 
-  async findBlog(req: Request, res: Response) {
-    const id = req.params.id;
+  @Get(':id')
+  async findBlog(@Param('id') id: string): Promise<BlogType> {
     const blog = await this.blogsRepo.findBlog(id);
     if (!blog) {
-      res.status(HTTP_STATUS.NOT_FOUND_404).json({ error: 'Blog not found' });
-      return;
+      throw new NotFoundException('Blog not found');
     }
-    res.status(HTTP_STATUS.OK_200).json(blog);
+    return blog;
   }
 
-  async createBlog(req: Request, res: Response) {
-    const { name, description, websiteUrl } = req.body;
+  @Post()
+  async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogType> {
+    const { name, description, websiteUrl } = body;
     const newBlog = await this.blogsService.createBlog(name, description, websiteUrl);
-    res.status(HTTP_STATUS.CREATED_201).json(newBlog);
+    return newBlog;
   }
 
-  async createPostForBlog(req: Request, res: Response) {
-    const blogId = req.params.blogId;
-    const { title, shortDescription, content } = req.body;
+  // @Post(':blogId/posts')
+  // async createPostForBlog(@Param('blogId') blogId: string) {
+  //   const { title, shortDescription, content } = req.body;
 
-    const result = await this.postsService.createPost(title, shortDescription, content, blogId);
+  //   const result = await this.postsService.createPost(title, shortDescription, content, blogId);
 
-    if (result.status !== RESULT_STATUS.CREATED) {
-      res.status(httpCodeByResult(result.status)).json(result.extensions);
-      return;
-    }
+  //   if (result.status !== RESULT_STATUS.CREATED) {
+  //     res.status(httpCodeByResult(result.status)).json(result.extensions);
+  //     return;
+  //   }
 
-    res.status(HTTP_STATUS.CREATED_201).json(result.data);
+  //   res.status(HTTP_STATUS.CREATED_201).json(result.data);
+  // }
+
+  @Put(':id')
+  async updateBlog(@Param('id') id: string, @Body() body: UpdateBlogInputDto) {
+    const { name, description, websiteUrl } = body;
+    await this.blogsService.updateBlog(id, name, description, websiteUrl);
   }
 
-  async updateBlog(req: Request, res: Response) {
-    const id = req.params.id;
-    const { name, description, websiteUrl } = req.body;
-    const result = await this.blogsService.updateBlog(id, name, description, websiteUrl);
-    if (result.status !== RESULT_STATUS.NO_CONTENT) {
-      res.status(httpCodeByResult(result.status)).json(result.extensions);
-      return;
-    }
-
-    res.status(HTTP_STATUS.NO_CONTENT_204).end();
-  }
-
-  async deleteBlog(req: Request, res: Response) {
-    const id = req.params.id;
-    const result = await this.blogsService.deleteBlog(id);
-    if (result.status !== RESULT_STATUS.NO_CONTENT) {
-      res.status(httpCodeByResult(result.status)).json(result.extensions);
-      return;
-    }
-
-    res.status(HTTP_STATUS.NO_CONTENT_204).end();
+  @Delete(':id')
+  async deleteBlog(@Param('id') id: string) {
+    await this.blogsService.deleteBlog(id);
   }
 }

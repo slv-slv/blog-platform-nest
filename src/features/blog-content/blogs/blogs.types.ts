@@ -33,3 +33,15 @@ export type BlogsPaginatedType = {
   totalCount: number;
   items: BlogType[];
 };
+
+export class CreateBlogInputDto {
+  name!: string;
+  description!: string;
+  websiteUrl!: string;
+}
+
+export class UpdateBlogInputDto {
+  name!: string;
+  description!: string;
+  websiteUrl!: string;
+}
