@@ -1,4 +1,7 @@
+import dotenv from 'dotenv';
 import { PagingParams } from './common/types/paging-params.js';
+
+dotenv.config();
 
 export const SETTINGS = {
   PORT: process.env.PORT || 3004,
@@ -20,7 +23,7 @@ export const SETTINGS = {
     SESSIONS: 'sessions',
     RATE_LIMITER: 'rateLimiter',
   },
-  MONGO_URL: process.env.MONGO_URL || 'mongodb://0.0.0.0:27017',
+  MONGO_URL: process.env.MONGO_URL || 'mongodb://localhost:27017/blog-platform',
   PAGING_DEFAULT_PARAMS: {
     sortBy: 'createdAt',
     sortDirection: 'desc',
