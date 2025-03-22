@@ -4,7 +4,7 @@ import { BlogType } from './blogs.types.js';
 
 @Injectable()
 export class BlogsService {
-  constructor(private blogsRepository: BlogsRepository) {}
+  constructor(private readonly blogsRepository: BlogsRepository) {}
 
   async createBlog(name: string, description: string, websiteUrl: string): Promise<BlogType> {
     const createdAt = new Date().toISOString();
