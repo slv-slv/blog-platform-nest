@@ -1,5 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Delete, Get } from '@nestjs/common';
 import { AppService } from './app.service.js';
+import mongoose from 'mongoose';
 
 @Controller()
 export class AppController {
@@ -8,5 +9,10 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Delete('testing/all-data')
+  async dropDb(): Promise<void> {
+    await mongoose.connection.dropDatabase();
   }
 }
