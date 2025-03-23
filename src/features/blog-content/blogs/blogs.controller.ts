@@ -13,7 +13,7 @@ import {
 import { Response } from 'express';
 import { BlogsQueryRepository } from './blogs.query-repository.js';
 import { BlogsRepository } from './blogs.repository.js';
-import { PagingParams } from '../../../common/types/paging-params.js';
+import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 import { BlogsPaginatedType, BlogType, CreateBlogInputDto, UpdateBlogInputDto } from './blogs.types.js';
 import { BlogsService } from './blogs.service.js';
 
@@ -30,7 +30,7 @@ export class BlogsController {
     @Res({ passthrough: true }) res: Response,
     @Query('searchNameTerm') searchNameTerm: string | null = null,
   ): Promise<BlogsPaginatedType> {
-    const pagingParams = res.locals.pagingParams as PagingParams;
+    const pagingParams = res.locals.pagingParams as PagingParamsType;
 
     const blogs = await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
     return blogs;

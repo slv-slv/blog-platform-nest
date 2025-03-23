@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { PagingParams } from './common/types/paging-params.js';
+import { PagingParamsType } from './common/types/paging-params.types.js';
 
 dotenv.config();
 
@@ -22,7 +22,7 @@ export const SETTINGS = {
     sortDirection: 'desc',
     pageNumber: 1,
     pageSize: 10,
-  } as PagingParams,
+  } as PagingParamsType,
   CREDENTIALS: [{ login: 'admin', base64: 'YWRtaW46cXdlcnR5' }],
   EMAIL_CREDENTIALS: { user: process.env.EMAIL_LOGIN, password: process.env.EMAIL_PASSWORD },
   JWT_PRIVATE_KEY: process.env.JWT_PRIVATE_KEY,

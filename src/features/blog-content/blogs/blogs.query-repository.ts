@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { BlogsPaginatedType } from './blogs.types.js';
-import { PagingParams } from '../../../common/types/paging-params.js';
+import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog } from './blogs.schema.js';
 
@@ -9,7 +9,10 @@ import { Blog } from './blogs.schema.js';
 export class BlogsQueryRepository {
   constructor(@InjectModel(Blog.name) private model: Model<Blog>) {}
 
-  async getAllBlogs(searchNameTerm: string | null, pagingParams: PagingParams): Promise<BlogsPaginatedType> {
+  async getAllBlogs(
+    searchNameTerm: string | null,
+    pagingParams: PagingParamsType,
+  ): Promise<BlogsPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     const filter = searchNameTerm ? { name: { $regex: searchNameTerm, $options: 'i' } } : {};

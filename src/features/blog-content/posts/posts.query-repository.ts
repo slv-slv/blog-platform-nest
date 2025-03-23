@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Post } from './posts.schema.js';
 import { PostsPaginatedType, PostViewType } from './posts.types.js';
 import { ObjectId } from 'mongodb';
-import { PagingParams } from '../../../common/types/paging-params.js';
+import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -26,7 +26,11 @@ export class PostsQueryRepository {
     return { id, ...post };
   }
 
-  async getPosts(userId: string, pagingParams: PagingParams, blogId?: string): Promise<PostsPaginatedType> {
+  async getPosts(
+    userId: string,
+    pagingParams: PagingParamsType,
+    blogId?: string,
+  ): Promise<PostsPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     const filter = blogId ? { blogId } : {};

@@ -1,4 +1,4 @@
-export type PagingParams = {
+export type PagingParamsType = {
   sortBy: string;
   sortDirection: 'asc' | 'desc';
   pageNumber: number;

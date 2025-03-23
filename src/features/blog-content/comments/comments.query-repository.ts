@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
 import { Comment } from './comments.schema.js';
 import { CommentsPaginatedType, CommentViewType } from './comment.types.js';
-import { PagingParams } from '../../../common/types/paging-params.js';
+import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class CommentsQueryRepository {
@@ -29,7 +29,7 @@ export class CommentsQueryRepository {
   async getCommentsForPost(
     postId: string,
     userId: string,
-    pagingParams: PagingParams,
+    pagingParams: PagingParamsType,
   ): Promise<CommentsPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
