@@ -9,18 +9,31 @@ import { PostsController } from './posts/posts.controller.js';
 import { PostsService } from './posts/posts.service.js';
 import { PostsRepository } from './posts/posts.repository.js';
 import { PostsQueryRepository } from './posts/posts.query-repository.js';
+import { Post, PostSchema } from './posts/posts.schema.js';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: Blog.name, schema: BlogSchema },
+      { name: Post.name, schema: PostSchema },
+    ]),
+  ],
   controllers: [BlogsController],
   providers: [
     BlogsService,
     BlogsRepository,
     BlogsQueryRepository,
-    // PostsService,
-    // PostsRepository,
-    // PostsQueryRepository,
+    PostsService,
+    PostsRepository,
+    PostsQueryRepository,
   ],
-  exports: [BlogsService, BlogsRepository, BlogsQueryRepository], // Экспортируем BlogsService
+  exports: [
+    BlogsService,
+    BlogsRepository,
+    BlogsQueryRepository,
+    PostsService,
+    PostsRepository,
+    PostsQueryRepository,
+  ],
 })
 export class BlogContentModule {}
