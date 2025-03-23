@@ -4,14 +4,7 @@ import { PagingParams } from './common/types/paging-params.js';
 dotenv.config();
 
 export const SETTINGS = {
-  PORT: process.env.PORT || 3004,
-  // PATH: {
-  //   BLOGS: '/blogs',
-  //   POSTS: '/posts',
-  //   USERS: '/users',
-  //   COMMENTS: '/comments',
-  //   SESSIONS: '/sessions',
-  // },
+  PORT: process.env.PORT || 3000,
   DB_NAME: 'blogs',
   DB_COLLECTIONS: {
     BLOGS: 'blogs',
