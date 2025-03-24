@@ -15,6 +15,12 @@ import { CommentsService } from './comments/comments.service.js';
 import { CommentsRepository } from './comments/comments.repository.js';
 import { CommentsQueryRepository } from './comments/comments.query-repository.js';
 import { Comment, CommentSchema } from './comments/comments.schema.js';
+import { PostLikesService } from './likes/posts/post-likes.service.js';
+import { PostLikesRepository } from './likes/posts/post-likes.repository.js';
+import { PostLikesQueryRepository } from './likes/posts/post-likes.query-repository.js';
+import { CommentLikesService } from './likes/comments/comment-likes.service.js';
+import { CommentLikesRepository } from './likes/comments/comment-likes.repository.js';
+import { CommentLikesQueryRepository } from './likes/comments/comment-likes.query-repository.js';
 
 @Module({
   imports: [
@@ -35,6 +41,12 @@ import { Comment, CommentSchema } from './comments/comments.schema.js';
     CommentsService,
     CommentsRepository,
     CommentsQueryRepository,
+    PostLikesService,
+    PostLikesRepository,
+    PostLikesQueryRepository,
+    CommentLikesService,
+    CommentLikesRepository,
+    CommentLikesQueryRepository,
   ],
   exports: [],
 })
