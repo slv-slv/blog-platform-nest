@@ -17,6 +17,9 @@ import { BlogsRepository } from './blogs.repository.js';
 import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 import { BlogsPaginatedType, BlogType, CreateBlogInputDto, UpdateBlogInputDto } from './blogs.types.js';
 import { BlogsService } from './blogs.service.js';
+import { CreatePostInputDto, PostsPaginatedType, PostViewType } from '../posts/posts.types.js';
+import { PostsService } from '../posts/posts.service.js';
+import { PostsQueryRepository } from '../posts/posts.query-repository.js';
 
 @Controller('blogs')
 export class BlogsController {
@@ -24,6 +27,8 @@ export class BlogsController {
     private readonly blogsService: BlogsService,
     private readonly blogsRepo: BlogsRepository,
     private readonly blogsQueryRepository: BlogsQueryRepository,
+    private readonly postsService: PostsService,
+    private readonly postsQueryRepository: PostsQueryRepository,
   ) {}
 
   @Get()
@@ -37,22 +42,22 @@ export class BlogsController {
     return blogs;
   }
 
-  // @Get(':blogId/posts')
-  // async getPostsByBlogId(
-  //   @Param('blogId') blogId: string,
-  //   @Res({ passthrough: true }) res: Response,
-  // ): Promise<> {
-  //   const pagingParams = res.locals.pagingParams;
-  //   const userId = res.locals.userId;
+  @Get(':blogId/posts')
+  async getPostsByBlogId(
+    @Param('blogId') blogId: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<PostsPaginatedType> {
+    const pagingParams = res.locals.pagingParams;
+    const userId = res.locals.userId;
 
-  //   const blog = await this.blogsRepo.findBlog(blogId);
-  //   if (!blog) {
-  //     throw new NotFoundException('Blog not found');
-  //   }
+    const blog = await this.blogsRepo.findBlog(blogId);
+    if (!blog) {
+      throw new NotFoundException('Blog not found');
+    }
 
-  //   const posts = await this.postsQueryRepository.getPosts(userId, pagingParams, blogId);
-  //   return posts;
-  // }
+    const posts = await this.postsQueryRepository.getPosts(userId, pagingParams, blogId);
+    return posts;
+  }
 
   @Get(':id')
   async findBlog(@Param('id') id: string): Promise<BlogType> {
@@ -71,19 +76,16 @@ export class BlogsController {
     return newBlog;
   }
 
-  // @Post(':blogId/posts')
-  // async createPostForBlog(@Param('blogId') blogId: string) {
-  //   const { title, shortDescription, content } = req.body;
-
-  //   const result = await this.postsService.createPost(title, shortDescription, content, blogId);
-
-  //   if (result.status !== RESULT_STATUS.CREATED) {
-  //     res.status(httpCodeByResult(result.status)).json(result.extensions);
-  //     return;
-  //   }
-
-  //   res.status(HTTP_STATUS.CREATED_201).json(result.data);
-  // }
+  @Post(':blogId/posts')
+  @HttpCode(201)
+  async createPostForBlog(
+    @Param('blogId') blogId: string,
+    @Body() body: CreatePostInputDto,
+  ): Promise<PostViewType> {
+    const { title, shortDescription, content } = body;
+    const newPost = await this.postsService.createPost(title, shortDescription, content, blogId);
+    return newPost;
+  }
 
   @Put(':id')
   @HttpCode(204)
