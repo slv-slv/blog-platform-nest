@@ -1,5 +1,30 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ConfirmationInfo, PasswordRecoveryInfo } from './users.types.js';
+import { CONFIRMATION_STATUS, ConfirmationInfoType } from './users.types.js';
+
+@Schema()
+class ConfirmationInfo {
+  @Prop({ type: String, enum: Object.values(CONFIRMATION_STATUS), required: true })
+  status: CONFIRMATION_STATUS;
+
+  @Prop({ default: null })
+  code: string;
+
+  @Prop({ default: null })
+  expiration: string;
+}
+
+const ConfirmationInfoSchema = SchemaFactory.createForClass(ConfirmationInfo);
+
+@Schema()
+class PasswordRecoveryInfo {
+  @Prop({ default: null })
+  code: string;
+
+  @Prop({ default: null })
+  expiration: string;
+}
+
+const PasswordRecoveryInfoSchema = SchemaFactory.createForClass(PasswordRecoveryInfo);
 
 @Schema()
 export class User {
@@ -15,10 +40,10 @@ export class User {
   @Prop({ required: true })
   createdAt: string;
 
-  @Prop({ required: true })
-  confirmation: ConfirmationInfo;
+  @Prop({ type: ConfirmationInfoSchema, required: true })
+  confirmation: ConfirmationInfoType;
 
-  @Prop({ required: true })
+  @Prop({ type: PasswordRecoveryInfoSchema, required: true })
   passwordRecovery: PasswordRecoveryInfo;
 }
 
