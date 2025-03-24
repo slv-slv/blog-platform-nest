@@ -1,10 +1,14 @@
-import { Controller, Delete, Get } from '@nestjs/common';
-import { AppService } from './app.service.js';
 import mongoose from 'mongoose';
+import { Controller, Delete, Get, HttpCode } from '@nestjs/common';
+import { AppService } from './app.service.js';
+import { InjectConnection } from '@nestjs/mongoose';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    @InjectConnection() private connection: mongoose.Connection,
+    private readonly appService: AppService,
+  ) {}
 
   @Get()
   getHello(): string {
@@ -12,7 +16,8 @@ export class AppController {
   }
 
   @Delete('testing/all-data')
+  @HttpCode(204)
   async dropDb(): Promise<void> {
-    await mongoose.connection.dropDatabase();
+    await this.connection.dropDatabase();
   }
 }
