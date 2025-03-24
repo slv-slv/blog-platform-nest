@@ -1,0 +1,36 @@
+import { Response } from 'express';
+import { Body, Controller, DefaultValuePipe, Delete, Get, Param, Post, Query, Res } from '@nestjs/common';
+import { UsersService } from './users.service.js';
+import { UsersQueryRepository } from './users.query-repository.js';
+import { CreateUserInputDto, UsersPaginatedType, UserType } from './users.types.js';
+
+@Controller('users')
+export class UsersController {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly usersQueryRepository: UsersQueryRepository,
+  ) {}
+  @Get()
+  async getAllUsers(
+    @Query('searchLoginTerm', new DefaultValuePipe(null)) searchLoginTerm: string,
+    @Query('searchEmailTerm', new DefaultValuePipe(null)) searchEmailTerm: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<UsersPaginatedType> {
+    const pagingParams = res.locals.pagingParams;
+
+    const users = await this.usersQueryRepository.getAllUsers(searchLoginTerm, searchEmailTerm, pagingParams);
+    return users;
+  }
+
+  @Post()
+  async createUser(@Body() body: CreateUserInputDto): Promise<UserType> {
+    const { login, password, email } = body;
+    const newUser = await this.usersService.createUser(login, email, password);
+    return newUser;
+  }
+
+  @Delete(':id')
+  async deleteUser(@Param('id') id: string): Promise<void> {
+    await this.usersService.deleteUser(id);
+  }
+}
