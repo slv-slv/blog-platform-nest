@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   NotFoundException,
   Param,
   Post,
@@ -63,6 +64,7 @@ export class BlogsController {
   }
 
   @Post()
+  @HttpCode(201)
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogType> {
     const { name, description, websiteUrl } = body;
     const newBlog = await this.blogsService.createBlog(name, description, websiteUrl);
@@ -84,12 +86,14 @@ export class BlogsController {
   // }
 
   @Put(':id')
+  @HttpCode(204)
   async updateBlog(@Param('id') id: string, @Body() body: UpdateBlogInputDto) {
     const { name, description, websiteUrl } = body;
     await this.blogsService.updateBlog(id, name, description, websiteUrl);
   }
 
   @Delete(':id')
+  @HttpCode(204)
   async deleteBlog(@Param('id') id: string) {
     await this.blogsService.deleteBlog(id);
   }

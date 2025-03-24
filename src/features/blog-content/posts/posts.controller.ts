@@ -1,5 +1,16 @@
 import { Response } from 'express';
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Res,
+} from '@nestjs/common';
 import { PostsService } from './posts.service.js';
 import { PostsQueryRepository } from './posts.query-repository.js';
 import { PostsRepository } from './posts.repository.js';
@@ -33,6 +44,7 @@ export class PostsController {
   }
 
   @Post()
+  @HttpCode(201)
   async createPost(@Body() body: CreatePostInputDto): Promise<PostViewType> {
     const { title, shortDescription, content, blogId } = body;
     const newPost = await this.postsService.createPost(title, shortDescription, content, blogId);
@@ -41,12 +53,14 @@ export class PostsController {
   }
 
   @Put(':id')
+  @HttpCode(204)
   async updatePost(@Param(':id') id: string, @Body() body: UpdatePostInputDto) {
     const { title, shortDescription, content, blogId } = body;
     await this.postsService.updatePost(id, title, shortDescription, content, blogId);
   }
 
   @Delete(':id')
+  @HttpCode(204)
   async deletePost(@Param(':id') id: string) {
     await this.postsService.deletePost(id);
   }

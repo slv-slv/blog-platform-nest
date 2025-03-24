@@ -1,5 +1,16 @@
 import { Response } from 'express';
-import { Body, Controller, DefaultValuePipe, Delete, Get, Param, Post, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  DefaultValuePipe,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { UsersService } from './users.service.js';
 import { UsersQueryRepository } from './users.query-repository.js';
 import { CreateUserInputDto, UsersPaginatedType, UserType } from './users.types.js';
@@ -23,6 +34,7 @@ export class UsersController {
   }
 
   @Post()
+  @HttpCode(201)
   async createUser(@Body() body: CreateUserInputDto): Promise<UserType> {
     const { login, password, email } = body;
     const newUser = await this.usersService.createUser(login, email, password);
@@ -30,6 +42,7 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @HttpCode(204)
   async deleteUser(@Param('id') id: string): Promise<void> {
     await this.usersService.deleteUser(id);
   }
