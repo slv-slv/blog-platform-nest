@@ -1,5 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CONFIRMATION_STATUS, ConfirmationInfo, PasswordRecoveryInfo, UserType } from './users.types.js';
+import {
+  CONFIRMATION_STATUS,
+  ConfirmationInfoType,
+  PasswordRecoveryInfoType,
+  UserType,
+} from './users.types.js';
 import { UsersRepository } from './users.repository.js';
 import { UsersQueryRepository } from './users.query-repository.js';
 
@@ -13,17 +18,18 @@ export class UsersService {
     login: string,
     email: string,
     password: string,
-    confirmation: ConfirmationInfo = {
+    confirmation: ConfirmationInfoType = {
       status: CONFIRMATION_STATUS.CONFIRMED,
       code: null,
       expiration: null,
     },
-    passwordRecovery: PasswordRecoveryInfo = { code: null, expiration: null },
+    passwordRecovery: PasswordRecoveryInfoType = { code: null, expiration: null },
   ): Promise<UserType> {
     if (!(await this.isLoginUnique(login))) throw new BadRequestException('Login already exists');
     if (!(await this.isEmailUnique(email))) throw new BadRequestException('Email already exists');
 
-    const hash = await this.authService.hashPassword(password);
+    // const hash = await this.authService.hashPassword(password);
+    const hash = '12355';
     const createdAt = new Date().toISOString();
 
     const newUser = await this.usersRepository.createUser(
