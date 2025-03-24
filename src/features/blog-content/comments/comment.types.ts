@@ -4,14 +4,14 @@ import { WithId } from 'mongodb';
 export type CommentDtoType = {
   id: string;
   content: string;
-  commentatorInfo: CommentatorInfo;
+  commentatorInfo: CommentatorInfoType;
   createdAt: string;
 };
 
 export type CommentViewType = {
   id: string;
   content: string;
-  commentatorInfo: CommentatorInfo;
+  commentatorInfo: CommentatorInfoType;
   createdAt: string;
   // likesInfo: LikesInfoViewType;
 };
@@ -19,11 +19,11 @@ export type CommentViewType = {
 export type CommentDbType = WithId<{
   postId: string;
   content: string;
-  commentatorInfo: CommentatorInfo;
+  commentatorInfo: CommentatorInfoType;
   createdAt: string;
 }>;
 
-export type CommentatorInfo = {
+export type CommentatorInfoType = {
   userId: string;
   userLogin: string;
 };

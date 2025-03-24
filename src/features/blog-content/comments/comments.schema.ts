@@ -1,6 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { CommentatorInfo } from './comment.types.js';
+import { CommentatorInfoType } from './comment.types.js';
 import mongoose from 'mongoose';
+
+@Schema()
+class CommentatorInfo {
+  @Prop({ required: true })
+  userId: string;
+
+  @Prop({ required: true })
+  userLogin: string;
+}
+
+const CommentatorInfoSchema = SchemaFactory.createForClass(CommentatorInfo);
 
 @Schema()
 export class Comment {
@@ -11,13 +22,10 @@ export class Comment {
   content: string;
 
   @Prop({
+    type: CommentatorInfoSchema,
     required: true,
-    type: {
-      userId: { type: String, required: true },
-      userLogin: { type: String, required: true },
-    },
   })
-  commentatorInfo: CommentatorInfo;
+  commentatorInfo: CommentatorInfoType;
 
   @Prop({ required: true })
   createdAt: string;
