@@ -7,12 +7,14 @@ import {
 } from './users.types.js';
 import { UsersRepository } from './users.repository.js';
 import { UsersQueryRepository } from './users.query-repository.js';
+import { AuthService } from '../auth/auth.service.js';
 
 @Injectable()
 export class UsersService {
   constructor(
     private usersRepository: UsersRepository,
     private usersQueryRepository: UsersQueryRepository,
+    private authService: AuthService,
   ) {}
   async createUser(
     login: string,
@@ -28,8 +30,7 @@ export class UsersService {
     if (!(await this.isLoginUnique(login))) throw new BadRequestException('Login already exists');
     if (!(await this.isEmailUnique(email))) throw new BadRequestException('Email already exists');
 
-    // const hash = await this.authService.hashPassword(password);
-    const hash = '12355';
+    const hash = await this.authService.hashPassword(password);
     const createdAt = new Date().toISOString();
 
     const newUser = await this.usersRepository.createUser(
