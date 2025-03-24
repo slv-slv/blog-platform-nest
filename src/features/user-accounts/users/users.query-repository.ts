@@ -52,7 +52,6 @@ export class UsersQueryRepository {
         login: user.login,
         email: user.email,
         createdAt: user.createdAt,
-        confirmation: user.confirmation,
       };
     });
 
