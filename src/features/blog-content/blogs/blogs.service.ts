@@ -14,11 +14,11 @@ export class BlogsService {
 
   async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<void> {
     const updateResult = await this.blogsRepository.updateBlog(id, name, description, websiteUrl);
-    if (!updateResult) throw new NotFoundException();
+    if (!updateResult) throw new NotFoundException('Blog not found');
   }
 
   async deleteBlog(id: string): Promise<void> {
     const deleteResult = await this.blogsRepository.deleteBlog(id);
-    if (!deleteResult) throw new NotFoundException();
+    if (!deleteResult) throw new NotFoundException('Blog not found');
   }
 }
