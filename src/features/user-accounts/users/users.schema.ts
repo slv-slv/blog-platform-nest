@@ -26,7 +26,7 @@ class PasswordRecoveryInfo {
 
 const PasswordRecoveryInfoSchema = SchemaFactory.createForClass(PasswordRecoveryInfo);
 
-@Schema()
+@Schema({ versionKey: false })
 export class User {
   @Prop({ required: true })
   login: string;

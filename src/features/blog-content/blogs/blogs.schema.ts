@@ -2,7 +2,7 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-@Schema()
+@Schema({ versionKey: false })
 export class Blog {
   @Prop({ required: true })
   name: string;

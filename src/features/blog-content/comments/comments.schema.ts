@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { CommentatorInfoType } from './comment.types.js';
-import mongoose from 'mongoose';
 
 @Schema()
 class CommentatorInfo {
@@ -13,7 +12,7 @@ class CommentatorInfo {
 
 const CommentatorInfoSchema = SchemaFactory.createForClass(CommentatorInfo);
 
-@Schema()
+@Schema({ versionKey: false })
 export class Comment {
   @Prop({ required: true })
   postId: string;
