@@ -4,8 +4,8 @@ import { Model } from 'mongoose';
 import { User } from './users.schema.js';
 import {
   CONFIRMATION_STATUS,
-  ConfirmationInfo,
-  PasswordRecoveryInfo,
+  ConfirmationInfoType,
+  PasswordRecoveryInfoType,
   UserDbType,
   UserType,
 } from './users.types.js';
@@ -32,8 +32,8 @@ export class UsersRepository {
     email: string,
     hash: string,
     createdAt: string,
-    confirmation: ConfirmationInfo,
-    passwordRecovery: PasswordRecoveryInfo,
+    confirmation: ConfirmationInfoType,
+    passwordRecovery: PasswordRecoveryInfoType,
   ): Promise<UserType> {
     const _id = new ObjectId();
     const newUser = { _id, login, email, hash, createdAt, confirmation, passwordRecovery };

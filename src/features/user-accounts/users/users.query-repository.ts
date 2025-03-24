@@ -5,9 +5,9 @@ import { Model } from 'mongoose';
 import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 import {
   CONFIRMATION_STATUS,
-  ConfirmationInfo,
+  ConfirmationInfoType,
   CurrentUserType,
-  PasswordRecoveryInfo,
+  PasswordRecoveryInfoType,
   UsersPaginatedType,
   UserType,
 } from './users.types.js';
@@ -95,7 +95,7 @@ export class UsersQueryRepository {
     return user.confirmation.status === CONFIRMATION_STATUS.CONFIRMED;
   }
 
-  async getConfirmationInfo(code: string): Promise<ConfirmationInfo | null> {
+  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {
     const user = await this.model.findOne({ 'confirmation.code': code }, { confirmation: 1 }).lean();
     if (!user) {
       return null;
@@ -103,7 +103,7 @@ export class UsersQueryRepository {
     return user.confirmation;
   }
 
-  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfo | null> {
+  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {
     const user = await this.model.findOne({ 'passwordRecovery.code': code }, { passwordRecovery: 1 }).lean();
     if (!user) {
       return null;
