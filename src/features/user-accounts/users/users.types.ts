@@ -19,8 +19,8 @@ export type UserDbType = WithId<{
   email: string;
   hash: string;
   createdAt: string;
-  confirmation: ConfirmationInfo;
-  passwordRecovery: PasswordRecoveryInfo;
+  confirmation: ConfirmationInfoType;
+  passwordRecovery: PasswordRecoveryInfoType;
 }>;
 
 export type CurrentUserType = {
@@ -37,7 +37,7 @@ export type UsersPaginatedType = {
   items: UserType[];
 };
 
-export type ConfirmationInfo = {
+export type ConfirmationInfoType = {
   status: CONFIRMATION_STATUS;
   code: string | null;
   expiration: string | null;
@@ -48,7 +48,7 @@ export enum CONFIRMATION_STATUS {
   NOT_CONFIRMED = 'NOT_CONFIRMED',
 }
 
-export type PasswordRecoveryInfo = {
+export type PasswordRecoveryInfoType = {
   code: string | null;
   expiration: string | null;
 };
