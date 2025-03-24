@@ -54,14 +54,14 @@ export class PostsController {
 
   @Put(':id')
   @HttpCode(204)
-  async updatePost(@Param(':id') id: string, @Body() body: UpdatePostInputDto): Promise<void> {
+  async updatePost(@Param('id') id: string, @Body() body: UpdatePostInputDto): Promise<void> {
     const { title, shortDescription, content, blogId } = body;
     await this.postsService.updatePost(id, title, shortDescription, content, blogId);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  async deletePost(@Param(':id') id: string): Promise<void> {
+  async deletePost(@Param('id') id: string): Promise<void> {
     await this.postsService.deletePost(id);
   }
 
