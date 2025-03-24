@@ -36,16 +36,6 @@ import { Comment, CommentSchema } from './comments/comments.schema.js';
     CommentsRepository,
     CommentsQueryRepository,
   ],
-  exports: [
-    BlogsService,
-    BlogsRepository,
-    BlogsQueryRepository,
-    PostsService,
-    PostsRepository,
-    PostsQueryRepository,
-    CommentsService,
-    CommentsRepository,
-    CommentsQueryRepository,
-  ],
+  exports: [],
 })
 export class BlogContentModule {}
