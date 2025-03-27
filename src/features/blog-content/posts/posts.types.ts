@@ -1,5 +1,5 @@
 import { WithId } from 'mongodb';
-// import { ExtendedLikesInfoViewType } from '../likes/types/likes-types.js';
+import { ExtendedLikesInfoViewType } from '../likes/types/likes.types.js';
 
 export type PostDtoType = {
   id: string;
@@ -19,7 +19,7 @@ export type PostViewType = {
   blogId: string;
   blogName: string;
   createdAt: string;
-  // extendedLikesInfo: ExtendedLikesInfoViewType;
+  extendedLikesInfo: ExtendedLikesInfoViewType;
 };
 
 export type PostDbType = WithId<{
@@ -32,7 +32,6 @@ export type PostDbType = WithId<{
 }>;
 
 export enum PostTypeKeys {
-  // id = 'id',
   title = 'title',
   shortDescription = 'shortDescription',
   content = 'content',

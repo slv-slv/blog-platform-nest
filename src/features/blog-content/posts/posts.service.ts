@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PostsRepository } from './posts.repository.js';
 import { PostViewType } from './posts.types.js';
+import { PostLikesService } from '../likes/posts/post-likes.service.js';
 
 @Injectable()
 export class PostsService {
-  constructor(private readonly postsRepository: PostsRepository) {}
+  constructor(
+    private postsRepository: PostsRepository,
+    private postLikesService: PostLikesService,
+  ) {}
 
   async createPost(
     title: string,
@@ -23,12 +27,11 @@ export class PostsService {
 
     if (!newPost) throw new NotFoundException('Blog not found');
 
-    // const postId = newPost.id;
-    // await this.postLikesService.createLikesInfo(postId);
-    // const extendedLikesInfo = this.postLikesService.getDefaultLikesInfo();
+    const postId = newPost.id;
+    await this.postLikesService.createLikesInfo(postId);
+    const extendedLikesInfo = this.postLikesService.getDefaultLikesInfo();
 
-    return newPost;
-    // return { ...newPost, extendedLikesInfo };
+    return { ...newPost, extendedLikesInfo };
   }
 
   async updatePost(
@@ -46,6 +49,6 @@ export class PostsService {
     const deleteResult = await this.postsRepository.deletePost(id);
     if (!deleteResult) throw new NotFoundException('Post not found');
 
-    // await this.postLikesService.deleteLikesInfo(id);
+    await this.postLikesService.deleteLikesInfo(id);
   }
 }

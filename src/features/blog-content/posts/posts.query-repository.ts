@@ -5,10 +5,14 @@ import { Post } from './posts.schema.js';
 import { PostsPaginatedType, PostViewType } from './posts.types.js';
 import { ObjectId } from 'mongodb';
 import { PagingParamsType } from '../../../common/types/paging-params.types.js';
+import { PostLikesQueryRepository } from '../likes/posts/post-likes.query-repository.js';
 
 @Injectable()
 export class PostsQueryRepository {
-  constructor(@InjectModel(Post.name) private readonly model: Model<Post>) {}
+  constructor(
+    @InjectModel(Post.name) private readonly model: Model<Post>,
+    private postLikesQueryRepository: PostLikesQueryRepository,
+  ) {}
 
   async findPost(id: string, userId: string): Promise<PostViewType | null> {
     if (!ObjectId.isValid(id)) {
@@ -20,10 +24,9 @@ export class PostsQueryRepository {
       return null;
     }
 
-    // const extendedLikesInfo = await this.postLikesQueryRepo.getLikesInfo(id, userId);
+    const extendedLikesInfo = await this.postLikesQueryRepository.getLikesInfo(id, userId);
 
-    // return { id, ...post, extendedLikesInfo };
-    return { id, ...post };
+    return { id, ...post, extendedLikesInfo };
   }
 
   async getPosts(
@@ -55,7 +58,7 @@ export class PostsQueryRepository {
           blogId: post.blogId,
           blogName: post.blogName,
           createdAt: post.createdAt,
-          // extendedLikesInfo: await this.postLikesQueryRepo.getLikesInfo(post._id.toString(), userId),
+          extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo(post._id.toString(), userId),
         };
       }),
     );
