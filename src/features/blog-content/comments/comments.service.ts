@@ -1,41 +1,40 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { CommentViewType } from './comment.types.js';
+import { PostsRepository } from '../posts/posts.repository.js';
+import { UsersRepository } from '../../user-accounts/users/users.repository.js';
+import { CommentsRepository } from './comments.repository.js';
+import { CommentLikesService } from '../likes/comments/comment-likes.service.js';
 
 @Injectable()
 export class CommentsService {
-  // async createComment(
-  //   postId: string,
-  //   content: string,
-  //   userId: string,
-  // ): Promise<Result<CommentViewType | null>> {
-  //   const post = await this.postsRepo.findPost(postId);
-  //   if (!post) {
-  //     return {
-  //       status: RESULT_STATUS.NOT_FOUND,
-  //       errorMessage: 'Not found',
-  //       extensions: [{ message: 'Post not found', field: 'postId' }],
-  //       data: null,
-  //     };
-  //   }
-  //   const createdAt = new Date().toISOString();
-  //   const userLogin = await this.usersRepo.getLogin(userId);
-  //   if (!userLogin) {
-  //     return {
-  //       status: RESULT_STATUS.UNAUTHORIZED,
-  //       errorMessage: 'Unauthorized',
-  //       extensions: [{ message: 'Access denied', field: 'userId' }],
-  //       data: null,
-  //     };
-  //   }
-  //   const commentatorInfo = { userId, userLogin };
-  //   const newComment = await this.commentsRepo.createComment(postId, content, createdAt, commentatorInfo);
-  //   const commentId = newComment.id;
-  //   await this.commentLikesService.createLikesInfo(commentId);
-  //   const likesInfo = this.commentLikesService.getDefaultLikesInfo();
-  //   return {
-  //     status: RESULT_STATUS.CREATED,
-  //     data: { ...newComment, likesInfo },
-  //   };
-  // }
+  constructor(
+    private commentsRepository: CommentsRepository,
+    private postsRepository: PostsRepository,
+    private usersRepository: UsersRepository,
+    private commentLikesService: CommentLikesService,
+  ) {}
+  async createComment(postId: string, content: string, userId: string): Promise<CommentViewType> {
+    const post = await this.postsRepository.findPost(postId);
+    if (!post) throw new NotFoundException('Post not found');
+
+    const userLogin = await this.usersRepository.getLogin(userId);
+    if (!userLogin) throw new UnauthorizedException('Access denied');
+
+    const commentatorInfo = { userId, userLogin };
+    const createdAt = new Date().toISOString();
+
+    const newComment = await this.commentsRepository.createComment(
+      postId,
+      content,
+      createdAt,
+      commentatorInfo,
+    );
+    const commentId = newComment.id;
+    await this.commentLikesService.createLikesInfo(commentId);
+    const likesInfo = this.commentLikesService.getDefaultLikesInfo();
+    return { ...newComment, likesInfo };
+  }
+
   // async updateComment(commentId: string, content: string, userId: string): Promise<Result<null>> {
   //   const comment = await this.commentsRepo.findComment(commentId);
   //   if (!comment) {

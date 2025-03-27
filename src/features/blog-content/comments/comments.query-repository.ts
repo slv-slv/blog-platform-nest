@@ -5,10 +5,14 @@ import { Model } from 'mongoose';
 import { Comment } from './comments.schema.js';
 import { CommentsPaginatedType, CommentViewType } from './comment.types.js';
 import { PagingParamsType } from '../../../common/types/paging-params.types.js';
+import { CommentLikesQueryRepository } from '../likes/comments/comment-likes.query-repository.js';
 
 @Injectable()
 export class CommentsQueryRepository {
-  constructor(@InjectModel(Comment.name) private readonly model: Model<Comment>) {}
+  constructor(
+    @InjectModel(Comment.name) private readonly model: Model<Comment>,
+    private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
+  ) {}
 
   async findComment(id: string, userId: string): Promise<CommentViewType | null> {
     if (!ObjectId.isValid(id)) {
@@ -20,10 +24,9 @@ export class CommentsQueryRepository {
       return null;
     }
 
-    // const likesInfo = await this.commentLikesQueryRepo.getLikesInfo(id, userId);
+    const likesInfo = await this.commentLikesQueryRepository.getLikesInfo(id, userId);
 
-    // return { id, ...comment, likesInfo };
-    return { id, ...comment };
+    return { id, ...comment, likesInfo };
   }
 
   async getCommentsForPost(
@@ -52,7 +55,7 @@ export class CommentsQueryRepository {
           content: comment.content,
           commentatorInfo: comment.commentatorInfo,
           createdAt: comment.createdAt,
-          // likesInfo: await this.commentLikesQueryRepo.getLikesInfo(comment._id.toString(), userId),
+          likesInfo: await this.commentLikesQueryRepository.getLikesInfo(comment._id.toString(), userId),
         };
       }),
     );

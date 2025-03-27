@@ -1,5 +1,5 @@
 import { WithId } from 'mongodb';
-// import { LikesInfoViewType } from '../likes/types/likes-types.js';
+import { LikesInfoViewType } from '../likes/types/likes.types.js';
 
 export type CommentDtoType = {
   id: string;
@@ -13,7 +13,7 @@ export type CommentViewType = {
   content: string;
   commentatorInfo: CommentatorInfoType;
   createdAt: string;
-  // likesInfo: LikesInfoViewType;
+  likesInfo: LikesInfoViewType;
 };
 
 export type CommentDbType = WithId<{
@@ -29,7 +29,6 @@ export type CommentatorInfoType = {
 };
 
 export enum CommentTypeKeys {
-  // id = 'id',
   content = 'content',
   commentatorInfo = 'commentatorInfo',
   createdAt = 'createdAt',
