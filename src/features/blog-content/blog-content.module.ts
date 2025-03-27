@@ -21,6 +21,9 @@ import { PostLikesQueryRepository } from './likes/posts/post-likes.query-reposit
 import { CommentLikesService } from './likes/comments/comment-likes.service.js';
 import { CommentLikesRepository } from './likes/comments/comment-likes.repository.js';
 import { CommentLikesQueryRepository } from './likes/comments/comment-likes.query-repository.js';
+import { CommentLikes, CommentLikesSchema } from './likes/comments/comment-likes.schema.js';
+import { PostLikes, PostLikesSchema } from './likes/posts/post-likes.schema.js';
+import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
 
 @Module({
   imports: [
@@ -28,7 +31,10 @@ import { CommentLikesQueryRepository } from './likes/comments/comment-likes.quer
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
+      { name: CommentLikes.name, schema: CommentLikesSchema },
+      { name: PostLikes.name, schema: PostLikesSchema },
     ]),
+    UserAccountsModule,
   ],
   controllers: [BlogsController, PostsController, CommentsController],
   providers: [
