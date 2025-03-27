@@ -24,6 +24,7 @@ export class AppModule implements NestModule {
       .apply(PagingMiddleware)
       .forRoutes(
         { path: 'blogs', method: RequestMethod.GET },
+        { path: 'blogs/:blogId/posts', method: RequestMethod.GET },
         { path: 'posts', method: RequestMethod.GET },
         { path: 'users', method: RequestMethod.GET },
       );
