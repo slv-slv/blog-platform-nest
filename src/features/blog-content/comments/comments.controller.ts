@@ -1,8 +1,8 @@
 import { Response } from 'express';
-import { Controller, NotFoundException, Param, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Put, Res } from '@nestjs/common';
 import { CommentsService } from './comments.service.js';
 import { CommentsQueryRepository } from './comments.query-repository.js';
-import { CommentViewType } from './comment.types.js';
+import { CommentViewType, UpdateCommentInputDto } from './comments.types.js';
 
 @Controller('comments')
 export class CommentsController {
@@ -11,6 +11,7 @@ export class CommentsController {
     private readonly commentsQueryRepository: CommentsQueryRepository,
   ) {}
 
+  @Get(':id')
   async findComment(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
@@ -22,32 +23,26 @@ export class CommentsController {
     return comment;
   }
 
-  // async updateComment(req: Request, res: Response) {
-  //   const commentId = req.params.commentId;
-  //   const content = req.body.content;
-  //   const userId = res.locals.userId;
+  @Put(':commentId')
+  @HttpCode(204)
+  async updateComment(
+    @Body() body: UpdateCommentInputDto,
+    @Param('commentId') commentId: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
+    const content = body.content;
+    const userId = res.locals.userId;
 
-  //   const result = await this.commentsService.updateComment(commentId, content, userId);
-  //   if (result.status !== RESULT_STATUS.NO_CONTENT) {
-  //     res.status(httpCodeByResult(result.status)).json(result.extensions);
-  //     return;
-  //   }
+    await this.commentsService.updateComment(commentId, content, userId);
+  }
 
-  //   res.status(HTTP_STATUS.NO_CONTENT_204).end();
-  // }
+  @Delete(':commentId')
+  @HttpCode(204)
+  async deleteComment(@Param('commentId') commentId: string, @Res({ passthrough: true }) res: Response) {
+    const userId = res.locals.userId;
 
-  // async deleteComment(req: Request, res: Response) {
-  //   const commentId = req.params.commentId;
-  //   const userId = res.locals.userId;
-
-  //   const result = await this.commentsService.deleteComment(commentId, userId);
-  //   if (result.status !== RESULT_STATUS.NO_CONTENT) {
-  //     res.status(httpCodeByResult(result.status)).json(result.extensions);
-  //     return;
-  //   }
-
-  //   res.status(HTTP_STATUS.NO_CONTENT_204).end();
-  // }
+    await this.commentsService.deleteComment(commentId, userId);
+  }
 
   // async setLikeStatus(req: Request, res: Response) {
   //   const commentId = req.params.commentId;
