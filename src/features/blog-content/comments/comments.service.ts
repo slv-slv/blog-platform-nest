@@ -1,5 +1,5 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CommentViewType } from './comment.types.js';
+import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { CommentViewType } from './comments.types.js';
 import { PostsRepository } from '../posts/posts.repository.js';
 import { UsersRepository } from '../../user-accounts/users/users.repository.js';
 import { CommentsRepository } from './comments.repository.js';
@@ -35,55 +35,24 @@ export class CommentsService {
     return { ...newComment, likesInfo };
   }
 
-  // async updateComment(commentId: string, content: string, userId: string): Promise<Result<null>> {
-  //   const comment = await this.commentsRepo.findComment(commentId);
-  //   if (!comment) {
-  //     return {
-  //       status: RESULT_STATUS.NOT_FOUND,
-  //       errorMessage: 'Not Found',
-  //       extensions: [{ message: 'Comment not found', field: 'commentId' }],
-  //       data: null,
-  //     };
-  //   }
-  //   const ownerId = comment.commentatorInfo.userId;
-  //   if (userId !== ownerId) {
-  //     return {
-  //       status: RESULT_STATUS.FORBIDDEN,
-  //       errorMessage: 'Forbidden',
-  //       extensions: [{ message: 'Invalid userId', field: 'userId' }],
-  //       data: null,
-  //     };
-  //   }
-  //   await this.commentsRepo.updateComment(commentId, content);
-  //   return {
-  //     status: RESULT_STATUS.NO_CONTENT,
-  //     data: null,
-  //   };
-  // }
-  // async deleteComment(commentId: string, userId: string): Promise<Result<null>> {
-  //   const comment = await this.commentsRepo.findComment(commentId);
-  //   if (!comment) {
-  //     return {
-  //       status: RESULT_STATUS.NOT_FOUND,
-  //       errorMessage: 'Not Found',
-  //       extensions: [{ message: 'Comment not found', field: 'commentId' }],
-  //       data: null,
-  //     };
-  //   }
-  //   const ownerId = comment.commentatorInfo.userId;
-  //   if (userId !== ownerId) {
-  //     return {
-  //       status: RESULT_STATUS.FORBIDDEN,
-  //       errorMessage: 'Forbidden',
-  //       extensions: [{ message: 'Invalid userId', field: 'userId' }],
-  //       data: null,
-  //     };
-  //   }
-  //   await this.commentsRepo.deleteComment(commentId);
-  //   await this.commentLikesService.deleteLikesInfo(commentId);
-  //   return {
-  //     status: RESULT_STATUS.NO_CONTENT,
-  //     data: null,
-  //   };
-  // }
+  async updateComment(commentId: string, content: string, userId: string): Promise<void> {
+    const comment = await this.commentsRepository.findComment(commentId);
+    if (!comment) throw new NotFoundException('Comment not found');
+
+    const ownerId = comment.commentatorInfo.userId;
+    if (userId !== ownerId) throw new ForbiddenException();
+
+    await this.commentsRepository.updateComment(commentId, content);
+  }
+
+  async deleteComment(commentId: string, userId: string): Promise<void> {
+    const comment = await this.commentsRepository.findComment(commentId);
+    if (!comment) throw new NotFoundException('Comment not found');
+
+    const ownerId = comment.commentatorInfo.userId;
+    if (userId !== ownerId) throw new ForbiddenException();
+
+    await this.commentsRepository.deleteComment(commentId);
+    await this.commentLikesService.deleteLikesInfo(commentId);
+  }
 }
