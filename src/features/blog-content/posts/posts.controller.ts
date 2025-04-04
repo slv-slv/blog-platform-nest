@@ -15,6 +15,9 @@ import { PostsService } from './posts.service.js';
 import { PostsQueryRepository } from './posts.query-repository.js';
 import { PostsRepository } from './posts.repository.js';
 import { CreatePostInputDto, PostsPaginatedType, PostViewType, UpdatePostInputDto } from './posts.types.js';
+import { CommentsPaginatedType, CommentViewType, CreateCommentInputDto } from '../comments/comments.types.js';
+import { CommentsQueryRepository } from '../comments/comments.query-repository.js';
+import { CommentsService } from '../comments/comments.service.js';
 
 @Controller('posts')
 export class PostsController {
@@ -22,6 +25,8 @@ export class PostsController {
     private readonly postsService: PostsService,
     private readonly postsRepository: PostsRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
+    private readonly commentsService: CommentsService,
+    private readonly commentsQueryRepository: CommentsQueryRepository,
   ) {}
 
   @Get()
@@ -65,33 +70,34 @@ export class PostsController {
     await this.postsService.deletePost(id);
   }
 
-  // async getCommentsForPost(req: Request, res: Response) {
-  //   const postId = req.params.postId;
-  //   const userId = res.locals.userId;
+  @Get(':postId/comments')
+  async getCommentsForPost(
+    @Param('postId') postId: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<CommentsPaginatedType> {
+    const userId = res.locals.userId;
 
-  //   const post = await this.postsRepository.findPost(postId);
-  //   if (!post) {
-  //     res.status(HTTP_STATUS.NOT_FOUND_404).json({ error: 'Post not found' });
-  //     return;
-  //   }
-  //   const pagingParams = res.locals.pagingParams;
-  //   const comments = await this.commentsQueryRepo.getCommentsForPost(postId, userId, pagingParams);
-  //   res.status(HTTP_STATUS.OK_200).json(comments);
-  // }
+    const post = await this.postsRepository.findPost(postId);
+    if (!post) throw new NotFoundException('Post not found');
 
-  // async createComment(req: Request, res: Response) {
-  //   const postId = req.params.postId;
-  //   const content = req.body.content;
-  //   const userId = res.locals.userId;
+    const pagingParams = res.locals.pagingParams;
+    const comments = await this.commentsQueryRepository.getCommentsForPost(postId, userId, pagingParams);
+    return comments;
+  }
 
-  //   const result = await this.commentsService.createComment(postId, content, userId);
-  //   if (result.status !== RESULT_STATUS.CREATED) {
-  //     res.status(httpCodeByResult(result.status)).json(result.extensions);
-  //     return;
-  //   }
+  @Post(':postId/comments')
+  @HttpCode(204)
+  async createComment(
+    @Body() body: CreateCommentInputDto,
+    @Param('postId') postId: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<CommentViewType> {
+    const content = body.content;
+    const userId = res.locals.userId;
 
-  //   res.status(HTTP_STATUS.CREATED_201).json(result.data);
-  // }
+    const newComment = await this.commentsService.createComment(postId, content, userId);
+    return newComment;
+  }
 
   // async setLikeStatus(req: Request, res: Response) {
   //   const postId = req.params.postId;
