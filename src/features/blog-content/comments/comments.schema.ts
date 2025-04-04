@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { CommentatorInfoType } from './comment.types.js';
+import { CommentatorInfoType } from './comments.types.js';
 
 @Schema()
 class CommentatorInfo {
