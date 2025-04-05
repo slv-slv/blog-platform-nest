@@ -41,10 +41,7 @@ export class BlogsRepository {
     }
     const _id = new ObjectId(id);
     const updateResult = await this.model.updateOne({ _id }, { $set: { name, description, websiteUrl } });
-    if (!updateResult.matchedCount) {
-      return false;
-    }
-    return true;
+    return updateResult.matchedCount > 0;
   }
 
   async deleteBlog(id: string): Promise<boolean> {
@@ -53,9 +50,6 @@ export class BlogsRepository {
     }
     const _id = new ObjectId(id);
     const deleteResult = await this.model.deleteOne({ _id });
-    if (!deleteResult.deletedCount) {
-      return false;
-    }
-    return true;
+    return deleteResult.deletedCount > 0;
   }
 }

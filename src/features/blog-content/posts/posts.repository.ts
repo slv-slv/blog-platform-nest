@@ -59,10 +59,7 @@ export class PostsRepository {
       { _id },
       { $set: { title, shortDescription, content, blogId } },
     );
-    if (!updateResult.matchedCount) {
-      return false;
-    }
-    return true;
+    return updateResult.matchedCount > 0;
   }
 
   async deletePost(id: string): Promise<boolean> {
@@ -71,9 +68,6 @@ export class PostsRepository {
     }
     const _id = new ObjectId(id);
     const deleteResult = await this.model.deleteOne({ _id });
-    if (!deleteResult.deletedCount) {
-      return false;
-    }
-    return true;
+    return deleteResult.deletedCount > 0;
   }
 }

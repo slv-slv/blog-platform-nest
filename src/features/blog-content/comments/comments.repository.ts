@@ -45,10 +45,7 @@ export class CommentsRepository {
     }
     const _id = new ObjectId(id);
     const updateResult = await this.model.updateOne({ _id }, { $set: { content } });
-    if (!updateResult.matchedCount) {
-      return false;
-    }
-    return true;
+    return updateResult.matchedCount > 0;
   }
 
   async deleteComment(id: string): Promise<boolean> {
