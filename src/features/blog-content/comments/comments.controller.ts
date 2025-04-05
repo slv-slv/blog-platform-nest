@@ -3,11 +3,14 @@ import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Put,
 import { CommentsService } from './comments.service.js';
 import { CommentsQueryRepository } from './comments.query-repository.js';
 import { CommentViewType, UpdateCommentInputDto } from './comments.types.js';
+import { CommentLikesService } from '../likes/comments/comment-likes.service.js';
+import { LikeStatus } from '../likes/types/likes.types.js';
 
 @Controller('comments')
 export class CommentsController {
   constructor(
     private readonly commentsService: CommentsService,
+    private readonly commentLikesService: CommentLikesService,
     private readonly commentsQueryRepository: CommentsQueryRepository,
   ) {}
 
@@ -44,17 +47,14 @@ export class CommentsController {
     await this.commentsService.deleteComment(commentId, userId);
   }
 
-  // async setLikeStatus(req: Request, res: Response) {
-  //   const commentId = req.params.commentId;
-  //   const userId = res.locals.userId;
-  //   const likeStatus = req.body.likeStatus;
-
-  //   const result = await this.commentLikesService.setLikeStatus(commentId, userId, likeStatus);
-
-  //   if (result.status !== RESULT_STATUS.NO_CONTENT) {
-  //     res.status(httpCodeByResult(result.status)).json(result.extensions);
-  //   }
-
-  //   res.status(HTTP_STATUS.NO_CONTENT_204).end();
-  // }
+  @Put(':commentId/like-status')
+  @HttpCode(204)
+  async setLikeStatus(
+    @Body('likeStatus') likeStatus: LikeStatus,
+    @Param('commentId') commentId: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const userId = res.locals.userId;
+    await this.commentLikesService.setLikeStatus(commentId, userId, likeStatus);
+  }
 }
