@@ -18,11 +18,14 @@ import { CreatePostInputDto, PostsPaginatedType, PostViewType, UpdatePostInputDt
 import { CommentsPaginatedType, CommentViewType, CreateCommentInputDto } from '../comments/comments.types.js';
 import { CommentsQueryRepository } from '../comments/comments.query-repository.js';
 import { CommentsService } from '../comments/comments.service.js';
+import { LikeStatus } from '../likes/types/likes.types.js';
+import { PostLikesService } from '../likes/posts/post-likes.service.js';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly postsService: PostsService,
+    private readonly postLikesService: PostLikesService,
     private readonly postsRepository: PostsRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly commentsService: CommentsService,
@@ -99,17 +102,14 @@ export class PostsController {
     return newComment;
   }
 
-  // async setLikeStatus(req: Request, res: Response) {
-  //   const postId = req.params.postId;
-  //   const userId = res.locals.userId;
-  //   const likeStatus = req.body.likeStatus;
-
-  //   const result = await this.postLikesService.setLikeStatus(postId, userId, likeStatus);
-
-  //   if (result.status !== RESULT_STATUS.NO_CONTENT) {
-  //     res.status(httpCodeByResult(result.status)).json(result.extensions);
-  //   }
-
-  //   res.status(HTTP_STATUS.NO_CONTENT_204).end();
-  // }
+  @Put(':postId/like-status')
+  @HttpCode(204)
+  async setLikeStatus(
+    @Body('likeStatus') likeStatus: LikeStatus,
+    @Param('postId') postId: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const userId = res.locals.userId;
+    await this.postLikesService.setLikeStatus(postId, userId, likeStatus);
+  }
 }
