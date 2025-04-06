@@ -74,5 +74,5 @@ export class GetUsersQueryParams extends BasicPagingParams {
   searchEmailTerm: string | null = null;
 
   @IsEnum(UsersSortBy)
-  sortBy: UsersSortBy;
+  sortBy: UsersSortBy = UsersSortBy.createdAt;
 }

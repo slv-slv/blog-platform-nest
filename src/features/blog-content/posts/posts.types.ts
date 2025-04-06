@@ -68,5 +68,5 @@ export class UpdatePostInputDto extends CreatePostInputDto {}
 
 export class GetPostsQueryParams extends BasicPagingParams {
   @IsEnum(PostsSortBy)
-  sortBy: PostsSortBy;
+  sortBy: PostsSortBy = PostsSortBy.createdAt;
 }

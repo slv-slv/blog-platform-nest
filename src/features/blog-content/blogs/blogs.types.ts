@@ -53,5 +53,5 @@ export class GetBlogsQueryParams extends BasicPagingParams {
   searchNameTerm: string | null = null;
 
   @IsEnum(BlogsSortBy)
-  sortBy: BlogsSortBy;
+  sortBy: BlogsSortBy = BlogsSortBy.createdAt;
 }

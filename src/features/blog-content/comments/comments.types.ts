@@ -53,5 +53,5 @@ export class UpdateCommentInputDto extends CreateCommentInputDto {}
 
 export class GetCommentsQueryParams extends BasicPagingParams {
   @IsEnum(CommentsSortBy)
-  sortBy: CommentsSortBy;
+  sortBy: CommentsSortBy = CommentsSortBy.createdAt;
 }
