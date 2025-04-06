@@ -1,18 +1,13 @@
 import { WithId } from 'mongodb';
 import { LikesInfoViewType } from '../likes/types/likes.types.js';
-import { IsString, Length } from 'class-validator';
+import { Length } from 'class-validator';
 
 export class CreateCommentInputDto {
-  @IsString()
   @Length(20, 300)
   content: string;
 }
 
-export class UpdateCommentInputDto {
-  @IsString()
-  @Length(20, 300)
-  content: string;
-}
+export class UpdateCommentInputDto extends CreateCommentInputDto {}
 
 export type CommentDtoType = {
   id: string;
@@ -41,7 +36,7 @@ export type CommentatorInfoType = {
   userLogin: string;
 };
 
-export enum CommentTypeKeys {
+export enum CommentSortedByKeys {
   content = 'content',
   commentatorInfo = 'commentatorInfo',
   createdAt = 'createdAt',

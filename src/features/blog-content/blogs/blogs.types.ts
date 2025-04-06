@@ -1,4 +1,18 @@
+import { IsUrl, MaxLength } from 'class-validator';
 import { WithId } from 'mongodb';
+
+export class CreateBlogInputDto {
+  @MaxLength(15)
+  name: string;
+
+  @MaxLength(500)
+  description: string;
+
+  @IsUrl()
+  websiteUrl: string;
+}
+
+export class UpdateBlogInputDto extends CreateBlogInputDto {}
 
 export type BlogType = {
   id: string;
@@ -17,8 +31,7 @@ export type BlogDbType = WithId<{
   isMembership: boolean;
 }>;
 
-export enum BlogTypeKeys {
-  // id = 'id',
+export enum BlogSortedByKeys {
   name = 'name',
   description = 'description',
   websiteUrl = 'websiteUrl',
@@ -33,15 +46,3 @@ export type BlogsPaginatedType = {
   totalCount: number;
   items: BlogType[];
 };
-
-export class CreateBlogInputDto {
-  name: string;
-  description: string;
-  websiteUrl: string;
-}
-
-export class UpdateBlogInputDto {
-  name: string;
-  description: string;
-  websiteUrl: string;
-}

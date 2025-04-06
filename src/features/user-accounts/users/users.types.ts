@@ -1,4 +1,17 @@
+import { IsEmail, Length, Matches } from 'class-validator';
 import { WithId } from 'mongodb';
+
+export class CreateUserInputDto {
+  @Length(3, 10)
+  @Matches('^[a-zA-Z0-9_-]*$')
+  login: string;
+
+  @Length(6, 20)
+  password: string;
+
+  @IsEmail()
+  email: string;
+}
 
 export type UserType = {
   id: string;
@@ -7,8 +20,7 @@ export type UserType = {
   createdAt: string;
 };
 
-export enum UserTypeKeys {
-  // id = 'id',
+export enum UserSortedByKeys {
   login = 'login',
   email = 'email',
   createdAt = 'createdAt',
@@ -52,9 +64,3 @@ export type PasswordRecoveryInfoType = {
   code: string | null;
   expiration: string | null;
 };
-
-export class CreateUserInputDto {
-  login: string;
-  password: string;
-  email: string;
-}
