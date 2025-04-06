@@ -27,7 +27,7 @@ export type BlogsPaginatedType = {
   items: BlogType[];
 };
 
-export enum BlogSortBy {
+export enum BlogsSortBy {
   name = 'name',
   description = 'description',
   websiteUrl = 'websiteUrl',
@@ -52,6 +52,6 @@ export class GetBlogsQueryParams extends BasicPagingParams {
   @IsString()
   searchNameTerm: string | null = null;
 
-  @IsEnum(BlogSortBy)
-  sortBy: BlogSortBy;
+  @IsEnum(BlogsSortBy)
+  sortBy: BlogsSortBy;
 }

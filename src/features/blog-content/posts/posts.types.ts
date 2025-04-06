@@ -33,7 +33,7 @@ export type PostDbType = WithId<{
   createdAt: string;
 }>;
 
-export enum PostSortBy {
+export enum PostsSortBy {
   title = 'title',
   shortDescription = 'shortDescription',
   content = 'content',
@@ -67,6 +67,6 @@ export class CreatePostInputDto {
 export class UpdatePostInputDto extends CreatePostInputDto {}
 
 export class GetPostsQueryParams extends BasicPagingParams {
-  @IsEnum(PostSortBy)
-  sortBy: PostSortBy;
+  @IsEnum(PostsSortBy)
+  sortBy: PostsSortBy;
 }
