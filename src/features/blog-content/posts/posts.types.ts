@@ -1,22 +1,7 @@
 import { WithId } from 'mongodb';
 import { ExtendedLikesInfoViewType } from '../likes/types/likes.types.js';
-import { IsString, MaxLength } from 'class-validator';
-
-export class CreatePostInputDto {
-  @MaxLength(30)
-  title: string;
-
-  @MaxLength(100)
-  shortDescription: string;
-
-  @MaxLength(1000)
-  content: string;
-
-  @IsString() // Пайп с опцией whitelist: true не пропустит поле без декоратора
-  blogId: string;
-}
-
-export class UpdatePostInputDto extends CreatePostInputDto {}
+import { IsEnum, IsString, MaxLength } from 'class-validator';
+import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
 
 export type PostDtoType = {
   id: string;
@@ -48,7 +33,7 @@ export type PostDbType = WithId<{
   createdAt: string;
 }>;
 
-export enum PostSortedByKeys {
+export enum PostSortBy {
   title = 'title',
   shortDescription = 'shortDescription',
   content = 'content',
@@ -64,3 +49,24 @@ export type PostsPaginatedType = {
   totalCount: number;
   items: PostViewType[];
 };
+
+export class CreatePostInputDto {
+  @MaxLength(30)
+  title: string;
+
+  @MaxLength(100)
+  shortDescription: string;
+
+  @MaxLength(1000)
+  content: string;
+
+  @IsString() // Пайп с опцией whitelist: true не пропустит поле без декоратора
+  blogId: string;
+}
+
+export class UpdatePostInputDto extends CreatePostInputDto {}
+
+export class GetPostsQueryParams extends BasicPagingParams {
+  @IsEnum(PostSortBy)
+  sortBy: PostSortBy;
+}
