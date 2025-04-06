@@ -1,18 +1,6 @@
-import { IsUrl, MaxLength } from 'class-validator';
+import { IsEnum, IsString, IsUrl, MaxLength } from 'class-validator';
 import { WithId } from 'mongodb';
-
-export class CreateBlogInputDto {
-  @MaxLength(15)
-  name: string;
-
-  @MaxLength(500)
-  description: string;
-
-  @IsUrl()
-  websiteUrl: string;
-}
-
-export class UpdateBlogInputDto extends CreateBlogInputDto {}
+import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
 
 export type BlogType = {
   id: string;
@@ -31,14 +19,6 @@ export type BlogDbType = WithId<{
   isMembership: boolean;
 }>;
 
-export enum BlogSortedByKeys {
-  name = 'name',
-  description = 'description',
-  websiteUrl = 'websiteUrl',
-  createdAt = 'createdAt',
-  isMembership = 'isMembership',
-}
-
 export type BlogsPaginatedType = {
   pagesCount: number;
   page: number;
@@ -46,3 +26,32 @@ export type BlogsPaginatedType = {
   totalCount: number;
   items: BlogType[];
 };
+
+export enum BlogSortBy {
+  name = 'name',
+  description = 'description',
+  websiteUrl = 'websiteUrl',
+  createdAt = 'createdAt',
+  isMembership = 'isMembership',
+}
+
+export class CreateBlogInputDto {
+  @MaxLength(15)
+  name: string;
+
+  @MaxLength(500)
+  description: string;
+
+  @IsUrl()
+  websiteUrl: string;
+}
+
+export class UpdateBlogInputDto extends CreateBlogInputDto {}
+
+export class GetBlogsQueryParams extends BasicPagingParams {
+  @IsString()
+  searchNameTerm: string | null = null;
+
+  @IsEnum(BlogSortBy)
+  sortBy: BlogSortBy;
+}
