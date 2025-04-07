@@ -2,6 +2,7 @@ import { WithId } from 'mongodb';
 import { LikesInfoViewType } from '../likes/types/likes.types.js';
 import { IsEnum, IsOptional, IsString, Length } from 'class-validator';
 import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
+import { Trim } from '../../../common/decorators/trim.js';
 
 export type CommentDtoType = {
   id: string;
@@ -46,6 +47,7 @@ export type CommentsPaginatedType = {
 
 export class CreateCommentInputDto {
   @IsString()
+  @Trim()
   @Length(20, 300)
   content: string;
 }

@@ -1,6 +1,7 @@
 import { IsEnum, IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
 import { WithId } from 'mongodb';
 import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
+import { Trim } from '../../../common/decorators/trim.js';
 
 export type BlogType = {
   id: string;
@@ -37,13 +38,16 @@ export enum BlogsSortBy {
 
 export class CreateBlogInputDto {
   @IsString()
+  @Trim()
   @MaxLength(15)
   name: string;
 
   @IsString()
+  @Trim()
   @MaxLength(500)
   description: string;
 
+  @Trim()
   @IsUrl()
   websiteUrl: string;
 }

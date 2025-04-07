@@ -2,6 +2,7 @@ import { WithId } from 'mongodb';
 import { ExtendedLikesInfoViewType } from '../likes/types/likes.types.js';
 import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
 import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
+import { Trim } from '../../../common/decorators/trim.js';
 
 export type PostDtoType = {
   id: string;
@@ -52,18 +53,22 @@ export type PostsPaginatedType = {
 
 export class CreatePostInputDto {
   @IsString()
+  @Trim()
   @MaxLength(30)
   title: string;
 
   @IsString()
+  @Trim()
   @MaxLength(100)
   shortDescription: string;
 
   @IsString()
+  @Trim()
   @MaxLength(1000)
   content: string;
 
   @IsString()
+  @Trim()
   blogId: string;
 }
 

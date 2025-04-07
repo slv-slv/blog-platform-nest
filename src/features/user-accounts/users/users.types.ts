@@ -1,6 +1,7 @@
 import { IsEmail, IsEnum, IsOptional, IsString, Length, Matches } from 'class-validator';
 import { WithId } from 'mongodb';
 import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
+import { Trim } from '../../../common/decorators/trim.js';
 
 export type UserType = {
   id: string;
@@ -56,14 +57,17 @@ export type PasswordRecoveryInfoType = {
 
 export class CreateUserInputDto {
   @IsString()
+  @Trim()
   @Length(3, 10)
   @Matches('^[a-zA-Z0-9_-]*$')
   login: string;
 
   @IsString()
+  @Trim()
   @Length(6, 20)
   password: string;
 
+  @Trim()
   @IsEmail()
   email: string;
 }
