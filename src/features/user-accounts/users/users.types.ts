@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsString, Length, Matches } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, Length, Matches } from 'class-validator';
 import { WithId } from 'mongodb';
 import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
 
@@ -55,10 +55,12 @@ export type PasswordRecoveryInfoType = {
 };
 
 export class CreateUserInputDto {
+  @IsString()
   @Length(3, 10)
   @Matches('^[a-zA-Z0-9_-]*$')
   login: string;
 
+  @IsString()
   @Length(6, 20)
   password: string;
 
@@ -67,12 +69,15 @@ export class CreateUserInputDto {
 }
 
 export class GetUsersQueryParams extends BasicPagingParams {
+  @IsOptional()
   @IsString()
   searchLoginTerm: string | null = null;
 
+  @IsOptional()
   @IsString()
   searchEmailTerm: string | null = null;
 
+  @IsOptional()
   @IsEnum(UsersSortBy)
   sortBy: UsersSortBy = UsersSortBy.createdAt;
 }

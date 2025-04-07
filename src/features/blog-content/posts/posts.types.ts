@@ -1,6 +1,6 @@
 import { WithId } from 'mongodb';
 import { ExtendedLikesInfoViewType } from '../likes/types/likes.types.js';
-import { IsEnum, IsString, MaxLength } from 'class-validator';
+import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
 import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
 
 export type PostDtoType = {
@@ -51,22 +51,26 @@ export type PostsPaginatedType = {
 };
 
 export class CreatePostInputDto {
+  @IsString()
   @MaxLength(30)
   title: string;
 
+  @IsString()
   @MaxLength(100)
   shortDescription: string;
 
+  @IsString()
   @MaxLength(1000)
   content: string;
 
-  @IsString() // Пайп с опцией whitelist: true не пропустит поле без декоратора
+  @IsString()
   blogId: string;
 }
 
 export class UpdatePostInputDto extends CreatePostInputDto {}
 
 export class GetPostsQueryParams extends BasicPagingParams {
+  @IsOptional()
   @IsEnum(PostsSortBy)
   sortBy: PostsSortBy = PostsSortBy.createdAt;
 }

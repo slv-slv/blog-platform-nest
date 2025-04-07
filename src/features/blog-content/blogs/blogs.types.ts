@@ -1,4 +1,4 @@
-import { IsEnum, IsString, IsUrl, MaxLength } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
 import { WithId } from 'mongodb';
 import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
 
@@ -36,9 +36,11 @@ export enum BlogsSortBy {
 }
 
 export class CreateBlogInputDto {
+  @IsString()
   @MaxLength(15)
   name: string;
 
+  @IsString()
   @MaxLength(500)
   description: string;
 
@@ -49,9 +51,11 @@ export class CreateBlogInputDto {
 export class UpdateBlogInputDto extends CreateBlogInputDto {}
 
 export class GetBlogsQueryParams extends BasicPagingParams {
+  @IsOptional()
   @IsString()
   searchNameTerm: string | null = null;
 
+  @IsOptional()
   @IsEnum(BlogsSortBy)
   sortBy: BlogsSortBy = BlogsSortBy.createdAt;
 }

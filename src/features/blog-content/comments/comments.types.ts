@@ -1,6 +1,6 @@
 import { WithId } from 'mongodb';
 import { LikesInfoViewType } from '../likes/types/likes.types.js';
-import { IsEnum, Length } from 'class-validator';
+import { IsEnum, IsOptional, IsString, Length } from 'class-validator';
 import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
 
 export type CommentDtoType = {
@@ -45,6 +45,7 @@ export type CommentsPaginatedType = {
 };
 
 export class CreateCommentInputDto {
+  @IsString()
   @Length(20, 300)
   content: string;
 }
@@ -52,6 +53,7 @@ export class CreateCommentInputDto {
 export class UpdateCommentInputDto extends CreateCommentInputDto {}
 
 export class GetCommentsQueryParams extends BasicPagingParams {
+  @IsOptional()
   @IsEnum(CommentsSortBy)
   sortBy: CommentsSortBy = CommentsSortBy.createdAt;
 }
