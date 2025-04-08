@@ -43,10 +43,7 @@ export class BlogsController {
   ) {}
 
   @Get()
-  async getAllBlogs(
-    @Res({ passthrough: true }) res: Response,
-    @Query() query: GetBlogsQueryParams,
-  ): Promise<BlogsPaginatedType> {
+  async getAllBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedType> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
@@ -56,9 +53,9 @@ export class BlogsController {
 
   @Get(':blogId/posts')
   async getPostsByBlogId(
-    @Res({ passthrough: true }) res: Response,
     @Param('blogId') blogId: string,
     @Query() query: GetPostsQueryParams,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<PostsPaginatedType> {
     const userId = res.locals.userId;
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
