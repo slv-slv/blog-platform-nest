@@ -7,7 +7,7 @@ export enum LikeStatus {
   Dislike = 'Dislike',
 }
 
-export class LikeStatusBody {
+export class SetLikeStatusDto {
   @IsEnum(LikeStatus)
   likeStatus: LikeStatus;
 }
