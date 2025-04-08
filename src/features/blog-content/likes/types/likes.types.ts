@@ -1,9 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { IsEnum } from 'class-validator';
 
 export enum LikeStatus {
   None = 'None',
   Like = 'Like',
   Dislike = 'Dislike',
+}
+
+export class LikeStatusBody {
+  @IsEnum(LikeStatus)
+  likeStatus: LikeStatus;
 }
 
 export type LikesInfoViewType = {
