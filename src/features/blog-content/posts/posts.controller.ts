@@ -9,13 +9,25 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Res,
 } from '@nestjs/common';
 import { PostsService } from './posts.service.js';
 import { PostsQueryRepository } from './posts.query-repository.js';
 import { PostsRepository } from './posts.repository.js';
-import { CreatePostInputDto, PostsPaginatedType, PostViewType, UpdatePostInputDto } from './posts.types.js';
-import { CommentsPaginatedType, CommentViewType, CreateCommentInputDto } from '../comments/comments.types.js';
+import {
+  CreatePostInputDto,
+  GetPostsQueryParams,
+  PostsPaginatedType,
+  PostViewType,
+  UpdatePostInputDto,
+} from './posts.types.js';
+import {
+  CommentsPaginatedType,
+  CommentViewType,
+  CreateCommentInputDto,
+  GetCommentsQueryParams,
+} from '../comments/comments.types.js';
 import { CommentsQueryRepository } from '../comments/comments.query-repository.js';
 import { CommentsService } from '../comments/comments.service.js';
 import { LikeStatus } from '../likes/types/likes.types.js';
@@ -33,9 +45,14 @@ export class PostsController {
   ) {}
 
   @Get()
-  async getAllPosts(@Res({ passthrough: true }) res: Response): Promise<PostsPaginatedType> {
-    const pagingParams = res.locals.pagingParams;
+  async getAllPosts(
+    @Query() query: GetPostsQueryParams,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<PostsPaginatedType> {
     const userId = res.locals.userId;
+
+    const { sortBy, sortDirection, pageNumber, pageSize } = query;
+    const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
     const posts = await this.postsQueryRepository.getPosts(userId, pagingParams);
     return posts;
@@ -76,6 +93,7 @@ export class PostsController {
   @Get(':postId/comments')
   async getCommentsForPost(
     @Param('postId') postId: string,
+    @Query() query: GetCommentsQueryParams,
     @Res({ passthrough: true }) res: Response,
   ): Promise<CommentsPaginatedType> {
     const userId = res.locals.userId;
@@ -83,7 +101,9 @@ export class PostsController {
     const post = await this.postsRepository.findPost(postId);
     if (!post) throw new NotFoundException('Post not found');
 
-    const pagingParams = res.locals.pagingParams;
+    const { sortBy, sortDirection, pageNumber, pageSize } = query;
+    const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
+
     const comments = await this.commentsQueryRepository.getCommentsForPost(postId, userId, pagingParams);
     return comments;
   }
