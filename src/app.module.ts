@@ -5,7 +5,6 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { SETTINGS } from './settings.js';
 import { BlogContentModule } from './features/blog-content/blog-content.module.js';
-import { PagingMiddleware } from './common/middlewares/paging.middleware.js';
 import { UserAccountsModule } from './features/user-accounts/user-accounts.module.js';
 
 @Module({
@@ -18,15 +17,4 @@ import { UserAccountsModule } from './features/user-accounts/user-accounts.modul
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(PagingMiddleware)
-      .forRoutes(
-        { path: 'blogs', method: RequestMethod.GET },
-        { path: 'blogs/:blogId/posts', method: RequestMethod.GET },
-        { path: 'posts', method: RequestMethod.GET },
-        { path: 'users', method: RequestMethod.GET },
-      );
-  }
-}
+export class AppModule {}
