@@ -14,10 +14,21 @@ import {
 import { Response } from 'express';
 import { BlogsQueryRepository } from './blogs.query-repository.js';
 import { BlogsRepository } from './blogs.repository.js';
-import { PagingParamsType } from '../../../common/types/paging-params.types.js';
-import { BlogsPaginatedType, BlogType, CreateBlogInputDto, UpdateBlogInputDto } from './blogs.types.js';
+import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
+import {
+  BlogsPaginatedType,
+  BlogType,
+  CreateBlogInputDto,
+  GetBlogsQueryParams,
+  UpdateBlogInputDto,
+} from './blogs.types.js';
 import { BlogsService } from './blogs.service.js';
-import { CreatePostInputDto, PostsPaginatedType, PostViewType } from '../posts/posts.types.js';
+import {
+  CreatePostInputDto,
+  GetPostsQueryParams,
+  PostsPaginatedType,
+  PostViewType,
+} from '../posts/posts.types.js';
 import { PostsService } from '../posts/posts.service.js';
 import { PostsQueryRepository } from '../posts/posts.query-repository.js';
 
@@ -34,9 +45,10 @@ export class BlogsController {
   @Get()
   async getAllBlogs(
     @Res({ passthrough: true }) res: Response,
-    @Query('searchNameTerm') searchNameTerm: string | null = null,
+    @Query() query: GetBlogsQueryParams,
   ): Promise<BlogsPaginatedType> {
-    const pagingParams = res.locals.pagingParams as PagingParamsType;
+    const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
+    const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
     const blogs = await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
     return blogs;
@@ -44,11 +56,13 @@ export class BlogsController {
 
   @Get(':blogId/posts')
   async getPostsByBlogId(
-    @Param('blogId') blogId: string,
     @Res({ passthrough: true }) res: Response,
+    @Param('blogId') blogId: string,
+    @Query() query: GetPostsQueryParams,
   ): Promise<PostsPaginatedType> {
-    const pagingParams = res.locals.pagingParams;
     const userId = res.locals.userId;
+    const { sortBy, sortDirection, pageNumber, pageSize } = query;
+    const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
     const blog = await this.blogsRepo.findBlog(blogId);
     if (!blog) {
