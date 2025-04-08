@@ -30,7 +30,7 @@ import {
 } from '../comments/comments.types.js';
 import { CommentsQueryRepository } from '../comments/comments.query-repository.js';
 import { CommentsService } from '../comments/comments.service.js';
-import { LikeStatus } from '../likes/types/likes.types.js';
+import { LikeStatus, SetLikeStatusDto } from '../likes/types/likes.types.js';
 import { PostLikesService } from '../likes/posts/post-likes.service.js';
 
 @Controller('posts')
@@ -125,11 +125,13 @@ export class PostsController {
   @Put(':postId/like-status')
   @HttpCode(204)
   async setLikeStatus(
-    @Body('likeStatus') likeStatus: LikeStatus,
+    @Body() body: SetLikeStatusDto,
     @Param('postId') postId: string,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const likeStatus = body.likeStatus;
     const userId = res.locals.userId;
+
     await this.postLikesService.setLikeStatus(postId, userId, likeStatus);
   }
 }

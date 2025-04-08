@@ -4,7 +4,7 @@ import { CommentsService } from './comments.service.js';
 import { CommentsQueryRepository } from './comments.query-repository.js';
 import { CommentViewType, UpdateCommentInputDto } from './comments.types.js';
 import { CommentLikesService } from '../likes/comments/comment-likes.service.js';
-import { LikeStatus } from '../likes/types/likes.types.js';
+import { LikeStatus, SetLikeStatusDto } from '../likes/types/likes.types.js';
 
 @Controller('comments')
 export class CommentsController {
@@ -50,11 +50,13 @@ export class CommentsController {
   @Put(':commentId/like-status')
   @HttpCode(204)
   async setLikeStatus(
-    @Body('likeStatus') likeStatus: LikeStatus,
+    @Body() body: SetLikeStatusDto,
     @Param('commentId') commentId: string,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const likeStatus = body.likeStatus;
     const userId = res.locals.userId;
+
     await this.commentLikesService.setLikeStatus(commentId, userId, likeStatus);
   }
 }
