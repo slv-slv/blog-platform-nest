@@ -18,3 +18,10 @@ export class BasicPagingParams {
   @IsNumberString()
   pageSize: number = 10;
 }
+
+export type PagingParamsType = {
+  sortBy: string;
+  sortDirection: SortDirection;
+  pageNumber: number;
+  pageSize: number;
+};
