@@ -102,7 +102,7 @@ export class PostsController {
     if (!post) throw new NotFoundException('Post not found');
 
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
-    const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
+    const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
 
     const comments = await this.commentsQueryRepository.getCommentsForPost(postId, userId, pagingParams);
     return comments;

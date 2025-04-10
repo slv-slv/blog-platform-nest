@@ -45,7 +45,7 @@ export class BlogsController {
   @Get()
   async getAllBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedType> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
-    const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
+    const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
 
     const blogs = await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
     return blogs;
