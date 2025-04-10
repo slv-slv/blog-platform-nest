@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service.js';
 import { UsersQueryRepository } from './users.query-repository.js';
-import { CreateUserInputDto, UsersPaginatedType, UserType } from './users.types.js';
+import { CreateUserInputDto, GetUsersQueryParams, UsersPaginatedType, UserType } from './users.types.js';
 
 @Controller('users')
 export class UsersController {
@@ -23,11 +23,11 @@ export class UsersController {
   ) {}
   @Get()
   async getAllUsers(
-    @Query('searchLoginTerm', new DefaultValuePipe(null)) searchLoginTerm: string,
-    @Query('searchEmailTerm', new DefaultValuePipe(null)) searchEmailTerm: string,
+    @Query() query: GetUsersQueryParams,
     @Res({ passthrough: true }) res: Response,
   ): Promise<UsersPaginatedType> {
-    const pagingParams = res.locals.pagingParams;
+    const { searchLoginTerm, searchEmailTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
+    const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
 
     const users = await this.usersQueryRepository.getAllUsers(searchLoginTerm, searchEmailTerm, pagingParams);
     return users;
