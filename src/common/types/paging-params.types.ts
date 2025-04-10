@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsEnum, IsNumberString, IsOptional } from 'class-validator';
 
 export enum SortDirection {
@@ -12,10 +13,12 @@ export class BasicPagingParams {
 
   @IsOptional()
   @IsNumberString()
+  @Type(() => Number)
   pageNumber: number = 1;
 
   @IsOptional()
   @IsNumberString()
+  @Type(() => Number)
   pageSize: number = 10;
 }
 
