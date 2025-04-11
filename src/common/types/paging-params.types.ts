@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsNumber, IsNumberString, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsInt, IsNumber, IsNumberString, IsOptional, IsString, Min } from 'class-validator';
 
 export enum SortDirection {
   asc = 'asc',
@@ -12,12 +12,14 @@ export class BasicPagingParams {
   sortDirection: SortDirection = SortDirection.desc;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @Type(() => Number)
   pageNumber: number = 1;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @Type(() => Number)
   pageSize: number = 10;
 }
