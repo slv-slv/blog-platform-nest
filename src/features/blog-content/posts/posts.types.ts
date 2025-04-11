@@ -66,13 +66,15 @@ export class CreatePostInputDto {
   @Trim()
   @MaxLength(1000)
   content: string;
+}
 
+export class CreatePostForBlogInputDto extends CreatePostInputDto {
   @IsString()
   @Trim()
   blogId: string;
 }
 
-export class UpdatePostInputDto extends CreatePostInputDto {}
+export class UpdatePostInputDto extends CreatePostForBlogInputDto {}
 
 export class GetPostsQueryParams extends BasicPagingParams {
   @IsOptional()
