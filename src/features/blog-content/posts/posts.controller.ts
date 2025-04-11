@@ -16,7 +16,7 @@ import { PostsService } from './posts.service.js';
 import { PostsQueryRepository } from './posts.query-repository.js';
 import { PostsRepository } from './posts.repository.js';
 import {
-  CreatePostInputDto,
+  CreatePostForBlogInputDto,
   GetPostsQueryParams,
   PostsPaginatedType,
   PostViewType,
@@ -30,7 +30,7 @@ import {
 } from '../comments/comments.types.js';
 import { CommentsQueryRepository } from '../comments/comments.query-repository.js';
 import { CommentsService } from '../comments/comments.service.js';
-import { LikeStatus, SetLikeStatusDto } from '../likes/types/likes.types.js';
+import { SetLikeStatusDto } from '../likes/types/likes.types.js';
 import { PostLikesService } from '../likes/posts/post-likes.service.js';
 
 @Controller('posts')
@@ -70,10 +70,9 @@ export class PostsController {
 
   @Post()
   @HttpCode(201)
-  async createPost(@Body() body: CreatePostInputDto): Promise<PostViewType> {
+  async createPost(@Body() body: CreatePostForBlogInputDto): Promise<PostViewType> {
     const { title, shortDescription, content, blogId } = body;
     const newPost = await this.postsService.createPost(title, shortDescription, content, blogId);
-    // Проверка существования блога в кастомном методе валидатора
     return newPost;
   }
 
