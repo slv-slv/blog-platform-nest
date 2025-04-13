@@ -10,12 +10,15 @@ import {
   Post,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service.js';
 import { UsersQueryRepository } from './users.query-repository.js';
 import { CreateUserInputDto, GetUsersQueryParams, UsersPaginatedType, UserType } from './users.types.js';
+import { BasicAuthGuard } from '../../../common/guards/basic-auth.js';
 
 @Controller('users')
+@UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
