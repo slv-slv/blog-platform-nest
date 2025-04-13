@@ -11,12 +11,12 @@ export class BasicPagingParamsPipe implements PipeTransform {
     }
 
     value.pageNumber = value.pageNumber ? +value.pageNumber : SETTINGS.PAGING_DEFAULT_PARAMS.pageNumber;
-    if (isNaN(value.pageNumber) || value.pageNumber < 1) {
+    if (isNaN(value.pageNumber) || value.pageNumber < 1 || !Number.isInteger(value)) {
       throw new BadRequestException(`Invalid page number value`);
     }
 
     value.pageSize = value.pageSize ? +value.pageSize : SETTINGS.PAGING_DEFAULT_PARAMS.pageSize;
-    if (isNaN(value.pageSize) || value.pageSize < 1) {
+    if (isNaN(value.pageSize) || value.pageSize < 1 || !Number.isInteger(value)) {
       throw new BadRequestException(`Invalid page size value`);
     }
 
