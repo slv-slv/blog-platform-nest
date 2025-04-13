@@ -6,8 +6,8 @@ import { PostLikesService } from '../likes/posts/post-likes.service.js';
 @Injectable()
 export class PostsService {
   constructor(
-    private postsRepository: PostsRepository,
-    private postLikesService: PostLikesService,
+    private readonly postsRepository: PostsRepository,
+    private readonly postLikesService: PostLikesService,
   ) {}
 
   async createPost(

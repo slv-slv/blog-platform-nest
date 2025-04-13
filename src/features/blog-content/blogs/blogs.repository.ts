@@ -7,7 +7,7 @@ import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class BlogsRepository {
-  constructor(@InjectModel(Blog.name) private model: Model<Blog>) {}
+  constructor(@InjectModel(Blog.name) private readonly model: Model<Blog>) {}
 
   async findBlog(id: string): Promise<BlogType | null> {
     if (!ObjectId.isValid(id)) {

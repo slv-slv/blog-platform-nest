@@ -12,9 +12,9 @@ import { AuthService } from '../auth/auth.service.js';
 @Injectable()
 export class UsersService {
   constructor(
-    private usersRepository: UsersRepository,
-    private usersQueryRepository: UsersQueryRepository,
-    private authService: AuthService,
+    private readonly usersRepository: UsersRepository,
+    private readonly usersQueryRepository: UsersQueryRepository,
+    private readonly authService: AuthService,
   ) {}
   async createUser(
     login: string,

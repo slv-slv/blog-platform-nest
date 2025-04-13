@@ -7,7 +7,7 @@ import { LikeStatus } from '../types/likes.types.js';
 
 @Injectable()
 export class PostLikesRepository {
-  constructor(@InjectModel(PostLikes.name) private model: Model<PostLikesType>) {}
+  constructor(@InjectModel(PostLikes.name) private readonly model: Model<PostLikesType>) {}
   async getLikesCount(postId: string): Promise<number> {
     const result = await this.model.aggregate([
       { $match: { postId } },

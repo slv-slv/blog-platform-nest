@@ -8,10 +8,10 @@ import { CommentLikesService } from '../likes/comments/comment-likes.service.js'
 @Injectable()
 export class CommentsService {
   constructor(
-    private commentsRepository: CommentsRepository,
-    private postsRepository: PostsRepository,
-    private usersRepository: UsersRepository,
-    private commentLikesService: CommentLikesService,
+    private readonly commentsRepository: CommentsRepository,
+    private readonly postsRepository: PostsRepository,
+    private readonly usersRepository: UsersRepository,
+    private readonly commentLikesService: CommentLikesService,
   ) {}
   async createComment(postId: string, content: string, userId: string): Promise<CommentViewType> {
     const post = await this.postsRepository.findPost(postId);

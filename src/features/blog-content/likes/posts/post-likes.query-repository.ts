@@ -11,9 +11,9 @@ import { UsersQueryRepository } from '../../../user-accounts/users/users.query-r
 @Injectable()
 export class PostLikesQueryRepository {
   constructor(
-    @InjectModel(PostLikes.name) private model: Model<PostLikesType>,
-    private postLikesRepository: PostLikesRepository,
-    private usersQueryRepository: UsersQueryRepository,
+    @InjectModel(PostLikes.name) private readonly model: Model<PostLikesType>,
+    private readonly postLikesRepository: PostLikesRepository,
+    private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
   async getLikesInfo(postId: string, userId: string): Promise<ExtendedLikesInfoViewType> {
     const likesCount = await this.postLikesRepository.getLikesCount(postId);

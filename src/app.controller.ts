@@ -6,7 +6,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 @Controller()
 export class AppController {
   constructor(
-    @InjectConnection() private connection: mongoose.Connection,
+    @InjectConnection() private readonly connection: mongoose.Connection,
     private readonly appService: AppService,
   ) {}
 

@@ -7,7 +7,7 @@ import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class CommentsRepository {
-  constructor(@InjectModel(Comment.name) private model: Model<Comment>) {}
+  constructor(@InjectModel(Comment.name) private readonly model: Model<Comment>) {}
 
   async findComment(id: string): Promise<CommentDtoType | null> {
     if (!ObjectId.isValid(id)) {

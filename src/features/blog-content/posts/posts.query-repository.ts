@@ -11,7 +11,7 @@ import { PostLikesQueryRepository } from '../likes/posts/post-likes.query-reposi
 export class PostsQueryRepository {
   constructor(
     @InjectModel(Post.name) private readonly model: Model<Post>,
-    private postLikesQueryRepository: PostLikesQueryRepository,
+    private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 
   async findPost(id: string, userId: string): Promise<PostViewType | null> {

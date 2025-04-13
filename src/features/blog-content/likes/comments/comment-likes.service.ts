@@ -7,8 +7,8 @@ import { CommentLikesType } from './comment-likes.types.js';
 @Injectable()
 export class CommentLikesService {
   constructor(
-    private commentsRepository: CommentsRepository,
-    private commentLikesRepository: CommentLikesRepository,
+    private readonly commentsRepository: CommentsRepository,
+    private readonly commentLikesRepository: CommentLikesRepository,
   ) {}
 
   async setLikeStatus(commentId: string, userId: string, likeStatus: LikeStatus): Promise<void> {

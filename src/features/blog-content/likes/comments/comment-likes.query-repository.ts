@@ -9,8 +9,8 @@ import { CommentLikesRepository } from './comment-likes.repository.js';
 @Injectable()
 export class CommentLikesQueryRepository {
   constructor(
-    @InjectModel(CommentLikes.name) private model: Model<CommentLikesType>,
-    private commentLikesRepository: CommentLikesRepository,
+    @InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesType>,
+    private readonly commentLikesRepository: CommentLikesRepository,
   ) {}
   async getLikesInfo(commentId: string, userId: string): Promise<LikesInfoViewType> {
     const likesCount = await this.commentLikesRepository.getLikesCount(commentId);

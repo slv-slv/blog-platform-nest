@@ -7,8 +7,8 @@ import { PostLikesType } from './post-likes.types.js';
 @Injectable()
 export class PostLikesService {
   constructor(
-    private postsRepository: PostsRepository,
-    private postLikesRepository: PostLikesRepository,
+    private readonly postsRepository: PostsRepository,
+    private readonly postLikesRepository: PostLikesRepository,
   ) {}
   async setLikeStatus(postId: string, userId: string, likeStatus: LikeStatus): Promise<void> {
     const post = await this.postsRepository.findPost(postId);

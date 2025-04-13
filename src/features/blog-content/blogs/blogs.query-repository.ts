@@ -7,7 +7,7 @@ import { Blog } from './blogs.schema.js';
 
 @Injectable()
 export class BlogsQueryRepository {
-  constructor(@InjectModel(Blog.name) private model: Model<Blog>) {}
+  constructor(@InjectModel(Blog.name) private readonly model: Model<Blog>) {}
 
   async getAllBlogs(
     searchNameTerm: string | null,
