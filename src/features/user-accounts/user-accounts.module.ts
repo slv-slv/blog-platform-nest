@@ -7,9 +7,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './users/users.schema.js';
 import { AuthController } from './auth/auth.controller.js';
 import { AuthService } from './auth/auth.service.js';
+import { JwtModule } from '@nestjs/jwt';
+import { SETTINGS } from '../../settings.js';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    JwtModule.register({
+      secret: SETTINGS.JWT_PRIVATE_KEY,
+    }),
+  ],
   controllers: [UsersController, AuthController],
   providers: [UsersService, UsersRepository, UsersQueryRepository, AuthService],
   exports: [UsersQueryRepository, UsersRepository],
