@@ -6,6 +6,7 @@ import { AppService } from './app.service.js';
 import { SETTINGS } from './settings.js';
 import { BlogContentModule } from './features/blog-content/blog-content.module.js';
 import { UserAccountsModule } from './features/user-accounts/user-accounts.module.js';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UserAccountsModule } from './features/user-accounts/user-accounts.modul
     MongooseModule.forRoot(SETTINGS.MONGO_URL),
     BlogContentModule,
     UserAccountsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
