@@ -91,3 +91,14 @@ export class GetUsersQueryParams extends BasicPagingParams {
   @IsEnum(UsersSortBy)
   sortBy: UsersSortBy = UsersSortBy.createdAt;
 }
+
+export class NewPasswordInputDto {
+  @IsString()
+  @Trim()
+  @Length(6, 20)
+  newPassword: string;
+
+  @IsString()
+  @Trim()
+  recoveryCode: string;
+}
