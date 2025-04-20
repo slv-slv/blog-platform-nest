@@ -5,8 +5,8 @@ export class CheckConfirmation implements CanActivate {
   constructor(private readonly usersService: UsersService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
-    const user = req.user;
+    const res = context.switchToHttp().getResponse();
+    const user = res.locals.user;
     const email = user.email;
 
     const isConfirmed = await this.usersService.isConfirmed(email);

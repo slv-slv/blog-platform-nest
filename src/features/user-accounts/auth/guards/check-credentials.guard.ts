@@ -19,6 +19,7 @@ export class CheckCredentials implements CanActivate {
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
+    const res = context.switchToHttp().getResponse();
 
     const loginInputDto = plainToInstance(LoginInputDto, req.body);
     const errorMessages = await validate(loginInputDto);
@@ -34,7 +35,7 @@ export class CheckCredentials implements CanActivate {
     }
 
     const user = await this.usersQueryRepository.findUser(loginOrEmail);
-    req.user = user;
+    res.locals.user = user;
 
     return true;
   }
