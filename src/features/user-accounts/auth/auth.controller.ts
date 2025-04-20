@@ -1,35 +1,50 @@
-import { Response } from 'express';
-import { Body, Controller, Get, HttpCode, Post, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Request, Response } from 'express';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersQueryRepository } from '../users/users.query-repository.js';
 import { UsersService } from '../users/users.service.js';
 import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../users/users.types.js';
 import { CheckCredentials } from './guards/check-credentials.guard.js';
 import { CheckConfirmation } from './guards/check-confirmation.guard.js';
+import { AuthService } from './auth.service.js';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly usersService: UsersService,
     private readonly usersQueryRepository: UsersQueryRepository,
+    private readonly authService: AuthService,
   ) {}
 
   @Post('login')
   @UseGuards(CheckCredentials, CheckConfirmation)
   async sendJwtPair(@Res({ passthrough: true }) res: Response) {
-    const accessToken = res.locals.accessToken;
-    const refreshToken = res.locals.refreshToken;
+    const user = res.locals.user;
+    const userId = user.id;
+    const accessToken = this.authService.generateAcessToken(userId);
+
+    // const refreshToken = res.locals.refreshToken;
     // console.log('Сервер отправил токен: ' + JSON.stringify(authService.verifyJwt(refreshToken)));
 
-    const cookieExpiration = new Date();
-    const years = cookieExpiration.getFullYear();
-    cookieExpiration.setFullYear(years + 1);
+    // const cookieExpiration = new Date();
+    // const years = cookieExpiration.getFullYear();
+    // cookieExpiration.setFullYear(years + 1);
 
-    res.cookie('refreshToken', refreshToken, {
-      expires: cookieExpiration,
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-    });
+    // res.cookie('refreshToken', refreshToken, {
+    //   expires: cookieExpiration,
+    //   httpOnly: true,
+    //   secure: true,
+    //   sameSite: 'strict',
+    // });
 
     return accessToken;
   }
