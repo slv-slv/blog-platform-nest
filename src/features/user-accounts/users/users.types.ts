@@ -55,6 +55,12 @@ export type PasswordRecoveryInfoType = {
   expiration: string | null;
 };
 
+export class EmailInputDto {
+  @Trim()
+  @IsEmail()
+  email: string;
+}
+
 export class CreateUserInputDto {
   @IsString()
   @Trim()
