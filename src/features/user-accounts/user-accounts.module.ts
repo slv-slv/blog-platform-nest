@@ -9,6 +9,7 @@ import { AuthController } from './auth/auth.controller.js';
 import { AuthService } from './auth/auth.service.js';
 import { JwtModule } from '@nestjs/jwt';
 import { SETTINGS } from '../../settings.js';
+import { NotificationsModule } from '../../notifications/notifications.module.js';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SETTINGS } from '../../settings.js';
     JwtModule.register({
       secret: SETTINGS.JWT_PRIVATE_KEY,
     }),
+    NotificationsModule,
   ],
   controllers: [UsersController, AuthController],
   providers: [UsersService, UsersRepository, UsersQueryRepository, AuthService],
