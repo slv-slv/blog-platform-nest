@@ -92,6 +92,16 @@ export class GetUsersQueryParams extends BasicPagingParams {
   sortBy: UsersSortBy = UsersSortBy.createdAt;
 }
 
+export class LoginInputDto {
+  @IsString()
+  @Trim()
+  loginOrEmail: string;
+
+  @IsString()
+  @Trim()
+  password: string;
+}
+
 export class NewPasswordInputDto {
   @IsString()
   @Trim()
