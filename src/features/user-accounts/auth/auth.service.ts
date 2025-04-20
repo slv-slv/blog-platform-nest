@@ -25,6 +25,12 @@ export class AuthService {
     return await bcrypt.compare(password, hash);
   }
 
+  async generateAcessToken(userId: string): Promise<string> {
+    const jwtAccessPayload = { userId };
+    const accessToken = this.jwtService.sign(jwtAccessPayload, { expiresIn: SETTINGS.ACCESS_TOKEN_LIFETIME });
+    return accessToken;
+  }
+
   async generateJwtPair(userId: string, deviceId: string): Promise<JwtPairType> {
     const jwtAccessPayload = { userId };
     const jwtRefreshPayload = { userId, deviceId };
