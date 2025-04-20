@@ -4,6 +4,7 @@ import { UsersQueryRepository } from '../users/users.query-repository.js';
 import { UsersService } from '../users/users.service.js';
 import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../users/users.types.js';
 import { CheckCredentials } from './guards/check-credentials.guard.js';
+import { CheckConfirmation } from './guards/check-confirmation.guard.js';
 
 @Controller('auth')
 export class AuthController {
@@ -12,8 +13,8 @@ export class AuthController {
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
 
-  @Post(['login', 'refreshToken'])
-  @UseGuards(CheckCredentials)
+  @Post('login')
+  @UseGuards(CheckCredentials, CheckConfirmation)
   async sendJwtPair(@Res({ passthrough: true }) res: Response) {
     const accessToken = res.locals.accessToken;
     const refreshToken = res.locals.refreshToken;
