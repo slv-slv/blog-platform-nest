@@ -1,8 +1,9 @@
 import { Response } from 'express';
-import { Body, Controller, Get, HttpCode, Post, Res, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { UsersQueryRepository } from '../users/users.query-repository.js';
 import { UsersService } from '../users/users.service.js';
 import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../users/users.types.js';
+import { CheckCredentials } from './guards/check-credentials.guard.js';
 
 @Controller('auth')
 export class AuthController {
@@ -12,6 +13,7 @@ export class AuthController {
   ) {}
 
   @Post(['login', 'refreshToken'])
+  @UseGuards(CheckCredentials)
   async sendJwtPair(@Res({ passthrough: true }) res: Response) {
     const accessToken = res.locals.accessToken;
     const refreshToken = res.locals.refreshToken;
