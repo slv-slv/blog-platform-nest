@@ -8,6 +8,8 @@ import {
 import { UsersRepository } from './users.repository.js';
 import { UsersQueryRepository } from './users.query-repository.js';
 import { AuthService } from '../auth/auth.service.js';
+import { SETTINGS } from '../../../settings.js';
+import { EmailService } from '../../../notifications/email/email.service.js';
 
 @Injectable()
 export class UsersService {
@@ -15,6 +17,7 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
     private readonly usersQueryRepository: UsersQueryRepository,
     private readonly authService: AuthService,
+    private readonly emailService: EmailService,
   ) {}
   async createUser(
     login: string,
@@ -45,163 +48,101 @@ export class UsersService {
     return newUser;
   }
 
-  // async registerUser(login: string, email: string, password: string): Promise<Result<UserType | null>> {
-  //   const code = crypto.randomUUID();
+  async registerUser(login: string, email: string, password: string): Promise<UserType> {
+    const code = crypto.randomUUID();
 
-  //   const currentDate = new Date();
-  //   const hours = currentDate.getHours();
-  //   const expiration = new Date(
-  //     currentDate.setHours(hours + SETTINGS.CONFIRMATION_CODE_LIFETIME),
-  //   ).toISOString();
+    const currentDate = new Date();
+    const hours = currentDate.getHours();
+    currentDate.setHours(hours + SETTINGS.CONFIRMATION_CODE_LIFETIME);
+    const expiration = currentDate.toISOString();
 
-  //   const confirmation = {
-  //     status: CONFIRMATION_STATUS.NOT_CONFIRMED,
-  //     code,
-  //     expiration,
-  //   };
+    const confirmation = {
+      status: CONFIRMATION_STATUS.NOT_CONFIRMED,
+      code,
+      expiration,
+    };
 
-  //   const passwordRecovery: PasswordRecoveryInfo = { code: null, expiration: null };
+    const passwordRecovery: PasswordRecoveryInfoType = { code: null, expiration: null };
 
-  //   // await emailService.sendConfirmationCode(email, code);
+    await this.emailService.sendConfirmationCode(email, code);
 
-  //   return await this.createUser(login, email, password, confirmation, passwordRecovery);
-  // }
+    return await this.createUser(login, email, password, confirmation, passwordRecovery);
+  }
 
-  // async sendConfirmationCode(email: string): Promise<Result<null>> {
-  //   if (!(await this.usersRepo.findUser(email))) {
-  //     return {
-  //       status: RESULT_STATUS.BAD_REQUEST,
-  //       errorMessage: 'Bad Request',
-  //       extensions: [{ message: 'Incorrect email', field: 'email' }],
-  //       data: null,
-  //     };
-  //   }
+  async resendConfirmationCode(email: string): Promise<void> {
+    if (!(await this.usersRepository.findUser(email))) {
+      throw new BadRequestException('Incorrect email');
+    }
 
-  //   if (await this.isConfirmed(email)) {
-  //     return {
-  //       status: RESULT_STATUS.BAD_REQUEST,
-  //       errorMessage: 'Bad Request',
-  //       extensions: [{ message: 'Email already confirmed', field: 'email' }],
-  //       data: null,
-  //     };
-  //   }
+    if (await this.isConfirmed(email)) {
+      throw new BadRequestException('Email already confirmed');
+    }
 
-  //   const code = crypto.randomUUID();
+    const code = crypto.randomUUID();
 
-  //   const currentDate = new Date();
-  //   const hours = currentDate.getHours();
-  //   const expiration = new Date(
-  //     currentDate.setHours(hours + SETTINGS.CONFIRMATION_CODE_LIFETIME),
-  //   ).toISOString();
+    const currentDate = new Date();
+    const hours = currentDate.getHours();
+    currentDate.setHours(hours + SETTINGS.CONFIRMATION_CODE_LIFETIME);
+    const expiration = currentDate.toISOString();
 
-  //   await this.usersRepo.updateConfirmationCode(email, code, expiration);
+    await this.usersRepository.updateConfirmationCode(email, code, expiration);
+    await this.emailService.sendConfirmationCode(email, code);
+  }
 
-  //   return {
-  //     status: RESULT_STATUS.NO_CONTENT,
-  //     data: null,
-  //   };
+  async sendRecoveryCode(email: string): Promise<void> {
+    const code = crypto.randomUUID();
 
-  //   // await emailService.sendConfirmationCode(email, code);
-  // }
+    const currentDate = new Date();
+    const hours = currentDate.getHours();
+    currentDate.setHours(hours + SETTINGS.RECOVERY_CODE_LIFETIME);
+    const expiration = currentDate.toISOString();
 
-  // async sendRecoveryCode(email: string): Promise<Result<null>> {
-  //   const code = crypto.randomUUID();
+    const result = await this.usersRepository.updateRecoveryCode(email, code, expiration);
 
-  //   const currentDate = new Date();
-  //   const hours = currentDate.getHours();
-  //   const expiration = new Date(currentDate.setHours(hours + SETTINGS.RECOVERY_CODE_LIFETIME)).toISOString();
+    if (!result) {
+      return;
+    }
 
-  //   const result = await this.usersRepo.updateRecoveryCode(email, code, expiration);
+    await this.emailService.sendRecoveryCode(email, code);
+  }
 
-  //   if (!result) {
-  //     return {
-  //       status: RESULT_STATUS.NOT_FOUND,
-  //       errorMessage: 'Not found',
-  //       extensions: [{ message: 'User not found', field: 'id' }],
-  //       data: null,
-  //     };
-  //   }
+  async confirmUser(code: string): Promise<void> {
+    const confirmationInfo = await this.usersQueryRepository.getConfirmationInfo(code);
+    if (!confirmationInfo) {
+      throw new BadRequestException('Invalid confirmation code');
+    }
 
-  //   // await emailService.sendRecoveryCode(email, code);
+    if (confirmationInfo.status === CONFIRMATION_STATUS.CONFIRMED) {
+      throw new BadRequestException('Email already confirmed');
+    }
 
-  //   return {
-  //     status: RESULT_STATUS.NO_CONTENT,
-  //     data: null,
-  //   };
-  // }
+    const expirationDate = new Date(confirmationInfo.expiration!);
+    const currentDate = new Date();
 
-  // async confirmUser(code: string): Promise<Result<null>> {
-  //   const confirmationInfo = await this.usersQueryRepo.getConfirmationInfo(code);
-  //   if (!confirmationInfo) {
-  //     return {
-  //       status: RESULT_STATUS.BAD_REQUEST,
-  //       errorMessage: 'Bad Request',
-  //       extensions: [{ message: 'Invalid confirmation code', field: 'code' }],
-  //       data: null,
-  //     };
-  //   }
+    if (expirationDate < currentDate) {
+      throw new BadRequestException('The confirmation code has expired');
+    }
 
-  //   if (confirmationInfo.status === CONFIRMATION_STATUS.CONFIRMED) {
-  //     return {
-  //       status: RESULT_STATUS.BAD_REQUEST,
-  //       errorMessage: 'Bad Request',
-  //       extensions: [{ message: 'Email already confirmed', field: 'code' }],
-  //       data: null,
-  //     };
-  //   }
+    await this.usersRepository.confirmUser(code);
+  }
 
-  //   const expirationDate = new Date(confirmationInfo.expiration!);
-  //   const currentDate = new Date();
+  async updatePassword(recoveryCode: string, newPassword: string): Promise<void> {
+    const passwordRecoveryInfo = await this.usersQueryRepository.getPasswordRecoveryInfo(recoveryCode);
 
-  //   if (expirationDate < currentDate) {
-  //     return {
-  //       status: RESULT_STATUS.BAD_REQUEST,
-  //       errorMessage: 'Bad Request',
-  //       extensions: [{ message: 'The confirmation code has expired', field: 'code' }],
-  //       data: null,
-  //     };
-  //   }
+    if (!passwordRecoveryInfo) {
+      throw new BadRequestException('Invalid recovery code');
+    }
 
-  //   await this.usersRepo.confirmUser(code);
+    const expirationDate = new Date(passwordRecoveryInfo.expiration!);
+    const currentDate = new Date();
 
-  //   return {
-  //     status: RESULT_STATUS.NO_CONTENT,
-  //     data: null,
-  //   };
-  // }
+    if (expirationDate < currentDate) {
+      throw new BadRequestException('The recovery code has expired');
+    }
 
-  // async updatePassword(recoveryCode: string, newPassword: string): Promise<Result<null>> {
-  //   const passwordRecoveryInfo = await this.usersQueryRepo.getPasswordRecoveryInfo(recoveryCode);
-
-  //   if (!passwordRecoveryInfo) {
-  //     return {
-  //       status: RESULT_STATUS.BAD_REQUEST,
-  //       errorMessage: 'Bad Request',
-  //       extensions: [{ message: 'Invalid recovery code', field: 'recoveryCode' }],
-  //       data: null,
-  //     };
-  //   }
-
-  //   const expirationDate = new Date(passwordRecoveryInfo.expiration!);
-  //   const currentDate = new Date();
-
-  //   if (expirationDate < currentDate) {
-  //     return {
-  //       status: RESULT_STATUS.BAD_REQUEST,
-  //       errorMessage: 'Bad Request',
-  //       extensions: [{ message: 'The recovery code has expired', field: 'recoveryCode' }],
-  //       data: null,
-  //     };
-  //   }
-
-  //   const hash = await this.authService.hashPassword(newPassword);
-  //   await this.usersRepo.updatePassword(recoveryCode, hash);
-
-  //   return {
-  //     status: RESULT_STATUS.NO_CONTENT,
-  //     data: null,
-  //   };
-  // }
+    const hash = await this.authService.hashPassword(newPassword);
+    await this.usersRepository.updatePassword(recoveryCode, hash);
+  }
 
   async deleteUser(id: string): Promise<void> {
     const isDeleted = await this.usersRepository.deleteUser(id);
