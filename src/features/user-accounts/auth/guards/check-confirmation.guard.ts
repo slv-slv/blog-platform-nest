@@ -1,6 +1,7 @@
-import { CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../../users/users.service.js';
 
+@Injectable()
 export class CheckConfirmation implements CanActivate {
   constructor(private readonly usersService: UsersService) {}
 
