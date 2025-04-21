@@ -71,11 +71,13 @@ export class UsersService {
 
   async resendConfirmationCode(email: string): Promise<void> {
     if (!(await this.usersRepository.findUser(email))) {
-      throw new BadRequestException('Incorrect email');
+      throw new BadRequestException({ errorMessages: [{ message: 'Incorrect email', field: 'email' }] });
     }
 
     if (await this.isConfirmed(email)) {
-      throw new BadRequestException('Email already confirmed');
+      throw new BadRequestException({
+        errorMessages: [{ message: 'Email already confirmed', field: 'email' }],
+      });
     }
 
     const code = crypto.randomUUID();
