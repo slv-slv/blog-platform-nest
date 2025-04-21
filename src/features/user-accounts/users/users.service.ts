@@ -100,7 +100,7 @@ export class UsersService {
     const result = await this.usersRepository.updateRecoveryCode(email, code, expiration);
 
     if (!result) {
-      return;
+      return; // Чтобы контроллер выбросил 204 статус, даже если такого email нет в БД
     }
 
     await this.emailService.sendRecoveryCode(email, code);
