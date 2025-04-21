@@ -9,8 +9,8 @@ export function pipesSetup(app: INestApplication) {
       stopAtFirstError: true,
       exceptionFactory: (errors: ValidationError[]) => {
         const errorMessages = errors.map((error) => ({
-          field: error.property,
           message: Object.values(error.constraints!)[0],
+          field: error.property,
         }));
         throw new BadRequestException({ errorMessages });
       },
