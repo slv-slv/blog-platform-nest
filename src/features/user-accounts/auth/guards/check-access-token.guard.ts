@@ -21,8 +21,8 @@ export class CheckAccessToken implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync(token);
-      const { userId } = payload;
-      res.locals.userId = userId;
+      const { sub } = payload;
+      res.locals.userId = sub;
     } catch {
       throw new UnauthorizedException('Invalid access token');
     }

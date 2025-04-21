@@ -26,14 +26,14 @@ export class AuthService {
   }
 
   async generateAcessToken(userId: string): Promise<string> {
-    const jwtAccessPayload = { userId };
+    const jwtAccessPayload = { sub: userId };
     const accessToken = this.jwtService.sign(jwtAccessPayload, { expiresIn: SETTINGS.ACCESS_TOKEN_LIFETIME });
     return accessToken;
   }
 
   async generateJwtPair(userId: string, deviceId: string): Promise<JwtPairType> {
-    const jwtAccessPayload = { userId };
-    const jwtRefreshPayload = { userId, deviceId };
+    const jwtAccessPayload = { sub: userId };
+    const jwtRefreshPayload = { sub: userId, deviceId };
 
     const accessToken = this.jwtService.sign(jwtAccessPayload, { expiresIn: SETTINGS.ACCESS_TOKEN_LIFETIME });
     const refreshToken = this.jwtService.sign(jwtRefreshPayload, {
