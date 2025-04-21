@@ -27,6 +27,7 @@ export class AuthController {
   ) {}
 
   @Post('login')
+  @HttpCode(200)
   @UseGuards(CheckCredentials, CheckConfirmation)
   async sendJwtPair(@Res({ passthrough: true }) res: Response) {
     const user = res.locals.user;
