@@ -31,21 +31,20 @@ export class AuthController {
   async sendJwtPair(@Res({ passthrough: true }) res: Response) {
     const user = res.locals.user;
     const userId = user.id;
+
     const accessToken = this.authService.generateAcessToken(userId);
+    const refreshToken = this.authService.generateRefreshToken(userId, 'somedeviceId');
 
-    // const refreshToken = res.locals.refreshToken;
-    // console.log('Сервер отправил токен: ' + JSON.stringify(authService.verifyJwt(refreshToken)));
+    const cookieExpiration = new Date();
+    const years = cookieExpiration.getFullYear();
+    cookieExpiration.setFullYear(years + 1);
 
-    // const cookieExpiration = new Date();
-    // const years = cookieExpiration.getFullYear();
-    // cookieExpiration.setFullYear(years + 1);
-
-    // res.cookie('refreshToken', refreshToken, {
-    //   expires: cookieExpiration,
-    //   httpOnly: true,
-    //   secure: true,
-    //   sameSite: 'strict',
-    // });
+    res.cookie('refreshToken', refreshToken, {
+      expires: cookieExpiration,
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
 
     return accessToken;
   }
