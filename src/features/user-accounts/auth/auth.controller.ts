@@ -16,6 +16,7 @@ import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../users
 import { CheckCredentials } from './guards/check-credentials.guard.js';
 import { CheckConfirmation } from './guards/check-confirmation.guard.js';
 import { AuthService } from './auth.service.js';
+import { CheckAccessToken } from './guards/check-access-token.guard.js';
 
 @Controller('auth')
 export class AuthController {
@@ -59,6 +60,7 @@ export class AuthController {
   // }
 
   @Get('me')
+  @UseGuards(CheckAccessToken)
   async me(@Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
     const user = await this.usersQueryRepository.getCurrentUser(userId);
