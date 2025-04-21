@@ -1,9 +1,9 @@
 import { Observable } from '.store/rxjs-npm-7.8.2-80ecda9013/package';
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { SETTINGS } from '../../settings.js';
+import { SETTINGS } from '../../../../settings.js';
 
 @Injectable()
-export class BasicAuthGuard implements CanActivate {
+export class CheckBasicAuth implements CanActivate {
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest();
 

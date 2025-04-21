@@ -15,10 +15,10 @@ import {
 import { UsersService } from './users.service.js';
 import { UsersQueryRepository } from './users.query-repository.js';
 import { CreateUserInputDto, GetUsersQueryParams, UsersPaginatedType, UserType } from './users.types.js';
-import { BasicAuthGuard } from '../../../common/guards/basic-auth.js';
+import { CheckBasicAuth } from '../auth/guards/check-basic-auth.guard.js';
 
 @Controller('users')
-@UseGuards(BasicAuthGuard)
+@UseGuards(CheckBasicAuth)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
