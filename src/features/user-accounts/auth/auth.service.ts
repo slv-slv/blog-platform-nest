@@ -43,11 +43,11 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  verifyJwt(token: string): JwtAcessPayload | JwtRefreshPayload | null {
-    try {
-      return this.jwtService.verify(token) as JwtAcessPayload | JwtRefreshPayload;
-    } catch {
-      return null;
-    }
-  }
+  // verifyJwt(token: string): JwtAcessPayload | JwtRefreshPayload | null {
+  //   try {
+  //     return this.jwtService.verify(token) as JwtAcessPayload | JwtRefreshPayload;
+  //   } catch {
+  //     return null;
+  //   }
+  // }
 }
