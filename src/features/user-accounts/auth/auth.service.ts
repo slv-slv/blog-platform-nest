@@ -27,21 +27,31 @@ export class AuthService {
 
   async generateAcessToken(userId: string): Promise<string> {
     const jwtAccessPayload = { sub: userId };
-    const accessToken = this.jwtService.sign(jwtAccessPayload, { expiresIn: SETTINGS.ACCESS_TOKEN_LIFETIME });
+    const accessToken = await this.jwtService.signAsync(jwtAccessPayload, {
+      expiresIn: SETTINGS.ACCESS_TOKEN_LIFETIME,
+    });
     return accessToken;
   }
 
-  async generateJwtPair(userId: string, deviceId: string): Promise<JwtPairType> {
-    const jwtAccessPayload = { sub: userId };
+  async generateRefreshToken(userId: string, deviceId: string): Promise<string> {
     const jwtRefreshPayload = { sub: userId, deviceId };
-
-    const accessToken = this.jwtService.sign(jwtAccessPayload, { expiresIn: SETTINGS.ACCESS_TOKEN_LIFETIME });
-    const refreshToken = this.jwtService.sign(jwtRefreshPayload, {
+    const refreshToken = await this.jwtService.signAsync(jwtRefreshPayload, {
       expiresIn: SETTINGS.REFRESH_TOKEN_LIFETIME,
     });
-
-    return { accessToken, refreshToken };
+    return refreshToken;
   }
+
+  // async generateJwtPair(userId: string, deviceId: string): Promise<JwtPairType> {
+  //   const jwtAccessPayload = { sub: userId };
+  //   const jwtRefreshPayload = { sub: userId, deviceId };
+
+  //   const accessToken = this.jwtService.sign(jwtAccessPayload, { expiresIn: SETTINGS.ACCESS_TOKEN_LIFETIME });
+  //   const refreshToken = this.jwtService.sign(jwtRefreshPayload, {
+  //     expiresIn: SETTINGS.REFRESH_TOKEN_LIFETIME,
+  //   });
+
+  //   return { accessToken, refreshToken };
+  // }
 
   // verifyJwt(token: string): JwtAcessPayload | JwtRefreshPayload | null {
   //   try {
