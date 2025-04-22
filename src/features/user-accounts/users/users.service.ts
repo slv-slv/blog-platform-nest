@@ -31,9 +31,13 @@ export class UsersService {
     passwordRecovery: PasswordRecoveryInfoType = { code: null, expiration: null },
   ): Promise<UserType> {
     if (!(await this.isLoginUnique(login)))
-      throw new BadRequestException({ errorMessages: [{ message: 'Login already exists', field: 'login' }] });
+      throw new BadRequestException({
+        errorsMessages: [{ message: 'Login already exists', field: 'login' }],
+      });
     if (!(await this.isEmailUnique(email)))
-      throw new BadRequestException({ errorMessages: [{ message: 'Email already exists', field: 'email' }] });
+      throw new BadRequestException({
+        errorsMessages: [{ message: 'Email already exists', field: 'email' }],
+      });
 
     const hash = await this.authService.hashPassword(password);
     const createdAt = new Date().toISOString();
@@ -73,12 +77,12 @@ export class UsersService {
 
   async resendConfirmationCode(email: string): Promise<void> {
     if (!(await this.usersRepository.findUser(email))) {
-      throw new BadRequestException({ errorMessages: [{ message: 'Incorrect email', field: 'email' }] });
+      throw new BadRequestException({ errorsMessages: [{ message: 'Incorrect email', field: 'email' }] });
     }
 
     if (await this.isConfirmed(email)) {
       throw new BadRequestException({
-        errorMessages: [{ message: 'Email already confirmed', field: 'email' }],
+        errorsMessages: [{ message: 'Email already confirmed', field: 'email' }],
       });
     }
 
@@ -114,13 +118,13 @@ export class UsersService {
     const confirmationInfo = await this.usersQueryRepository.getConfirmationInfo(code);
     if (!confirmationInfo) {
       throw new BadRequestException({
-        errorMessages: [{ message: 'Invalid confirmation code', field: 'code' }],
+        errorsMessages: [{ message: 'Invalid confirmation code', field: 'code' }],
       });
     }
 
     if (confirmationInfo.status === CONFIRMATION_STATUS.CONFIRMED) {
       throw new BadRequestException({
-        errorMessages: [{ message: 'Email already confirmed', field: 'email' }],
+        errorsMessages: [{ message: 'Email already confirmed', field: 'email' }],
       });
     }
 
@@ -129,7 +133,7 @@ export class UsersService {
 
     if (expirationDate < currentDate) {
       throw new BadRequestException({
-        errorMessages: [{ message: 'The confirmation code has expired', field: 'code' }],
+        errorsMessages: [{ message: 'The confirmation code has expired', field: 'code' }],
       });
     }
 
@@ -141,7 +145,7 @@ export class UsersService {
 
     if (!passwordRecoveryInfo) {
       throw new BadRequestException({
-        errorMessages: [{ message: 'Invalid recovery code', field: 'code' }],
+        errorsMessages: [{ message: 'Invalid recovery code', field: 'code' }],
       });
     }
 
@@ -150,7 +154,7 @@ export class UsersService {
 
     if (expirationDate < currentDate) {
       throw new BadRequestException({
-        errorMessages: [{ message: 'The recovery code has expired', field: 'code' }],
+        errorsMessages: [{ message: 'The recovery code has expired', field: 'code' }],
       });
     }
 

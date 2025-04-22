@@ -22,9 +22,9 @@ export class CheckCredentials implements CanActivate {
     const res = context.switchToHttp().getResponse();
 
     const loginInputDto = plainToInstance(LoginInputDto, req.body);
-    const errorMessages = await validate(loginInputDto);
-    if (errorMessages.length > 0) {
-      throw new BadRequestException({ errorMessages });
+    const errorsMessages = await validate(loginInputDto);
+    if (errorsMessages.length > 0) {
+      throw new BadRequestException({ errorsMessages });
     }
 
     const { loginOrEmail, password } = loginInputDto;

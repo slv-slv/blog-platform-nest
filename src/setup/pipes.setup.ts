@@ -8,11 +8,11 @@ export function pipesSetup(app: INestApplication) {
       forbidNonWhitelisted: true,
       stopAtFirstError: true,
       exceptionFactory: (errors: ValidationError[]) => {
-        const errorMessages = errors.map((error) => ({
+        const errorsMessages = errors.map((error) => ({
           message: Object.values(error.constraints!)[0],
           field: error.property,
         }));
-        throw new BadRequestException({ errorMessages });
+        throw new BadRequestException({ errorsMessages });
       },
     }),
   );
