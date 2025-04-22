@@ -124,7 +124,7 @@ export class UsersService {
 
     if (confirmationInfo.status === CONFIRMATION_STATUS.CONFIRMED) {
       throw new BadRequestException({
-        errorsMessages: [{ message: 'Email already confirmed', field: 'email' }],
+        errorsMessages: [{ message: 'Email already confirmed', field: 'code' }],
       });
     }
 
