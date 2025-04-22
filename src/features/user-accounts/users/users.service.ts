@@ -30,8 +30,10 @@ export class UsersService {
     },
     passwordRecovery: PasswordRecoveryInfoType = { code: null, expiration: null },
   ): Promise<UserType> {
-    if (!(await this.isLoginUnique(login))) throw new BadRequestException('Login already exists');
-    if (!(await this.isEmailUnique(email))) throw new BadRequestException('Email already exists');
+    if (!(await this.isLoginUnique(login)))
+      throw new BadRequestException({ errorMessages: [{ message: 'Login already exists', field: 'login' }] });
+    if (!(await this.isEmailUnique(email)))
+      throw new BadRequestException({ errorMessages: [{ message: 'Email already exists', field: 'email' }] });
 
     const hash = await this.authService.hashPassword(password);
     const createdAt = new Date().toISOString();
@@ -111,18 +113,24 @@ export class UsersService {
   async confirmUser(code: string): Promise<void> {
     const confirmationInfo = await this.usersQueryRepository.getConfirmationInfo(code);
     if (!confirmationInfo) {
-      throw new BadRequestException('Invalid confirmation code');
+      throw new BadRequestException({
+        errorMessages: [{ message: 'Invalid confirmation code', field: 'code' }],
+      });
     }
 
     if (confirmationInfo.status === CONFIRMATION_STATUS.CONFIRMED) {
-      throw new BadRequestException('Email already confirmed');
+      throw new BadRequestException({
+        errorMessages: [{ message: 'Email already confirmed', field: 'email' }],
+      });
     }
 
     const expirationDate = new Date(confirmationInfo.expiration!);
     const currentDate = new Date();
 
     if (expirationDate < currentDate) {
-      throw new BadRequestException('The confirmation code has expired');
+      throw new BadRequestException({
+        errorMessages: [{ message: 'The confirmation code has expired', field: 'code' }],
+      });
     }
 
     await this.usersRepository.confirmUser(code);
@@ -132,14 +140,18 @@ export class UsersService {
     const passwordRecoveryInfo = await this.usersQueryRepository.getPasswordRecoveryInfo(recoveryCode);
 
     if (!passwordRecoveryInfo) {
-      throw new BadRequestException('Invalid recovery code');
+      throw new BadRequestException({
+        errorMessages: [{ message: 'Invalid recovery code', field: 'code' }],
+      });
     }
 
     const expirationDate = new Date(passwordRecoveryInfo.expiration!);
     const currentDate = new Date();
 
     if (expirationDate < currentDate) {
-      throw new BadRequestException('The recovery code has expired');
+      throw new BadRequestException({
+        errorMessages: [{ message: 'The recovery code has expired', field: 'code' }],
+      });
     }
 
     const hash = await this.authService.hashPassword(newPassword);
