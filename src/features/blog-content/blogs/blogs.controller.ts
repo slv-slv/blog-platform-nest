@@ -10,6 +10,7 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { BlogsQueryRepository } from './blogs.query-repository.js';
@@ -31,6 +32,7 @@ import {
 } from '../posts/posts.types.js';
 import { PostsService } from '../posts/posts.service.js';
 import { PostsQueryRepository } from '../posts/posts.query-repository.js';
+import { CheckBasicAuth } from '../../user-accounts/auth/guards/check-basic-auth.guard.js';
 
 @Controller('blogs')
 export class BlogsController {
@@ -81,6 +83,7 @@ export class BlogsController {
 
   @Post()
   @HttpCode(201)
+  @UseGuards(CheckBasicAuth)
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogType> {
     const { name, description, websiteUrl } = body;
     const newBlog = await this.blogsService.createBlog(name, description, websiteUrl);
@@ -89,6 +92,7 @@ export class BlogsController {
 
   @Post(':blogId/posts')
   @HttpCode(201)
+  @UseGuards(CheckBasicAuth)
   async createPostForBlog(
     @Param('blogId') blogId: string,
     @Body() body: CreatePostInputDto,
@@ -100,6 +104,7 @@ export class BlogsController {
 
   @Put(':id')
   @HttpCode(204)
+  @UseGuards(CheckBasicAuth)
   async updateBlog(@Param('id') id: string, @Body() body: UpdateBlogInputDto) {
     const { name, description, websiteUrl } = body;
     await this.blogsService.updateBlog(id, name, description, websiteUrl);
@@ -107,6 +112,7 @@ export class BlogsController {
 
   @Delete(':id')
   @HttpCode(204)
+  @UseGuards(CheckBasicAuth)
   async deleteBlog(@Param('id') id: string) {
     await this.blogsService.deleteBlog(id);
   }
