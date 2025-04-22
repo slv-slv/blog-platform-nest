@@ -47,7 +47,7 @@ export class AuthController {
       sameSite: 'strict',
     });
 
-    return accessToken;
+    return { accessToken };
   }
 
   // async logout(req: Request, res: Response) {
