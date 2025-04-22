@@ -33,8 +33,8 @@ export class AuthController {
     const user = res.locals.user;
     const userId = user.id;
 
-    const accessToken = this.authService.generateAcessToken(userId);
-    const refreshToken = this.authService.generateRefreshToken(userId, 'somedeviceId');
+    const accessToken = await this.authService.generateAcessToken(userId);
+    const refreshToken = await this.authService.generateRefreshToken(userId, 'somedeviceId');
 
     const cookieExpiration = new Date();
     const years = cookieExpiration.getFullYear();
