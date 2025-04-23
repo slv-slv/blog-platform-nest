@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { UsersQueryRepository } from '../users/users.query-repository.js';
 import { JwtAcessPayload, JwtPairType, JwtRefreshPayload } from './auth.types.js';
 import { SETTINGS } from '../../../settings.js';
@@ -40,24 +40,4 @@ export class AuthService {
     });
     return refreshToken;
   }
-
-  // async generateJwtPair(userId: string, deviceId: string): Promise<JwtPairType> {
-  //   const jwtAccessPayload = { sub: userId };
-  //   const jwtRefreshPayload = { sub: userId, deviceId };
-
-  //   const accessToken = this.jwtService.sign(jwtAccessPayload, { expiresIn: SETTINGS.ACCESS_TOKEN_LIFETIME });
-  //   const refreshToken = this.jwtService.sign(jwtRefreshPayload, {
-  //     expiresIn: SETTINGS.REFRESH_TOKEN_LIFETIME,
-  //   });
-
-  //   return { accessToken, refreshToken };
-  // }
-
-  // verifyJwt(token: string): JwtAcessPayload | JwtRefreshPayload | null {
-  //   try {
-  //     return this.jwtService.verify(token) as JwtAcessPayload | JwtRefreshPayload;
-  //   } catch {
-  //     return null;
-  //   }
-  // }
 }
