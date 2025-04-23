@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsString, Length, Matches } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
 import { WithId } from 'mongodb';
 import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
 import { Trim } from '../../../common/decorators/trim.js';
@@ -81,10 +81,12 @@ export class CreateUserInputDto {
 export class GetUsersQueryParams extends BasicPagingParams {
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
   searchLoginTerm: string | null = null;
 
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
   searchEmailTerm: string | null = null;
 
   @IsOptional()
@@ -95,10 +97,12 @@ export class GetUsersQueryParams extends BasicPagingParams {
 export class LoginInputDto {
   @IsString()
   @Trim()
+  @IsNotEmpty()
   loginOrEmail: string;
 
   @IsString()
   @Trim()
+  @IsNotEmpty()
   password: string;
 }
 
@@ -110,5 +114,6 @@ export class NewPasswordInputDto {
 
   @IsString()
   @Trim()
+  @IsNotEmpty()
   recoveryCode: string;
 }
