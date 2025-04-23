@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller.js';
@@ -7,6 +7,7 @@ import { SETTINGS } from './settings.js';
 import { BlogContentModule } from './features/blog-content/blog-content.module.js';
 import { UserAccountsModule } from './features/user-accounts/user-accounts.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
+import { ExtractUserId } from './common/middlewares/extract-userid.js';
 
 @Module({
   imports: [
@@ -19,4 +20,13 @@ import { NotificationsModule } from './notifications/notifications.module.js';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(ExtractUserId)
+      .forRoutes(
+        { path: 'posts{*path}', method: RequestMethod.GET },
+        { path: 'comments/:id', method: RequestMethod.GET },
+      );
+  }
+}
