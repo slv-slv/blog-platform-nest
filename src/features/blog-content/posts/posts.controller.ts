@@ -11,6 +11,7 @@ import {
   Put,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service.js';
 import { PostsQueryRepository } from './posts.query-repository.js';
@@ -32,6 +33,8 @@ import { CommentsQueryRepository } from '../comments/comments.query-repository.j
 import { CommentsService } from '../comments/comments.service.js';
 import { SetLikeStatusDto } from '../likes/types/likes.types.js';
 import { PostLikesService } from '../likes/posts/post-likes.service.js';
+import { CheckAccessToken } from '../../user-accounts/auth/guards/check-access-token.guard.js';
+import { CheckBasicAuth } from '../../user-accounts/auth/guards/check-basic-auth.guard.js';
 
 @Controller('posts')
 export class PostsController {
@@ -70,6 +73,7 @@ export class PostsController {
 
   @Post()
   @HttpCode(201)
+  @UseGuards(CheckBasicAuth)
   async createPost(@Body() body: CreatePostForBlogInputDto): Promise<PostViewType> {
     const { title, shortDescription, content, blogId } = body;
     const newPost = await this.postsService.createPost(title, shortDescription, content, blogId);
@@ -78,6 +82,7 @@ export class PostsController {
 
   @Put(':id')
   @HttpCode(204)
+  @UseGuards(CheckBasicAuth)
   async updatePost(@Param('id') id: string, @Body() body: UpdatePostInputDto): Promise<void> {
     const { title, shortDescription, content, blogId } = body;
     await this.postsService.updatePost(id, title, shortDescription, content, blogId);
@@ -85,11 +90,13 @@ export class PostsController {
 
   @Delete(':id')
   @HttpCode(204)
+  @UseGuards(CheckBasicAuth)
   async deletePost(@Param('id') id: string): Promise<void> {
     await this.postsService.deletePost(id);
   }
 
   @Get(':postId/comments')
+  @UseGuards(CheckAccessToken)
   async getCommentsForPost(
     @Param('postId') postId: string,
     @Query() query: GetCommentsQueryParams,
@@ -109,6 +116,7 @@ export class PostsController {
 
   @Post(':postId/comments')
   @HttpCode(204)
+  @UseGuards(CheckAccessToken)
   async createComment(
     @Body() body: CreateCommentInputDto,
     @Param('postId') postId: string,
@@ -123,6 +131,7 @@ export class PostsController {
 
   @Put(':postId/like-status')
   @HttpCode(204)
+  @UseGuards(CheckAccessToken)
   async setLikeStatus(
     @Body() body: SetLikeStatusDto,
     @Param('postId') postId: string,
