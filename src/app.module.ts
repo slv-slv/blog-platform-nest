@@ -30,6 +30,7 @@ export class AppModule implements NestModule {
     consumer
       .apply(ExtractUserId)
       .forRoutes(
+        { path: 'blogs/:blogId/posts', method: RequestMethod.GET },
         { path: 'posts{*path}', method: RequestMethod.GET },
         { path: 'comments/:id', method: RequestMethod.GET },
       );
