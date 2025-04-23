@@ -1,10 +1,22 @@
 import { Response } from 'express';
-import { Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Put, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  NotFoundException,
+  Param,
+  Put,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { CommentsService } from './comments.service.js';
 import { CommentsQueryRepository } from './comments.query-repository.js';
 import { CommentViewType, UpdateCommentInputDto } from './comments.types.js';
 import { CommentLikesService } from '../likes/comments/comment-likes.service.js';
 import { LikeStatus, SetLikeStatusDto } from '../likes/types/likes.types.js';
+import { CheckAccessToken } from '../../user-accounts/auth/guards/check-access-token.guard.js';
 
 @Controller('comments')
 export class CommentsController {
@@ -28,6 +40,7 @@ export class CommentsController {
 
   @Put(':commentId')
   @HttpCode(204)
+  @UseGuards(CheckAccessToken)
   async updateComment(
     @Body() body: UpdateCommentInputDto,
     @Param('commentId') commentId: string,
@@ -41,6 +54,7 @@ export class CommentsController {
 
   @Delete(':commentId')
   @HttpCode(204)
+  @UseGuards(CheckAccessToken)
   async deleteComment(@Param('commentId') commentId: string, @Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
 
@@ -49,6 +63,7 @@ export class CommentsController {
 
   @Put(':commentId/like-status')
   @HttpCode(204)
+  @UseGuards(CheckAccessToken)
   async setLikeStatus(
     @Body() body: SetLikeStatusDto,
     @Param('commentId') commentId: string,
