@@ -115,7 +115,7 @@ export class PostsController {
   }
 
   @Post(':postId/comments')
-  @HttpCode(204)
+  @HttpCode(201)
   @UseGuards(CheckAccessToken)
   async createComment(
     @Body() body: CreateCommentInputDto,
