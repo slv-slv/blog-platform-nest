@@ -7,18 +7,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './users/users.schema.js';
 import { AuthController } from './auth/auth.controller.js';
 import { AuthService } from './auth/auth.service.js';
-import { JwtModule } from '@nestjs/jwt';
-import { SETTINGS } from '../../settings.js';
 import { NotificationsModule } from '../../notifications/notifications.module.js';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    JwtModule.register({
-      secret: SETTINGS.JWT_PRIVATE_KEY,
-    }),
-    NotificationsModule,
-  ],
+  imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]), NotificationsModule],
   controllers: [UsersController, AuthController],
   providers: [UsersService, UsersRepository, UsersQueryRepository, AuthService],
   exports: [UsersQueryRepository, UsersRepository],

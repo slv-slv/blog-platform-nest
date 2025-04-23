@@ -24,8 +24,6 @@ import { CommentLikesQueryRepository } from './likes/comments/comment-likes.quer
 import { CommentLikes, CommentLikesSchema } from './likes/comments/comment-likes.schema.js';
 import { PostLikes, PostLikesSchema } from './likes/posts/post-likes.schema.js';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
-import { JwtModule } from '@nestjs/jwt';
-import { SETTINGS } from '../../settings.js';
 
 @Module({
   imports: [
@@ -36,9 +34,6 @@ import { SETTINGS } from '../../settings.js';
       { name: CommentLikes.name, schema: CommentLikesSchema },
       { name: PostLikes.name, schema: PostLikesSchema },
     ]),
-    JwtModule.register({
-      secret: SETTINGS.JWT_PRIVATE_KEY,
-    }),
     UserAccountsModule,
   ],
   controllers: [BlogsController, PostsController, CommentsController],
