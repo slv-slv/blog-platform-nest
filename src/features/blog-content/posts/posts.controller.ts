@@ -96,7 +96,6 @@ export class PostsController {
   }
 
   @Get(':postId/comments')
-  @UseGuards(CheckAccessToken)
   async getCommentsForPost(
     @Param('postId') postId: string,
     @Query() query: GetCommentsQueryParams,
