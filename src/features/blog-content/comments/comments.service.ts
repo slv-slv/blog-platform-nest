@@ -40,7 +40,7 @@ export class CommentsService {
     if (!comment) throw new NotFoundException('Comment not found');
 
     const ownerId = comment.commentatorInfo.userId;
-    if (userId !== ownerId) throw new ForbiddenException();
+    if (userId !== ownerId) throw new ForbiddenException('Access denied');
 
     await this.commentsRepository.updateComment(commentId, content);
   }
@@ -50,7 +50,7 @@ export class CommentsService {
     if (!comment) throw new NotFoundException('Comment not found');
 
     const ownerId = comment.commentatorInfo.userId;
-    if (userId !== ownerId) throw new ForbiddenException();
+    if (userId !== ownerId) throw new ForbiddenException('Access denied');
 
     await this.commentsRepository.deleteComment(commentId);
     await this.commentLikesService.deleteLikesInfo(commentId);
