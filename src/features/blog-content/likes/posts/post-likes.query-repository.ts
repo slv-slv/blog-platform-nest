@@ -3,7 +3,7 @@ import { ExtendedLikesInfoViewType } from '../types/likes.types.js';
 import { PostLikesRepository } from './post-likes.repository.js';
 import { SETTINGS } from '../../../../settings.js';
 import { InjectModel } from '@nestjs/mongoose';
-import { PostLikes } from './post-likes.schema.js';
+import { PostLikes } from './post-likes.schemas.js';
 import { PostLikesType } from './post-likes.types.js';
 import { Model } from 'mongoose';
 import { UsersQueryRepository } from '../../../user-accounts/users/users.query-repository.js';

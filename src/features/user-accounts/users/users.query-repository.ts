@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './users.schema.js';
+import { User } from './users.schemas.js';
 import { Model } from 'mongoose';
 import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 import {

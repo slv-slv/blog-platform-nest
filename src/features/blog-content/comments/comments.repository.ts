@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Comment } from './comments.schema.js';
+import { Comment } from './comments.schemas.js';
 import { Model } from 'mongoose';
 import { CommentDtoType } from './comments.types.js';
 import { ObjectId } from 'mongodb';

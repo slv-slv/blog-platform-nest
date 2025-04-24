@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from './users.schema.js';
+import { User } from './users.schemas.js';
 import {
   CONFIRMATION_STATUS,
   ConfirmationInfoType,

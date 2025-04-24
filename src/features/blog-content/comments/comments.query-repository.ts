@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
-import { Comment } from './comments.schema.js';
+import { Comment } from './comments.schemas.js';
 import { CommentsPaginatedType, CommentViewType } from './comments.types.js';
 import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 import { CommentLikesQueryRepository } from '../likes/comments/comment-likes.query-repository.js';
