@@ -12,7 +12,7 @@ import { AuthService } from '../auth.service.js';
 import { UsersQueryRepository } from '../../users/users.query-repository.js';
 
 @Injectable()
-export class CheckCredentials implements CanActivate {
+export class CredentialsGuard implements CanActivate {
   constructor(
     private readonly authService: AuthService,
     private readonly usersQueryRepository: UsersQueryRepository,

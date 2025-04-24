@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { UsersService } from '../../users/users.service.js';
 
 @Injectable()
-export class CheckConfirmation implements CanActivate {
+export class EmailConfirmationGuard implements CanActivate {
   constructor(private readonly usersService: UsersService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

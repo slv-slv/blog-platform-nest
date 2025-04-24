@@ -13,10 +13,10 @@ import {
 import { UsersQueryRepository } from '../users/users.query-repository.js';
 import { UsersService } from '../users/users.service.js';
 import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../users/users.types.js';
-import { CheckCredentials } from './guards/check-credentials.guard.js';
-import { CheckConfirmation } from './guards/check-confirmation.guard.js';
+import { CredentialsGuard } from './guards/credentials.guard.js';
+import { EmailConfirmationGuard } from './guards/email-confirmation.guard.js';
 import { AuthService } from './auth.service.js';
-import { CheckAccessToken } from './guards/check-access-token.guard.js';
+import { AccessTokenGuard } from './guards/access-token.guard.js';
 
 @Controller('auth')
 export class AuthController {
@@ -28,7 +28,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  @UseGuards(CheckCredentials, CheckConfirmation)
+  @UseGuards(CredentialsGuard, EmailConfirmationGuard)
   async sendJwtPair(@Res({ passthrough: true }) res: Response) {
     const user = res.locals.user;
     const userId = user.id;
@@ -60,7 +60,7 @@ export class AuthController {
   // }
 
   @Get('me')
-  @UseGuards(CheckAccessToken)
+  @UseGuards(AccessTokenGuard)
   async me(@Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
     const user = await this.usersQueryRepository.getCurrentUser(userId);

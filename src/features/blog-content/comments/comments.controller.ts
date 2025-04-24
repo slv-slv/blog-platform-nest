@@ -16,7 +16,7 @@ import { CommentsQueryRepository } from './comments.query-repository.js';
 import { CommentViewType, UpdateCommentInputDto } from './comments.types.js';
 import { CommentLikesService } from '../likes/comments/comment-likes.service.js';
 import { LikeStatus, SetLikeStatusDto } from '../likes/types/likes.types.js';
-import { CheckAccessToken } from '../../user-accounts/auth/guards/check-access-token.guard.js';
+import { AccessTokenGuard } from '../../user-accounts/auth/guards/access-token.guard.js';
 
 @Controller('comments')
 export class CommentsController {
@@ -40,7 +40,7 @@ export class CommentsController {
 
   @Put(':commentId')
   @HttpCode(204)
-  @UseGuards(CheckAccessToken)
+  @UseGuards(AccessTokenGuard)
   async updateComment(
     @Body() body: UpdateCommentInputDto,
     @Param('commentId') commentId: string,
@@ -54,7 +54,7 @@ export class CommentsController {
 
   @Delete(':commentId')
   @HttpCode(204)
-  @UseGuards(CheckAccessToken)
+  @UseGuards(AccessTokenGuard)
   async deleteComment(@Param('commentId') commentId: string, @Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
 
@@ -63,7 +63,7 @@ export class CommentsController {
 
   @Put(':commentId/like-status')
   @HttpCode(204)
-  @UseGuards(CheckAccessToken)
+  @UseGuards(AccessTokenGuard)
   async setLikeStatus(
     @Body() body: SetLikeStatusDto,
     @Param('commentId') commentId: string,

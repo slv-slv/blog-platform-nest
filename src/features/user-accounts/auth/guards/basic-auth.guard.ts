@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { SETTINGS } from '../../../../settings.js';
 
 @Injectable()
-export class CheckBasicAuth implements CanActivate {
+export class BasicAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest();
 
