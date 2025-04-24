@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { CommentatorInfoType } from './comments.types.js';
 
-@Schema()
+@Schema({ _id: false })
 class CommentatorInfo {
   @Prop({ required: true })
   userId: string;

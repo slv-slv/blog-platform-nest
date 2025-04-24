@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { CONFIRMATION_STATUS, ConfirmationInfoType } from './users.types.js';
 
-@Schema()
+@Schema({ _id: false })
 class ConfirmationInfo {
   @Prop({ type: String, enum: Object.values(CONFIRMATION_STATUS), required: true })
   status: CONFIRMATION_STATUS;
@@ -15,7 +15,7 @@ class ConfirmationInfo {
 
 const ConfirmationInfoSchema = SchemaFactory.createForClass(ConfirmationInfo);
 
-@Schema()
+@Schema({ _id: false })
 class PasswordRecoveryInfo {
   @Prop({ default: null })
   code: string;

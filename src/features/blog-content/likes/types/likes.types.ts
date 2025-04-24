@@ -34,7 +34,7 @@ export type LikeRecordType = {
   createdAt: Date;
 };
 
-@Schema()
+@Schema({ _id: false })
 export class LikeRecord {
   @Prop({ required: true })
   userId: String;
