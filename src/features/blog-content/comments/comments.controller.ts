@@ -15,8 +15,8 @@ import { CommentsService } from './comments.service.js';
 import { CommentsQueryRepository } from './comments.query-repository.js';
 import { CommentViewType, UpdateCommentInputDto } from './comments.types.js';
 import { CommentLikesService } from '../likes/comments/comment-likes.service.js';
-import { LikeStatus, SetLikeStatusDto } from '../likes/types/likes.types.js';
-import { AccessTokenGuard } from '../../user-accounts/auth/guards/access-token.guard.js';
+import { SetLikeStatusDto } from '../likes/types/likes.types.js';
+import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 
 @Controller('comments')
 export class CommentsController {

@@ -33,8 +33,8 @@ import { CommentsQueryRepository } from '../comments/comments.query-repository.j
 import { CommentsService } from '../comments/comments.service.js';
 import { SetLikeStatusDto } from '../likes/types/likes.types.js';
 import { PostLikesService } from '../likes/posts/post-likes.service.js';
-import { AccessTokenGuard } from '../../user-accounts/auth/guards/access-token.guard.js';
-import { BasicAuthGuard } from '../../user-accounts/auth/guards/basic-auth.guard.js';
+import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
+import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 
 @Controller('posts')
 export class PostsController {

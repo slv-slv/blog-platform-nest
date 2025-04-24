@@ -13,10 +13,10 @@ import {
 import { UsersQueryRepository } from '../users/users.query-repository.js';
 import { UsersService } from '../users/users.service.js';
 import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../users/users.types.js';
-import { CredentialsGuard } from './guards/credentials.guard.js';
-import { EmailConfirmationGuard } from './guards/email-confirmation.guard.js';
 import { AuthService } from './auth.service.js';
-import { AccessTokenGuard } from './guards/access-token.guard.js';
+import { CredentialsGuard } from '../../../common/guards/credentials.guard.js';
+import { EmailConfirmationGuard } from '../../../common/guards/email-confirmation.guard.js';
+import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 
 @Controller('auth')
 export class AuthController {
