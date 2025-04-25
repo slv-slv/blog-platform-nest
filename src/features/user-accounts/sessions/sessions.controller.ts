@@ -4,21 +4,21 @@ import { SessionsService } from './sessions.service.js';
 import { SessionsQueryRepository } from './sessions.query-repository.js';
 import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
 
-@Controller('security')
+@Controller('security/devices')
 export class SessionsController {
   constructor(
     @Inject(SessionsService) private sessionsService: SessionsService,
     @Inject(SessionsQueryRepository) private sessionsQueryRepository: SessionsQueryRepository,
   ) {}
 
-  @Get('devices')
+  @Get()
   @UseGuards(RefreshTokenGuard)
   async getDevices(@Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
     return await this.sessionsQueryRepository.getActiveDevices(userId);
   }
 
-  @Delete('devices')
+  @Delete()
   @HttpCode(204)
   @UseGuards(RefreshTokenGuard)
   async deleteOtherDevices(@Res({ passthrough: true }) res: Response) {
@@ -26,7 +26,7 @@ export class SessionsController {
     await this.sessionsService.deleteOtherDevices(deviceId);
   }
 
-  @Delete('devices/:deviceId')
+  @Delete(':deviceId')
   @HttpCode(204)
   @UseGuards(RefreshTokenGuard)
   async deleteDevice(@Res({ passthrough: true }) res: Response, @Param('deviceId') deviceId: string) {
