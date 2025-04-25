@@ -9,6 +9,7 @@ import { EmailConfirmationGuard } from '../../../common/guards/email-confirmatio
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
 import { SessionsService } from '../sessions/sessions.service.js';
+import { NoActiveSessionGuard } from '../../../common/guards/no-active-session.guard.js';
 
 @Controller('auth')
 export class AuthController {
@@ -21,7 +22,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  @UseGuards(CredentialsGuard, EmailConfirmationGuard)
+  @UseGuards(NoActiveSessionGuard, CredentialsGuard, EmailConfirmationGuard)
   async login(@Res({ passthrough: true }) res: Response) {
     const user = res.locals.user;
     const userId = user.id;
