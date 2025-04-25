@@ -13,7 +13,7 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    MongooseModule.forRoot(SETTINGS.MONGO_URL),
+    MongooseModule.forRoot(SETTINGS.MONGO_URL, { dbName: 'blogs' }),
     JwtModule.register({
       global: true,
       secret: SETTINGS.JWT_PRIVATE_KEY,
