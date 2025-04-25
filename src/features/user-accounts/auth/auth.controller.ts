@@ -1,15 +1,5 @@
-import { Request, Response } from 'express';
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  Post,
-  Req,
-  Res,
-  UnauthorizedException,
-  UseGuards,
-} from '@nestjs/common';
+import { Response } from 'express';
+import { Body, Controller, Get, HttpCode, Post, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { UsersQueryRepository } from '../users/users.query-repository.js';
 import { UsersService } from '../users/users.service.js';
 import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../users/users.types.js';
@@ -17,6 +7,8 @@ import { AuthService } from './auth.service.js';
 import { CredentialsGuard } from '../../../common/guards/credentials.guard.js';
 import { EmailConfirmationGuard } from '../../../common/guards/email-confirmation.guard.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
+import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
+import { SessionsService } from '../sessions/sessions.service.js';
 
 @Controller('auth')
 export class AuthController {
@@ -24,17 +16,18 @@ export class AuthController {
     private readonly usersService: UsersService,
     private readonly usersQueryRepository: UsersQueryRepository,
     private readonly authService: AuthService,
+    private readonly sessionsService: SessionsService,
   ) {}
 
   @Post('login')
   @HttpCode(200)
   @UseGuards(CredentialsGuard, EmailConfirmationGuard)
-  async sendJwtPair(@Res({ passthrough: true }) res: Response) {
+  async login(@Res({ passthrough: true }) res: Response) {
     const user = res.locals.user;
     const userId = user.id;
 
     const accessToken = await this.authService.generateAcessToken(userId);
-    const refreshToken = await this.authService.generateRefreshToken(userId, 'somedeviceId');
+    const refreshToken = await this.authService.generateRefreshToken(userId);
 
     const cookieExpiration = new Date();
     const years = cookieExpiration.getFullYear();
@@ -50,14 +43,42 @@ export class AuthController {
     return { accessToken };
   }
 
-  // async logout(req: Request, res: Response) {
-  //   // const userId = res.locals.userId;
-  //   const deviceId = res.locals.deviceId;
+  @Post('refresh-token')
+  @HttpCode(200)
+  @UseGuards(RefreshTokenGuard)
+  async refreshToken(@Res({ passthrough: true }) res: Response) {
+    const deviceId = res.locals.deviceId;
+    const user = res.locals.user;
+    const userId = user.id;
 
-  //   await this.sessionsService.deleteDevice(deviceId);
+    const accessToken = await this.authService.generateAcessToken(userId);
+    const refreshToken = await this.authService.generateRefreshToken(userId, deviceId);
 
-  //   res.clearCookie('refreshToken').status(HTTP_STATUS.NO_CONTENT_204).end();
-  // }
+    const cookieExpiration = new Date();
+    const years = cookieExpiration.getFullYear();
+    cookieExpiration.setFullYear(years + 1);
+
+    res.cookie('refreshToken', refreshToken, {
+      expires: cookieExpiration,
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+
+    return { accessToken };
+  }
+
+  @Post('logout')
+  @HttpCode(204)
+  @UseGuards(RefreshTokenGuard)
+  async logout(@Res({ passthrough: true }) res: Response) {
+    const userId = res.locals.userId;
+    const deviceId = res.locals.deviceId;
+
+    await this.sessionsService.deleteDevice(userId, deviceId);
+
+    res.clearCookie('refreshToken');
+  }
 
   @Get('me')
   @UseGuards(AccessTokenGuard)
