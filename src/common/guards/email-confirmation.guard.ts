@@ -1,12 +1,13 @@
+import { Response } from 'express';
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../../users/users.service.js';
+import { UsersService } from '../../features/user-accounts/users/users.service.js';
 
 @Injectable()
 export class EmailConfirmationGuard implements CanActivate {
   constructor(private readonly usersService: UsersService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const res = context.switchToHttp().getResponse();
+    const res: Response = context.switchToHttp().getResponse();
     const user = res.locals.user;
     const email = user.email;
 

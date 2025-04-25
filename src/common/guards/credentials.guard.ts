@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import {
   BadRequestException,
   CanActivate,
@@ -7,9 +8,9 @@ import {
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { LoginInputDto } from '../../users/users.types.js';
-import { AuthService } from '../auth.service.js';
-import { UsersQueryRepository } from '../../users/users.query-repository.js';
+import { AuthService } from '../../features/user-accounts/auth/auth.service.js';
+import { UsersQueryRepository } from '../../features/user-accounts/users/users.query-repository.js';
+import { LoginInputDto } from '../../features/user-accounts/users/users.types.js';
 
 @Injectable()
 export class CredentialsGuard implements CanActivate {
@@ -18,8 +19,8 @@ export class CredentialsGuard implements CanActivate {
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
-    const res = context.switchToHttp().getResponse();
+    const req: Request = context.switchToHttp().getRequest();
+    const res: Response = context.switchToHttp().getResponse();
 
     const loginInputDto = plainToInstance(LoginInputDto, req.body);
     const errorsMessages = await validate(loginInputDto);

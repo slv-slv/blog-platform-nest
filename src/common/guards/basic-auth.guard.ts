@@ -1,10 +1,11 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { SETTINGS } from '../../../../settings.js';
+import { Request } from 'express';
+import { SETTINGS } from '../../settings.js';
 
 @Injectable()
 export class BasicAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const req = context.switchToHttp().getRequest();
+    const req: Request = context.switchToHttp().getRequest();
 
     const authHeader = req.headers.authorization;
 
