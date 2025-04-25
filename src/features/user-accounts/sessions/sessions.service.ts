@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { SessionsRepository } from './sessions.repository.js';
 import { SessionsQueryRepository } from './sessions.query-repository.js';
 
@@ -24,7 +24,17 @@ export class SessionsService {
     return await this.sessionsQueryRepository.isSessionActive(userId, deviceId, iat);
   }
 
-  async deleteDevice(deviceId: string): Promise<void> {
+  async deleteDevice(userId: string, deviceId: string): Promise<void> {
+    const device = await this.sessionsRepository.findDevice(deviceId);
+    if (!device) {
+      throw new NotFoundException('Device not found');
+    }
+
+    const deviceOwner = await this.sessionsRepository.getDeviceOwner(deviceId);
+    if (deviceOwner !== userId) {
+      throw new ForbiddenException('Access denied');
+    }
+
     await this.sessionsRepository.deleteDevice(deviceId);
   }
 
