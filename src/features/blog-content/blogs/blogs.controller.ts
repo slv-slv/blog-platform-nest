@@ -15,7 +15,6 @@ import {
 import { Response } from 'express';
 import { BlogsQueryRepository } from './blogs.query-repository.js';
 import { BlogsRepository } from './blogs.repository.js';
-import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
 import {
   BlogsPaginatedType,
   BlogType,
@@ -32,7 +31,7 @@ import {
 } from '../posts/posts.types.js';
 import { PostsService } from '../posts/posts.service.js';
 import { PostsQueryRepository } from '../posts/posts.query-repository.js';
-import { BasicAuthGuard } from '../../user-accounts/auth/guards/basic-auth.guard.js';
+import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 
 @Controller('blogs')
 export class BlogsController {
