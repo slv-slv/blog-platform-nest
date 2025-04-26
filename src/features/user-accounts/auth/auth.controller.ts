@@ -25,8 +25,8 @@ import { NoActiveSessionGuard } from '../../../common/guards/no-active-session.g
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { JwtService } from '@nestjs/jwt';
 
-@UseGuards(ThrottlerGuard)
 @Controller('auth')
+@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(
     private readonly usersService: UsersService,
