@@ -1,5 +1,17 @@
 import { Response } from 'express';
-import { Body, Controller, Get, HttpCode, Post, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  Ip,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersQueryRepository } from '../users/users.query-repository.js';
 import { UsersService } from '../users/users.service.js';
 import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../users/users.types.js';
@@ -10,7 +22,8 @@ import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
 import { SessionsService } from '../sessions/sessions.service.js';
 import { NoActiveSessionGuard } from '../../../common/guards/no-active-session.guard.js';
-import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 @UseGuards(ThrottlerGuard)
@@ -20,17 +33,26 @@ export class AuthController {
     private readonly usersQueryRepository: UsersQueryRepository,
     private readonly authService: AuthService,
     private readonly sessionsService: SessionsService,
+    private readonly jwtService: JwtService,
   ) {}
 
   @Post('login')
   @HttpCode(200)
   @UseGuards(NoActiveSessionGuard, CredentialsGuard, EmailConfirmationGuard)
-  async login(@Res({ passthrough: true }) res: Response) {
+  async login(
+    @Res({ passthrough: true }) res: Response,
+    @Headers('User-Agent') userAgent: string,
+    @Ip() ip: string,
+  ) {
     const user = res.locals.user;
     const userId = user.id;
+    const deviceName = userAgent ?? 'unknown';
 
     const accessToken = await this.authService.generateAcessToken(userId);
     const refreshToken = await this.authService.generateRefreshToken(userId);
+
+    const { deviceId, iat, exp } = this.jwtService.decode(refreshToken);
+    await this.sessionsService.createSession(userId, deviceId, deviceName, ip, iat, exp);
 
     const cookieExpiration = new Date();
     const years = cookieExpiration.getFullYear();
@@ -49,13 +71,20 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(200)
   @UseGuards(RefreshTokenGuard)
-  @SkipThrottle()
-  async refreshToken(@Res({ passthrough: true }) res: Response) {
+  async refreshToken(
+    @Res({ passthrough: true }) res: Response,
+    @Headers('User-Agent') userAgent: string,
+    @Ip() ip: string,
+  ) {
     const userId = res.locals.userId;
     const deviceId = res.locals.deviceId;
+    const deviceName = userAgent ?? 'unknown';
 
     const accessToken = await this.authService.generateAcessToken(userId);
     const refreshToken = await this.authService.generateRefreshToken(userId, deviceId);
+
+    const { iat, exp } = this.jwtService.decode(refreshToken);
+    await this.sessionsService.createSession(userId, deviceId, deviceName, ip, iat, exp);
 
     const cookieExpiration = new Date();
     const years = cookieExpiration.getFullYear();
@@ -85,7 +114,6 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AccessTokenGuard)
-  @SkipThrottle()
   async me(@Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
     const user = await this.usersQueryRepository.getCurrentUser(userId);
