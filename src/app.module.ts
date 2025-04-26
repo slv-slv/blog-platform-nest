@@ -9,6 +9,7 @@ import { UserAccountsModule } from './features/user-accounts/user-accounts.modul
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { ExtractUserId } from './common/middlewares/extract-userid.js';
 import { JwtModule } from '@nestjs/jwt';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { JwtModule } from '@nestjs/jwt';
       global: true,
       secret: SETTINGS.JWT_PRIVATE_KEY,
     }),
+    ThrottlerModule.forRoot({ throttlers: [{ ttl: 10000, limit: 5 }] }),
     BlogContentModule,
     UserAccountsModule,
     NotificationsModule,

@@ -10,8 +10,10 @@ import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
 import { SessionsService } from '../sessions/sessions.service.js';
 import { NoActiveSessionGuard } from '../../../common/guards/no-active-session.guard.js';
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
+@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(
     private readonly usersService: UsersService,
@@ -47,6 +49,7 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(200)
   @UseGuards(RefreshTokenGuard)
+  @SkipThrottle()
   async refreshToken(@Res({ passthrough: true }) res: Response) {
     const deviceId = res.locals.deviceId;
     const user = res.locals.user;
@@ -83,6 +86,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AccessTokenGuard)
+  @SkipThrottle()
   async me(@Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
     const user = await this.usersQueryRepository.getCurrentUser(userId);
