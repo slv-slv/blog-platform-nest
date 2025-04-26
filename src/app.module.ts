@@ -14,7 +14,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    MongooseModule.forRoot(SETTINGS.MONGO_URL, { dbName: 'blogs' }),
+    MongooseModule.forRoot(SETTINGS.MONGO_URL, { dbName: 'blog-platform' }),
     JwtModule.register({
       global: true,
       secret: SETTINGS.JWT_PRIVATE_KEY,
