@@ -33,7 +33,7 @@ export class Session {
   @Prop({ required: true })
   userId: string;
 
-  @Prop({ type: DeviceSchema, required: true })
+  @Prop({ type: [DeviceSchema], required: true })
   devices: DeviceType[];
 }
 
