@@ -38,7 +38,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  @UseGuards(ThrottlerGuard, NoActiveSessionGuard, CredentialsGuard, EmailConfirmationGuard)
+  @UseGuards(NoActiveSessionGuard, CredentialsGuard, EmailConfirmationGuard)
   async login(
     @Res({ passthrough: true }) res: Response,
     @Headers('User-Agent') userAgent: string,
@@ -102,7 +102,7 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(204)
-  @UseGuards(ThrottlerGuard, RefreshTokenGuard)
+  @UseGuards(RefreshTokenGuard)
   async logout(@Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
     const deviceId = res.locals.deviceId;
@@ -113,7 +113,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(ThrottlerGuard, AccessTokenGuard)
+  @UseGuards(AccessTokenGuard)
   async me(@Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
     const user = await this.usersQueryRepository.getCurrentUser(userId);
