@@ -26,7 +26,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
-@UseGuards(ThrottlerGuard)
+// @UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(
     private readonly usersService: UsersService,
@@ -38,7 +38,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  @UseGuards(NoActiveSessionGuard, CredentialsGuard, EmailConfirmationGuard)
+  @UseGuards(ThrottlerGuard, NoActiveSessionGuard, CredentialsGuard, EmailConfirmationGuard)
   async login(
     @Res({ passthrough: true }) res: Response,
     @Headers('User-Agent') userAgent: string,
@@ -70,7 +70,7 @@ export class AuthController {
 
   @Post('refresh-token')
   @HttpCode(200)
-  @UseGuards(RefreshTokenGuard)
+  @UseGuards(ThrottlerGuard, RefreshTokenGuard)
   async refreshToken(
     @Res({ passthrough: true }) res: Response,
     @Headers('User-Agent') userAgent: string,
@@ -102,7 +102,7 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(204)
-  @UseGuards(RefreshTokenGuard)
+  @UseGuards(ThrottlerGuard, RefreshTokenGuard)
   async logout(@Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
     const deviceId = res.locals.deviceId;
@@ -113,7 +113,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(ThrottlerGuard, AccessTokenGuard)
   async me(@Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
     const user = await this.usersQueryRepository.getCurrentUser(userId);
@@ -125,6 +125,7 @@ export class AuthController {
 
   @Post('registration')
   @HttpCode(204)
+  @UseGuards(ThrottlerGuard)
   async registration(@Body() body: CreateUserInputDto) {
     const { login, email, password } = body;
     await this.usersService.registerUser(login, email, password);
@@ -132,6 +133,7 @@ export class AuthController {
 
   @Post('registration-email-resending')
   @HttpCode(204)
+  @UseGuards(ThrottlerGuard)
   async registrationEmailResending(@Body() body: EmailInputDto) {
     const { email } = body;
     await this.usersService.resendConfirmationCode(email);
@@ -139,12 +141,14 @@ export class AuthController {
 
   @Post('registration-confirmation')
   @HttpCode(204)
+  @UseGuards(ThrottlerGuard)
   async registrationConfirmation(@Body('code') code: string) {
     await this.usersService.confirmUser(code);
   }
 
   @Post('password-recovery')
   @HttpCode(204)
+  @UseGuards(ThrottlerGuard)
   async passwordRecovery(@Body() body: EmailInputDto) {
     const { email } = body;
     await this.usersService.sendRecoveryCode(email);
@@ -152,6 +156,7 @@ export class AuthController {
 
   @Post('new-password')
   @HttpCode(204)
+  @UseGuards(ThrottlerGuard)
   async newPassword(@Body() body: NewPasswordInputDto) {
     const { newPassword, recoveryCode } = body;
     await this.usersService.updatePassword(recoveryCode, newPassword);
