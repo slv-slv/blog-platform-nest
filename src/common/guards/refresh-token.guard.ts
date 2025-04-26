@@ -25,7 +25,7 @@ export class RefreshTokenGuard implements CanActivate {
     try {
       payload = await this.jwtService.verifyAsync(refreshToken);
     } catch {
-      throw new UnauthorizedException('Invalid access token');
+      throw new UnauthorizedException('Invalid refresh token');
     }
 
     const { sub, deviceId, iat } = payload;
