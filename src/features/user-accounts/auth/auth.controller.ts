@@ -51,9 +51,8 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @SkipThrottle()
   async refreshToken(@Res({ passthrough: true }) res: Response) {
+    const userId = res.locals.userId;
     const deviceId = res.locals.deviceId;
-    const user = res.locals.user;
-    const userId = user.id;
 
     const accessToken = await this.authService.generateAcessToken(userId);
     const refreshToken = await this.authService.generateRefreshToken(userId, deviceId);
