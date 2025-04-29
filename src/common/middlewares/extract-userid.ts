@@ -23,7 +23,7 @@ export class ExtractUserId implements NestMiddleware {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token, { secret: SETTINGS.JWT_PRIVATE_KEY });
+      const payload = await this.jwtService.verifyAsync(token);
       const { sub } = payload;
       res.locals.userId = sub;
       return next();
