@@ -17,6 +17,13 @@ export const SETTINGS = {
     RATE_LIMITER: 'rateLimiter',
   },
   MONGO_URL: process.env.MONGO_URL || 'mongodb://localhost:27017/blog-platform',
+  POSTGRES_SETTINGS: {
+    URL: process.env.POSTGRES_URL,
+    USER: process.env.POSTGRES_USER,
+    PASSWORD: process.env.POSTGRES_PASSWORD,
+    DATABASE: process.env.POSTGRES_DATABASE,
+    PORT: 5432,
+  },
   PAGING_DEFAULT_PARAMS: {
     sortBy: 'createdAt',
     sortDirection: 'desc',
