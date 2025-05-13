@@ -1,4 +1,12 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import {
+  BeforeApplicationShutdown,
+  Inject,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  OnApplicationBootstrap,
+  RequestMethod,
+} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller.js';
@@ -10,11 +18,19 @@ import { NotificationsModule } from './notifications/notifications.module.js';
 import { ExtractUserId } from './common/middlewares/extract-userid.js';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { PostgresModule } from './common/dynamic-modules/postgres.module.js';
+import { pgClient } from './common/constants.js';
+import { Client } from 'pg';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot(SETTINGS.MONGO_URL, { dbName: 'blog-platform' }),
+    PostgresModule.forRoot({
+      host: SETTINGS.POSTGRES_SETTINGS.URL,
+      user: SETTINGS.POSTGRES_SETTINGS.USER,
+      password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
+    }),
     JwtModule.register({
       global: true,
       secret: SETTINGS.JWT_PRIVATE_KEY,
@@ -27,7 +43,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule implements NestModule {
+export class AppModule implements NestModule, OnApplicationBootstrap, BeforeApplicationShutdown {
+  constructor(@Inject(pgClient) private readonly pgClient: Client) {}
+
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(ExtractUserId)
@@ -36,5 +54,18 @@ export class AppModule implements NestModule {
         { path: 'posts{*path}', method: RequestMethod.GET },
         { path: 'comments/:id', method: RequestMethod.GET },
       );
+  }
+
+  async onApplicationBootstrap() {
+    try {
+      await this.pgClient.connect();
+      console.log('Клиент PostgreSQL подключен');
+    } catch (e) {
+      console.error('Ошибка подключения PostgreSQL:\n', e);
+    }
+  }
+
+  async beforeApplicationShutdown(signal?: string) {
+    await this.pgClient.end();
   }
 }
