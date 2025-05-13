@@ -37,7 +37,7 @@
     "mongodb": "^6.16.0",
     "mongoose": "^8.14.2",
     "nodemailer": "^6.10.1",
-    "postgres": "^3.4.5",
+    "pg": "^8.16.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "typeorm": "^0.3.23"
@@ -55,6 +55,7 @@
     "@types/jest": "^29.5.14",
     "@types/node": "^22.15.17",
     "@types/nodemailer": "^6.4.17",
+    "@types/pg": "^8.15.1",
     "@types/supertest": "^6.0.3",
     "eslint": "^9.26.0",
     "eslint-config-prettier": "^10.1.5",
