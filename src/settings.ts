@@ -18,10 +18,11 @@ export const SETTINGS = {
   },
   MONGO_URL: process.env.MONGO_URL || 'mongodb://localhost:27017/blog-platform',
   POSTGRES_SETTINGS: {
-    URL: process.env.POSTGRES_URL,
-    USER: process.env.POSTGRES_USER,
-    PASSWORD: process.env.POSTGRES_PASSWORD,
-    DATABASE: process.env.POSTGRES_DATABASE,
+    CONNECTION_STRING: process.env.POSTGRES_CONNECTION_STRING!,
+    URL: process.env.POSTGRES_URL!,
+    USER: process.env.POSTGRES_USER!,
+    PASSWORD: process.env.POSTGRES_PASSWORD!,
+    DATABASE: process.env.POSTGRES_DATABASE!,
     PORT: 5432,
   },
   PAGING_DEFAULT_PARAMS: {
