@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
 import { JwtRefreshPayload } from '../../features/user-accounts/auth/auth.types.js';
-import { SessionsService } from '../../features/user-accounts/sessions/sessions.service.js';
+import { SessionsService } from '../../features/user-accounts/sessions/application/sessions.service.js';
 
 @Injectable()
 export class RefreshTokenGuard implements CanActivate {

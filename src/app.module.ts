@@ -31,6 +31,7 @@ import { Client } from 'pg';
       user: SETTINGS.POSTGRES_SETTINGS.USER,
       password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
     }),
+    PostgresModule.forFeature('blog-platform'),
     JwtModule.register({
       global: true,
       secret: SETTINGS.JWT_PRIVATE_KEY,
@@ -60,6 +61,11 @@ export class AppModule implements NestModule, OnApplicationBootstrap, BeforeAppl
     try {
       await this.pgClient.connect();
       console.log('Клиент PostgreSQL подключен');
+      const result = await this.pgClient.query('SELECT * FROM users');
+      console.log(result);
+      const { id, login, email, hash, created_at: createdAt } = result?.rows[0];
+      console.log(id, login, email, hash, createdAt);
+      console.log(typeof login);
     } catch (e) {
       console.error('Ошибка подключения PostgreSQL:\n', e);
     }
