@@ -19,8 +19,8 @@ import { ExtractUserId } from './common/middlewares/extract-userid.js';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { PostgresModule } from './common/dynamic-modules/postgres.module.js';
-import { pgClient } from './common/constants.js';
-import { Client } from 'pg';
+import { pool } from './common/constants.js';
+import { Pool } from 'pg';
 
 @Module({
   imports: [
@@ -45,7 +45,7 @@ import { Client } from 'pg';
   providers: [AppService],
 })
 export class AppModule implements NestModule, OnApplicationBootstrap, BeforeApplicationShutdown {
-  constructor(@Inject(pgClient) private readonly pgClient: Client) {}
+  constructor(@Inject(pool) private readonly pool: Pool) {}
 
   configure(consumer: MiddlewareConsumer) {
     consumer
@@ -59,19 +59,14 @@ export class AppModule implements NestModule, OnApplicationBootstrap, BeforeAppl
 
   async onApplicationBootstrap() {
     try {
-      await this.pgClient.connect();
-      console.log('Клиент PostgreSQL подключен');
-      const result = await this.pgClient.query('SELECT * FROM users');
-      console.log(result);
-      const { id, login, email, hash, created_at: createdAt } = result?.rows[0];
-      console.log(id, login, email, hash, createdAt);
-      console.log(typeof login);
+      await this.pool.connect();
+      console.log('PostgreSQL successfully connected');
     } catch (e) {
-      console.error('Ошибка подключения PostgreSQL:\n', e);
+      console.error('PostgreSQL connection error:\n', e);
     }
   }
 
   async beforeApplicationShutdown(signal?: string) {
-    await this.pgClient.end();
+    await this.pool.end();
   }
 }
