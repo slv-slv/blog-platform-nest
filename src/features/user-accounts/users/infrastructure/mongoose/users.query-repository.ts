@@ -9,7 +9,7 @@ import {
   CurrentUserType,
   PasswordRecoveryInfoType,
   UsersPaginatedType,
-  UserType,
+  UserViewType,
 } from '../../users.types.js';
 import { ObjectId } from 'mongodb';
 
@@ -64,7 +64,7 @@ export class UsersQueryRepository {
     };
   }
 
-  async findUser(loginOrEmail: string): Promise<UserType | null> {
+  async findUser(loginOrEmail: string): Promise<UserViewType | null> {
     const filter = loginOrEmail.includes('@') ? { email: loginOrEmail } : { login: loginOrEmail };
     const user = await this.model.findOne(filter, { hash: 0 }).lean();
     if (!user) {

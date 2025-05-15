@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { UsersService } from '../application/users.service.js';
 import { UsersQueryRepository } from '../infrastructure/mongoose/users.query-repository.js';
-import { CreateUserInputDto, GetUsersQueryParams, UsersPaginatedType, UserType } from '../users.types.js';
+import { CreateUserInputDto, GetUsersQueryParams, UsersPaginatedType, UserViewType } from '../users.types.js';
 import { BasicAuthGuard } from '../../../../common/guards/basic-auth.guard.js';
 
 @Controller('users')
@@ -26,7 +26,7 @@ export class UsersController {
 
   @Post()
   @HttpCode(201)
-  async createUser(@Body() body: CreateUserInputDto): Promise<UserType> {
+  async createUser(@Body() body: CreateUserInputDto): Promise<UserViewType> {
     const { login, password, email } = body;
     const newUser = await this.usersService.createUser(login, email, password);
     return newUser;

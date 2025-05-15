@@ -7,7 +7,7 @@ import {
   CONFIRMATION_STATUS,
   ConfirmationInfoType,
   PasswordRecoveryInfoType,
-  UserType,
+  UserViewType,
 } from '../users.types.js';
 import { SETTINGS } from '../../../../settings.js';
 
@@ -29,7 +29,7 @@ export class UsersService {
       expiration: null,
     },
     passwordRecovery: PasswordRecoveryInfoType = { code: null, expiration: null },
-  ): Promise<UserType> {
+  ): Promise<UserViewType> {
     if (!(await this.isLoginUnique(login)))
       throw new BadRequestException({
         errorsMessages: [{ message: 'Login already exists', field: 'login' }],
@@ -54,7 +54,7 @@ export class UsersService {
     return newUser;
   }
 
-  async registerUser(login: string, email: string, password: string): Promise<UserType> {
+  async registerUser(login: string, email: string, password: string): Promise<UserViewType> {
     const code = crypto.randomUUID();
 
     const currentDate = new Date();
