@@ -7,14 +7,18 @@ export type UserType = {
   id: string;
   login: string;
   email: string;
+  hash: string;
   createdAt: string;
+  confirmation: ConfirmationInfoType;
+  passwordRecovery: PasswordRecoveryInfoType;
 };
 
-export enum UsersSortBy {
-  login = 'login',
-  email = 'email',
-  createdAt = 'createdAt',
-}
+export type UserViewType = {
+  id: string;
+  login: string;
+  email: string;
+  createdAt: string;
+};
 
 export type UserDbType = WithId<{
   login: string;
@@ -31,12 +35,18 @@ export type CurrentUserType = {
   userId: string;
 };
 
+export enum UsersSortBy {
+  login = 'login',
+  email = 'email',
+  createdAt = 'createdAt',
+}
+
 export type UsersPaginatedType = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: UserType[];
+  items: UserViewType[];
 };
 
 export type ConfirmationInfoType = {
