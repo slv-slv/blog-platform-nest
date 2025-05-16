@@ -76,6 +76,7 @@ export class UsersQueryRepository {
   ): Promise<UsersPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
+    const orderBy = sortBy === 'createdAt' ? 'created_at' : sortBy;
     searchLoginTerm ??= '%';
     searchEmailTerm ??= '%';
 
@@ -97,11 +98,11 @@ export class UsersQueryRepository {
         SELECT id, login, email, created_at
         FROM users
         WHERE login ILIKE $1 OR email ILIKE $2
-        ORDER BY $3 $4
-        LIMIT $5
-        OFFSET $6
+        ORDER BY ${orderBy} ${sortDirection}
+        LIMIT $3
+        OFFSET $4
       `,
-      [searchLoginTerm, searchEmailTerm, sortBy, sortDirection, pageSize, skipCount],
+      [searchLoginTerm, searchEmailTerm, pageSize, skipCount],
     );
 
     const rawUsers = usersResult.rows;
