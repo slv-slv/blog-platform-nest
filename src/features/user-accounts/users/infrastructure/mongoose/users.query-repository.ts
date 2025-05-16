@@ -77,16 +77,27 @@ export class UsersQueryRepository {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     const orderBy = sortBy === 'createdAt' ? 'created_at' : sortBy;
-    searchLoginTerm ??= '%';
-    searchEmailTerm ??= '%';
+    // searchLoginTerm ??= '%';
+    // searchEmailTerm ??= '%';
+
+    const whereParams = [];
+
+    if (searchLoginTerm) {
+      whereParams.push(`login ILIKE '%${searchLoginTerm}%'`);
+    }
+
+    if (searchEmailTerm) {
+      whereParams.push(`email ILIKE '%${searchEmailTerm}%'`);
+    }
+
+    const whereClause = whereParams.length > 0 ? `WHERE ${whereParams.join(' OR ')}` : ``;
 
     const countResult = await this.pool.query(
       `
         SELECT id
         FROM users
-        WHERE login ILIKE $1 OR email ILIKE $2
+        ${whereClause}
       `,
-      [searchLoginTerm, searchEmailTerm],
     );
 
     const totalCount = countResult.rowCount!;
@@ -97,12 +108,12 @@ export class UsersQueryRepository {
       `
         SELECT id, login, email, created_at
         FROM users
-        WHERE login ILIKE $1 OR email ILIKE $2
+        ${whereClause}
         ORDER BY ${orderBy} ${sortDirection}
-        LIMIT $3
-        OFFSET $4
+        LIMIT $1
+        OFFSET $2
       `,
-      [searchLoginTerm, searchEmailTerm, pageSize, skipCount],
+      [pageSize, skipCount],
     );
 
     const rawUsers = usersResult.rows;
