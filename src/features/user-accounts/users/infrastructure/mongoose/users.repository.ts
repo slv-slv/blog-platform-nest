@@ -32,13 +32,14 @@ export class UsersRepository {
   // }
 
   async findUser(loginOrEmail: string): Promise<UserType | null> {
+    const likeTerm = `%${loginOrEmail}%`;
     const usersResult = await this.pool.query(
       `
         SELECT id, login, email, hash, created_at
         FROM users
-        WHERE login LIKE '%$1%' OR email LIKE '%$1%'
+        WHERE login LIKE $1 OR email LIKE $1
       `,
-      [loginOrEmail],
+      [likeTerm],
     );
 
     if (usersResult.rowCount === 0) {
