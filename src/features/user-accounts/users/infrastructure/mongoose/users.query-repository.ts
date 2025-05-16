@@ -150,7 +150,7 @@ export class UsersQueryRepository {
 
     const { id, login, email, createdAt } = result.rows[0];
 
-    return { id, login, email, createdAt };
+    return { id: id.toString(), login, email, createdAt };
   }
 
   // async getCurrentUser(userId: string): Promise<CurrentUserType | null> {
@@ -164,13 +164,15 @@ export class UsersQueryRepository {
   // }
 
   async getCurrentUser(userId: string): Promise<CurrentUserType | null> {
+    const idInt = Number.parseInt(userId);
+
     const result = await this.pool.query(
       `
         SELECT login, email
         FROM users
         WHERE id = $1
       `,
-      [userId],
+      [idInt],
     );
 
     if (result.rowCount === 0) {

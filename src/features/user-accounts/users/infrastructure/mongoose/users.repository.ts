@@ -67,7 +67,7 @@ export class UsersRepository {
     );
     const passwordRecovery = recoveryResult.rows[0];
 
-    return { id, login, email, hash, createdAt, confirmation, passwordRecovery };
+    return { id: id.toString(), login, email, hash, createdAt, confirmation, passwordRecovery };
   }
 
   // async getLogin(id: string): Promise<string | null> {
@@ -78,13 +78,15 @@ export class UsersRepository {
   // }
 
   async getLogin(id: string): Promise<string | null> {
+    const idInt = Number.parseInt(id);
+
     const result = await this.pool.query(
       `
         SELECT login
         FROM users
         WHERE id = $1
       `,
-      [id],
+      [idInt],
     );
 
     if (result.rowCount === 0) {
@@ -243,6 +245,8 @@ export class UsersRepository {
   // }
 
   async deleteUser(id: string): Promise<boolean> {
+    const idInt = Number.parseInt(id);
+
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
@@ -251,7 +255,7 @@ export class UsersRepository {
           DELETE FROM confirmation
             WHERE user_id = $1
         `,
-        [id],
+        [idInt],
       );
       if (deleteResult.rowCount === 0) {
         return false;
@@ -261,14 +265,14 @@ export class UsersRepository {
           DELETE FROM recovery
             WHERE user_id = $1
         `,
-        [id],
+        [idInt],
       );
       await this.pool.query(
         `
-          DELETE FROM user
+          DELETE FROM users
             WHERE id = $1
         `,
-        [id],
+        [idInt],
       );
       await client.query('COMMIT');
     } catch (e) {
