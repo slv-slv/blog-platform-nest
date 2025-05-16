@@ -5,7 +5,7 @@ import { UsersQueryRepository } from '../infrastructure/mongoose/users.query-rep
 import { CreateUserInputDto, GetUsersQueryParams, UsersPaginatedType, UserViewType } from '../users.types.js';
 import { BasicAuthGuard } from '../../../../common/guards/basic-auth.guard.js';
 
-@Controller('users')
+@Controller('sa/users')
 @UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
