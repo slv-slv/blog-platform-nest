@@ -81,6 +81,30 @@ export class SessionsRepository {
     return user_id;
   }
 
+  // async createSession(
+  //   userId: string,
+  //   deviceId: string,
+  //   deviceName: string,
+  //   ip: string,
+  //   iat: number,
+  //   exp: number,
+  // ): Promise<void> {
+  //   const newDevice: DeviceType = {
+  //     id: deviceId,
+  //     name: deviceName,
+  //     ip,
+  //     iat,
+  //     exp,
+  //   };
+
+  //   const session = await this.model.findOne({ userId }).lean();
+  //   if (!session) {
+  //     await this.model.insertOne({ userId, devices: [newDevice] });
+  //   } else {
+  //     await this.model.updateOne({ userId }, { $push: { devices: newDevice } });
+  //   }
+  // }
+
   async createSession(
     userId: string,
     deviceId: string,
@@ -89,20 +113,13 @@ export class SessionsRepository {
     iat: number,
     exp: number,
   ): Promise<void> {
-    const newDevice: DeviceType = {
-      id: deviceId,
-      name: deviceName,
-      ip,
-      iat,
-      exp,
-    };
-
-    const session = await this.model.findOne({ userId }).lean();
-    if (!session) {
-      await this.model.insertOne({ userId, devices: [newDevice] });
-    } else {
-      await this.model.updateOne({ userId }, { $push: { devices: newDevice } });
-    }
+    await this.pool.query(
+      `
+        INSERT INTO devices
+        VALUES ($1, $2, $3, $4, $5, $6)
+      `,
+      [deviceId, userId, deviceName, ip, iat, exp],
+    );
   }
 
   async deleteDevice(deviceId: string): Promise<void> {
