@@ -53,14 +53,32 @@ export class SessionsRepository {
     };
   }
 
-  async getDeviceOwner(deviceId: string): Promise<string | null> {
-    const session = await this.model.findOne({ 'devices.id': deviceId }, { userId: 1 }).lean();
+  // async getDeviceOwner(deviceId: string): Promise<string | null> {
+  //   const session = await this.model.findOne({ 'devices.id': deviceId }, { userId: 1 }).lean();
 
-    if (!session) {
+  //   if (!session) {
+  //     return null;
+  //   }
+
+  //   return session.userId;
+  // }
+
+  async getDeviceOwner(deviceId: string): Promise<string | null> {
+    const result = await this.pool.query(
+      `
+        SELECT user_id
+        FROM devices
+        WHERE id = $1
+      `,
+      [deviceId],
+    );
+
+    if (result.rowCount === 0) {
       return null;
     }
 
-    return session.userId;
+    const { user_id } = result.rows[0];
+    return user_id;
   }
 
   async createSession(
