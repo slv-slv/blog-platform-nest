@@ -1,18 +1,36 @@
 import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeviceType, Session } from './sessions.schemas.js';
 import { DeviceViewType } from '../../sessions.types.js';
+import { pool } from '../../../../../common/constants.js';
+import { Pool } from 'pg';
 
 @Injectable()
 export class SessionsQueryRepository {
-  constructor(@InjectModel(Session.name) private readonly model: Model<Session>) {}
+  constructor(
+    @InjectModel(Session.name) private readonly model: Model<Session>,
+    @Inject(pool) private readonly pool: Pool,
+  ) {}
+
+  // async isSessionActive(userId: string, deviceId: string, iat: number): Promise<boolean> {
+  //   const session = await this.model
+  //     .findOne({ userId, devices: { $elemMatch: { id: deviceId, iat } } })
+  //     .lean();
+  //   return session !== null;
+  // }
 
   async isSessionActive(userId: string, deviceId: string, iat: number): Promise<boolean> {
-    const session = await this.model
-      .findOne({ userId, devices: { $elemMatch: { id: deviceId, iat } } })
-      .lean();
-    return session !== null;
+    const result = await this.pool.query(
+      `
+        SELECT *
+        FROM devices
+        WHERE id = $1, user_id = $2, iat = $3
+      `,
+      [deviceId, userId, iat],
+    );
+
+    return result.rowCount! > 0;
   }
 
   async getActiveDevices(userId: string): Promise<DeviceViewType[]> {
