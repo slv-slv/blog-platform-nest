@@ -1,20 +1,49 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeviceType, Session } from './sessions.schemas.js';
 import { Model } from 'mongoose';
 import { DeviceViewType } from '../../sessions.types.js';
+import { pool } from '../../../../../common/constants.js';
+import { Pool } from 'pg';
 
 @Injectable()
 export class SessionsRepository {
-  constructor(@InjectModel(Session.name) private readonly model: Model<Session>) {}
+  constructor(
+    @InjectModel(Session.name) private readonly model: Model<Session>,
+    @Inject(pool) private readonly pool: Pool,
+  ) {}
+
+  // async findDevice(deviceId: string): Promise<DeviceViewType | null> {
+  //   const session = await this.model.findOne({ 'devices.id': deviceId }).lean();
+
+  //   if (!session) {
+  //     return null;
+  //   }
+  //   const device = session.devices.find((device: DeviceType) => device.id === deviceId)!;
+
+  //   return {
+  //     ip: device.ip,
+  //     title: device.name,
+  //     lastActiveDate: new Date(device.iat * 1000).toISOString(),
+  //     deviceId: device.id,
+  //   };
+  // }
 
   async findDevice(deviceId: string): Promise<DeviceViewType | null> {
-    const session = await this.model.findOne({ 'devices.id': deviceId }).lean();
+    const result = await this.pool.query(
+      `
+        SELECT id, name, ip, iat
+        FROM devices
+        WHERE id = $1
+      `,
+      [deviceId],
+    );
 
-    if (!session) {
+    if (result.rowCount === 0) {
       return null;
     }
-    const device = session.devices.find((device: DeviceType) => device.id === deviceId)!;
+
+    const device = result.rows[0];
 
     return {
       ip: device.ip,
