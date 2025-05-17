@@ -33,10 +33,28 @@ export class SessionsQueryRepository {
     return result.rowCount! > 0;
   }
 
-  async getActiveDevices(userId: string): Promise<DeviceViewType[]> {
-    const userSessions = await this.model.findOne({ userId }).lean();
+  // async getActiveDevices(userId: string): Promise<DeviceViewType[]> {
+  //   const userSessions = await this.model.findOne({ userId }).lean();
 
-    return userSessions!.devices.map((device: DeviceType) => ({
+  //   return userSessions!.devices.map((device: DeviceType) => ({
+  //     ip: device.ip,
+  //     title: device.name,
+  //     lastActiveDate: new Date(device.iat * 1000).toISOString(),
+  //     deviceId: device.id,
+  //   }));
+  // }
+
+  async getActiveDevices(userId: string): Promise<DeviceViewType[]> {
+    const result = await this.pool.query(
+      `
+        SELECT id, name, ip, iat
+        FROM devices
+        WHERE user_id = $1
+      `,
+      [userId],
+    );
+
+    return result.rows.map((device) => ({
       ip: device.ip,
       title: device.name,
       lastActiveDate: new Date(device.iat * 1000).toISOString(),
