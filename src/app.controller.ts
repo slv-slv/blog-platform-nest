@@ -28,7 +28,7 @@ export class AppController {
   @HttpCode(204)
   async dropDb(): Promise<void> {
     await this.pool.query(`
-      TRUNCATE users, confirmation, recovery RESTART IDENTITY CASCADE
+      TRUNCATE users, confirmation, recovery, devices RESTART IDENTITY CASCADE
     `);
   }
 }
