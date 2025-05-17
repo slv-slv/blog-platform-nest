@@ -122,8 +122,18 @@ export class SessionsRepository {
     );
   }
 
+  // async deleteDevice(deviceId: string): Promise<void> {
+  //   await this.model.updateOne({ 'devices.id': deviceId }, { $pull: { devices: { id: deviceId } } });
+  // }
+
   async deleteDevice(deviceId: string): Promise<void> {
-    await this.model.updateOne({ 'devices.id': deviceId }, { $pull: { devices: { id: deviceId } } });
+    await this.pool.query(
+      `
+        DELETE FROM devices
+        WHERE id = $1
+      `,
+      [deviceId],
+    );
   }
 
   async deleteOtherDevices(deviceId: string): Promise<void> {
