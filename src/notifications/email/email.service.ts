@@ -9,7 +9,7 @@ export class EmailService {
       url.searchParams.set('code', code);
 
       const info = await emailTransport.sendMail({
-        from: '"Vyacheslav Solovev" <slvsl.spb@gmail.com>',
+        from: '"Vyacheslav Solovev" <xnightingale@yandex.ru>',
         to: to,
         subject: 'Confirm your email',
         text: `Thank you for your registration. To confirm your profile please follow the link below:\n${url.href}`,
@@ -28,7 +28,7 @@ export class EmailService {
       url.searchParams.set('recoveryCode', code);
 
       const info = await emailTransport.sendMail({
-        from: '"Vyacheslav Solovev" <slvsl.spb@gmail.com>',
+        from: '"Vyacheslav Solovev" <xnightingale@yandex.ru>',
         to: to,
         subject: 'Password recovery',
         text: `To reset your password please follow the link below:\n${url.href}`,
