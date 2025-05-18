@@ -25,7 +25,7 @@ export class SessionsQueryRepository {
       `
         SELECT *
         FROM devices
-        WHERE id = $1, user_id = $2, iat = $3
+        WHERE id = $1 AND user_id = $2 AND iat = $3
       `,
       [deviceId, userId, iat],
     );

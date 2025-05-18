@@ -144,7 +144,7 @@ export class SessionsRepository {
     await this.pool.query(
       `
         DELETE FROM devices
-        WHERE user_id = (SELECT user_id FROM devices WHERE id = $1), id != $1
+        WHERE user_id = (SELECT user_id FROM devices WHERE id = $1) AND id != $1
       `,
       [deviceId],
     );
