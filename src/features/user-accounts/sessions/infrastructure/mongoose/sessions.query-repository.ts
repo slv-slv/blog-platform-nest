@@ -27,7 +27,7 @@ export class SessionsQueryRepository {
         FROM devices
         WHERE id = $1 AND user_id = $2 AND iat = $3
       `,
-      [deviceId, userId, iat],
+      [deviceId, parseInt(userId), iat],
     );
 
     return result.rowCount! > 0;
@@ -51,7 +51,7 @@ export class SessionsQueryRepository {
         FROM devices
         WHERE user_id = $1
       `,
-      [userId],
+      [parseInt(userId)],
     );
 
     return result.rows.map((device) => ({

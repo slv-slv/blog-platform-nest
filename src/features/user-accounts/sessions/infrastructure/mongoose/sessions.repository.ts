@@ -78,7 +78,7 @@ export class SessionsRepository {
     }
 
     const { user_id } = result.rows[0];
-    return user_id;
+    return user_id.toString();
   }
 
   // async createSession(
@@ -118,7 +118,7 @@ export class SessionsRepository {
         INSERT INTO devices
         VALUES ($1, $2, $3, $4, $5, $6)
       `,
-      [deviceId, userId, deviceName, ip, iat, exp],
+      [deviceId, parseInt(userId), deviceName, ip, iat, exp],
     );
   }
 
