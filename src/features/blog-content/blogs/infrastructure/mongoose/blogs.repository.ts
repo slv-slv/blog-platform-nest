@@ -111,12 +111,24 @@ export class BlogsRepository {
     return result.rowCount! > 0;
   }
 
+  // async deleteBlog(id: string): Promise<boolean> {
+  //   if (!ObjectId.isValid(id)) {
+  //     return false;
+  //   }
+  //   const _id = new ObjectId(id);
+  //   const deleteResult = await this.model.deleteOne({ _id });
+  //   return deleteResult.deletedCount > 0;
+  // }
+
   async deleteBlog(id: string): Promise<boolean> {
-    if (!ObjectId.isValid(id)) {
-      return false;
-    }
-    const _id = new ObjectId(id);
-    const deleteResult = await this.model.deleteOne({ _id });
-    return deleteResult.deletedCount > 0;
+    const result = await this.pool.query(
+      `
+        DELETE FROM blogs
+        WHERE id = $1
+      `,
+      [parseInt(id)],
+    );
+
+    return result.rowCount! > 0;
   }
 }
