@@ -34,7 +34,7 @@ export class SessionsRepository {
       `
         SELECT id, name, ip, iat
         FROM devices
-        WHERE id = $1
+        WHERE id::varchar = $1
       `,
       [deviceId],
     );
