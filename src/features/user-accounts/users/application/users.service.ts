@@ -70,7 +70,7 @@ export class UsersService {
 
     const passwordRecovery: PasswordRecoveryInfoType = { code: null, expiration: null };
 
-    await this.emailService.sendConfirmationCode(email, code);
+    this.emailService.sendConfirmationCode(email, code);
 
     return await this.createUser(login, email, password, confirmation, passwordRecovery);
   }
@@ -93,8 +93,9 @@ export class UsersService {
     currentDate.setHours(hours + SETTINGS.CONFIRMATION_CODE_LIFETIME);
     const expiration = currentDate.toISOString();
 
+    this.emailService.sendConfirmationCode(email, code);
+
     await this.usersRepository.updateConfirmationCode(email, code, expiration);
-    await this.emailService.sendConfirmationCode(email, code);
   }
 
   async sendRecoveryCode(email: string): Promise<void> {
