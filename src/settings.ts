@@ -32,7 +32,7 @@ export const SETTINGS = {
     pageSize: 10,
   } as PagingParamsType,
   CREDENTIALS: [{ login: 'admin', base64: 'YWRtaW46cXdlcnR5' }],
-  EMAIL_CREDENTIALS: { user: process.env.EMAIL_LOGIN, password: process.env.EMAIL_PASSWORD },
+  EMAIL_CREDENTIALS: { user: process.env.EMAIL_LOGIN_YANDEX, password: process.env.EMAIL_PASSWORD_YANDEX },
   JWT_PRIVATE_KEY: process.env.JWT_PRIVATE_KEY,
   ACCESS_TOKEN_LIFETIME: '5 m',
   REFRESH_TOKEN_LIFETIME: '10 m',
