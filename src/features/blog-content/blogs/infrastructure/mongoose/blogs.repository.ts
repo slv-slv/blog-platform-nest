@@ -52,6 +52,20 @@ export class BlogsRepository {
     };
   }
 
+  // async createBlog(
+  //   name: string,
+  //   description: string,
+  //   websiteUrl: string,
+  //   createdAt: string,
+  //   isMembership: boolean,
+  // ): Promise<BlogType> {
+  //   const _id = new ObjectId();
+  //   const newBlog = { name, description, websiteUrl, createdAt, isMembership };
+  //   await this.model.insertOne({ _id, ...newBlog });
+  //   const id = _id.toString();
+  //   return { id, ...newBlog };
+  // }
+
   async createBlog(
     name: string,
     description: string,
@@ -59,10 +73,19 @@ export class BlogsRepository {
     createdAt: string,
     isMembership: boolean,
   ): Promise<BlogType> {
-    const _id = new ObjectId();
     const newBlog = { name, description, websiteUrl, createdAt, isMembership };
-    await this.model.insertOne({ _id, ...newBlog });
-    const id = _id.toString();
+
+    const result = await this.pool.query(
+      `
+        INSERT INTO blogs (name, description, website_url, created_at, is_membership)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id
+      `,
+      [name, description, websiteUrl, createdAt, isMembership],
+    );
+
+    const id = result.rows[0].toString();
+
     return { id, ...newBlog };
   }
 
