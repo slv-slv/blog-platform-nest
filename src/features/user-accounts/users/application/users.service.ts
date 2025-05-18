@@ -77,7 +77,8 @@ export class UsersService {
 
   async resendConfirmationCode(email: string): Promise<void> {
     if (!(await this.usersRepository.findUser(email))) {
-      throw new BadRequestException({ errorsMessages: [{ message: 'Incorrect email', field: 'email' }] });
+      // throw new BadRequestException({ errorsMessages: [{ message: 'Incorrect email', field: 'email' }] });
+      return;
     }
 
     if (await this.isConfirmed(email)) {
