@@ -89,13 +89,26 @@ export class BlogsRepository {
     return { id, ...newBlog };
   }
 
+  // async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
+  //   if (!ObjectId.isValid(id)) {
+  //     return false;
+  //   }
+  //   const _id = new ObjectId(id);
+  //   const updateResult = await this.model.updateOne({ _id }, { $set: { name, description, websiteUrl } });
+  //   return updateResult.matchedCount > 0;
+  // }
+
   async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
-    if (!ObjectId.isValid(id)) {
-      return false;
-    }
-    const _id = new ObjectId(id);
-    const updateResult = await this.model.updateOne({ _id }, { $set: { name, description, websiteUrl } });
-    return updateResult.matchedCount > 0;
+    const result = await this.pool.query(
+      `
+        UPDATE blogs
+        SET name = $2, description = $3, website_url = $4
+        WHERE id = $1
+      `,
+      [parseInt(id), name, description, websiteUrl],
+    );
+
+    return result.rowCount! > 0;
   }
 
   async deleteBlog(id: string): Promise<boolean> {
