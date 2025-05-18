@@ -1,24 +1,55 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog } from './blogs.schemas.js';
 import { Model } from 'mongoose';
 import { BlogType } from '../../blogs.types.js';
 import { ObjectId } from 'mongodb';
+import { pool } from '../../../../../common/constants.js';
+import { Pool } from 'pg';
 
 @Injectable()
 export class BlogsRepository {
-  constructor(@InjectModel(Blog.name) private readonly model: Model<Blog>) {}
+  constructor(
+    @InjectModel(Blog.name) private readonly model: Model<Blog>,
+    @Inject(pool) private readonly pool: Pool,
+  ) {}
+
+  // async findBlog(id: string): Promise<BlogType | null> {
+  //   if (!ObjectId.isValid(id)) {
+  //     return null;
+  //   }
+  //   const _id = new ObjectId(id);
+  //   const blog = await this.model.findOne({ _id }, { _id: 0 }).lean();
+  //   if (!blog) {
+  //     return null;
+  //   }
+  //   return { id, ...blog };
+  // }
 
   async findBlog(id: string): Promise<BlogType | null> {
-    if (!ObjectId.isValid(id)) {
+    const result = await this.pool.query(
+      `
+        SELECT *
+        FROM blogs
+        WHERE id = $1
+      `,
+      [parseInt(id)],
+    );
+
+    if (result.rowCount === 0) {
       return null;
     }
-    const _id = new ObjectId(id);
-    const blog = await this.model.findOne({ _id }, { _id: 0 }).lean();
-    if (!blog) {
-      return null;
-    }
-    return { id, ...blog };
+
+    const blog = result.rows[0];
+
+    return {
+      id: blog.id.toString(),
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.website_url,
+      createdAt: blog.created_at,
+      isMembership: blog.is_membership,
+    };
   }
 
   async createBlog(
