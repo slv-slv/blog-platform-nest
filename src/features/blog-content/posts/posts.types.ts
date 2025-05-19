@@ -71,6 +71,8 @@ export class CreatePostInputDto {
   content: string;
 }
 
+export class UpdatePostInputDto extends CreatePostInputDto {}
+
 export class CreatePostForBlogInputDto extends CreatePostInputDto {
   @IsString()
   @Trim()
@@ -78,7 +80,7 @@ export class CreatePostForBlogInputDto extends CreatePostInputDto {
   blogId: string;
 }
 
-export class UpdatePostInputDto extends CreatePostForBlogInputDto {}
+export class UpdatePostForBlogInputDto extends CreatePostForBlogInputDto {}
 
 export class GetPostsQueryParams extends BasicPagingParams {
   @IsOptional()
