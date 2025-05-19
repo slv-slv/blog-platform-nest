@@ -1,45 +1,16 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  NotFoundException,
-  Param,
-  Post,
-  Put,
-  Query,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { BlogsQueryRepository } from '../infrastructure/mongoose/blogs.query-repository.js';
 import { BlogsRepository } from '../infrastructure/mongoose/blogs.repository.js';
-import {
-  BlogsPaginatedType,
-  BlogType,
-  CreateBlogInputDto,
-  GetBlogsQueryParams,
-  UpdateBlogInputDto,
-} from '../blogs.types.js';
-import { BlogsService } from '../application/blogs.service.js';
-import {
-  CreatePostInputDto,
-  GetPostsQueryParams,
-  PostsPaginatedType,
-  PostViewType,
-} from '../../posts/posts.types.js';
-import { PostsService } from '../../posts/application/posts.service.js';
+import { BlogsPaginatedType, BlogType, GetBlogsQueryParams } from '../blogs.types.js';
+import { GetPostsQueryParams, PostsPaginatedType } from '../../posts/posts.types.js';
 import { PostsQueryRepository } from '../../posts/infrastructure/mongoose/posts.query-repository.js';
-import { BasicAuthGuard } from '../../../../common/guards/basic-auth.guard.js';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private readonly blogsService: BlogsService,
     private readonly blogsRepo: BlogsRepository,
     private readonly blogsQueryRepository: BlogsQueryRepository,
-    private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsQueryRepository,
   ) {}
 
@@ -78,41 +49,5 @@ export class BlogsController {
       throw new NotFoundException('Blog not found');
     }
     return blog;
-  }
-
-  @Post()
-  @HttpCode(201)
-  @UseGuards(BasicAuthGuard)
-  async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogType> {
-    const { name, description, websiteUrl } = body;
-    const newBlog = await this.blogsService.createBlog(name, description, websiteUrl);
-    return newBlog;
-  }
-
-  @Post(':blogId/posts')
-  @HttpCode(201)
-  @UseGuards(BasicAuthGuard)
-  async createPostForBlog(
-    @Param('blogId') blogId: string,
-    @Body() body: CreatePostInputDto,
-  ): Promise<PostViewType> {
-    const { title, shortDescription, content } = body;
-    const newPost = await this.postsService.createPost(title, shortDescription, content, blogId);
-    return newPost;
-  }
-
-  @Put(':id')
-  @HttpCode(204)
-  @UseGuards(BasicAuthGuard)
-  async updateBlog(@Param('id') id: string, @Body() body: UpdateBlogInputDto) {
-    const { name, description, websiteUrl } = body;
-    await this.blogsService.updateBlog(id, name, description, websiteUrl);
-  }
-
-  @Delete(':id')
-  @HttpCode(204)
-  @UseGuards(BasicAuthGuard)
-  async deleteBlog(@Param('id') id: string) {
-    await this.blogsService.deleteBlog(id);
   }
 }

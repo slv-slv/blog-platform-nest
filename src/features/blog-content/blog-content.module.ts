@@ -27,6 +27,7 @@ import {
 } from './likes/comments/infrastructure/mongoose/comment-likes.schemas.js';
 import { PostLikes, PostLikesSchema } from './likes/posts/infrastructure/mongoose/post-likes.schemas.js';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
+import { BlogsSuperadminController } from './blogs/api/blogs.superadmin.controller.js';
 
 @Module({
   imports: [
@@ -39,7 +40,7 @@ import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
     ]),
     UserAccountsModule,
   ],
-  controllers: [BlogsController, PostsController, CommentsController],
+  controllers: [BlogsController, BlogsSuperadminController, PostsController, CommentsController],
   providers: [
     BlogsService,
     BlogsRepository,
