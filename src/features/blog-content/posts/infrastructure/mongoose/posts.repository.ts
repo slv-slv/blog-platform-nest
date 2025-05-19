@@ -102,7 +102,7 @@ export class PostsRepository {
       return null;
     }
 
-    const { blogName } = blogNameResult.rows[0];
+    const { name: blogName } = blogNameResult.rows[0];
 
     const result = await this.pool.query(
       `
