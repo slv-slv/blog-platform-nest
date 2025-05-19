@@ -144,20 +144,14 @@ export class PostsRepository {
   //   return updateResult.matchedCount > 0;
   // }
 
-  async updatePost(
-    id: string,
-    title: string,
-    shortDescription: string,
-    content: string,
-    blogId: string,
-  ): Promise<boolean> {
+  async updatePost(id: string, title: string, shortDescription: string, content: string): Promise<boolean> {
     const result = await this.pool.query(
       `
         UPDATE posts
-        SET blog_id = $2, title = $3, short_description = $4, content = $5
+        SET title = $2, short_description = $3, content = $4
         WHERE id = $1
       `,
-      [parseInt(id), parseInt(blogId), title, shortDescription, content],
+      [parseInt(id), title, shortDescription, content],
     );
 
     return result.rowCount! > 0;

@@ -2,12 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PostsRepository } from '../infrastructure/mongoose/posts.repository.js';
 import { PostViewType } from '../posts.types.js';
 import { PostLikesService } from '../../likes/posts/application/post-likes.service.js';
+import { BlogsRepository } from '../../blogs/infrastructure/mongoose/blogs.repository.js';
 
 @Injectable()
 export class PostsService {
   constructor(
     private readonly postsRepository: PostsRepository,
     private readonly postLikesService: PostLikesService,
+    private readonly blogsRepository: BlogsRepository,
   ) {}
 
   async createPost(
@@ -35,20 +37,26 @@ export class PostsService {
   }
 
   async updatePost(
-    id: string,
+    postId: string,
     title: string,
     shortDescription: string,
     content: string,
     blogId: string,
   ): Promise<void> {
-    const updateResult = await this.postsRepository.updatePost(id, title, shortDescription, content, blogId);
+    const blog = await this.blogsRepository.findBlog(blogId);
+    if (!blog) throw new NotFoundException('Blog not found');
+
+    const updateResult = await this.postsRepository.updatePost(postId, title, shortDescription, content);
     if (!updateResult) throw new NotFoundException('Post not found');
   }
 
-  async deletePost(id: string): Promise<void> {
-    const deleteResult = await this.postsRepository.deletePost(id);
+  async deletePost(blogId: string, postId: string): Promise<void> {
+    const blog = await this.blogsRepository.findBlog(blogId);
+    if (!blog) throw new NotFoundException('Blog not found');
+
+    const deleteResult = await this.postsRepository.deletePost(postId);
     if (!deleteResult) throw new NotFoundException('Post not found');
 
-    await this.postLikesService.deleteLikesInfo(id);
+    await this.postLikesService.deleteLikesInfo(postId);
   }
 }
