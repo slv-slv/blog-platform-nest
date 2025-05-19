@@ -175,12 +175,28 @@ export class PostsRepository {
     return true;
   }
 
+  // async deletePost(id: string): Promise<boolean> {
+  //   if (!ObjectId.isValid(id)) {
+  //     return false;
+  //   }
+  //   const _id = new ObjectId(id);
+  //   const deleteResult = await this.model.deleteOne({ _id });
+  //   return deleteResult.deletedCount > 0;
+  // }
+
   async deletePost(id: string): Promise<boolean> {
-    if (!ObjectId.isValid(id)) {
+    const result = await this.pool.query(
+      `
+        DELETE FROM posts
+        WHERE id = $1
+      `,
+      [parseInt(id)],
+    );
+
+    if (result.rowCount === 0) {
       return false;
     }
-    const _id = new ObjectId(id);
-    const deleteResult = await this.model.deleteOne({ _id });
-    return deleteResult.deletedCount > 0;
+
+    return true;
   }
 }
