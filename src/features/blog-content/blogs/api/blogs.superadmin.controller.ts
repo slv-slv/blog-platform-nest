@@ -34,7 +34,7 @@ import { PostsService } from '../../posts/application/posts.service.js';
 import { PostsQueryRepository } from '../../posts/infrastructure/mongoose/posts.query-repository.js';
 import { BasicAuthGuard } from '../../../../common/guards/basic-auth.guard.js';
 
-@Controller('blogs/sa')
+@Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
 export class BlogsSuperadminController {
   constructor(
