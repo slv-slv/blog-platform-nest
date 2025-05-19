@@ -21,7 +21,7 @@ import {
   GetPostsQueryParams,
   PostsPaginatedType,
   PostViewType,
-  UpdatePostInputDto,
+  UpdatePostForBlogInputDto,
 } from '../posts.types.js';
 import {
   CommentsPaginatedType,
@@ -83,17 +83,17 @@ export class PostsController {
   @Put(':id')
   @HttpCode(204)
   @UseGuards(BasicAuthGuard)
-  async updatePost(@Param('id') id: string, @Body() body: UpdatePostInputDto): Promise<void> {
+  async updatePost(@Param('id') id: string, @Body() body: UpdatePostForBlogInputDto): Promise<void> {
     const { title, shortDescription, content, blogId } = body;
     await this.postsService.updatePost(id, title, shortDescription, content, blogId);
   }
 
-  @Delete(':id')
-  @HttpCode(204)
-  @UseGuards(BasicAuthGuard)
-  async deletePost(@Param('id') id: string): Promise<void> {
-    await this.postsService.deletePost(id);
-  }
+  // @Delete(':id')
+  // @HttpCode(204)
+  // @UseGuards(BasicAuthGuard)
+  // async deletePost(@Param('id') id: string): Promise<void> {
+  //   await this.postsService.deletePost(id);
+  // }
 
   @Get(':postId/comments')
   async getCommentsForPost(
