@@ -180,7 +180,7 @@ export class PostsQueryRepository {
         title: post.title,
         shortDescription: post.short_description,
         content: post.content,
-        blogId: post.blog_id,
+        blogId: post.blog_id.toString(),
         blogName: post.blog_name,
         createdAt: post.created_at,
         extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo(post.id.toString(), userId),
