@@ -151,18 +151,6 @@ export class PostsRepository {
     content: string,
     blogId: string,
   ): Promise<boolean> {
-    const postResult = await this.pool.query(
-      `
-        SELECT * FROM posts
-        WHERE id = $1
-      `,
-      [parseInt(id)],
-    );
-
-    if (postResult.rowCount === 0) {
-      return false;
-    }
-
     const result = await this.pool.query(
       `
         UPDATE posts
@@ -172,7 +160,7 @@ export class PostsRepository {
       [parseInt(id), parseInt(blogId), title, shortDescription, content],
     );
 
-    return true;
+    return result.rowCount! > 0;
   }
 
   // async deletePost(id: string): Promise<boolean> {
@@ -193,10 +181,6 @@ export class PostsRepository {
       [parseInt(id)],
     );
 
-    if (result.rowCount === 0) {
-      return false;
-    }
-
-    return true;
+    return result.rowCount! > 0;
   }
 }
