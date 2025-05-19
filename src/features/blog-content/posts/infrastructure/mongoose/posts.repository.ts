@@ -62,6 +62,25 @@ export class PostsRepository {
     };
   }
 
+  // async createPost(
+  //   title: string,
+  //   shortDescription: string,
+  //   content: string,
+  //   blogId: string,
+  //   createdAt: string,
+  // ): Promise<PostDtoType | null> {
+  //   const _id = new ObjectId();
+
+  //   const blog = await this.blogsRepository.findBlog(blogId);
+  //   if (!blog) return null;
+
+  //   const blogName = blog!.name;
+  //   const newPost = { title, shortDescription, content, blogId, blogName, createdAt };
+  //   await this.model.insertOne({ _id, ...newPost });
+  //   const id = _id.toString();
+  //   return { id, ...newPost };
+  // }
+
   async createPost(
     title: string,
     shortDescription: string,
@@ -69,16 +88,42 @@ export class PostsRepository {
     blogId: string,
     createdAt: string,
   ): Promise<PostDtoType | null> {
-    const _id = new ObjectId();
+    const blogIdInt = parseInt(blogId);
 
-    const blog = await this.blogsRepository.findBlog(blogId);
-    if (!blog) return null;
+    const blogNameResult = await this.pool.query(
+      `
+        SELECT name FROM blogs
+        WHERE id = $1
+      `,
+      [blogIdInt],
+    );
 
-    const blogName = blog!.name;
-    const newPost = { title, shortDescription, content, blogId, blogName, createdAt };
-    await this.model.insertOne({ _id, ...newPost });
-    const id = _id.toString();
-    return { id, ...newPost };
+    if (blogNameResult.rowCount === 0) {
+      return null;
+    }
+
+    const blogName = blogNameResult.rows[0];
+
+    const result = await this.pool.query(
+      `
+        INSERT INTO posts (blog_id, title, short_description, content, created_at)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id
+      `,
+      [blogIdInt, title, shortDescription, content, createdAt],
+    );
+
+    const id = result.rows[0].toString();
+
+    return {
+      id,
+      title,
+      shortDescription,
+      content,
+      blogId,
+      blogName,
+      createdAt,
+    };
   }
 
   async updatePost(
