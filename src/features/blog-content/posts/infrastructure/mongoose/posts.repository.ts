@@ -126,6 +126,24 @@ export class PostsRepository {
     };
   }
 
+  // async updatePost(
+  //   id: string,
+  //   title: string,
+  //   shortDescription: string,
+  //   content: string,
+  //   blogId: string,
+  // ): Promise<boolean> {
+  //   if (!ObjectId.isValid(id)) {
+  //     return false;
+  //   }
+  //   const _id = new ObjectId(id);
+  //   const updateResult = await this.model.updateOne(
+  //     { _id },
+  //     { $set: { title, shortDescription, content, blogId } },
+  //   );
+  //   return updateResult.matchedCount > 0;
+  // }
+
   async updatePost(
     id: string,
     title: string,
@@ -133,15 +151,28 @@ export class PostsRepository {
     content: string,
     blogId: string,
   ): Promise<boolean> {
-    if (!ObjectId.isValid(id)) {
+    const postResult = await this.pool.query(
+      `
+        SELECT * FROM posts
+        WHERE id = $1
+      `,
+      [parseInt(id)],
+    );
+
+    if (postResult.rowCount === 0) {
       return false;
     }
-    const _id = new ObjectId(id);
-    const updateResult = await this.model.updateOne(
-      { _id },
-      { $set: { title, shortDescription, content, blogId } },
+
+    const result = await this.pool.query(
+      `
+        UPDATE posts
+        SET blog_id = $2, title = $3, short_description = $4, content = $5
+        WHERE id = $1
+      `,
+      [parseInt(id), parseInt(blogId), title, shortDescription, content],
     );
-    return updateResult.matchedCount > 0;
+
+    return true;
   }
 
   async deletePost(id: string): Promise<boolean> {
