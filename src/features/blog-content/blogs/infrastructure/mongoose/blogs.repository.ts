@@ -84,7 +84,7 @@ export class BlogsRepository {
       [name, description, websiteUrl, createdAt, isMembership],
     );
 
-    const id = result.rows[0].toString();
+    const id = result.rows[0].id.toString();
 
     return { id, ...newBlog };
   }
