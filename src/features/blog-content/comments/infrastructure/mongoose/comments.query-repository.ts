@@ -29,7 +29,7 @@ export class CommentsQueryRepository {
     return { id, ...comment, likesInfo };
   }
 
-  async getCommentsForPost(
+  async getComments(
     postId: string,
     userId: string,
     pagingParams: PagingParamsType,

@@ -109,7 +109,7 @@ export class PostsController {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
 
-    const comments = await this.commentsQueryRepository.getCommentsForPost(postId, userId, pagingParams);
+    const comments = await this.commentsQueryRepository.getComments(postId, userId, pagingParams);
     return comments;
   }
 
