@@ -58,21 +58,41 @@ export class CommentsRepository {
     };
   }
 
+  // async createComment(
+  //   postId: string,
+  //   content: string,
+  //   createdAt: string,
+  //   commentatorInfo: { userId: string; userLogin: string },
+  // ): Promise<CommentDtoType> {
+  //   const _id = new ObjectId();
+  //   await this.model.insertOne({
+  //     _id,
+  //     postId,
+  //     content,
+  //     commentatorInfo,
+  //     createdAt,
+  //   });
+  //   const id = _id.toString();
+  //   return { id, content, commentatorInfo, createdAt };
+  // }
+
   async createComment(
     postId: string,
     content: string,
     createdAt: string,
     commentatorInfo: { userId: string; userLogin: string },
   ): Promise<CommentDtoType> {
-    const _id = new ObjectId();
-    await this.model.insertOne({
-      _id,
-      postId,
-      content,
-      commentatorInfo,
-      createdAt,
-    });
-    const id = _id.toString();
+    const result = await this.pool.query(
+      `
+        INSERT INTO comments (post_id, user_id, content, created_at)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
+      `,
+      [parseInt(postId), commentatorInfo.userId, content, createdAt],
+    );
+
+    const id = result.rows[0].toString();
+
     return { id, content, commentatorInfo, createdAt };
   }
 
