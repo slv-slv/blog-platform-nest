@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
@@ -6,27 +6,65 @@ import { Comment } from './comments.schemas.js';
 import { CommentsPaginatedType, CommentViewType } from '../../comments.types.js';
 import { PagingParamsType } from '../../../../../common/types/paging-params.types.js';
 import { CommentLikesQueryRepository } from '../../../likes/comments/infrastructure/mongoose/comment-likes.query-repository.js';
+import { pool } from '../../../../../common/constants.js';
+import { Pool } from 'pg';
 
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
     @InjectModel(Comment.name) private readonly model: Model<Comment>,
+    @Inject(pool) private readonly pool: Pool,
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
+  // async findComment(id: string, userId: string): Promise<CommentViewType | null> {
+  //   if (!ObjectId.isValid(id)) {
+  //     return null;
+  //   }
+  //   const _id = new ObjectId(id);
+  //   const comment = await this.model.findOne({ _id }, { _id: 0, postId: 0 }).lean();
+  //   if (!comment) {
+  //     return null;
+  //   }
+
+  //   const likesInfo = await this.commentLikesQueryRepository.getLikesInfo(id, userId);
+
+  //   return { id, ...comment, likesInfo };
+  // }
+
   async findComment(id: string, userId: string): Promise<CommentViewType | null> {
-    if (!ObjectId.isValid(id)) {
+    const result = await this.pool.query(
+      `
+        SELECT
+          comments.content,
+          comments.created_at,
+          comments.user_id AS commentator_id,
+          users.login AS commentator_login
+        FROM comments JOIN users
+          ON comments.user_id = users.id
+        WHERE comments.id = $1
+      `,
+      [parseInt(id)],
+    );
+
+    if (result.rowCount === 0) {
       return null;
     }
-    const _id = new ObjectId(id);
-    const comment = await this.model.findOne({ _id }, { _id: 0, postId: 0 }).lean();
-    if (!comment) {
-      return null;
-    }
+
+    const { content, created_at, commentator_id, commentator_login } = result.rows[0];
 
     const likesInfo = await this.commentLikesQueryRepository.getLikesInfo(id, userId);
 
-    return { id, ...comment, likesInfo };
+    return {
+      id,
+      content,
+      commentatorInfo: {
+        userId: commentator_id,
+        userLogin: commentator_login,
+      },
+      createdAt: created_at,
+      likesInfo,
+    };
   }
 
   async getComments(
