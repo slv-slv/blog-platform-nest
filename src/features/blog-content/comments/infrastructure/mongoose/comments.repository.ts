@@ -96,13 +96,26 @@ export class CommentsRepository {
     return { id, content, commentatorInfo, createdAt };
   }
 
+  // async updateComment(id: string, content: string): Promise<boolean> {
+  //   if (!ObjectId.isValid(id)) {
+  //     return false;
+  //   }
+  //   const _id = new ObjectId(id);
+  //   const updateResult = await this.model.updateOne({ _id }, { $set: { content } });
+  //   return updateResult.matchedCount > 0;
+  // }
+
   async updateComment(id: string, content: string): Promise<boolean> {
-    if (!ObjectId.isValid(id)) {
-      return false;
-    }
-    const _id = new ObjectId(id);
-    const updateResult = await this.model.updateOne({ _id }, { $set: { content } });
-    return updateResult.matchedCount > 0;
+    const result = await this.pool.query(
+      `
+        UPDATE comments
+        SET content = $2
+        WHERE id = $1
+      `,
+      [parseInt(id), content],
+    );
+
+    return result.rowCount! > 0;
   }
 
   async deleteComment(id: string): Promise<boolean> {
