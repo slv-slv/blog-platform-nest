@@ -1,24 +1,61 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Comment } from './comments.schemas.js';
 import { Model } from 'mongoose';
 import { CommentDtoType } from '../../comments.types.js';
 import { ObjectId } from 'mongodb';
+import { pool } from '../../../../../common/constants.js';
+import { Pool } from 'pg';
 
 @Injectable()
 export class CommentsRepository {
-  constructor(@InjectModel(Comment.name) private readonly model: Model<Comment>) {}
+  constructor(
+    @InjectModel(Comment.name) private readonly model: Model<Comment>,
+    @Inject(pool) private readonly pool: Pool,
+  ) {}
+
+  // async findComment(id: string): Promise<CommentDtoType | null> {
+  //   if (!ObjectId.isValid(id)) {
+  //     return null;
+  //   }
+  //   const _id = new ObjectId(id);
+  //   const comment = await this.model.findById(_id, { _id: 0 }).lean();
+  //   if (!comment) {
+  //     return null;
+  //   }
+  //   return { id, ...comment };
+  // }
 
   async findComment(id: string): Promise<CommentDtoType | null> {
-    if (!ObjectId.isValid(id)) {
+    const result = await this.pool.query(
+      `
+        SELECT
+          comments.content,
+          comments.created_at,
+          comments.user_id AS commentator_id,
+          users.login AS commentator_login
+        FROM comments JOIN users
+          ON comments.user_id = users.id
+        WHERE comments.id = $1
+      `,
+      [parseInt(id)],
+    );
+
+    if (result.rowCount === 0) {
       return null;
     }
-    const _id = new ObjectId(id);
-    const comment = await this.model.findById(_id, { _id: 0 }).lean();
-    if (!comment) {
-      return null;
-    }
-    return { id, ...comment };
+
+    const { content, created_at, commentator_id, commentator_login } = result.rows[0];
+
+    return {
+      id,
+      content,
+      commentatorInfo: {
+        userId: commentator_id.toString(),
+        userLogin: commentator_login,
+      },
+      createdAt: created_at,
+    };
   }
 
   async createComment(
