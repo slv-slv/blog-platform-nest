@@ -34,12 +34,25 @@ export class CommentLikesRepository {
     return result.rows[0];
   }
 
+  // async getDislikesCount(commentId: string): Promise<number> {
+  //   const result = await this.model.aggregate([
+  //     { $match: { commentId } },
+  //     { $project: { dislikesCount: { $size: '$dislikes' } } },
+  //   ]);
+  //   return result[0]?.dislikesCount ?? 0;
+  // }
+
   async getDislikesCount(commentId: string): Promise<number> {
-    const result = await this.model.aggregate([
-      { $match: { commentId } },
-      { $project: { dislikesCount: { $size: '$dislikes' } } },
-    ]);
-    return result[0]?.dislikesCount ?? 0;
+    const result = await this.pool.query(
+      `
+        SELECT COUNT(*)
+        FROM comment_dislikes
+        WHERE comment_id = $1
+      `,
+      [parseInt(commentId)],
+    );
+
+    return result.rows[0];
   }
 
   async getLikeStatus(commentId: string, userId: string): Promise<LikeStatus> {
