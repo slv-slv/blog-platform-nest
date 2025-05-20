@@ -1,19 +1,37 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CommentLikes } from './comment-likes.schemas.js';
 import { CommentLikesType } from '../../comment-likes.types.js';
 import { Model } from 'mongoose';
 import { LikeStatus } from '../../../types/likes.types.js';
+import { pool } from '../../../../../../common/constants.js';
+import { Pool } from 'pg';
 
 @Injectable()
 export class CommentLikesRepository {
-  constructor(@InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesType>) {}
+  constructor(
+    @InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesType>,
+    @Inject(pool) private readonly pool: Pool,
+  ) {}
+  // async getLikesCount(commentId: string): Promise<number> {
+  //   const result = await this.model.aggregate([
+  //     { $match: { commentId } },
+  //     { $project: { likesCount: { $size: '$likes' } } },
+  //   ]);
+  //   return result[0]?.likesCount ?? 0;
+  // }
+
   async getLikesCount(commentId: string): Promise<number> {
-    const result = await this.model.aggregate([
-      { $match: { commentId } },
-      { $project: { likesCount: { $size: '$likes' } } },
-    ]);
-    return result[0]?.likesCount ?? 0;
+    const result = await this.pool.query(
+      `
+        SELECT COUNT(*)
+        FROM comment_likes
+        WHERE comment_id = $1
+      `,
+      [parseInt(commentId)],
+    );
+
+    return result.rows[0];
   }
 
   async getDislikesCount(commentId: string): Promise<number> {
