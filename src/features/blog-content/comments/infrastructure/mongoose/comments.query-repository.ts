@@ -128,14 +128,14 @@ export class CommentsQueryRepository {
 
     const countResult = await this.pool.query(
       `
-        SELECT id
+        SELECT COUNT(id)
         FROM comments
         WHERE post_id = $1
       `,
       [parseInt(postId)],
     );
 
-    const totalCount = countResult.rowCount!;
+    const totalCount = countResult.rows[0];
     const pagesCount = Math.ceil(totalCount / pageSize);
     const skipCount = (pageNumber - 1) * pageSize;
 

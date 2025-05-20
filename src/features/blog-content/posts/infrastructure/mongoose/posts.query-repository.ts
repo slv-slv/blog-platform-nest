@@ -143,13 +143,13 @@ export class PostsQueryRepository {
 
     const countResult = await this.pool.query(
       `
-        SELECT id
+        SELECT COUNT(id)
         FROM posts
         ${whereClause}
       `,
     );
 
-    const totalCount = countResult.rowCount!;
+    const totalCount = countResult.rows[0];
     const pagesCount = Math.ceil(totalCount / pageSize);
     const skipCount = (pageNumber - 1) * pageSize;
 
