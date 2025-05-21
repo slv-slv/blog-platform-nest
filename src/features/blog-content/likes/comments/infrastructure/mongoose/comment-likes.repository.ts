@@ -241,12 +241,42 @@ export class CommentLikesRepository {
     }
   }
 
+  // async setNone(commentId: string, userId: string): Promise<void> {
+  //   await this.model.updateOne(
+  //     { commentId },
+  //     {
+  //       $pull: { likes: { userId: userId }, dislikes: { userId: userId } },
+  //     },
+  //   );
+  // }
+
   async setNone(commentId: string, userId: string): Promise<void> {
-    await this.model.updateOne(
-      { commentId },
-      {
-        $pull: { likes: { userId: userId }, dislikes: { userId: userId } },
-      },
-    );
+    const commentIdInt = parseInt(commentId);
+    const userIdInt = parseInt(userId);
+
+    const client = await this.pool.connect();
+    try {
+      await client.query(`BEGIN`);
+      await client.query(
+        `
+          DELETE FROM comment_likes
+          WHERE comment_id = $1 AND user_id = $2
+        `,
+        [commentIdInt, userIdInt],
+      );
+      await client.query(
+        `
+          DELETE FROM comment_dislikes
+          WHERE comment_id = $1 AND user_id = $2
+        `,
+        [commentIdInt, userIdInt],
+      );
+      await client.query(`COMMIT`);
+    } catch (e) {
+      await client.query(`ROLLBACK`);
+      throw e;
+    } finally {
+      client.release();
+    }
   }
 }
