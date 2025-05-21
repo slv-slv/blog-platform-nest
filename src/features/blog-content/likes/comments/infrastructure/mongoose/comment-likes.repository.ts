@@ -76,8 +76,8 @@ export class CommentLikesRepository {
 
   //   if (!comment) return LikeStatus.None;
 
-  //   if (comment!.likes) return LikeStatus.Like;
-  //   if (comment!.dislikes) return LikeStatus.Dislike;
+  //   if (comment.likes) return LikeStatus.Like;
+  //   if (comment.dislikes) return LikeStatus.Dislike;
 
   //   return LikeStatus.None;
   // }
