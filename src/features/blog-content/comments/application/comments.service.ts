@@ -30,7 +30,7 @@ export class CommentsService {
       commentatorInfo,
     );
     const commentId = newComment.id;
-    await this.commentLikesService.createLikesInfo(commentId);
+    await this.commentLikesService.createEmptyLikesInfo(commentId);
     const likesInfo = this.commentLikesService.getDefaultLikesInfo();
     return { ...newComment, likesInfo };
   }

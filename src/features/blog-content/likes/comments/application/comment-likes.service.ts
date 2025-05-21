@@ -33,14 +33,8 @@ export class CommentLikesService {
     }
   }
 
-  async createLikesInfo(commentId: string): Promise<void> {
-    const likesInfo: CommentLikesType = {
-      commentId,
-      likes: [],
-      dislikes: [],
-    };
-
-    await this.commentLikesRepository.createLikesInfo(likesInfo);
+  async createEmptyLikesInfo(commentId: string): Promise<void> {
+    await this.commentLikesRepository.createEmptyLikesInfo(commentId);
   }
 
   async deleteLikesInfo(commentId: string): Promise<void> {

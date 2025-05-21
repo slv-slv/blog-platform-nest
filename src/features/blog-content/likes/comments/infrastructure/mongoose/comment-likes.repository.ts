@@ -105,7 +105,12 @@ export class CommentLikesRepository {
     return LikeStatus.None;
   }
 
-  async createLikesInfo(likesInfo: CommentLikesType): Promise<void> {
+  async createEmptyLikesInfo(commentId: string): Promise<void> {
+    const likesInfo: CommentLikesType = {
+      commentId,
+      likes: [],
+      dislikes: [],
+    };
     await this.model.insertOne(likesInfo);
   }
 
