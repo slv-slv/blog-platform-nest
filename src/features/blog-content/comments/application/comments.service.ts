@@ -29,8 +29,9 @@ export class CommentsService {
       createdAt,
       commentatorInfo,
     );
-    const commentId = newComment.id;
-    await this.commentLikesService.createEmptyLikesInfo(commentId);
+
+    // const commentId = newComment.id;
+    // await this.commentLikesService.createEmptyLikesInfo(commentId);
     const likesInfo = this.commentLikesService.getDefaultLikesInfo();
     return { ...newComment, likesInfo };
   }
@@ -52,7 +53,7 @@ export class CommentsService {
     const ownerId = comment.commentatorInfo.userId;
     if (userId !== ownerId) throw new ForbiddenException('Access denied');
 
-    await this.commentsRepository.deleteComment(commentId);
     await this.commentLikesService.deleteLikesInfo(commentId);
+    await this.commentsRepository.deleteComment(commentId);
   }
 }

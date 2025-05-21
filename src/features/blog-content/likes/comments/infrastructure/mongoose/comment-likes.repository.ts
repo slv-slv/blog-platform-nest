@@ -14,11 +14,14 @@ export class CommentLikesRepository {
     @Inject(pool) private readonly pool: Pool,
   ) {}
   // async getLikesCount(commentId: string): Promise<number> {
+  //   const comment = await this.model.findOne({ commentId }).lean();
+  //   if (!comment) return 0;
+
   //   const result = await this.model.aggregate([
   //     { $match: { commentId } },
   //     { $project: { likesCount: { $size: '$likes' } } },
   //   ]);
-  //   return result[0]?.likesCount ?? 0;
+  //   return result[0].likesCount;
   // }
 
   async getLikesCount(commentId: string): Promise<number> {
@@ -35,11 +38,14 @@ export class CommentLikesRepository {
   }
 
   // async getDislikesCount(commentId: string): Promise<number> {
+  //   const comment = await this.model.findOne({ commentId }).lean();
+  //   if (!comment) return 0;
+
   //   const result = await this.model.aggregate([
   //     { $match: { commentId } },
   //     { $project: { dislikesCount: { $size: '$dislikes' } } },
   //   ]);
-  //   return result[0]?.dislikesCount ?? 0;
+  //   return result[0].dislikesCount;
   // }
 
   async getDislikesCount(commentId: string): Promise<number> {
@@ -67,6 +73,8 @@ export class CommentLikesRepository {
   //       },
   //     )
   //     .lean();
+
+  //   if (!comment) return LikeStatus.None;
 
   //   if (comment!.likes) return LikeStatus.Like;
   //   if (comment!.dislikes) return LikeStatus.Dislike;
@@ -105,14 +113,18 @@ export class CommentLikesRepository {
     return LikeStatus.None;
   }
 
-  async createEmptyLikesInfo(commentId: string): Promise<void> {
-    const likesInfo: CommentLikesType = {
-      commentId,
-      likes: [],
-      dislikes: [],
-    };
-    await this.model.insertOne(likesInfo);
-  }
+  // async createEmptyLikesInfo(commentId: string): Promise<void> {
+  //   const likesInfo: CommentLikesType = {
+  //     commentId,
+  //     likes: [],
+  //     dislikes: [],
+  //   };
+  //   await this.model.insertOne(likesInfo);
+  // }
+
+  // async createEmptyLikesInfo(commentId: string): Promise<void> {
+  //   const result =
+  // }
 
   async deleteLikesInfo(commentId: string): Promise<void> {
     await this.model.deleteOne({ commentId });
@@ -120,24 +132,47 @@ export class CommentLikesRepository {
 
   async setLike(commentId: string, userId: string, createdAt: Date): Promise<void> {
     const like = { userId, createdAt };
+
     await this.model.updateOne(
       { commentId },
-      { $push: { likes: like }, $pull: { dislikes: { userId: userId } } },
+      { $setOnInsert: { commentId, likes: [], dislikes: [] } },
+      { upsert: true },
+    );
+
+    await this.model.updateOne(
+      { commentId },
+      {
+        $push: { likes: like },
+        $pull: { dislikes: { userId: userId } },
+      },
     );
   }
 
   async setDislike(commentId: string, userId: string, createdAt: Date): Promise<void> {
     const dislike = { userId, createdAt };
+
     await this.model.updateOne(
       { commentId },
-      { $push: { dislikes: dislike }, $pull: { likes: { userId: userId } } },
+      { $setOnInsert: { commentId, likes: [], dislikes: [] } },
+      { upsert: true },
+    );
+
+    await this.model.updateOne(
+      { commentId },
+      {
+        $push: { dislikes: dislike },
+        $pull: { likes: { userId: userId } },
+      },
     );
   }
 
   async setNone(commentId: string, userId: string): Promise<void> {
     await this.model.updateOne(
       { commentId },
-      { $pull: { likes: { userId: userId }, dislikes: { userId: userId } } },
+      {
+        $pull: { likes: { userId: userId }, dislikes: { userId: userId } },
+      },
+      { upsert: true },
     );
   }
 }
