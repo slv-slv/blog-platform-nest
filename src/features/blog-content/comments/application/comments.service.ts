@@ -53,7 +53,7 @@ export class CommentsService {
     const ownerId = comment.commentatorInfo.userId;
     if (userId !== ownerId) throw new ForbiddenException('Access denied');
 
-    await this.commentLikesService.deleteLikesInfo(commentId);
+    // await this.commentLikesService.deleteLikesInfo(commentId);
     await this.commentsRepository.deleteComment(commentId);
   }
 }

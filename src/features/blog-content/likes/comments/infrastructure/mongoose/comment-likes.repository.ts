@@ -126,20 +126,20 @@ export class CommentLikesRepository {
   //   await this.model.deleteOne({ commentId });
   // }
 
-  async deleteLikesInfo(commentId: string): Promise<void> {
-    const client = await this.pool.connect();
-    try {
-      await client.query('BEGIN');
-      await client.query('DELETE FROM comment_likes WHERE comment_id = $1', [parseInt(commentId)]);
-      await client.query('DELETE FROM comment_dislikes WHERE comment_id = $1', [parseInt(commentId)]);
-      await client.query('COMMIT');
-    } catch (e) {
-      await client.query('ROLLBACK');
-      throw e;
-    } finally {
-      client.release();
-    }
-  }
+  // async deleteLikesInfo(commentId: string): Promise<void> {
+  //   const client = await this.pool.connect();
+  //   try {
+  //     await client.query('BEGIN');
+  //     await client.query('DELETE FROM comment_likes WHERE comment_id = $1', [parseInt(commentId)]);
+  //     await client.query('DELETE FROM comment_dislikes WHERE comment_id = $1', [parseInt(commentId)]);
+  //     await client.query('COMMIT');
+  //   } catch (e) {
+  //     await client.query('ROLLBACK');
+  //     throw e;
+  //   } finally {
+  //     client.release();
+  //   }
+  // }
 
   async setLike(commentId: string, userId: string, createdAt: Date): Promise<void> {
     const like = { userId, createdAt };
@@ -183,7 +183,6 @@ export class CommentLikesRepository {
       {
         $pull: { likes: { userId: userId }, dislikes: { userId: userId } },
       },
-      { upsert: true },
     );
   }
 }

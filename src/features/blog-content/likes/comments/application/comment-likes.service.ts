@@ -37,9 +37,9 @@ export class CommentLikesService {
   //   await this.commentLikesRepository.createEmptyLikesInfo(commentId);
   // }
 
-  async deleteLikesInfo(commentId: string): Promise<void> {
-    await this.commentLikesRepository.deleteLikesInfo(commentId);
-  }
+  // async deleteLikesInfo(commentId: string): Promise<void> {
+  //   await this.commentLikesRepository.deleteLikesInfo(commentId);
+  // }
 
   getDefaultLikesInfo(): LikesInfoViewType {
     return {
