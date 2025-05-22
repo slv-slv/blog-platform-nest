@@ -13,15 +13,28 @@ export class PostLikesRepository {
     @InjectModel(PostLikes.name) private readonly model: Model<PostLikesType>,
     @Inject(pool) private readonly pool: Pool,
   ) {}
-  async getLikesCount(postId: string): Promise<number> {
-    const post = await this.model.findOne({ postId }).lean();
-    if (!post) return 0;
+  // async getLikesCount(postId: string): Promise<number> {
+  //   const post = await this.model.findOne({ postId }).lean();
+  //   if (!post) return 0;
 
-    const result = await this.model.aggregate([
-      { $match: { postId } },
-      { $project: { likesCount: { $size: '$likes' } } },
-    ]);
-    return result[0].likesCount;
+  //   const result = await this.model.aggregate([
+  //     { $match: { postId } },
+  //     { $project: { likesCount: { $size: '$likes' } } },
+  //   ]);
+  //   return result[0].likesCount;
+  // }
+
+  async getLikesCount(postId: string): Promise<number> {
+    const result = await this.pool.query(
+      `
+        SELECT COUNT(*)
+        FROM post_likes
+        WHERE post_id = $1
+      `,
+      [parseInt(postId)],
+    );
+
+    return result.rows[0];
   }
 
   async getDislikesCount(postId: string): Promise<number> {
