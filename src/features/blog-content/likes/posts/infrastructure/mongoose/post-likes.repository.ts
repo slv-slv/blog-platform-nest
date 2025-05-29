@@ -37,15 +37,28 @@ export class PostLikesRepository {
     return result.rows[0];
   }
 
-  async getDislikesCount(postId: string): Promise<number> {
-    const post = await this.model.findOne({ postId }).lean();
-    if (!post) return 0;
+  // async getDislikesCount(postId: string): Promise<number> {
+  //   const post = await this.model.findOne({ postId }).lean();
+  //   if (!post) return 0;
 
-    const result = await this.model.aggregate([
-      { $match: { postId } },
-      { $project: { dislikesCount: { $size: '$dislikes' } } },
-    ]);
-    return result[0].dislikesCount;
+  //   const result = await this.model.aggregate([
+  //     { $match: { postId } },
+  //     { $project: { dislikesCount: { $size: '$dislikes' } } },
+  //   ]);
+  //   return result[0].dislikesCount;
+  // }
+
+  async getDislikesCount(postId: string): Promise<number> {
+    const result = await this.pool.query(
+      `
+        SELECT COUNT(*)
+        FROM post_dislikes
+        WHERE post_id = $1
+      `,
+      [parseInt(postId)],
+    );
+
+    return result.rows[0];
   }
 
   async getLikeStatus(postId: string, userId: string): Promise<LikeStatus> {
