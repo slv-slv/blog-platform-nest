@@ -85,11 +85,7 @@ export class BlogsQueryRepository {
     );
 
     const totalCount = parseInt(countResult.rows[0].count);
-    console.log('totalCount: ', totalCount);
-
     const pagesCount = Math.ceil(totalCount / pageSize);
-    console.log('pagesCount: ', pagesCount);
-
     const skipCount = (pageNumber - 1) * pageSize;
 
     const blogsResult = await this.pool.query(
