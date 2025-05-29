@@ -142,7 +142,7 @@ export class CommentsQueryRepository {
     const commentsResult = await this.pool.query(
       `
         SELECT
-          comments.id
+          comments.id,
           comments.content,
           comments.created_at,
           comments.user_id AS commentator_id,

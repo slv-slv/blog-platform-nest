@@ -37,7 +37,7 @@ export class PostsRepository {
           posts.content,
           posts.blog_id,
           blogs.name AS blog_name,
-          posts.created_at,
+          posts.created_at
         FROM posts JOIN blogs
           ON posts.blog_id = blogs.id
         WHERE posts.id = $1
