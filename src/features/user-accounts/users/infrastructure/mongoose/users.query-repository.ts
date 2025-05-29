@@ -94,13 +94,13 @@ export class UsersQueryRepository {
 
     const countResult = await this.pool.query(
       `
-        SELECT id
+        SELECT COUNT(id)
         FROM users
         ${whereClause}
       `,
     );
 
-    const totalCount = countResult.rowCount!;
+    const totalCount = parseInt(countResult.rows[0].count);
     const pagesCount = Math.ceil(totalCount / pageSize);
     const skipCount = (pageNumber - 1) * pageSize;
 
