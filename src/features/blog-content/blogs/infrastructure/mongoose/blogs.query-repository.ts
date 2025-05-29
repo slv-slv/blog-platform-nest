@@ -84,7 +84,7 @@ export class BlogsQueryRepository {
       `,
     );
 
-    const totalCount = countResult.rows[0].count;
+    const totalCount = parseInt(countResult.rows[0].count);
     console.log('totalCount: ', totalCount);
 
     const pagesCount = Math.ceil(totalCount / pageSize);
