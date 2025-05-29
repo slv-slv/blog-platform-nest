@@ -230,10 +230,40 @@ export class PostLikesRepository {
     }
   }
 
+  // async setNone(postId: string, userId: string): Promise<void> {
+  //   await this.model.updateOne(
+  //     { postId },
+  //     { $pull: { likes: { userId: userId }, dislikes: { userId: userId } } },
+  //   );
+  // }
+
   async setNone(postId: string, userId: string): Promise<void> {
-    await this.model.updateOne(
-      { postId },
-      { $pull: { likes: { userId: userId }, dislikes: { userId: userId } } },
-    );
+    const postIdInt = parseInt(postId);
+    const userIdInt = parseInt(userId);
+
+    const client = await this.pool.connect();
+    try {
+      await client.query(`BEGIN`);
+      await client.query(
+        `
+          DELETE FROM post_likes
+          WHERE post_id = $1 AND user_id = $2
+        `,
+        [postIdInt, userIdInt],
+      );
+      await client.query(
+        `
+          DELETE FROM post_dislikes
+          WHERE post_id = $1 AND user_id = $2
+        `,
+        [postIdInt, userIdInt],
+      );
+      await client.query(`COMMIT`);
+    } catch (e) {
+      await client.query(`ROLLBACK`);
+      throw e;
+    } finally {
+      client.release();
+    }
   }
 }
