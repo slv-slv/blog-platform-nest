@@ -30,7 +30,7 @@ export class PostsService {
     if (!newPost) throw new NotFoundException('Blog not found');
 
     const postId = newPost.id;
-    await this.postLikesService.createLikesInfo(postId);
+    await this.postLikesService.createEmptyLikesInfo(postId);
     const extendedLikesInfo = this.postLikesService.getDefaultLikesInfo();
 
     return { ...newPost, extendedLikesInfo };

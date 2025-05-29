@@ -32,19 +32,13 @@ export class PostLikesService {
     }
   }
 
-  async createLikesInfo(postId: string): Promise<void> {
-    const likesInfo: PostLikesType = {
-      postId,
-      likes: [],
-      dislikes: [],
-    };
-
-    await this.postLikesRepository.createEmptyLikesInfo(likesInfo);
+  async createEmptyLikesInfo(postId: string): Promise<void> {
+    await this.postLikesRepository.createEmptyLikesInfo(postId);
   }
 
-  async deleteLikesInfo(postId: string): Promise<void> {
-    await this.postLikesRepository.deleteLikesInfo(postId);
-  }
+  // async deleteLikesInfo(postId: string): Promise<void> {
+  //   await this.postLikesRepository.deleteLikesInfo(postId);
+  // }
 
   getDefaultLikesInfo(): ExtendedLikesInfoViewType {
     return {
