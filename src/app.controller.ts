@@ -28,7 +28,19 @@ export class AppController {
   @HttpCode(204)
   async dropDb(): Promise<void> {
     await this.pool.query(`
-      TRUNCATE blogs, posts, users, confirmation, recovery, devices RESTART IDENTITY CASCADE
+      TRUNCATE
+        blogs,
+        posts,
+        comments,
+        users,
+        confirmation,
+        recovery,
+        devices,
+        comment_likes,
+        comment_dislikes,
+        post_likes,
+        post_dislikes
+      RESTART IDENTITY CASCADE
     `);
   }
 }
