@@ -175,7 +175,7 @@ export class PostLikesRepository {
           INSERT INTO post_likes (post_id, user_id, created_at)
           VALUES ($1, $2, $3)
           ON CONFLICT (post_id, user_id) DO UPDATE
-          SET created_at = EXCLUDED.createt_at
+          SET created_at = EXCLUDED.created_at
         `,
         [postIdInt, userIdInt, createdAt],
       );
