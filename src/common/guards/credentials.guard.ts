@@ -9,8 +9,8 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { AuthService } from '../../features/user-accounts/auth/application/auth.service.js';
-import { UsersQueryRepository } from '../../features/user-accounts/users/infrastructure/mongoose/users.query-repository.js';
-import { LoginInputDto } from '../../features/user-accounts/users/users.types.js';
+import { UsersQueryRepository } from '../../features/user-accounts/users/repositories/postgresql/users.query-repository.js';
+import { LoginInputDto } from '../../features/user-accounts/users/types/users.types.js';
 
 @Injectable()
 export class CredentialsGuard implements CanActivate {

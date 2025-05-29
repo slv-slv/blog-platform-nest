@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CommentsRepository } from '../../../comments/infrastructure/mongoose/comments.repository.js';
-import { CommentLikesRepository } from '../infrastructure/mongoose/comment-likes.repository.js';
+import { CommentsRepository } from '../../../comments/repositories/postgresql/comments.repository.js';
+import { CommentLikesRepository } from '../repositories/postgresql/comment-likes.repository.js';
 import { LikesInfoViewType, LikeStatus } from '../../types/likes.types.js';
-import { CommentLikesType } from '../comment-likes.types.js';
+import { CommentLikesType } from '../types/comment-likes.types.js';
 
 @Injectable()
 export class CommentLikesService {

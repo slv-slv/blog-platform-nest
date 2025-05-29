@@ -1,8 +1,8 @@
 import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CommentViewType } from '../comments.types.js';
-import { PostsRepository } from '../../posts/infrastructure/mongoose/posts.repository.js';
-import { UsersRepository } from '../../../user-accounts/users/infrastructure/mongoose/users.repository.js';
-import { CommentsRepository } from '../infrastructure/mongoose/comments.repository.js';
+import { CommentViewType } from '../types/comments.types.js';
+import { PostsRepository } from '../../posts/repositories/postgresql/posts.repository.js';
+import { UsersRepository } from '../../../user-accounts/users/repositories/postgresql/users.repository.js';
+import { CommentsRepository } from '../repositories/postgresql/comments.repository.js';
 import { CommentLikesService } from '../../likes/comments/application/comment-likes.service.js';
 
 @Injectable()

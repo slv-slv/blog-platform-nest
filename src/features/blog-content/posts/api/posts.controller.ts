@@ -14,22 +14,22 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PostsService } from '../application/posts.service.js';
-import { PostsQueryRepository } from '../infrastructure/mongoose/posts.query-repository.js';
-import { PostsRepository } from '../infrastructure/mongoose/posts.repository.js';
+import { PostsQueryRepository } from '../repositories/postgresql/posts.query-repository.js';
+import { PostsRepository } from '../repositories/postgresql/posts.repository.js';
 import {
   CreatePostForBlogInputDto,
   GetPostsQueryParams,
   PostsPaginatedType,
   PostViewType,
   UpdatePostForBlogInputDto,
-} from '../posts.types.js';
+} from '../types/posts.types.js';
 import {
   CommentsPaginatedType,
   CommentViewType,
   CreateCommentInputDto,
   GetCommentsQueryParams,
-} from '../../comments/comments.types.js';
-import { CommentsQueryRepository } from '../../comments/infrastructure/mongoose/comments.query-repository.js';
+} from '../../comments/types/comments.types.js';
+import { CommentsQueryRepository } from '../../comments/repositories/postgresql/comments.query-repository.js';
 import { CommentsService } from '../../comments/application/comments.service.js';
 import { SetLikeStatusDto } from '../../likes/types/likes.types.js';
 import { PostLikesService } from '../../likes/posts/application/post-likes.service.js';

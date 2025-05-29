@@ -1,8 +1,13 @@
 import { Response } from 'express';
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { UsersService } from '../application/users.service.js';
-import { UsersQueryRepository } from '../infrastructure/mongoose/users.query-repository.js';
-import { CreateUserInputDto, GetUsersQueryParams, UsersPaginatedType, UserViewType } from '../users.types.js';
+import { UsersQueryRepository } from '../repositories/postgresql/users.query-repository.js';
+import {
+  CreateUserInputDto,
+  GetUsersQueryParams,
+  UsersPaginatedType,
+  UserViewType,
+} from '../types/users.types.js';
 import { BasicAuthGuard } from '../../../../common/guards/basic-auth.guard.js';
 
 @Controller('sa/users')

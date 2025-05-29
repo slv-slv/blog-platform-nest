@@ -13,8 +13,8 @@ import {
 } from '@nestjs/common';
 
 import { CommentsService } from '../application/comments.service.js';
-import { CommentsQueryRepository } from '../infrastructure/mongoose/comments.query-repository.js';
-import { CommentViewType, UpdateCommentInputDto } from '../comments.types.js';
+import { CommentsQueryRepository } from '../repositories/postgresql/comments.query-repository.js';
+import { CommentViewType, UpdateCommentInputDto } from '../types/comments.types.js';
 import { CommentLikesService } from '../../likes/comments/application/comment-likes.service.js';
 import { SetLikeStatusDto } from '../../likes/types/likes.types.js';
 import { AccessTokenGuard } from '../../../../common/guards/access-token.guard.js';

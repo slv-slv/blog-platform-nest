@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { BlogsRepository } from '../infrastructure/mongoose/blogs.repository.js';
-import { BlogType } from '../blogs.types.js';
+import { BlogsRepository } from '../repositories/postgresql/blogs.repository.js';
+import { BlogType } from '../types/blogs.types.js';
 
 @Injectable()
 export class BlogsService {

@@ -12,9 +12,9 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { UsersQueryRepository } from '../../users/infrastructure/mongoose/users.query-repository.js';
+import { UsersQueryRepository } from '../../users/repositories/postgresql/users.query-repository.js';
 import { UsersService } from '../../users/application/users.service.js';
-import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../../users/users.types.js';
+import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../../users/types/users.types.js';
 import { AuthService } from '../application/auth.service.js';
 import { CredentialsGuard } from '../../../../common/guards/credentials.guard.js';
 import { EmailConfirmationGuard } from '../../../../common/guards/email-confirmation.guard.js';

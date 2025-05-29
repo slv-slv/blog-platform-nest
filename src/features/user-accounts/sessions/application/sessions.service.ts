@@ -1,6 +1,6 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { SessionsRepository } from '../infrastructure/mongoose/sessions.repository.js';
-import { SessionsQueryRepository } from '../infrastructure/mongoose/sessions.query-repository.js';
+import { SessionsRepository } from '../repositories/postgresql/sessions.repository.js';
+import { SessionsQueryRepository } from '../repositories/postgresql/sessions.query-repository.js';
 
 @Injectable()
 export class SessionsService {

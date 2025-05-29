@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
-import { UsersQueryRepository } from '../../users/infrastructure/mongoose/users.query-repository.js';
+import { UsersQueryRepository } from '../../users/repositories/postgresql/users.query-repository.js';
 import { JwtService } from '@nestjs/jwt';
 import { SETTINGS } from '../../../../settings.js';
 

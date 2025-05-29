@@ -13,15 +13,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { BlogsQueryRepository } from '../infrastructure/mongoose/blogs.query-repository.js';
-import { BlogsRepository } from '../infrastructure/mongoose/blogs.repository.js';
+import { BlogsQueryRepository } from '../repositories/postgresql/blogs.query-repository.js';
+import { BlogsRepository } from '../repositories/postgresql/blogs.repository.js';
 import {
   BlogsPaginatedType,
   BlogType,
   CreateBlogInputDto,
   GetBlogsQueryParams,
   UpdateBlogInputDto,
-} from '../blogs.types.js';
+} from '../types/blogs.types.js';
 import { BlogsService } from '../application/blogs.service.js';
 import {
   CreatePostInputDto,
@@ -29,9 +29,9 @@ import {
   PostsPaginatedType,
   PostViewType,
   UpdatePostInputDto,
-} from '../../posts/posts.types.js';
+} from '../../posts/types/posts.types.js';
 import { PostsService } from '../../posts/application/posts.service.js';
-import { PostsQueryRepository } from '../../posts/infrastructure/mongoose/posts.query-repository.js';
+import { PostsQueryRepository } from '../../posts/repositories/postgresql/posts.query-repository.js';
 import { BasicAuthGuard } from '../../../../common/guards/basic-auth.guard.js';
 
 @Controller('sa/blogs')

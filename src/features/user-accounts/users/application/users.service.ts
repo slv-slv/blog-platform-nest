@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { UsersRepository } from '../infrastructure/mongoose/users.repository.js';
-import { UsersQueryRepository } from '../infrastructure/mongoose/users.query-repository.js';
+import { UsersRepository } from '../repositories/postgresql/users.repository.js';
+import { UsersQueryRepository } from '../repositories/postgresql/users.query-repository.js';
 import { AuthService } from '../../auth/application/auth.service.js';
 import { EmailService } from '../../../../notifications/email/email.service.js';
 import {
@@ -8,7 +8,7 @@ import {
   ConfirmationInfoType,
   PasswordRecoveryInfoType,
   UserViewType,
-} from '../users.types.js';
+} from '../types/users.types.js';
 import { SETTINGS } from '../../../../settings.js';
 
 @Injectable()

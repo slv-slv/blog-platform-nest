@@ -1,10 +1,10 @@
 import { Controller, Get, NotFoundException, Param, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { BlogsQueryRepository } from '../infrastructure/mongoose/blogs.query-repository.js';
-import { BlogsRepository } from '../infrastructure/mongoose/blogs.repository.js';
-import { BlogsPaginatedType, BlogType, GetBlogsQueryParams } from '../blogs.types.js';
-import { GetPostsQueryParams, PostsPaginatedType } from '../../posts/posts.types.js';
-import { PostsQueryRepository } from '../../posts/infrastructure/mongoose/posts.query-repository.js';
+import { BlogsQueryRepository } from '../repositories/postgresql/blogs.query-repository.js';
+import { BlogsRepository } from '../repositories/postgresql/blogs.repository.js';
+import { BlogsPaginatedType, BlogType, GetBlogsQueryParams } from '../types/blogs.types.js';
+import { GetPostsQueryParams, PostsPaginatedType } from '../../posts/types/posts.types.js';
+import { PostsQueryRepository } from '../../posts/repositories/postgresql/posts.query-repository.js';
 
 @Controller('blogs')
 export class BlogsController {
