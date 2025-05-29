@@ -87,7 +87,7 @@ export class PostLikesQueryRepository {
 
     const newestLikes = result.rows.map((like) => ({
       addedAt: like.created_at,
-      userId: like.user_id,
+      userId: like.user_id.toString(),
       login: like.login,
     }));
 
