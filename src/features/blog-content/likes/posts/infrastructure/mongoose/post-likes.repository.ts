@@ -61,23 +61,54 @@ export class PostLikesRepository {
     return result.rows[0];
   }
 
+  // async getLikeStatus(postId: string, userId: string): Promise<LikeStatus> {
+  //   if (userId === null) return LikeStatus.None;
+
+  //   const post = await this.model
+  //     .findOne(
+  //       { postId },
+  //       {
+  //         likes: { $elemMatch: { userId } },
+  //         dislikes: { $elemMatch: { userId } },
+  //       },
+  //     )
+  //     .lean();
+
+  //   if (!post) return LikeStatus.None;
+
+  //   if (post.likes) return LikeStatus.Like;
+  //   if (post.dislikes) return LikeStatus.Dislike;
+
+  //   return LikeStatus.None;
+  // }
+
   async getLikeStatus(postId: string, userId: string): Promise<LikeStatus> {
     if (userId === null) return LikeStatus.None;
 
-    const post = await this.model
-      .findOne(
-        { postId },
-        {
-          likes: { $elemMatch: { userId } },
-          dislikes: { $elemMatch: { userId } },
-        },
-      )
-      .lean();
+    const postIdInt = parseInt(postId);
+    const userIdInt = parseInt(userId);
 
-    if (!post) return LikeStatus.None;
+    const likeResult = await this.pool.query(
+      `
+        SELECT COUNT(*)
+        FROM post_likes
+        WHERE post_id = $1 AND user_id = $2
+      `,
+      [postIdInt, userIdInt],
+    );
 
-    if (post.likes) return LikeStatus.Like;
-    if (post.dislikes) return LikeStatus.Dislike;
+    if (likeResult.rows[0] > 0) return LikeStatus.Like;
+
+    const dislikeResult = await this.pool.query(
+      `
+        SELECT COUNT(*)
+        FROM post_dislikes
+        WHERE post_id = $1 AND user_id = $2
+      `,
+      [postIdInt, userIdInt],
+    );
+
+    if (dislikeResult.rows[0] > 0) return LikeStatus.Dislike;
 
     return LikeStatus.None;
   }
