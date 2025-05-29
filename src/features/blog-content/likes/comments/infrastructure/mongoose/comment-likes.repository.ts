@@ -97,7 +97,7 @@ export class CommentLikesRepository {
       [commentIdInt, userIdInt],
     );
 
-    if (likeResult.rows[0] > 0) return LikeStatus.Like;
+    if (parseInt(likeResult.rows[0].count) > 0) return LikeStatus.Like;
 
     const dislikeResult = await this.pool.query(
       `
@@ -108,7 +108,7 @@ export class CommentLikesRepository {
       [commentIdInt, userIdInt],
     );
 
-    if (dislikeResult.rows[0] > 0) return LikeStatus.Dislike;
+    if (parseInt(dislikeResult.rows[0].count) > 0) return LikeStatus.Dislike;
 
     return LikeStatus.None;
   }
