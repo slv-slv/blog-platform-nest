@@ -91,7 +91,7 @@ export class CommentsRepository {
       [parseInt(postId), commentatorInfo.userId, content, createdAt],
     );
 
-    const id = result.rows[0].toString();
+    const id = result.rows[0].id.toString();
 
     return { id, content, commentatorInfo, createdAt };
   }
