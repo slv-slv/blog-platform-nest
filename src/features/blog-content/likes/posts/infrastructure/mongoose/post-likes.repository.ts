@@ -121,34 +121,66 @@ export class PostLikesRepository {
   //   await this.model.deleteOne({ postId });
   // }
 
-  async deleteLikesInfo(postId: string): Promise<void> {
+  // async deleteLikesInfo(postId: string): Promise<void> {
+  //   const client = await this.pool.connect();
+  //   try {
+  //     await client.query('BEGIN');
+  //     await client.query('DELETE FROM post_likes WHERE post_id = $1', [parseInt(postId)]);
+  //     await client.query('DELETE FROM post_dislikes WHERE post_id = $1', [parseInt(postId)]);
+  //     await client.query('COMMIT');
+  //   } catch (e) {
+  //     await client.query('ROLLBACK');
+  //     throw e;
+  //   } finally {
+  //     client.release();
+  //   }
+  // }
+
+  // async setLike(postId: string, userId: string, createdAt: Date): Promise<void> {
+  //   const like = { userId, createdAt };
+
+  //   await this.model.updateOne(
+  //     { postId },
+  //     { $setOnInsert: { postId, likes: [], dislikes: [] } },
+  //     { upsert: true },
+  //   );
+
+  //   await this.model.updateOne(
+  //     { postId },
+  //     { $push: { likes: like }, $pull: { dislikes: { userId: userId } } },
+  //   );
+  // }
+
+  async setLike(postId: string, userId: string, createdAt: Date): Promise<void> {
+    const postIdInt = parseInt(postId);
+    const userIdInt = parseInt(userId);
+
     const client = await this.pool.connect();
     try {
-      await client.query('BEGIN');
-      await client.query('DELETE FROM post_likes WHERE post_id = $1', [parseInt(postId)]);
-      await client.query('DELETE FROM post_dislikes WHERE post_id = $1', [parseInt(postId)]);
-      await client.query('COMMIT');
+      await client.query(`BEGIN`);
+      await client.query(
+        `
+          DELETE FROM post_dislikes
+          WHERE post_id = $1 AND user_id = $2
+        `,
+        [postIdInt, userIdInt],
+      );
+      await client.query(
+        `
+          INSERT INTO post_likes (post_id, user_id, created_at)
+          VALUES ($1, $2, $3)
+          ON CONFLICT (post_id, user_id) DO UPDATE
+          SET created_at = EXCLUDED.createt_at
+        `,
+        [postIdInt, userIdInt, createdAt],
+      );
+      await client.query(`COMMIT`);
     } catch (e) {
-      await client.query('ROLLBACK');
+      await client.query(`ROLLBACK`);
       throw e;
     } finally {
       client.release();
     }
-  }
-
-  async setLike(postId: string, userId: string, createdAt: Date): Promise<void> {
-    const like = { userId, createdAt };
-
-    await this.model.updateOne(
-      { postId },
-      { $setOnInsert: { postId, likes: [], dislikes: [] } },
-      { upsert: true },
-    );
-
-    await this.model.updateOne(
-      { postId },
-      { $push: { likes: like }, $pull: { dislikes: { userId: userId } } },
-    );
   }
 
   async setDislike(postId: string, userId: string, createdAt: Date): Promise<void> {
