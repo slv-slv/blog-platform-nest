@@ -32,9 +32,9 @@ export class PostLikesService {
     }
   }
 
-  async createEmptyLikesInfo(postId: string): Promise<void> {
-    await this.postLikesRepository.createEmptyLikesInfo(postId);
-  }
+  // async createEmptyLikesInfo(postId: string): Promise<void> {
+  //   await this.postLikesRepository.createEmptyLikesInfo(postId);
+  // }
 
   // async deleteLikesInfo(postId: string): Promise<void> {
   //   await this.postLikesRepository.deleteLikesInfo(postId);

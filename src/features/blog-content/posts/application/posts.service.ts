@@ -29,8 +29,8 @@ export class PostsService {
 
     if (!newPost) throw new NotFoundException('Blog not found');
 
-    const postId = newPost.id;
-    await this.postLikesService.createEmptyLikesInfo(postId);
+    // const postId = newPost.id;
+    // await this.postLikesService.createEmptyLikesInfo(postId);
     const extendedLikesInfo = this.postLikesService.getDefaultLikesInfo();
 
     return { ...newPost, extendedLikesInfo };
@@ -57,6 +57,6 @@ export class PostsService {
     const deleteResult = await this.postsRepository.deletePost(postId);
     if (!deleteResult) throw new NotFoundException('Post not found');
 
-    await this.postLikesService.deleteLikesInfo(postId);
+    // await this.postLikesService.deleteLikesInfo(postId);
   }
 }

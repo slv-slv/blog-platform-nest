@@ -113,14 +113,14 @@ export class PostLikesRepository {
     return LikeStatus.None;
   }
 
-  async createEmptyLikesInfo(postId: string): Promise<void> {
-    const likesInfo: PostLikesType = {
-      postId,
-      likes: [],
-      dislikes: [],
-    };
-    await this.model.insertOne(likesInfo);
-  }
+  // async createEmptyLikesInfo(postId: string): Promise<void> {
+  //   const likesInfo: PostLikesType = {
+  //     postId,
+  //     likes: [],
+  //     dislikes: [],
+  //   };
+  //   await this.model.insertOne(likesInfo);
+  // }
 
   // async deleteLikesInfo(postId: string): Promise<void> {
   //   await this.model.deleteOne({ postId });
