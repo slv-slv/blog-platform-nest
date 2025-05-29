@@ -113,7 +113,7 @@ export class PostLikesRepository {
     return LikeStatus.None;
   }
 
-  async createLikesInfo(likesInfo: PostLikesType): Promise<void> {
+  async createEmptyLikesInfo(likesInfo: PostLikesType): Promise<void> {
     await this.model.insertOne(likesInfo);
   }
 

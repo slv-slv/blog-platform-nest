@@ -39,7 +39,7 @@ export class PostLikesService {
       dislikes: [],
     };
 
-    await this.postLikesRepository.createLikesInfo(likesInfo);
+    await this.postLikesRepository.createEmptyLikesInfo(likesInfo);
   }
 
   async deleteLikesInfo(postId: string): Promise<void> {
