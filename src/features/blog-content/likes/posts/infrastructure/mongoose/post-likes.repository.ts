@@ -183,19 +183,51 @@ export class PostLikesRepository {
     }
   }
 
+  // async setDislike(postId: string, userId: string, createdAt: Date): Promise<void> {
+  //   const dislike = { userId, createdAt };
+
+  //   await this.model.updateOne(
+  //     { postId },
+  //     { $setOnInsert: { postId, likes: [], dislikes: [] } },
+  //     { upsert: true },
+  //   );
+
+  //   await this.model.updateOne(
+  //     { postId },
+  //     { $push: { dislikes: dislike }, $pull: { likes: { userId: userId } } },
+  //   );
+  // }
+
   async setDislike(postId: string, userId: string, createdAt: Date): Promise<void> {
-    const dislike = { userId, createdAt };
+    const postIdInt = parseInt(postId);
+    const userIdInt = parseInt(userId);
 
-    await this.model.updateOne(
-      { postId },
-      { $setOnInsert: { postId, likes: [], dislikes: [] } },
-      { upsert: true },
-    );
-
-    await this.model.updateOne(
-      { postId },
-      { $push: { dislikes: dislike }, $pull: { likes: { userId: userId } } },
-    );
+    const client = await this.pool.connect();
+    try {
+      await client.query(`BEGIN`);
+      await client.query(
+        `
+          DELETE FROM post_likes
+          WHERE post_id = $1 AND user_id = $2
+        `,
+        [postIdInt, userIdInt],
+      );
+      await client.query(
+        `
+          INSERT INTO post_dislikes (post_id, user_id, created_at)
+          VALUES ($1, $2, $3)
+          ON CONFLICT (post_id, user_id) DO UPDATE
+          SET created_at = EXCLUDED.createt_at
+        `,
+        [postIdInt, userIdInt, createdAt],
+      );
+      await client.query(`COMMIT`);
+    } catch (e) {
+      await client.query(`ROLLBACK`);
+      throw e;
+    } finally {
+      client.release();
+    }
   }
 
   async setNone(postId: string, userId: string): Promise<void> {
