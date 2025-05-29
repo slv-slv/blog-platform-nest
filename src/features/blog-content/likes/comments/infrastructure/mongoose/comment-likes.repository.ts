@@ -228,7 +228,7 @@ export class CommentLikesRepository {
           INSERT INTO comment_dislikes (comment_id, user_id, created_at)
           VALUES ($1, $2, $3)
           ON CONFLICT (comment_id, user_id) DO UPDATE
-          SET created_at = EXCLUDED.createt_at
+          SET created_at = EXCLUDED.created_at
         `,
         [commentIdInt, userIdInt, createdAt],
       );
