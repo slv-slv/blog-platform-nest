@@ -34,7 +34,7 @@ export class PostLikesRepository {
       [parseInt(postId)],
     );
 
-    return result.rows[0];
+    return result.rows[0].count;
   }
 
   // async getDislikesCount(postId: string): Promise<number> {

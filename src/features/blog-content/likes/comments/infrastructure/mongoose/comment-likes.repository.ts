@@ -34,7 +34,7 @@ export class CommentLikesRepository {
       [parseInt(commentId)],
     );
 
-    return result.rows[0];
+    return result.rows[0].count;
   }
 
   // async getDislikesCount(commentId: string): Promise<number> {
@@ -58,7 +58,7 @@ export class CommentLikesRepository {
       [parseInt(commentId)],
     );
 
-    return result.rows[0];
+    return result.rows[0].count;
   }
 
   // async getLikeStatus(commentId: string, userId: string): Promise<LikeStatus> {

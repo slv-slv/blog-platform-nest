@@ -135,7 +135,7 @@ export class CommentsQueryRepository {
       [parseInt(postId)],
     );
 
-    const totalCount = countResult.rows[0];
+    const totalCount = countResult.rows[0].count;
     const pagesCount = Math.ceil(totalCount / pageSize);
     const skipCount = (pageNumber - 1) * pageSize;
 
