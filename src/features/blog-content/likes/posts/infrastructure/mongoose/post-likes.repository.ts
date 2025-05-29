@@ -113,12 +113,27 @@ export class PostLikesRepository {
     return LikeStatus.None;
   }
 
-  async createEmptyLikesInfo(likesInfo: PostLikesType): Promise<void> {
-    await this.model.insertOne(likesInfo);
-  }
+  // async createEmptyLikesInfo(likesInfo: PostLikesType): Promise<void> {
+  //   await this.model.insertOne(likesInfo);
+  // }
+
+  // async deleteLikesInfo(postId: string): Promise<void> {
+  //   await this.model.deleteOne({ postId });
+  // }
 
   async deleteLikesInfo(postId: string): Promise<void> {
-    await this.model.deleteOne({ postId });
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('DELETE FROM post_likes WHERE post_id = $1', [parseInt(postId)]);
+      await client.query('DELETE FROM post_dislikes WHERE post_id = $1', [parseInt(postId)]);
+      await client.query('COMMIT');
+    } catch (e) {
+      await client.query('ROLLBACK');
+      throw e;
+    } finally {
+      client.release();
+    }
   }
 
   async setLike(postId: string, userId: string, createdAt: Date): Promise<void> {
