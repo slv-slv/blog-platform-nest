@@ -12,7 +12,7 @@ export class CommentsQueryRepository {
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
-  async findComment(id: string, userId: string): Promise<CommentViewType | null> {
+  async findComment(id: string, userId: string | null): Promise<CommentViewType | null> {
     const result = await this.pool.query(
       `
         SELECT
@@ -49,7 +49,7 @@ export class CommentsQueryRepository {
 
   async getComments(
     postId: string,
-    userId: string,
+    userId: string | null,
     pagingParams: PagingParamsType,
   ): Promise<CommentsPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;

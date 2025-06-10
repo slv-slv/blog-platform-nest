@@ -12,7 +12,7 @@ export class PostsQueryRepository {
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 
-  async findPost(id: string, userId: string): Promise<PostViewType | null> {
+  async findPost(id: string, userId: string | null): Promise<PostViewType | null> {
     const result = await this.pool.query(
       `
         SELECT
@@ -51,7 +51,7 @@ export class PostsQueryRepository {
   }
 
   async getPosts(
-    userId: string,
+    userId: string | null,
     pagingParams: PagingParamsType,
     blogId?: string,
   ): Promise<PostsPaginatedType> {
