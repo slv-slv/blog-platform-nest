@@ -21,6 +21,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { PostgresModule } from './common/dynamic-modules/postgres.module.js';
 import { pool } from './common/constants.js';
 import { Pool } from 'pg';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -32,6 +33,16 @@ import { Pool } from 'pg';
       password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
     }),
     PostgresModule.forFeature('blog-platform'),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: SETTINGS.POSTGRES_SETTINGS.URL,
+      username: SETTINGS.POSTGRES_SETTINGS.USER,
+      password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
+      database: 'blog-platform-typeorm',
+      entities: [],
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
     JwtModule.register({
       global: true,
       secret: SETTINGS.JWT_PRIVATE_KEY,
