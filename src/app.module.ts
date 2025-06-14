@@ -35,10 +35,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     PostgresModule.forFeature('blog-platform'),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: SETTINGS.POSTGRES_SETTINGS.URL,
+      url: SETTINGS.POSTGRES_SETTINGS.URL,
       username: SETTINGS.POSTGRES_SETTINGS.USER,
       password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
-      database: 'blog-platform-typeorm',
+      database: 'blog-platform',
       entities: [],
       autoLoadEntities: true,
       synchronize: true,
