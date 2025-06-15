@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { Blog } from '../../../blogs/repositories/typeorm/blogs.entities.js';
+import { Comment } from '../../../comments/repositories/typeorm/comments.entities.js';
 
 @Entity({ schema: 'typeorm', name: 'posts' })
 export class Post {
@@ -21,4 +22,7 @@ export class Post {
 
   @Column('timestamptz')
   createdAt: Date;
+
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Relation<Comment[]>;
 }

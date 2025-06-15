@@ -1,0 +1,23 @@
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Post } from '../../../posts/repositories/typeorm/posts.entities.js';
+import { User } from '../../../../user-accounts/users/repositories/typeorm/users.entities.js';
+
+@Entity({ schema: 'typeorm', name: 'comments' })
+export class Comment {
+  @PrimaryGeneratedColumn('identity')
+  id: number;
+
+  @ManyToOne(() => Post, (post) => post.comments)
+  @JoinColumn()
+  post: Relation<Post>;
+
+  @ManyToOne(() => User, (user) => user.comments)
+  @JoinColumn()
+  user: Relation<User>;
+
+  @Column('text')
+  content: string;
+
+  @Column('timestamptz')
+  createdAt: Date;
+}

@@ -9,6 +9,7 @@ import {
   Relation,
 } from 'typeorm';
 import { Device } from '../../../sessions/repositories/typeorm/sessions.entities.js';
+import { Comment } from '../../../../blog-content/comments/repositories/typeorm/comments.entities.js';
 
 @Entity({ schema: 'typeorm', name: 'users' })
 export class User {
@@ -35,6 +36,9 @@ export class User {
 
   @OneToMany(() => Device, (device) => device.user)
   devices: Relation<Device[]>;
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Relation<Comment[]>;
 }
 
 @Entity({ schema: 'typeorm' })
