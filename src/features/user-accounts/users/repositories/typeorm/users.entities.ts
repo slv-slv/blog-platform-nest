@@ -2,11 +2,13 @@ import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
+import { Device } from '../../../sessions/repositories/typeorm/sessions.entities.js';
 
 @Entity({ schema: 'typeorm', name: 'users' })
 export class User {
@@ -30,6 +32,9 @@ export class User {
 
   @OneToOne(() => Recovery, (recovery) => recovery.user, { eager: true })
   passwordRecovery: Relation<Recovery>;
+
+  @OneToMany(() => Device, (device) => device.user)
+  devices: Relation<Device[]>;
 }
 
 @Entity({ schema: 'typeorm' })
