@@ -27,6 +27,8 @@ import {
   Recovery,
   User,
 } from './features/user-accounts/users/repositories/typeorm/users.entities.js';
+import { Device } from './features/user-accounts/sessions/repositories/typeorm/sessions.entities.js';
+import { Blog } from './features/blog-content/blogs/repositories/typeorm/blogs.entities.js';
 
 @Module({
   imports: [
@@ -44,7 +46,7 @@ import {
       username: SETTINGS.POSTGRES_SETTINGS.USER,
       password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
       database: 'blog-platform',
-      entities: [User, Confirmation, Recovery],
+      entities: [User, Confirmation, Recovery, Device, Blog],
       autoLoadEntities: true,
       synchronize: true,
       ssl: true,
