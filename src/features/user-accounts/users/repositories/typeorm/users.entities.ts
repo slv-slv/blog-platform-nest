@@ -28,8 +28,8 @@ export class User {
   @OneToOne(() => Confirmation, (confirmation) => confirmation.user, { eager: true })
   confirmation: Relation<Confirmation>;
 
-  // @OneToOne(() => Recovery, (recovery) => recovery.user, { eager: true })
-  // recovery: Relation<Recovery>;
+  @OneToOne(() => Recovery, (recovery) => recovery.user, { eager: true })
+  recovery: Relation<Recovery>;
 }
 
 @Entity({ schema: 'typeorm' })
@@ -43,6 +43,22 @@ export class Confirmation {
 
   @Column()
   status: string;
+
+  @Column()
+  code: string;
+
+  @Column('timestamptz')
+  expiration: Date;
+}
+
+@Entity({ schema: 'typeorm' })
+export class Recovery {
+  @PrimaryColumn()
+  userId: number;
+
+  @OneToOne(() => User, (user) => user.recovery)
+  @JoinColumn({ name: 'userId' })
+  user: Relation<User>;
 
   @Column()
   code: string;

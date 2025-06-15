@@ -22,7 +22,11 @@ import { PostgresModule } from './common/dynamic-modules/postgres.module.js';
 import { pool } from './common/constants.js';
 import { Pool } from 'pg';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Confirmation, User } from './features/user-accounts/users/repositories/typeorm/users.entities.js';
+import {
+  Confirmation,
+  Recovery,
+  User,
+} from './features/user-accounts/users/repositories/typeorm/users.entities.js';
 
 @Module({
   imports: [
@@ -40,7 +44,7 @@ import { Confirmation, User } from './features/user-accounts/users/repositories/
       username: SETTINGS.POSTGRES_SETTINGS.USER,
       password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
       database: 'blog-platform',
-      entities: [User, Confirmation],
+      entities: [User, Confirmation, Recovery],
       autoLoadEntities: true,
       synchronize: true,
       ssl: true,
