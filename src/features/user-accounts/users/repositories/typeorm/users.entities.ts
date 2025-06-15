@@ -29,7 +29,7 @@ export class User {
   confirmation: Relation<Confirmation>;
 
   @OneToOne(() => Recovery, (recovery) => recovery.user, { eager: true })
-  recovery: Relation<Recovery>;
+  passwordRecovery: Relation<Recovery>;
 }
 
 @Entity({ schema: 'typeorm' })
@@ -56,7 +56,7 @@ export class Recovery {
   @PrimaryColumn()
   userId: number;
 
-  @OneToOne(() => User, (user) => user.recovery)
+  @OneToOne(() => User, (user) => user.passwordRecovery)
   @JoinColumn({ name: 'userId' })
   user: Relation<User>;
 
