@@ -22,6 +22,7 @@ import { PostgresModule } from './common/dynamic-modules/postgres.module.js';
 import { pool } from './common/constants.js';
 import { Pool } from 'pg';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Confirmation, User } from './features/user-accounts/users/repositories/typeorm/users.entities.js';
 
 @Module({
   imports: [
@@ -35,13 +36,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     PostgresModule.forFeature('blog-platform'),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: SETTINGS.POSTGRES_SETTINGS.URL,
+      host: SETTINGS.POSTGRES_SETTINGS.URL,
       username: SETTINGS.POSTGRES_SETTINGS.USER,
       password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
       database: 'blog-platform',
-      entities: [],
+      entities: [User, Confirmation],
       autoLoadEntities: true,
       synchronize: true,
+      ssl: true,
     }),
     JwtModule.register({
       global: true,
