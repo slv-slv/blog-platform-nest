@@ -1,4 +1,5 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Post } from '../../../posts/repositories/typeorm/posts.entities.js';
 
 @Entity({ schema: 'typeorm', name: 'blogs' })
 export class Blog {
@@ -19,4 +20,7 @@ export class Blog {
 
   @Column()
   isMembership: boolean;
+
+  @OneToMany(() => Post, (post) => post.blog)
+  posts: Relation<Post[]>;
 }
