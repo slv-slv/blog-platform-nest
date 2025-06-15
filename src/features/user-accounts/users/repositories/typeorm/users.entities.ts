@@ -44,10 +44,10 @@ export class Confirmation {
   @Column()
   status: string;
 
-  @Column()
+  @Column({ nullable: true })
   code: string;
 
-  @Column('timestamptz')
+  @Column('timestamptz', { nullable: true })
   expiration: Date;
 }
 
@@ -60,9 +60,9 @@ export class Recovery {
   @JoinColumn({ name: 'userId' })
   user: Relation<User>;
 
-  @Column()
+  @Column({ nullable: true })
   code: string;
 
-  @Column('timestamptz')
+  @Column('timestamptz', { nullable: true })
   expiration: Date;
 }
