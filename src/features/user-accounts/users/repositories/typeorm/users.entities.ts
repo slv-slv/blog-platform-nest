@@ -10,7 +10,10 @@ import {
 } from 'typeorm';
 import { Device } from '../../../sessions/repositories/typeorm/sessions.entities.js';
 import { Comment } from '../../../../blog-content/comments/repositories/typeorm/comments.entities.js';
-import { CommentLike } from '../../../../blog-content/likes/comments/repositories/typeorm/comment-likes.entities.js';
+import {
+  CommentDislike,
+  CommentLike,
+} from '../../../../blog-content/likes/comments/repositories/typeorm/comment-likes.entities.js';
 
 @Entity({ schema: 'typeorm', name: 'users' })
 export class User {
@@ -43,6 +46,9 @@ export class User {
 
   @OneToMany(() => CommentLike, (commentLike) => commentLike.user)
   commentLikes: Relation<CommentLike[]>;
+
+  @OneToMany(() => CommentDislike, (commentDislike) => commentDislike.user)
+  commentDislikes: Relation<CommentDislike[]>;
 }
 
 @Entity({ schema: 'typeorm' })

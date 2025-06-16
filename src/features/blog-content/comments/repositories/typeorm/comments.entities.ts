@@ -1,7 +1,10 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { Post } from '../../../posts/repositories/typeorm/posts.entities.js';
 import { User } from '../../../../user-accounts/users/repositories/typeorm/users.entities.js';
-import { CommentLike } from '../../../likes/comments/repositories/typeorm/comment-likes.entities.js';
+import {
+  CommentDislike,
+  CommentLike,
+} from '../../../likes/comments/repositories/typeorm/comment-likes.entities.js';
 
 @Entity({ schema: 'typeorm', name: 'comments' })
 export class Comment {
@@ -24,4 +27,7 @@ export class Comment {
 
   @OneToMany(() => CommentLike, (commentLike) => commentLike.comment)
   likes: Relation<CommentLike[]>;
+
+  @OneToMany(() => CommentDislike, (commentDislike) => commentDislike.comment)
+  dislikes: Relation<CommentDislike[]>;
 }
