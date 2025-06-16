@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { Blog } from '../../../blogs/repositories/typeorm/blogs.entities.js';
 import { Comment } from '../../../comments/repositories/typeorm/comments.entities.js';
+import { PostLike } from '../../../likes/posts/repositories/typeorm/post-likes.entities.js';
 
 @Entity({ schema: 'typeorm', name: 'posts' })
 export class Post {
@@ -25,4 +26,7 @@ export class Post {
 
   @OneToMany(() => Comment, (comment) => comment.post)
   comments: Relation<Comment[]>;
+
+  @OneToMany(() => PostLike, (postLike) => postLike.post)
+  likes: Relation<PostLike[]>;
 }
