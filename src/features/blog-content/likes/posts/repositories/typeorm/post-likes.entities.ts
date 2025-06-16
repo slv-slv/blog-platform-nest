@@ -21,3 +21,23 @@ export class PostLike {
   @Column('timestamptz')
   createdAt: Date;
 }
+
+@Entity({ schema: 'typeorm', name: 'post_dislikes' })
+export class PostDislike {
+  @PrimaryColumn()
+  postId: number;
+
+  @ManyToOne(() => Post, (post) => post.dislikes)
+  @JoinColumn({ name: 'postId' })
+  post: Relation<Post>;
+
+  @PrimaryColumn()
+  userId: number;
+
+  @ManyToOne(() => User, (user) => user.postDislikes)
+  @JoinColumn({ name: 'userId' })
+  user: Relation<User>;
+
+  @Column('timestamptz')
+  createdAt: Date;
+}

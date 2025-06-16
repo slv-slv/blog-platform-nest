@@ -14,7 +14,10 @@ import {
   CommentDislike,
   CommentLike,
 } from '../../../../blog-content/likes/comments/repositories/typeorm/comment-likes.entities.js';
-import { PostLike } from '../../../../blog-content/likes/posts/repositories/typeorm/post-likes.entities.js';
+import {
+  PostDislike,
+  PostLike,
+} from '../../../../blog-content/likes/posts/repositories/typeorm/post-likes.entities.js';
 
 @Entity({ schema: 'typeorm', name: 'users' })
 export class User {
@@ -53,6 +56,9 @@ export class User {
 
   @OneToMany(() => PostLike, (postLike) => postLike.user)
   postLikes: Relation<PostLike[]>;
+
+  @OneToMany(() => PostDislike, (postDislike) => postDislike.user)
+  postDislikes: Relation<PostDislike[]>;
 }
 
 @Entity({ schema: 'typeorm' })
