@@ -36,10 +36,10 @@ export class User {
   @Column('timestamptz')
   createdAt: Date;
 
-  @OneToOne(() => Confirmation, (confirmation) => confirmation.user, { eager: true })
+  @OneToOne(() => Confirmation, (confirmation) => confirmation.user)
   confirmation: Relation<Confirmation>;
 
-  @OneToOne(() => Recovery, (recovery) => recovery.user, { eager: true })
+  @OneToOne(() => Recovery, (recovery) => recovery.user)
   passwordRecovery: Relation<Recovery>;
 
   @OneToMany(() => Device, (device) => device.user)
