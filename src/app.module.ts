@@ -22,23 +22,6 @@ import { PostgresModule } from './common/dynamic-modules/postgres.module.js';
 import { pool } from './common/constants.js';
 import { Pool } from 'pg';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {
-  Confirmation,
-  Recovery,
-  User,
-} from './features/user-accounts/users/repositories/typeorm/users.entities.js';
-import { Device } from './features/user-accounts/sessions/repositories/typeorm/sessions.entities.js';
-import { Blog } from './features/blog-content/blogs/repositories/typeorm/blogs.entities.js';
-import { Post } from './features/blog-content/posts/repositories/typeorm/posts.entities.js';
-import { Comment } from './features/blog-content/comments/repositories/typeorm/comments.entities.js';
-import {
-  PostDislike,
-  PostLike,
-} from './features/blog-content/likes/posts/repositories/typeorm/post-likes.entities.js';
-import {
-  CommentDislike,
-  CommentLike,
-} from './features/blog-content/likes/comments/repositories/typeorm/comment-likes.entities.js';
 
 @Module({
   imports: [
@@ -56,19 +39,6 @@ import {
       username: SETTINGS.POSTGRES_SETTINGS.USER,
       password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
       database: 'blog-platform',
-      entities: [
-        User,
-        Confirmation,
-        Recovery,
-        Device,
-        Blog,
-        Post,
-        Comment,
-        PostLike,
-        PostDislike,
-        CommentLike,
-        CommentDislike,
-      ],
       autoLoadEntities: true,
       synchronize: true,
       ssl: true,

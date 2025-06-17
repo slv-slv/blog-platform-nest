@@ -3,8 +3,9 @@ import { UsersController } from './users/api/users.controller.js';
 import { UsersService } from './users/application/users.service.js';
 import { UsersRepository } from './users/repositories/postgresql/users.repository.js';
 import { UsersQueryRepository } from './users/repositories/postgresql/users.query-repository.js';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './users/repositories/mongoose/users.schemas.js';
+// import { MongooseModule } from '@nestjs/mongoose';
+// import { User, UserSchema } from './users/repositories/mongoose/users.schemas.js';
+// import { Session, SessionSchema } from './sessions/repositories/mongoose/sessions.schemas.js';
 import { AuthController } from './auth/api/auth.controller.js';
 import { AuthService } from './auth/application/auth.service.js';
 import { NotificationsModule } from '../../notifications/notifications.module.js';
@@ -12,14 +13,19 @@ import { SessionsController } from './sessions/api/sessions.controller.js';
 import { SessionsService } from './sessions/application/sessions.service.js';
 import { SessionsRepository } from './sessions/repositories/postgresql/sessions.repository.js';
 import { SessionsQueryRepository } from './sessions/repositories/postgresql/sessions.query-repository.js';
-import { Session, SessionSchema } from './sessions/repositories/mongoose/sessions.schemas.js';
+
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Confirmation, Recovery, User } from './users/repositories/typeorm/users.entities.js';
+import { Device } from './sessions/repositories/typeorm/sessions.entities.js';
+import { Blog } from '../blog-content/blogs/repositories/typeorm/blogs.entities.js';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },
-      { name: Session.name, schema: SessionSchema },
-    ]),
+    // MongooseModule.forFeature([
+    //   { name: User.name, schema: UserSchema },
+    //   { name: Session.name, schema: SessionSchema },
+    // ]),
+    TypeOrmModule.forFeature([User, Confirmation, Recovery, Device]),
     NotificationsModule,
   ],
   controllers: [UsersController, AuthController, SessionsController],
