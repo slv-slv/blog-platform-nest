@@ -1,5 +1,6 @@
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   OneToMany,
@@ -19,6 +20,25 @@ import {
   PostLike,
 } from '../../../../blog-content/likes/posts/repositories/typeorm/post-likes.entities.js';
 
+class ConfirmationInfo {
+  @Column()
+  status: string;
+
+  @Column({ nullable: true })
+  code: string;
+
+  @Column('timestamptz', { nullable: true })
+  expiration: Date;
+}
+
+class PasswordRecoveryInfo {
+  @Column({ nullable: true })
+  code: string;
+
+  @Column('timestamptz', { nullable: true })
+  expiration: Date;
+}
+
 @Entity({ schema: 'typeorm', name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('identity')
@@ -36,11 +56,14 @@ export class User {
   @Column('timestamptz')
   createdAt: Date;
 
-  @OneToOne(() => Confirmation, (confirmation) => confirmation.user)
-  confirmation: Relation<Confirmation>;
+  @Column(() => ConfirmationInfo)
+  confirmation: ConfirmationInfo;
 
-  @OneToOne(() => Recovery, (recovery) => recovery.user)
-  passwordRecovery: Relation<Recovery>;
+  @Column(() => PasswordRecoveryInfo)
+  passwordRecovery: PasswordRecoveryInfo;
+
+  @DeleteDateColumn({ select: false })
+  deletedAt: Date;
 
   @OneToMany(() => Device, (device) => device.user)
   devices: Relation<Device[]>;
@@ -59,39 +82,4 @@ export class User {
 
   @OneToMany(() => PostDislike, (postDislike) => postDislike.user)
   postDislikes: Relation<PostDislike[]>;
-}
-
-@Entity({ schema: 'typeorm' })
-export class Confirmation {
-  @PrimaryColumn()
-  userId: number;
-
-  @OneToOne(() => User, (user) => user.confirmation)
-  @JoinColumn({ name: 'userId' })
-  user: Relation<User>;
-
-  @Column()
-  status: string;
-
-  @Column({ nullable: true })
-  code: string;
-
-  @Column('timestamptz', { nullable: true })
-  expiration: Date;
-}
-
-@Entity({ schema: 'typeorm' })
-export class Recovery {
-  @PrimaryColumn()
-  userId: number;
-
-  @OneToOne(() => User, (user) => user.passwordRecovery)
-  @JoinColumn({ name: 'userId' })
-  user: Relation<User>;
-
-  @Column({ nullable: true })
-  code: string;
-
-  @Column('timestamptz', { nullable: true })
-  expiration: Date;
 }

@@ -15,9 +15,8 @@ import { SessionsRepository } from './sessions/repositories/postgresql/sessions.
 import { SessionsQueryRepository } from './sessions/repositories/postgresql/sessions.query-repository.js';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Confirmation, Recovery, User } from './users/repositories/typeorm/users.entities.js';
+import { User } from './users/repositories/typeorm/users.entities.js';
 import { Device } from './sessions/repositories/typeorm/sessions.entities.js';
-import { Blog } from '../blog-content/blogs/repositories/typeorm/blogs.entities.js';
 
 @Module({
   imports: [
@@ -25,7 +24,7 @@ import { Blog } from '../blog-content/blogs/repositories/typeorm/blogs.entities.
     //   { name: User.name, schema: UserSchema },
     //   { name: Session.name, schema: SessionSchema },
     // ]),
-    TypeOrmModule.forFeature([User, Confirmation, Recovery, Device]),
+    TypeOrmModule.forFeature([User, Device]),
     NotificationsModule,
   ],
   controllers: [UsersController, AuthController, SessionsController],
