@@ -9,6 +9,7 @@ import {
   PostDislike,
   PostLike,
 } from '../../../../blog-content/likes/posts/repositories/typeorm/post-likes.entities.js';
+import { CurrentUserType, UserViewType } from '../../types/users.types.js';
 
 class ConfirmationInfo {
   @Column()
@@ -72,4 +73,21 @@ export class User {
 
   @OneToMany(() => PostDislike, (postDislike) => postDislike.user)
   postDislikes: Relation<PostDislike[]>;
+
+  toViewType(): UserViewType {
+    return {
+      id: this.id.toString(),
+      login: this.login,
+      email: this.email,
+      createdAt: this.createdAt.toISOString(),
+    };
+  }
+
+  toCurrentUserType(): CurrentUserType {
+    return {
+      email: this.email,
+      login: this.login,
+      userId: this.id.toString(),
+    };
+  }
 }
