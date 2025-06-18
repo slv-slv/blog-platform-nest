@@ -1,14 +1,4 @@
-import {
-  Column,
-  DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
-  Relation,
-} from 'typeorm';
+import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { Device } from '../../../sessions/repositories/typeorm/sessions.entities.js';
 import { Comment } from '../../../../blog-content/comments/repositories/typeorm/comments.entities.js';
 import {
@@ -63,7 +53,7 @@ export class User {
   passwordRecovery: PasswordRecoveryInfo;
 
   @DeleteDateColumn({ select: false })
-  deletedAt: Date;
+  deletedAt: Date | null;
 
   @OneToMany(() => Device, (device) => device.user)
   devices: Relation<Device[]>;
