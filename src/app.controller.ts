@@ -33,8 +33,6 @@ export class AppController {
         posts,
         comments,
         users,
-        confirmation,
-        recovery,
         devices,
         comment_likes,
         comment_dislikes,
