@@ -8,7 +8,7 @@ import {
 import { pool } from '../../../../../common/constants.js';
 import { Pool } from 'pg';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../typeorm/users.entities.js';
+import { ConfirmationInfo, PasswordRecoveryInfo, User } from '../typeorm/users.entities.js';
 import { Like, Repository } from 'typeorm';
 
 @Injectable()
@@ -18,81 +18,95 @@ export class UsersRepository {
     @InjectRepository(User) private readonly userEntityRepo: Repository<User>,
   ) {}
 
-  async findUser(loginOrEmail: string): Promise<UserType | null> {
-    const likeTerm = `%${loginOrEmail}%`;
-    const usersResult = await this.pool.query(
-      `
-        SELECT *
-        FROM users
-        WHERE login LIKE $1 OR email LIKE $1
-      `,
-      [likeTerm],
-    );
-
-    if (usersResult.rowCount === 0) {
-      return null;
-    }
-
-    const {
-      id,
-      login,
-      email,
-      hash,
-      created_at,
-      is_confirmed,
-      confirmation_code,
-      confirmation_expiration,
-      recovery_code,
-      recovery_expiration,
-    } = usersResult.rows[0];
-
-    const confirmation = {
-      isConfirmed: is_confirmed,
-      code: confirmation_code,
-      expiration: confirmation_expiration,
-    };
-
-    const passwordRecovery = {
-      code: recovery_code,
-      expiration: recovery_expiration,
-    };
-
-    return { id: id.toString(), login, email, hash, createdAt: created_at, confirmation, passwordRecovery };
-  }
-
-  // async findUserTypeorm(loginOrEmail: string): Promise<UserType | null> {
+  // async findUser(loginOrEmail: string): Promise<UserType | null> {
   //   const likeTerm = `%${loginOrEmail}%`;
-  //   const user = await this.userEntityRepo.find({
-  //     relations: { confirmation: true, passwordRecovery: true },
-  //     where: [{ login: Like(likeTerm) }, { email: Like(likeTerm) }],
-  //   });
+  //   const usersResult = await this.pool.query(
+  //     `
+  //       SELECT *
+  //       FROM users
+  //       WHERE login LIKE $1 OR email LIKE $1
+  //     `,
+  //     [likeTerm],
+  //   );
+
+  //   if (usersResult.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const {
+  //     id,
+  //     login,
+  //     email,
+  //     hash,
+  //     created_at,
+  //     is_confirmed,
+  //     confirmation_code,
+  //     confirmation_expiration,
+  //     recovery_code,
+  //     recovery_expiration,
+  //   } = usersResult.rows[0];
+
+  //   const confirmation = {
+  //     isConfirmed: is_confirmed,
+  //     code: confirmation_code,
+  //     expiration: confirmation_expiration,
+  //   };
+
+  //   const passwordRecovery = {
+  //     code: recovery_code,
+  //     expiration: recovery_expiration,
+  //   };
+
+  //   return { id: id.toString(), login, email, hash, createdAt: created_at, confirmation, passwordRecovery };
   // }
 
-  async getLogin(id: string): Promise<string | null> {
-    const idInt = Number.parseInt(id);
+  async findUser(loginOrEmail: string): Promise<UserType | null> {
+    const likeTerm = `%${loginOrEmail}%`;
+    const user = await this.userEntityRepo.findOne({
+      relations: { confirmation: true, passwordRecovery: true },
+      where: [{ login: Like(likeTerm) }, { email: Like(likeTerm) }],
+    });
 
-    const result = await this.pool.query(
-      `
-        SELECT login
-        FROM users
-        WHERE id = $1
-      `,
-      [idInt],
-    );
+    if (!user) return null;
 
-    if (result.rowCount === 0) {
-      return null;
-    }
-
-    const { login } = result.rows[0];
-    return login;
+    return user.toDto();
   }
+
+  // async getLogin(id: string): Promise<string | null> {
+  //   const idInt = Number.parseInt(id);
+
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT login
+  //       FROM users
+  //       WHERE id = $1
+  //     `,
+  //     [idInt],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const { login } = result.rows[0];
+  //   return login;
+  // }
+
+  // async getLogin(id: string): Promise<string | null> {
+  //   const user = await this.userEntityRepo.findOne({
+  //     select: { login: true },
+  //     where: { id: Number.parseInt(id) },
+  //   });
+
+  //   if (!user) return null;
+  //   return user.login;
+  // }
 
   async createUser(
     login: string,
     email: string,
     hash: string,
-    createdAt: string,
+    createdAt: Date,
     confirmation: ConfirmationInfoType,
     passwordRecovery: PasswordRecoveryInfoType,
   ): Promise<UserViewType> {
@@ -127,10 +141,46 @@ export class UsersRepository {
     );
     id = result.rows[0].id;
 
-    return { id: id.toString(), login, email, createdAt };
+    return { id: id.toString(), login, email, createdAt: createdAt.toISOString() };
   }
 
-  async updateConfirmationCode(email: string, code: string, expiration: string): Promise<void> {
+  // async createUser1(
+  //   login: string,
+  //   email: string,
+  //   hash: string,
+  //   createdAt: Date,
+  //   confirmation: ConfirmationInfoType,
+  //   passwordRecovery: PasswordRecoveryInfoType,
+  // ): Promise<UserViewType> {
+  //   const confirmationEntity = new ConfirmationInfo();
+  //   confirmationEntity.isConfirmed = confirmation.isConfirmed;
+  //   confirmationEntity.code = confirmation.code!;
+  //   confirmationEntity.expiration = confirmation.expiration!;
+
+  //   const passwordRecoveryEntity = new PasswordRecoveryInfo();
+  //   passwordRecoveryEntity.code = passwordRecovery.code!;
+  //   passwordRecoveryEntity.expiration = passwordRecovery.expiration!;
+
+  //   const user = this.userEntityRepo.create({
+  //     login,
+  //     email,
+  //     hash,
+  //     createdAt,
+  //     confirmation: confirmationEntity,
+  //     passwordRecovery: passwordRecoveryEntity,
+  //   });
+
+  //   const savedUser = await this.userEntityRepo.save(user);
+
+  //   return {
+  //     id: savedUser.id.toString(),
+  //     login: savedUser.login,
+  //     email: savedUser.email,
+  //     createdAt: savedUser.createdAt.toISOString(),
+  //   };
+  // }
+
+  async updateConfirmationCode(email: string, code: string, expiration: Date): Promise<void> {
     await this.pool.query(
       `
         UPDATE users
@@ -141,7 +191,7 @@ export class UsersRepository {
     );
   }
 
-  async updateRecoveryCode(email: string, code: string, expiration: string): Promise<boolean> {
+  async updateRecoveryCode(email: string, code: string, expiration: Date): Promise<boolean> {
     const updateResult = await this.pool.query(
       `
         UPDATE users
