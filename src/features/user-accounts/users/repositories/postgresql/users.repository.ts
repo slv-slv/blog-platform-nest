@@ -180,14 +180,26 @@ export class UsersRepository {
     };
   }
 
+  // async updateConfirmationCode(email: string, code: string, expiration: Date): Promise<void> {
+  //   await this.pool.query(
+  //     `
+  //       UPDATE users
+  //         SET confirmation_code = $2, confirmation_expiration = $3
+  //         WHERE email = $1
+  //     `,
+  //     [email, code, expiration],
+  //   );
+  // }
+
   async updateConfirmationCode(email: string, code: string, expiration: Date): Promise<void> {
-    await this.pool.query(
-      `
-        UPDATE users
-          SET confirmation_code = $2, confirmation_expiration = $3
-          WHERE email = $1
-      `,
-      [email, code, expiration],
+    await this.userEntityRepo.update(
+      { email },
+      {
+        confirmation: {
+          code,
+          expiration,
+        },
+      },
     );
   }
 
