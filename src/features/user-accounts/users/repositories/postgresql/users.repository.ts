@@ -92,15 +92,15 @@ export class UsersRepository {
   //   return login;
   // }
 
-  // async getLogin(id: string): Promise<string | null> {
-  //   const user = await this.userEntityRepo.findOne({
-  //     select: { login: true },
-  //     where: { id: Number.parseInt(id) },
-  //   });
+  async getLogin(id: string): Promise<string | null> {
+    const user = await this.userEntityRepo.findOne({
+      select: { login: true },
+      where: { id: Number.parseInt(id) },
+    });
 
-  //   if (!user) return null;
-  //   return user.login;
-  // }
+    if (!user) return null;
+    return user.login;
+  }
 
   async createUser(
     login: string,
