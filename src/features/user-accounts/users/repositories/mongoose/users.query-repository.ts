@@ -4,7 +4,6 @@ import { User } from './users.schemas.js';
 import { Model } from 'mongoose';
 import { PagingParamsType } from '../../../../../common/types/paging-params.types.js';
 import {
-  CONFIRMATION_STATUS,
   ConfirmationInfoType,
   CurrentUserType,
   PasswordRecoveryInfoType,
@@ -87,11 +86,11 @@ export class UsersQueryRepository {
 
   async isConfirmed(loginOrEmail: string): Promise<boolean> {
     const filter = loginOrEmail.includes('@') ? { email: loginOrEmail } : { login: loginOrEmail };
-    const user = await this.model.findOne(filter, { _id: 0, 'confirmation.status': 1 }).lean();
+    const user = await this.model.findOne(filter, { _id: 0, 'confirmation.isConfirmed': 1 }).lean();
     if (!user) {
       return false;
     }
-    return user.confirmation.status === CONFIRMATION_STATUS.CONFIRMED;
+    return user.confirmation.isConfirmed;
   }
 
   async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {

@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './users.schemas.js';
 import {
-  CONFIRMATION_STATUS,
   ConfirmationInfoType,
   PasswordRecoveryInfoType,
   UserType,
@@ -74,7 +73,7 @@ export class UsersRepository {
   async confirmUser(code: string): Promise<void> {
     await this.model.updateOne(
       { 'confirmation.code': code },
-      { $set: { 'confirmation.status': CONFIRMATION_STATUS.CONFIRMED, 'confirmation.expiration': null } },
+      { $set: { 'confirmation.isConfirmed': true, 'confirmation.expiration': null } },
     );
     // return updateResult.modifiedCount > 0; // Будет false если пользователь не найден или уже подтвержден
   }
