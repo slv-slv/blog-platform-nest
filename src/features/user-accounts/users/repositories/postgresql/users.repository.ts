@@ -191,16 +191,29 @@ export class UsersRepository {
   //   );
   // }
 
-  // async updateConfirmationCode(email: string, code: string, expiration: Date): Promise<void> {
-  //   await this.userEntityRepo.update(
-  //     { email },
-  //     {
-  //       confirmation: {
-  //         code,
-  //         expiration,
-  //       },
-  //     },
+  async updateConfirmationCode(email: string, code: string, expiration: Date): Promise<void> {
+    await this.userEntityRepo.update(
+      { email },
+      {
+        confirmation: {
+          code,
+          expiration,
+        },
+      },
+    );
+  }
+
+  // async updateRecoveryCode(email: string, code: string, expiration: Date): Promise<boolean> {
+  //   const updateResult = await this.pool.query(
+  //     `
+  //       UPDATE users
+  //         SET recovery_code = $2, recovery_expiration = $3
+  //         WHERE email = $1
+  //     `,
+  //     [email, code, expiration],
   //   );
+
+  //   return updateResult.rowCount! > 0;
   // }
 
   async updateRecoveryCode(email: string, code: string, expiration: Date): Promise<boolean> {
@@ -215,19 +228,6 @@ export class UsersRepository {
     );
 
     return updateResult.affected! > 0;
-  }
-
-  async updateRecoveryCode1(email: string, code: string, expiration: Date): Promise<boolean> {
-    const updateResult = await this.pool.query(
-      `
-        UPDATE users
-          SET recovery_code = $2, recovery_expiration = $3
-          WHERE email = $1
-      `,
-      [email, code, expiration],
-    );
-
-    return updateResult.rowCount! > 0;
   }
 
   async updatePassword(recoveryCode: string, hash: string): Promise<void> {
