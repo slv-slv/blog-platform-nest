@@ -179,7 +179,7 @@ export class UsersRepository {
   async deleteUser(id: string): Promise<boolean> {
     const idInt = Number.parseInt(id);
 
-    await this.pool.query(
+    const deleteResult = await this.pool.query(
       `
           DELETE FROM users
             WHERE id = $1
@@ -187,6 +187,6 @@ export class UsersRepository {
       [idInt],
     );
 
-    return true;
+    return deleteResult.rowCount! > 0;
   }
 }
