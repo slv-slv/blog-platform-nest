@@ -94,9 +94,9 @@ export class UsersQueryRepository {
       return null;
     }
 
-    const { id, login, email, createdAt } = result.rows[0];
+    const { id, login, email, created_at } = result.rows[0];
 
-    return { id: id.toString(), login, email, createdAt };
+    return { id: id.toString(), login, email, createdAt: created_at };
   }
 
   async getCurrentUser(userId: string): Promise<CurrentUserType | null> {
@@ -123,23 +123,23 @@ export class UsersQueryRepository {
   async isConfirmed(loginOrEmail: string): Promise<boolean> {
     const result = await this.pool.query(
       `
-        SELECT confirmation.isConfirmed
-        FROM users JOIN confirmation
-          ON users.id = confirmation.user_id
-        WHERE users.login = $1 OR users.email = $1
+        SELECT is_confirmed
+        FROM users
+        WHERE login = $1 OR email = $1
       `,
       [loginOrEmail],
     );
 
-    const { isConfirmed } = result.rows[0];
-    return isConfirmed;
+    const { is_confirmed } = result.rows[0];
+    return is_confirmed;
   }
 
   async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {
     const result = await this.pool.query(
       `
-        SELECT isConfirmed, expiration FROM confirmation
-        WHERE code = $1
+        SELECT is_confirmed, confirmation_expiration
+        FROM users
+        WHERE confirmation_code = $1
       `,
       [code],
     );
@@ -148,15 +148,15 @@ export class UsersQueryRepository {
       return null;
     }
 
-    const { isConfirmed, expiration } = result.rows[0];
+    const { is_confirmed: isConfirmed, confirmation_expiration: expiration } = result.rows[0];
     return { isConfirmed, code, expiration };
   }
 
   async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {
     const result = await this.pool.query(
       `
-        SELECT expiration FROM recovery
-        WHERE code = $1
+        SELECT recovery_expiration FROM users
+        WHERE recovery_code = $1
       `,
       [code],
     );
@@ -165,7 +165,7 @@ export class UsersQueryRepository {
       return null;
     }
 
-    const { expiration } = result.rows[0];
+    const { recovery_expiration: expiration } = result.rows[0];
     return { code, expiration };
   }
 
