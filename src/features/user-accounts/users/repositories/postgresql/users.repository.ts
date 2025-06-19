@@ -102,6 +102,48 @@ export class UsersRepository {
     return user.login;
   }
 
+  // async createUser(
+  //   login: string,
+  //   email: string,
+  //   hash: string,
+  //   createdAt: Date,
+  //   confirmation: ConfirmationInfoType,
+  //   passwordRecovery: PasswordRecoveryInfoType,
+  // ): Promise<UserViewType> {
+  //   let id: number;
+  //   const result = await this.pool.query(
+  //     `
+  //         INSERT INTO users (
+  //           login,
+  //           email,
+  //           hash,
+  //           created_at,
+  //           is_confirmed,
+  //           confirmation_code,
+  //           confirmation_expiration,
+  //           recovery_code,
+  //           recovery_expiration
+  //         )
+  //         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+  //         RETURNING id
+  //       `,
+  //     [
+  //       login,
+  //       email,
+  //       hash,
+  //       createdAt,
+  //       confirmation.isConfirmed,
+  //       confirmation.code,
+  //       confirmation.expiration,
+  //       passwordRecovery.code,
+  //       passwordRecovery.expiration,
+  //     ],
+  //   );
+  //   id = result.rows[0].id;
+
+  //   return { id: id.toString(), login, email, createdAt: createdAt.toISOString() };
+  // }
+
   async createUser(
     login: string,
     email: string,
@@ -110,75 +152,33 @@ export class UsersRepository {
     confirmation: ConfirmationInfoType,
     passwordRecovery: PasswordRecoveryInfoType,
   ): Promise<UserViewType> {
-    let id: number;
-    const result = await this.pool.query(
-      `
-          INSERT INTO users (
-            login,
-            email,
-            hash,
-            created_at,
-            is_confirmed,
-            confirmation_code,
-            confirmation_expiration,
-            recovery_code,
-            recovery_expiration
-          )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-          RETURNING id
-        `,
-      [
-        login,
-        email,
-        hash,
-        createdAt,
-        confirmation.isConfirmed,
-        confirmation.code,
-        confirmation.expiration,
-        passwordRecovery.code,
-        passwordRecovery.expiration,
-      ],
-    );
-    id = result.rows[0].id;
+    const confirmationEntity = new ConfirmationInfo();
+    confirmationEntity.isConfirmed = confirmation.isConfirmed;
+    confirmationEntity.code = confirmation.code!;
+    confirmationEntity.expiration = confirmation.expiration!;
 
-    return { id: id.toString(), login, email, createdAt: createdAt.toISOString() };
+    const passwordRecoveryEntity = new PasswordRecoveryInfo();
+    passwordRecoveryEntity.code = passwordRecovery.code!;
+    passwordRecoveryEntity.expiration = passwordRecovery.expiration!;
+
+    const user = this.userEntityRepo.create({
+      login,
+      email,
+      hash,
+      createdAt,
+      confirmation: confirmationEntity,
+      passwordRecovery: passwordRecoveryEntity,
+    });
+
+    const savedUser = await this.userEntityRepo.save(user);
+
+    return {
+      id: savedUser.id.toString(),
+      login: savedUser.login,
+      email: savedUser.email,
+      createdAt: savedUser.createdAt.toISOString(),
+    };
   }
-
-  // async createUser1(
-  //   login: string,
-  //   email: string,
-  //   hash: string,
-  //   createdAt: Date,
-  //   confirmation: ConfirmationInfoType,
-  //   passwordRecovery: PasswordRecoveryInfoType,
-  // ): Promise<UserViewType> {
-  //   const confirmationEntity = new ConfirmationInfo();
-  //   confirmationEntity.isConfirmed = confirmation.isConfirmed;
-  //   confirmationEntity.code = confirmation.code!;
-  //   confirmationEntity.expiration = confirmation.expiration!;
-
-  //   const passwordRecoveryEntity = new PasswordRecoveryInfo();
-  //   passwordRecoveryEntity.code = passwordRecovery.code!;
-  //   passwordRecoveryEntity.expiration = passwordRecovery.expiration!;
-
-  //   const user = this.userEntityRepo.create({
-  //     login,
-  //     email,
-  //     hash,
-  //     createdAt,
-  //     confirmation: confirmationEntity,
-  //     passwordRecovery: passwordRecoveryEntity,
-  //   });
-
-  //   const savedUser = await this.userEntityRepo.save(user);
-
-  //   return {
-  //     id: savedUser.id.toString(),
-  //     login: savedUser.login,
-  //     email: savedUser.email,
-  //     createdAt: savedUser.createdAt.toISOString(),
-  //   };
-  // }
 
   async updateConfirmationCode(email: string, code: string, expiration: Date): Promise<void> {
     await this.pool.query(
