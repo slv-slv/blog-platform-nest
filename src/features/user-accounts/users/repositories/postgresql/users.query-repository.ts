@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PagingParamsType } from '../../../../../common/types/paging-params.types.js';
 import {
-  CONFIRMATION_STATUS,
   ConfirmationInfoType,
   CurrentUserType,
   PasswordRecoveryInfoType,
@@ -124,7 +123,7 @@ export class UsersQueryRepository {
   async isConfirmed(loginOrEmail: string): Promise<boolean> {
     const result = await this.pool.query(
       `
-        SELECT confirmation.status
+        SELECT confirmation.isConfirmed
         FROM users JOIN confirmation
           ON users.id = confirmation.user_id
         WHERE users.login = $1 OR users.email = $1
@@ -132,14 +131,14 @@ export class UsersQueryRepository {
       [loginOrEmail],
     );
 
-    const { status } = result.rows[0];
-    return status === CONFIRMATION_STATUS.CONFIRMED;
+    const { isConfirmed } = result.rows[0];
+    return isConfirmed;
   }
 
   async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {
     const result = await this.pool.query(
       `
-        SELECT status, expiration FROM confirmation
+        SELECT isConfirmed, expiration FROM confirmation
         WHERE code = $1
       `,
       [code],
@@ -149,8 +148,8 @@ export class UsersQueryRepository {
       return null;
     }
 
-    const { status, expiration } = result.rows[0];
-    return { status, code, expiration };
+    const { isConfirmed, expiration } = result.rows[0];
+    return { isConfirmed, code, expiration };
   }
 
   async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {

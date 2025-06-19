@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  CONFIRMATION_STATUS,
   ConfirmationInfoType,
   PasswordRecoveryInfoType,
   UserType,
@@ -8,10 +7,16 @@ import {
 } from '../../types/users.types.js';
 import { pool } from '../../../../../common/constants.js';
 import { Pool } from 'pg';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../typeorm/users.entities.js';
+import { Like, Repository } from 'typeorm';
 
 @Injectable()
 export class UsersRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(
+    @Inject(pool) private readonly pool: Pool,
+    @InjectRepository(User) private readonly userEntityRepo: Repository<User>,
+  ) {}
 
   async findUser(loginOrEmail: string): Promise<UserType | null> {
     const likeTerm = `%${loginOrEmail}%`;
@@ -32,7 +37,7 @@ export class UsersRepository {
 
     const confirmationResult = await this.pool.query(
       `
-        SELECT status, code, expiration
+        SELECT isConfirmed, code, expiration
         FROM confirmation
         WHERE user_id = $1
       `,
@@ -52,6 +57,14 @@ export class UsersRepository {
 
     return { id: id.toString(), login, email, hash, createdAt, confirmation, passwordRecovery };
   }
+
+  // async findUserTypeorm(loginOrEmail: string): Promise<UserType | null> {
+  //   const likeTerm = `%${loginOrEmail}%`;
+  //   const user = await this.userEntityRepo.find({
+  //     relations: { confirmation: true, passwordRecovery: true },
+  //     where: [{ login: Like(likeTerm) }, { email: Like(likeTerm) }],
+  //   });
+  // }
 
   async getLogin(id: string): Promise<string | null> {
     const idInt = Number.parseInt(id);
@@ -99,7 +112,7 @@ export class UsersRepository {
           INSERT INTO confirmation
             VALUES ($1, $2, $3, $4)
         `,
-        [id, confirmation.status, confirmation.code, confirmation.expiration],
+        [id, confirmation.isConfirmed, confirmation.code, confirmation.expiration],
       );
       await client.query(
         `
@@ -158,10 +171,10 @@ export class UsersRepository {
     await this.pool.query(
       `
         UPDATE confirmation
-          SET status = $2, expiration = $3
+          SET isConfirmed = true, expiration = NULL
           WHERE code = $1
       `,
-      [code, CONFIRMATION_STATUS.CONFIRMED, null],
+      [code],
     );
   }
 

@@ -9,25 +9,25 @@ import {
   PostDislike,
   PostLike,
 } from '../../../../blog-content/likes/posts/repositories/typeorm/post-likes.entities.js';
-import { CurrentUserType, UserViewType } from '../../types/users.types.js';
+import { CurrentUserType, UserType, UserViewType } from '../../types/users.types.js';
 
 class ConfirmationInfo {
   @Column()
   status: string;
 
   @Column({ nullable: true })
-  code: string;
+  code: string | null;
 
   @Column('timestamptz', { nullable: true })
-  expiration: Date;
+  expiration: Date | null;
 }
 
 class PasswordRecoveryInfo {
   @Column({ nullable: true })
-  code: string;
+  code: string | null;
 
   @Column('timestamptz', { nullable: true })
-  expiration: Date;
+  expiration: Date | null;
 }
 
 @Entity({ schema: 'typeorm', name: 'users' })
@@ -73,6 +73,25 @@ export class User {
 
   @OneToMany(() => PostDislike, (postDislike) => postDislike.user)
   postDislikes: Relation<PostDislike[]>;
+
+  toUserType(): UserType {
+    return {
+      id: this.id.toString(),
+      login: this.login,
+      email: this.email,
+      hash: this.hash,
+      createdAt: this.createdAt.toISOString(),
+      confirmation: {
+        status: this.confirmation.status,
+        code: this.confirmation.code,
+        expiration: this.confirmation.expiration.toISOString(),
+      },
+      passwordRecovery: {
+        code: this.passwordRecovery.code,
+        expiration: this.passwordRecovery.expiration.toISOString(),
+      },
+    };
+  }
 
   toViewType(): UserViewType {
     return {
