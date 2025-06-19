@@ -13,21 +13,21 @@ import { CurrentUserType, UserType, UserViewType } from '../../types/users.types
 
 class ConfirmationInfo {
   @Column()
-  status: string;
+  isConfirmed: boolean;
 
   @Column({ nullable: true })
-  code: string | null;
+  code: string;
 
   @Column('timestamptz', { nullable: true })
-  expiration: Date | null;
+  expiration: Date;
 }
 
 class PasswordRecoveryInfo {
   @Column({ nullable: true })
-  code: string | null;
+  code: string;
 
   @Column('timestamptz', { nullable: true })
-  expiration: Date | null;
+  expiration: Date;
 }
 
 @Entity({ schema: 'typeorm', name: 'users' })
@@ -82,13 +82,17 @@ export class User {
       hash: this.hash,
       createdAt: this.createdAt.toISOString(),
       confirmation: {
-        status: this.confirmation.status,
+        isConfirmed: this.confirmation.isConfirmed,
         code: this.confirmation.code,
-        expiration: this.confirmation.expiration.toISOString(),
+        expiration: this.confirmation.expiration
+          ? this.confirmation.expiration.toISOString()
+          : this.confirmation.expiration,
       },
       passwordRecovery: {
         code: this.passwordRecovery.code,
-        expiration: this.passwordRecovery.expiration.toISOString(),
+        expiration: this.confirmation.expiration
+          ? this.confirmation.expiration.toISOString()
+          : this.confirmation.expiration,
       },
     };
   }
