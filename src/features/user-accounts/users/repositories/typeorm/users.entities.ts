@@ -11,7 +11,7 @@ import {
 } from '../../../../blog-content/likes/posts/repositories/typeorm/post-likes.entities.js';
 import { CurrentUserType, UserType, UserViewType } from '../../types/users.types.js';
 
-class ConfirmationInfo {
+export class ConfirmationInfo {
   @Column()
   isConfirmed: boolean;
 
@@ -22,7 +22,7 @@ class ConfirmationInfo {
   expiration: Date;
 }
 
-class PasswordRecoveryInfo {
+export class PasswordRecoveryInfo {
   @Column({ nullable: true })
   code: string;
 
@@ -54,7 +54,7 @@ export class User {
   passwordRecovery: PasswordRecoveryInfo;
 
   @DeleteDateColumn({ select: false })
-  deletedAt: Date | null;
+  deletedAt: Date;
 
   @OneToMany(() => Device, (device) => device.user)
   devices: Relation<Device[]>;
@@ -74,26 +74,15 @@ export class User {
   @OneToMany(() => PostDislike, (postDislike) => postDislike.user)
   postDislikes: Relation<PostDislike[]>;
 
-  toUserType(): UserType {
+  toDto(): UserType {
     return {
-      id: this.id.toString(),
+      id: this.id,
       login: this.login,
       email: this.email,
       hash: this.hash,
-      createdAt: this.createdAt.toISOString(),
-      confirmation: {
-        isConfirmed: this.confirmation.isConfirmed,
-        code: this.confirmation.code,
-        expiration: this.confirmation.expiration
-          ? this.confirmation.expiration.toISOString()
-          : this.confirmation.expiration,
-      },
-      passwordRecovery: {
-        code: this.passwordRecovery.code,
-        expiration: this.confirmation.expiration
-          ? this.confirmation.expiration.toISOString()
-          : this.confirmation.expiration,
-      },
+      createdAt: this.createdAt,
+      confirmation: this.confirmation,
+      passwordRecovery: this.passwordRecovery,
     };
   }
 
