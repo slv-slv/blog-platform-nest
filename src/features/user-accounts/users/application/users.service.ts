@@ -3,12 +3,7 @@ import { UsersRepository } from '../repositories/postgresql/users.repository.js'
 import { UsersQueryRepository } from '../repositories/postgresql/users.query-repository.js';
 import { AuthService } from '../../auth/application/auth.service.js';
 import { EmailService } from '../../../../notifications/email/email.service.js';
-import {
-  CONFIRMATION_STATUS,
-  ConfirmationInfoType,
-  PasswordRecoveryInfoType,
-  UserViewType,
-} from '../types/users.types.js';
+import { ConfirmationInfoType, PasswordRecoveryInfoType, UserViewType } from '../types/users.types.js';
 import { SETTINGS } from '../../../../settings.js';
 
 @Injectable()
@@ -24,7 +19,7 @@ export class UsersService {
     email: string,
     password: string,
     confirmation: ConfirmationInfoType = {
-      status: CONFIRMATION_STATUS.CONFIRMED,
+      isConfirmed: true,
       code: null,
       expiration: null,
     },
@@ -63,7 +58,7 @@ export class UsersService {
     const expiration = currentDate.toISOString();
 
     const confirmation = {
-      status: CONFIRMATION_STATUS.NOT_CONFIRMED,
+      isConfirmed: false,
       code,
       expiration,
     };
@@ -124,7 +119,7 @@ export class UsersService {
       });
     }
 
-    if (confirmationInfo.status === CONFIRMATION_STATUS.CONFIRMED) {
+    if (confirmationInfo.isConfirmed) {
       throw new BadRequestException({
         errorsMessages: [{ message: 'Email already confirmed', field: 'code' }],
       });
