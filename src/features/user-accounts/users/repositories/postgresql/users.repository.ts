@@ -191,19 +191,33 @@ export class UsersRepository {
   //   );
   // }
 
-  async updateConfirmationCode(email: string, code: string, expiration: Date): Promise<void> {
-    await this.userEntityRepo.update(
+  // async updateConfirmationCode(email: string, code: string, expiration: Date): Promise<void> {
+  //   await this.userEntityRepo.update(
+  //     { email },
+  //     {
+  //       confirmation: {
+  //         code,
+  //         expiration,
+  //       },
+  //     },
+  //   );
+  // }
+
+  async updateRecoveryCode(email: string, code: string, expiration: Date): Promise<boolean> {
+    const updateResult = await this.userEntityRepo.update(
       { email },
       {
-        confirmation: {
+        passwordRecovery: {
           code,
           expiration,
         },
       },
     );
+
+    return updateResult.affected! > 0;
   }
 
-  async updateRecoveryCode(email: string, code: string, expiration: Date): Promise<boolean> {
+  async updateRecoveryCode1(email: string, code: string, expiration: Date): Promise<boolean> {
     const updateResult = await this.pool.query(
       `
         UPDATE users
