@@ -35,7 +35,7 @@ export class UsersService {
       });
 
     const hash = await this.authService.hashPassword(password);
-    const createdAt = new Date().toISOString();
+    const createdAt = new Date();
 
     const newUser = await this.usersRepository.createUser(
       login,
@@ -52,10 +52,9 @@ export class UsersService {
   async registerUser(login: string, email: string, password: string): Promise<UserViewType> {
     const code = crypto.randomUUID();
 
-    const currentDate = new Date();
-    const hours = currentDate.getHours();
-    currentDate.setHours(hours + SETTINGS.CONFIRMATION_CODE_LIFETIME);
-    const expiration = currentDate.toISOString();
+    const expiration = new Date();
+    const hours = expiration.getHours();
+    expiration.setHours(hours + SETTINGS.CONFIRMATION_CODE_LIFETIME);
 
     const confirmation = {
       isConfirmed: false,
@@ -84,10 +83,9 @@ export class UsersService {
 
     const code = crypto.randomUUID();
 
-    const currentDate = new Date();
-    const hours = currentDate.getHours();
-    currentDate.setHours(hours + SETTINGS.CONFIRMATION_CODE_LIFETIME);
-    const expiration = currentDate.toISOString();
+    const expiration = new Date();
+    const hours = expiration.getHours();
+    expiration.setHours(hours + SETTINGS.CONFIRMATION_CODE_LIFETIME);
 
     await this.emailService.sendConfirmationCode(email, code);
 
@@ -97,10 +95,9 @@ export class UsersService {
   async sendRecoveryCode(email: string): Promise<void> {
     const code = crypto.randomUUID();
 
-    const currentDate = new Date();
-    const hours = currentDate.getHours();
-    currentDate.setHours(hours + SETTINGS.RECOVERY_CODE_LIFETIME);
-    const expiration = currentDate.toISOString();
+    const expiration = new Date();
+    const hours = expiration.getHours();
+    expiration.setHours(hours + SETTINGS.RECOVERY_CODE_LIFETIME);
 
     const result = await this.usersRepository.updateRecoveryCode(email, code, expiration);
 
@@ -146,7 +143,7 @@ export class UsersService {
       });
     }
 
-    const expirationDate = new Date(passwordRecoveryInfo.expiration!);
+    const expirationDate = passwordRecoveryInfo.expiration!;
     const currentDate = new Date();
 
     if (expirationDate < currentDate) {

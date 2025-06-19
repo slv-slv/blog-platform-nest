@@ -4,11 +4,11 @@ import { BasicPagingParams } from '../../../../common/types/paging-params.types.
 import { Trim } from '../../../../common/decorators/trim.js';
 
 export type UserType = {
-  id: string;
+  id: number;
   login: string;
   email: string;
   hash: string;
-  createdAt: string;
+  createdAt: Date;
   confirmation: ConfirmationInfoType;
   passwordRecovery: PasswordRecoveryInfoType;
 };
@@ -52,12 +52,12 @@ export type UsersPaginatedType = {
 export type ConfirmationInfoType = {
   isConfirmed: boolean;
   code: string | null;
-  expiration: string | null;
+  expiration: Date | null;
 };
 
 export type PasswordRecoveryInfoType = {
   code: string | null;
-  expiration: string | null;
+  expiration: Date | null;
 };
 
 export class EmailInputDto {
