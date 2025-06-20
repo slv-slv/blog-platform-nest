@@ -131,21 +131,32 @@ export class UsersRepository {
     return user.confirmation;
   }
 
+  // async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT recovery_expiration FROM users
+  //       WHERE recovery_code = $1
+  //     `,
+  //     [code],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const { recovery_expiration: expiration } = result.rows[0];
+  //   return { code, expiration };
+  // }
+
   async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {
-    const result = await this.pool.query(
-      `
-        SELECT recovery_expiration FROM users
-        WHERE recovery_code = $1
-      `,
-      [code],
-    );
+    const user = await this.userEntityRepo.findOne({
+      select: { passwordRecovery: true },
+      where: { passwordRecovery: { code } },
+    });
 
-    if (result.rowCount === 0) {
-      return null;
-    }
+    if (!user) return null;
 
-    const { recovery_expiration: expiration } = result.rows[0];
-    return { code, expiration };
+    return user.passwordRecovery;
   }
 
   // async createUser(
