@@ -109,7 +109,7 @@ export class UsersService {
   }
 
   async confirmUser(code: string): Promise<void> {
-    const confirmationInfo = await this.usersQueryRepository.getConfirmationInfo(code);
+    const confirmationInfo = await this.usersRepository.getConfirmationInfo(code);
     if (!confirmationInfo) {
       throw new BadRequestException({
         errorsMessages: [{ message: 'Invalid confirmation code', field: 'code' }],
@@ -135,7 +135,7 @@ export class UsersService {
   }
 
   async updatePassword(recoveryCode: string, newPassword: string): Promise<void> {
-    const passwordRecoveryInfo = await this.usersQueryRepository.getPasswordRecoveryInfo(recoveryCode);
+    const passwordRecoveryInfo = await this.usersRepository.getPasswordRecoveryInfo(recoveryCode);
 
     if (!passwordRecoveryInfo) {
       throw new BadRequestException({
