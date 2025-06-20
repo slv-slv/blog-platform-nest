@@ -76,7 +76,7 @@ export class User {
 
   toDto(): UserType {
     return {
-      id: this.id,
+      id: this.id.toString(),
       login: this.login,
       email: this.email,
       hash: this.hash,

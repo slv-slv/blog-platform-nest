@@ -4,7 +4,7 @@ import { BasicPagingParams } from '../../../../common/types/paging-params.types.
 import { Trim } from '../../../../common/decorators/trim.js';
 
 export type UserType = {
-  id: number;
+  id: string;
   login: string;
   email: string;
   hash: string;
