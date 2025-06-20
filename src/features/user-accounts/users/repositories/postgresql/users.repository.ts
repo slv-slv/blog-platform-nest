@@ -225,15 +225,19 @@ export class UsersRepository {
     return updateResult.affected! > 0;
   }
 
+  // async updatePassword(recoveryCode: string, hash: string): Promise<void> {
+  //   await this.pool.query(
+  //     `
+  //       UPDATE users
+  //         SET hash = $2
+  //         WHERE recovery_code = $1
+  //     `,
+  //     [recoveryCode, hash],
+  //   );
+  // }
+
   async updatePassword(recoveryCode: string, hash: string): Promise<void> {
-    await this.pool.query(
-      `
-        UPDATE users
-          SET hash = $2
-          WHERE recovery_code = $1
-      `,
-      [recoveryCode, hash],
-    );
+    await this.userEntityRepo.update({ passwordRecovery: { code: recoveryCode } }, { hash });
   }
 
   async confirmUser(code: string): Promise<void> {
