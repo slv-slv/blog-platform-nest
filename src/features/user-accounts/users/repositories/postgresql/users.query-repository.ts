@@ -11,7 +11,7 @@ import { pool } from '../../../../../common/constants.js';
 import { Pool } from 'pg';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../typeorm/users.entities.js';
-import { ILike, Repository } from 'typeorm';
+import { ILike, Like, Repository } from 'typeorm';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -119,24 +119,37 @@ export class UsersQueryRepository {
     };
   }
 
+  // async findUser(loginOrEmail: string): Promise<UserViewType | null> {
+  //   const likeTerm = `%${loginOrEmail}%`;
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT id, login, email, created_at
+  //       FROM users
+  //       WHERE login LIKE $1 OR email LIKE $1
+  //     `,
+  //     [likeTerm],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const { id, login, email, created_at } = result.rows[0];
+
+  //   return { id: id.toString(), login, email, createdAt: created_at };
+  // }
+
   async findUser(loginOrEmail: string): Promise<UserViewType | null> {
     const likeTerm = `%${loginOrEmail}%`;
-    const result = await this.pool.query(
-      `
-        SELECT id, login, email, created_at
-        FROM users
-        WHERE login LIKE $1 OR email LIKE $1
-      `,
-      [likeTerm],
-    );
 
-    if (result.rowCount === 0) {
-      return null;
-    }
+    const user = await this.userEntityRepo.findOne({
+      select: ['id', 'login', 'email', 'createdAt'],
+      where: [{ login: Like(likeTerm) }, { email: Like(likeTerm) }],
+    });
 
-    const { id, login, email, created_at } = result.rows[0];
+    if (!user) return null;
 
-    return { id: id.toString(), login, email, createdAt: created_at };
+    return user.toViewType();
   }
 
   async getCurrentUser(userId: string): Promise<CurrentUserType | null> {
