@@ -184,18 +184,27 @@ export class UsersQueryRepository {
     return user.toCurrentUserType();
   }
 
-  async isConfirmed(loginOrEmail: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        SELECT is_confirmed
-        FROM users
-        WHERE login = $1 OR email = $1
-      `,
-      [loginOrEmail],
-    );
+  // async isConfirmed(loginOrEmail: string): Promise<boolean> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT is_confirmed
+  //       FROM users
+  //       WHERE login = $1 OR email = $1
+  //     `,
+  //     [loginOrEmail],
+  //   );
 
-    const { is_confirmed } = result.rows[0];
-    return is_confirmed;
+  //   const { is_confirmed } = result.rows[0];  // Проверка существования пользователя выполняется в сервисе или middleware
+  //   return is_confirmed;
+  // }
+
+  async isConfirmed(loginOrEmail: string): Promise<boolean> {
+    const user = await this.userEntityRepo.findOne({
+      select: { confirmation: { isConfirmed: true } },
+      where: [{ login: loginOrEmail }, { email: loginOrEmail }],
+    });
+
+    return user!.confirmation.isConfirmed === true; // Проверка существования пользователя выполняется в сервисе или middleware
   }
 
   async isLoginUnique(login: string): Promise<boolean> {
