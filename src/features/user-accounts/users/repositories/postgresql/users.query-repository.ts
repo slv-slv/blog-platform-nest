@@ -9,10 +9,81 @@ import {
 } from '../../types/users.types.js';
 import { pool } from '../../../../../common/constants.js';
 import { Pool } from 'pg';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../typeorm/users.entities.js';
+import { ILike, Repository } from 'typeorm';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(
+    @Inject(pool) private readonly pool: Pool,
+    @InjectRepository(User) private readonly userEntityRepo: Repository<User>,
+  ) {}
+
+  // async getAllUsers(
+  //   searchLoginTerm: string | null,
+  //   searchEmailTerm: string | null,
+  //   pagingParams: PagingParamsType,
+  // ): Promise<UsersPaginatedType> {
+  //   const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
+
+  //   const orderBy = sortBy === 'createdAt' ? 'created_at' : sortBy;
+  //   // searchLoginTerm ??= '%';
+  //   // searchEmailTerm ??= '%';
+
+  //   const whereParams = [];
+
+  //   if (searchLoginTerm) {
+  //     whereParams.push(`login ILIKE '%${searchLoginTerm}%'`);
+  //   }
+
+  //   if (searchEmailTerm) {
+  //     whereParams.push(`email ILIKE '%${searchEmailTerm}%'`);
+  //   }
+
+  //   const whereClause = whereParams.length > 0 ? `WHERE ${whereParams.join(' OR ')}` : ``;
+
+  //   const countResult = await this.pool.query(
+  //     `
+  //       SELECT COUNT(id)
+  //       FROM users
+  //       ${whereClause}
+  //     `,
+  //   );
+
+  //   const totalCount = parseInt(countResult.rows[0].count);
+  //   const pagesCount = Math.ceil(totalCount / pageSize);
+  //   const skipCount = (pageNumber - 1) * pageSize;
+
+  //   const usersResult = await this.pool.query(
+  //     `
+  //       SELECT id, login, email, created_at
+  //       FROM users
+  //       ${whereClause}
+  //       ORDER BY ${orderBy} ${sortDirection}
+  //       LIMIT $1
+  //       OFFSET $2
+  //     `,
+  //     [pageSize, skipCount],
+  //   );
+
+  //   const rawUsers = usersResult.rows;
+
+  //   const users = rawUsers.map((user) => ({
+  //     id: user.id.toString(),
+  //     login: user.login,
+  //     email: user.email,
+  //     createdAt: user.created_at,
+  //   }));
+
+  //   return {
+  //     pagesCount,
+  //     page: pageNumber,
+  //     pageSize,
+  //     totalCount,
+  //     items: users,
+  //   };
+  // }
 
   async getAllUsers(
     searchLoginTerm: string | null,
@@ -21,61 +92,30 @@ export class UsersQueryRepository {
   ): Promise<UsersPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
-    const orderBy = sortBy === 'createdAt' ? 'created_at' : sortBy;
-    // searchLoginTerm ??= '%';
-    // searchEmailTerm ??= '%';
-
     const whereParams = [];
 
     if (searchLoginTerm) {
-      whereParams.push(`login ILIKE '%${searchLoginTerm}%'`);
+      whereParams.push({ login: ILike(`%${searchLoginTerm}%`) });
     }
 
     if (searchEmailTerm) {
-      whereParams.push(`email ILIKE '%${searchEmailTerm}%'`);
+      whereParams.push({ email: ILike(`%${searchEmailTerm}%`) });
     }
 
-    const whereClause = whereParams.length > 0 ? `WHERE ${whereParams.join(' OR ')}` : ``;
-
-    const countResult = await this.pool.query(
-      `
-        SELECT COUNT(id)
-        FROM users
-        ${whereClause}
-      `,
-    );
-
-    const totalCount = parseInt(countResult.rows[0].count);
-    const pagesCount = Math.ceil(totalCount / pageSize);
-    const skipCount = (pageNumber - 1) * pageSize;
-
-    const usersResult = await this.pool.query(
-      `
-        SELECT id, login, email, created_at
-        FROM users
-        ${whereClause}
-        ORDER BY ${orderBy} ${sortDirection}
-        LIMIT $1
-        OFFSET $2
-      `,
-      [pageSize, skipCount],
-    );
-
-    const rawUsers = usersResult.rows;
-
-    const users = rawUsers.map((user) => ({
-      id: user.id.toString(),
-      login: user.login,
-      email: user.email,
-      createdAt: user.created_at,
-    }));
+    const [users, totalCount] = await this.userEntityRepo.findAndCount({
+      select: ['id', 'login', 'email', 'createdAt'],
+      where: whereParams.length > 0 ? whereParams : {},
+      order: { [sortBy]: sortDirection },
+      take: pageSize,
+      skip: (pageNumber - 1) * pageSize,
+    });
 
     return {
-      pagesCount,
+      pagesCount: Math.ceil(totalCount / pageSize),
       page: pageNumber,
       pageSize,
       totalCount,
-      items: users,
+      items: users.map((user) => user.toViewType()),
     };
   }
 
