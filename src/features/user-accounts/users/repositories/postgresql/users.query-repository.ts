@@ -216,7 +216,7 @@ export class UsersQueryRepository {
       [login],
     );
 
-    return result.rowCount === 0;
+    return result.rowCount! > 0;
   }
 
   async isEmailExists(email: string): Promise<boolean> {
@@ -228,7 +228,7 @@ export class UsersQueryRepository {
       [email],
     );
 
-    return result.rowCount === 0;
+    return result.rowCount! > 0;
   }
 
   async getPasswordHash(loginOrEmail: string): Promise<string | null> {

@@ -95,12 +95,12 @@ export class UsersQueryRepository {
 
   async isLoginExists(login: string): Promise<boolean> {
     const loginCount = await this.model.countDocuments({ login });
-    return loginCount === 0;
+    return loginCount > 0;
   }
 
   async isEmailExists(email: string): Promise<boolean> {
     const emailCount = await this.model.countDocuments({ email });
-    return emailCount === 0;
+    return emailCount > 0;
   }
 
   async getPasswordHash(loginOrEmail: string): Promise<string | null> {
