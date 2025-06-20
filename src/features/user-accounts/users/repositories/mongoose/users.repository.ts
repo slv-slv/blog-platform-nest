@@ -32,6 +32,22 @@ export class UsersRepository {
     return user.login;
   }
 
+  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {
+    const user = await this.model.findOne({ 'confirmation.code': code }, { confirmation: 1 }).lean();
+    if (!user) {
+      return null;
+    }
+    return user.confirmation;
+  }
+
+  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {
+    const user = await this.model.findOne({ 'passwordRecovery.code': code }, { passwordRecovery: 1 }).lean();
+    if (!user) {
+      return null;
+    }
+    return user.passwordRecovery;
+  }
+
   async createUser(
     login: string,
     email: string,

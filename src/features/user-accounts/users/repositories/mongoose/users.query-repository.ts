@@ -50,7 +50,7 @@ export class UsersQueryRepository {
         id: user._id.toString(),
         login: user.login,
         email: user.email,
-        createdAt: user.createdAt,
+        createdAt: user.createdAt.toISOString(),
       };
     });
 
@@ -71,7 +71,7 @@ export class UsersQueryRepository {
     }
     const { _id, login, email, createdAt } = user;
     const id = _id.toString();
-    return { id, login, email, createdAt };
+    return { id, login, email, createdAt: createdAt.toISOString() };
   }
 
   async getCurrentUser(userId: string): Promise<CurrentUserType | null> {
@@ -91,22 +91,6 @@ export class UsersQueryRepository {
       return false;
     }
     return user.confirmation.isConfirmed;
-  }
-
-  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {
-    const user = await this.model.findOne({ 'confirmation.code': code }, { confirmation: 1 }).lean();
-    if (!user) {
-      return null;
-    }
-    return user.confirmation;
-  }
-
-  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {
-    const user = await this.model.findOne({ 'passwordRecovery.code': code }, { passwordRecovery: 1 }).lean();
-    if (!user) {
-      return null;
-    }
-    return user.passwordRecovery;
   }
 
   async isLoginUnique(login: string): Promise<boolean> {

@@ -102,6 +102,41 @@ export class UsersRepository {
     return user.login;
   }
 
+  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {
+    const result = await this.pool.query(
+      `
+        SELECT is_confirmed, confirmation_expiration
+        FROM users
+        WHERE confirmation_code = $1
+      `,
+      [code],
+    );
+
+    if (result.rowCount === 0) {
+      return null;
+    }
+
+    const { is_confirmed: isConfirmed, confirmation_expiration: expiration } = result.rows[0];
+    return { isConfirmed, code, expiration };
+  }
+
+  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {
+    const result = await this.pool.query(
+      `
+        SELECT recovery_expiration FROM users
+        WHERE recovery_code = $1
+      `,
+      [code],
+    );
+
+    if (result.rowCount === 0) {
+      return null;
+    }
+
+    const { recovery_expiration: expiration } = result.rows[0];
+    return { code, expiration };
+  }
+
   // async createUser(
   //   login: string,
   //   email: string,
