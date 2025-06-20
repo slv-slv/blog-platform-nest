@@ -207,16 +207,21 @@ export class UsersQueryRepository {
     return user!.confirmation.isConfirmed === true; // Проверка существования пользователя выполняется в сервисе или middleware
   }
 
-  async isLoginExists(login: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        SELECT id from users
-        WHERE login = $1
-      `,
-      [login],
-    );
+  // async isLoginExists(login: string): Promise<boolean> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT id from users
+  //       WHERE login = $1
+  //     `,
+  //     [login],
+  //   );
 
-    return result.rowCount! > 0;
+  //   return result.rowCount! > 0;
+  // }
+
+  async isLoginExists(login: string): Promise<boolean> {
+    const count = await this.userEntityRepo.countBy({ login });
+    return count > 0;
   }
 
   async isEmailExists(email: string): Promise<boolean> {
