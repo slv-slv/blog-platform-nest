@@ -241,20 +241,31 @@ export class UsersQueryRepository {
     return count > 0;
   }
 
+  // async getPasswordHash(loginOrEmail: string): Promise<string | null> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT hash from users
+  //       WHERE login = $1 OR email = $1
+  //     `,
+  //     [loginOrEmail],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const { hash } = result.rows[0];
+  //   return hash;
+  // }
+
   async getPasswordHash(loginOrEmail: string): Promise<string | null> {
-    const result = await this.pool.query(
-      `
-        SELECT hash from users
-        WHERE login = $1 OR email = $1
-      `,
-      [loginOrEmail],
-    );
+    const user = await this.userEntityRepo.findOne({
+      select: { hash: true },
+      where: [{ login: loginOrEmail }, { email: loginOrEmail }],
+    });
 
-    if (result.rowCount === 0) {
-      return null;
-    }
+    if (!user) return null;
 
-    const { hash } = result.rows[0];
-    return hash;
+    return user.hash;
   }
 }
