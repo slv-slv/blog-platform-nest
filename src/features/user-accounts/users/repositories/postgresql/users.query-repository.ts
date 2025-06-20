@@ -224,16 +224,21 @@ export class UsersQueryRepository {
     return count > 0;
   }
 
-  async isEmailExists(email: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        SELECT id from users
-        WHERE email = $1
-      `,
-      [email],
-    );
+  // async isEmailExists(email: string): Promise<boolean> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT id from users
+  //       WHERE email = $1
+  //     `,
+  //     [email],
+  //   );
 
-    return result.rowCount! > 0;
+  //   return result.rowCount! > 0;
+  // }
+
+  async isEmailExists(email: string): Promise<boolean> {
+    const count = await this.userEntityRepo.countBy({ email });
+    return count > 0;
   }
 
   async getPasswordHash(loginOrEmail: string): Promise<string | null> {
