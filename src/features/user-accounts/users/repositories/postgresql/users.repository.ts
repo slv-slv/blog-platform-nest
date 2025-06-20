@@ -172,12 +172,7 @@ export class UsersRepository {
 
     const savedUser = await this.userEntityRepo.save(user);
 
-    return {
-      id: savedUser.id.toString(),
-      login: savedUser.login,
-      email: savedUser.email,
-      createdAt: savedUser.createdAt.toISOString(),
-    };
+    return savedUser.toViewType();
   }
 
   // async updateConfirmationCode(email: string, code: string, expiration: Date): Promise<void> {
