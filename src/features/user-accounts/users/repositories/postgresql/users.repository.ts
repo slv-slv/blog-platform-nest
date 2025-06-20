@@ -102,22 +102,33 @@ export class UsersRepository {
     return user.login;
   }
 
+  // async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT is_confirmed, confirmation_expiration
+  //       FROM users
+  //       WHERE confirmation_code = $1
+  //     `,
+  //     [code],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const { is_confirmed: isConfirmed, confirmation_expiration: expiration } = result.rows[0];
+  //   return { isConfirmed, code, expiration };
+  // }
+
   async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {
-    const result = await this.pool.query(
-      `
-        SELECT is_confirmed, confirmation_expiration
-        FROM users
-        WHERE confirmation_code = $1
-      `,
-      [code],
-    );
+    const user = await this.userEntityRepo.findOne({
+      select: { confirmation: true },
+      where: { confirmation: { code } },
+    });
 
-    if (result.rowCount === 0) {
-      return null;
-    }
+    if (!user) return null;
 
-    const { is_confirmed: isConfirmed, confirmation_expiration: expiration } = result.rows[0];
-    return { isConfirmed, code, expiration };
+    return user.confirmation;
   }
 
   async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {
