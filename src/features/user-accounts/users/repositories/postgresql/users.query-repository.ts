@@ -152,25 +152,36 @@ export class UsersQueryRepository {
     return user.toViewType();
   }
 
+  // async getCurrentUser(userId: string): Promise<CurrentUserType | null> {
+  //   const idInt = Number.parseInt(userId);
+
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT login, email
+  //       FROM users
+  //       WHERE id = $1
+  //     `,
+  //     [idInt],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const { login, email } = result.rows[0];
+
+  //   return { login, email, userId };
+  // }
+
   async getCurrentUser(userId: string): Promise<CurrentUserType | null> {
-    const idInt = Number.parseInt(userId);
+    const user = await this.userEntityRepo.findOne({
+      select: ['id', 'login', 'email'],
+      where: { id: Number.parseInt(userId) },
+    });
 
-    const result = await this.pool.query(
-      `
-        SELECT login, email
-        FROM users
-        WHERE id = $1
-      `,
-      [idInt],
-    );
+    if (!user) return null;
 
-    if (result.rowCount === 0) {
-      return null;
-    }
-
-    const { login, email } = result.rows[0];
-
-    return { login, email, userId };
+    return user.toCurrentUserType();
   }
 
   async isConfirmed(loginOrEmail: string): Promise<boolean> {
