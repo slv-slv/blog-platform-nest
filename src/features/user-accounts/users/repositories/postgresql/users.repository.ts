@@ -240,14 +240,25 @@ export class UsersRepository {
     await this.userEntityRepo.update({ passwordRecovery: { code: recoveryCode } }, { hash });
   }
 
+  // async confirmUser(code: string): Promise<void> {
+  //   await this.pool.query(
+  //     `
+  //       UPDATE users
+  //         SET is_confirmed = true, confirmation_expiration = NULL
+  //         WHERE confirmation_code = $1
+  //     `,
+  //     [code],
+  //   );
+  // }
+
   async confirmUser(code: string): Promise<void> {
-    await this.pool.query(
-      `
-        UPDATE users
-          SET is_confirmed = true, confirmation_expiration = NULL
-          WHERE confirmation_code = $1
-      `,
-      [code],
+    await this.userEntityRepo.update(
+      {
+        confirmation: {
+          code,
+        },
+      },
+      { confirmation: { isConfirmed: true, expiration: undefined } }, // TypeOrm не разрешает присвоить null nullable полю
     );
   }
 
