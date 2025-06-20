@@ -10,7 +10,7 @@ class ConfirmationInfo {
   code: string;
 
   @Prop({ default: null })
-  expiration: string;
+  expiration: Date;
 }
 
 const ConfirmationInfoSchema = SchemaFactory.createForClass(ConfirmationInfo);
@@ -21,7 +21,7 @@ class PasswordRecoveryInfo {
   code: string;
 
   @Prop({ default: null })
-  expiration: string;
+  expiration: Date;
 }
 
 const PasswordRecoveryInfoSchema = SchemaFactory.createForClass(PasswordRecoveryInfo);
@@ -38,7 +38,7 @@ export class User {
   hash: string;
 
   @Prop({ required: true })
-  createdAt: string;
+  createdAt: Date;
 
   @Prop({ type: ConfirmationInfoSchema, required: true })
   confirmation: ConfirmationInfoType;
