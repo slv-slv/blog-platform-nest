@@ -25,11 +25,11 @@ export class UsersService {
     },
     passwordRecovery: PasswordRecoveryInfoType = { code: null, expiration: null },
   ): Promise<UserViewType> {
-    if (!(await this.isLoginUnique(login)))
+    if (await this.isLoginExists(login))
       throw new BadRequestException({
         errorsMessages: [{ message: 'Login already exists', field: 'login' }],
       });
-    if (!(await this.isEmailUnique(email)))
+    if (await this.isEmailExists(email))
       throw new BadRequestException({
         errorsMessages: [{ message: 'Email already exists', field: 'email' }],
       });
@@ -161,12 +161,12 @@ export class UsersService {
     if (!isDeleted) throw new NotFoundException('User not found');
   }
 
-  async isLoginUnique(login: string): Promise<boolean> {
-    return await this.usersQueryRepository.isLoginUnique(login);
+  async isLoginExists(login: string): Promise<boolean> {
+    return await this.usersQueryRepository.isLoginExists(login);
   }
 
-  async isEmailUnique(email: string): Promise<boolean> {
-    return await this.usersQueryRepository.isEmailUnique(email);
+  async isEmailExists(email: string): Promise<boolean> {
+    return await this.usersQueryRepository.isEmailExists(email);
   }
 
   async isConfirmed(email: string): Promise<boolean> {

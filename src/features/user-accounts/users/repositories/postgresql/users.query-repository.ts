@@ -207,7 +207,7 @@ export class UsersQueryRepository {
     return user!.confirmation.isConfirmed === true; // Проверка существования пользователя выполняется в сервисе или middleware
   }
 
-  async isLoginUnique(login: string): Promise<boolean> {
+  async isLoginExists(login: string): Promise<boolean> {
     const result = await this.pool.query(
       `
         SELECT id from users
@@ -219,7 +219,7 @@ export class UsersQueryRepository {
     return result.rowCount === 0;
   }
 
-  async isEmailUnique(email: string): Promise<boolean> {
+  async isEmailExists(email: string): Promise<boolean> {
     const result = await this.pool.query(
       `
         SELECT id from users

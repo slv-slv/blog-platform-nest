@@ -93,12 +93,12 @@ export class UsersQueryRepository {
     return user.confirmation.isConfirmed;
   }
 
-  async isLoginUnique(login: string): Promise<boolean> {
+  async isLoginExists(login: string): Promise<boolean> {
     const loginCount = await this.model.countDocuments({ login });
     return loginCount === 0;
   }
 
-  async isEmailUnique(email: string): Promise<boolean> {
+  async isEmailExists(email: string): Promise<boolean> {
     const emailCount = await this.model.countDocuments({ email });
     return emailCount === 0;
   }
