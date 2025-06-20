@@ -171,7 +171,6 @@ export class UsersRepository {
     });
 
     const savedUser = await this.userEntityRepo.save(user);
-
     return savedUser.toViewType();
   }
 
@@ -262,17 +261,22 @@ export class UsersRepository {
     );
   }
 
+  // async deleteUser(id: string): Promise<boolean> {
+  //   const idInt = Number.parseInt(id);
+
+  //   const deleteResult = await this.pool.query(
+  //     `
+  //         DELETE FROM users
+  //           WHERE id = $1
+  //       `,
+  //     [idInt],
+  //   );
+
+  //   return deleteResult.rowCount! > 0;
+  // }
+
   async deleteUser(id: string): Promise<boolean> {
-    const idInt = Number.parseInt(id);
-
-    const deleteResult = await this.pool.query(
-      `
-          DELETE FROM users
-            WHERE id = $1
-        `,
-      [idInt],
-    );
-
-    return deleteResult.rowCount! > 0;
+    const deleteResult = await this.userEntityRepo.softDelete({ id: Number.parseInt(id) });
+    return deleteResult.affected! > 0;
   }
 }
