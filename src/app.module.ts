@@ -22,6 +22,8 @@ import { PostgresModule } from './common/dynamic-modules/postgres.module.js';
 import { pool } from './common/constants.js';
 import { Pool } from 'pg';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { emailTransport } from './notifications/email/nodemailer.js';
 
 @Module({
   imports: [
@@ -48,6 +50,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       secret: SETTINGS.JWT_PRIVATE_KEY,
     }),
     ThrottlerModule.forRoot({ throttlers: [{ ttl: 10000, limit: 5 }] }),
+    MailerModule.forRoot({ transport: emailTransport }),
     BlogContentModule,
     UserAccountsModule,
     NotificationsModule,
