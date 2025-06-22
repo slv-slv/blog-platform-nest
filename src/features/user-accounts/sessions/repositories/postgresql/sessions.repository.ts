@@ -2,33 +2,45 @@ import { Inject, Injectable } from '@nestjs/common';
 import { DeviceViewType } from '../../types/sessions.types.js';
 import { pool } from '../../../../../common/constants.js';
 import { Pool } from 'pg';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Device } from '../typeorm/sessions.entities.js';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class SessionsRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(
+    @Inject(pool) private readonly pool: Pool,
+    @InjectRepository(Device) private readonly sessionEntityRepo: Repository<Device>,
+  ) {}
+
+  // async findDevice(deviceId: string): Promise<DeviceViewType | null> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT id, name, ip, iat
+  //       FROM devices
+  //       WHERE id = $1
+  //     `,
+  //     [deviceId],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const device = result.rows[0];
+
+  //   return {
+  //     ip: device.ip,
+  //     title: device.name,
+  //     lastActiveDate: new Date(device.iat * 1000).toISOString(),
+  //     deviceId: device.id,
+  //   };
+  // }
 
   async findDevice(deviceId: string): Promise<DeviceViewType | null> {
-    const result = await this.pool.query(
-      `
-        SELECT id, name, ip, iat
-        FROM devices
-        WHERE id::varchar = $1
-      `,
-      [deviceId],
-    );
-
-    if (result.rowCount === 0) {
-      return null;
-    }
-
-    const device = result.rows[0];
-
-    return {
-      ip: device.ip,
-      title: device.name,
-      lastActiveDate: new Date(device.iat * 1000).toISOString(),
-      deviceId: device.id,
-    };
+    const device = await this.sessionEntityRepo.findOneBy({ id: deviceId });
+    if (!device) return null;
+    return device.toViewType();
   }
 
   async getDeviceOwner(deviceId: string): Promise<string | null> {
