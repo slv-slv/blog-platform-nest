@@ -24,4 +24,13 @@ export class Device {
 
   @Column()
   exp: number;
+
+  toViewType() {
+    return {
+      ip: this.ip,
+      title: this.name,
+      lastActiveDate: new Date(this.iat * 1000).toISOString(),
+      deviceId: this.id,
+    };
+  }
 }

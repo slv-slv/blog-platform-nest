@@ -51,11 +51,6 @@ export class SessionsQueryRepository {
   async getActiveDevices(userId: string): Promise<DeviceViewType[]> {
     const devices = await this.sessionEntityRepo.findBy({ userId: parseInt(userId) });
 
-    return devices.map((device) => ({
-      ip: device.ip,
-      title: device.name,
-      lastActiveDate: new Date(device.iat * 1000).toISOString(),
-      deviceId: device.id,
-    }));
+    return devices.map((device) => device.toViewType());
   }
 }
