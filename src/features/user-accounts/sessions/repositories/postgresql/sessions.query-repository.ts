@@ -30,17 +30,28 @@ export class SessionsQueryRepository {
     return await this.sessionEntityRepo.existsBy({ id: deviceId, userId: parseInt(userId), iat });
   }
 
-  async getActiveDevices(userId: string): Promise<DeviceViewType[]> {
-    const result = await this.pool.query(
-      `
-        SELECT id, name, ip, iat
-        FROM devices
-        WHERE user_id = $1
-      `,
-      [parseInt(userId)],
-    );
+  // async getActiveDevices(userId: string): Promise<DeviceViewType[]> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT id, name, ip, iat
+  //       FROM devices
+  //       WHERE user_id = $1
+  //     `,
+  //     [parseInt(userId)],
+  //   );
 
-    return result.rows.map((device) => ({
+  //   return result.rows.map((device) => ({
+  //     ip: device.ip,
+  //     title: device.name,
+  //     lastActiveDate: new Date(device.iat * 1000).toISOString(),
+  //     deviceId: device.id,
+  //   }));
+  // }
+
+  async getActiveDevices(userId: string): Promise<DeviceViewType[]> {
+    const devices = await this.sessionEntityRepo.findBy({ userId: parseInt(userId) });
+
+    return devices.map((device) => ({
       ip: device.ip,
       title: device.name,
       lastActiveDate: new Date(device.iat * 1000).toISOString(),
