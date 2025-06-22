@@ -33,6 +33,7 @@ export const SETTINGS = {
   } as PagingParamsType,
   CREDENTIALS: [{ login: 'admin', base64: 'YWRtaW46cXdlcnR5' }],
   EMAIL_CREDENTIALS: { user: process.env.EMAIL_LOGIN_GOOGLE, password: process.env.EMAIL_PASSWORD_GOOGLE },
+  SMTP_SERVER: 'smtp.gmail.com',
   JWT_PRIVATE_KEY: process.env.JWT_PRIVATE_KEY,
   ACCESS_TOKEN_LIFETIME: '10 m',
   REFRESH_TOKEN_LIFETIME: '20 m',

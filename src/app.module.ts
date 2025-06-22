@@ -23,7 +23,6 @@ import { pool } from './common/constants.js';
 import { Pool } from 'pg';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { emailTransport } from './notifications/email/nodemailer.js';
 
 @Module({
   imports: [
@@ -50,7 +49,15 @@ import { emailTransport } from './notifications/email/nodemailer.js';
       secret: SETTINGS.JWT_PRIVATE_KEY,
     }),
     ThrottlerModule.forRoot({ throttlers: [{ ttl: 10000, limit: 5 }] }),
-    MailerModule.forRoot({ transport: emailTransport }),
+    MailerModule.forRoot({
+      transport: {
+        host: SETTINGS.SMTP_SERVER,
+        auth: { user: SETTINGS.EMAIL_CREDENTIALS.user, pass: SETTINGS.EMAIL_CREDENTIALS.password },
+        port: 465,
+        secure: true,
+      },
+      defaults: { from: '"Vyacheslav Solovev" <slvsl.spb@gmail.com>' },
+    }),
     BlogContentModule,
     UserAccountsModule,
     NotificationsModule,
