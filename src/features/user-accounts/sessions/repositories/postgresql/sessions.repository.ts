@@ -43,22 +43,28 @@ export class SessionsRepository {
     return device.toViewType();
   }
 
+  // async getDeviceOwner(deviceId: string): Promise<string | null> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT user_id
+  //       FROM devices
+  //       WHERE id = $1
+  //     `,
+  //     [deviceId],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const { user_id } = result.rows[0];
+  //   return user_id.toString();
+  // }
+
   async getDeviceOwner(deviceId: string): Promise<string | null> {
-    const result = await this.pool.query(
-      `
-        SELECT user_id
-        FROM devices
-        WHERE id = $1
-      `,
-      [deviceId],
-    );
-
-    if (result.rowCount === 0) {
-      return null;
-    }
-
-    const { user_id } = result.rows[0];
-    return user_id.toString();
+    const device = await this.sessionEntityRepo.findOneBy({ id: deviceId });
+    if (!device) return null;
+    return device.userId.toString();
   }
 
   async createSession(
