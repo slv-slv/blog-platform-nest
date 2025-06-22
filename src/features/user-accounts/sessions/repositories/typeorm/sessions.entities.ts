@@ -6,8 +6,11 @@ export class Device {
   @PrimaryColumn('uuid')
   id: string;
 
+  @Column()
+  userId: number;
+
   @ManyToOne(() => User, (user) => user.devices)
-  @JoinColumn()
+  @JoinColumn({ name: 'userId' })
   user: Relation<User>;
 
   @Column()
