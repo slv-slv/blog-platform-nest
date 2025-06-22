@@ -4,6 +4,8 @@ import { AppService } from './app.service.js';
 import { InjectConnection } from '@nestjs/mongoose';
 import { pool } from './common/constants.js';
 import { Pool } from 'pg';
+import { EntityManager } from 'typeorm';
+import { InjectEntityManager } from '@nestjs/typeorm';
 
 @Controller()
 export class AppController {
@@ -11,6 +13,7 @@ export class AppController {
     @InjectConnection() private readonly connection: mongoose.Connection,
     private readonly appService: AppService,
     @Inject(pool) private readonly pool: Pool,
+    @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {}
 
   @Get()
@@ -38,6 +41,19 @@ export class AppController {
         comment_dislikes,
         post_likes,
         post_dislikes
+      RESTART IDENTITY CASCADE
+    `);
+    await this.entityManager.query(`
+      TRUNCATE
+        typeorm.blogs,
+        typeorm.posts,
+        typeorm.comments,
+        typeorm.users,
+        typeorm.devices,
+        typeorm.comment_likes,
+        typeorm.comment_dislikes,
+        typeorm.post_likes,
+        typeorm.post_dislikes
       RESTART IDENTITY CASCADE
     `);
   }
