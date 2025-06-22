@@ -220,8 +220,7 @@ export class UsersQueryRepository {
   // }
 
   async isLoginExists(login: string): Promise<boolean> {
-    const count = await this.userEntityRepo.countBy({ login });
-    return count > 0;
+    return await this.userEntityRepo.existsBy({ login });
   }
 
   // async isEmailExists(email: string): Promise<boolean> {
@@ -237,8 +236,7 @@ export class UsersQueryRepository {
   // }
 
   async isEmailExists(email: string): Promise<boolean> {
-    const count = await this.userEntityRepo.countBy({ email });
-    return count > 0;
+    return await this.userEntityRepo.existsBy({ email });
   }
 
   // async getPasswordHash(loginOrEmail: string): Promise<string | null> {
