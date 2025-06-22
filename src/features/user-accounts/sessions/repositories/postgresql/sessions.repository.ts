@@ -4,7 +4,7 @@ import { pool } from '../../../../../common/constants.js';
 import { Pool } from 'pg';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from '../typeorm/sessions.entities.js';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 
 @Injectable()
 export class SessionsRepository {
@@ -118,13 +118,25 @@ export class SessionsRepository {
     await this.sessionEntityRepo.delete({ id: deviceId });
   }
 
+  // async deleteOtherDevices(deviceId: string): Promise<void> {
+  //   await this.pool.query(
+  //     `
+  //       DELETE FROM devices
+  //       WHERE user_id = (SELECT user_id FROM devices WHERE id = $1) AND id != $1
+  //     `,
+  //     [deviceId],
+  //   );
+  // }
+
   async deleteOtherDevices(deviceId: string): Promise<void> {
-    await this.pool.query(
-      `
-        DELETE FROM devices
-        WHERE user_id = (SELECT user_id FROM devices WHERE id = $1) AND id != $1
-      `,
-      [deviceId],
-    );
+    const device = await this.sessionEntityRepo.findOne({
+      select: { userId: true },
+      where: { id: deviceId },
+    });
+
+    if (!device) return;
+    const { userId } = device;
+
+    await this.sessionEntityRepo.delete({ id: Not(deviceId), userId });
   }
 }
