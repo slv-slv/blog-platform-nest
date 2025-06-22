@@ -104,14 +104,18 @@ export class SessionsRepository {
     await this.sessionEntityRepo.insert(device); // Возвращать сохраненную сущность не нужно, поэтому не save
   }
 
+  // async deleteDevice(deviceId: string): Promise<void> {
+  //   await this.pool.query(
+  //     `
+  //       DELETE FROM devices
+  //       WHERE id = $1
+  //     `,
+  //     [deviceId],
+  //   );
+  // }
+
   async deleteDevice(deviceId: string): Promise<void> {
-    await this.pool.query(
-      `
-        DELETE FROM devices
-        WHERE id = $1
-      `,
-      [deviceId],
-    );
+    await this.sessionEntityRepo.delete({ id: deviceId });
   }
 
   async deleteOtherDevices(deviceId: string): Promise<void> {
