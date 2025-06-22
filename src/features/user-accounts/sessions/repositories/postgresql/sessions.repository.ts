@@ -67,6 +67,23 @@ export class SessionsRepository {
     return device.userId.toString();
   }
 
+  // async createSession(
+  //   userId: string,
+  //   deviceId: string,
+  //   deviceName: string,
+  //   ip: string,
+  //   iat: number,
+  //   exp: number,
+  // ): Promise<void> {
+  //   await this.pool.query(
+  //     `
+  //       INSERT INTO devices
+  //       VALUES ($1, $2, $3, $4, $5, $6)
+  //     `,
+  //     [deviceId, parseInt(userId), deviceName, ip, iat, exp],
+  //   );
+  // }
+
   async createSession(
     userId: string,
     deviceId: string,
@@ -75,13 +92,16 @@ export class SessionsRepository {
     iat: number,
     exp: number,
   ): Promise<void> {
-    await this.pool.query(
-      `
-        INSERT INTO devices
-        VALUES ($1, $2, $3, $4, $5, $6)
-      `,
-      [deviceId, parseInt(userId), deviceName, ip, iat, exp],
-    );
+    const device = this.sessionEntityRepo.create({
+      id: deviceId,
+      userId: parseInt(userId),
+      name: deviceName,
+      ip,
+      iat,
+      exp,
+    });
+
+    await this.sessionEntityRepo.insert(device); // Возвращать сохраненную сущность не нужно, поэтому не save
   }
 
   async deleteDevice(deviceId: string): Promise<void> {
