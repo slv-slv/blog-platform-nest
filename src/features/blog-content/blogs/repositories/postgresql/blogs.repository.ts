@@ -2,35 +2,61 @@ import { Inject, Injectable } from '@nestjs/common';
 import { BlogType } from '../../types/blogs.types.js';
 import { pool } from '../../../../../common/constants.js';
 import { Pool } from 'pg';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Blog } from '../typeorm/blogs.entities.js';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class BlogsRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(
+    @Inject(pool) private readonly pool: Pool,
+    @InjectRepository(Blog) private readonly blogEntityRepository: Repository<Blog>,
+  ) {}
+
+  // async findBlog(id: string): Promise<BlogType | null> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT *
+  //       FROM blogs
+  //       WHERE id = $1
+  //     `,
+  //     [parseInt(id)],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const blog = result.rows[0];
+
+  //   return {
+  //     id: blog.id.toString(),
+  //     name: blog.name,
+  //     description: blog.description,
+  //     websiteUrl: blog.website_url,
+  //     createdAt: blog.created_at,
+  //     isMembership: blog.is_membership,
+  //   };
+  // }
 
   async findBlog(id: string): Promise<BlogType | null> {
-    const result = await this.pool.query(
-      `
-        SELECT *
-        FROM blogs
-        WHERE id = $1
-      `,
-      [parseInt(id)],
-    );
+    const blog = await this.blogEntityRepository
+      .createQueryBuilder('blogs')
+      .select(
+        `
+        blogs.id::varchar,
+        blogs.name,
+        blogs.description,
+        blogs.websiteUrl,
+        blogs.createdAt,
+        blogs.isMembership
+        `,
+      )
+      .where('blogs.id = :id', { id: parseInt(id) })
+      .getRawOne();
 
-    if (result.rowCount === 0) {
-      return null;
-    }
-
-    const blog = result.rows[0];
-
-    return {
-      id: blog.id.toString(),
-      name: blog.name,
-      description: blog.description,
-      websiteUrl: blog.website_url,
-      createdAt: blog.created_at,
-      isMembership: blog.is_membership,
-    };
+    if (!blog) return null;
+    return blog;
   }
 
   async createBlog(
