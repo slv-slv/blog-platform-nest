@@ -91,23 +91,39 @@ export class BlogsRepository {
   ): Promise<BlogType> {
     const newBlog = { name, description, websiteUrl, createdAt, isMembership };
 
-    const result = await this.blogEntityRepository.createQueryBuilder().insert().values(newBlog).execute();
+    const result = await this.blogEntityRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Blog)
+      .values(newBlog)
+      .execute();
     const id = result.identifiers[0].id.toString();
 
     return { id, ...newBlog };
   }
 
-  async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        UPDATE blogs
-        SET name = $2, description = $3, website_url = $4
-        WHERE id = $1
-      `,
-      [parseInt(id), name, description, websiteUrl],
-    );
+  // async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
+  //   const result = await this.pool.query(
+  //     `
+  //       UPDATE blogs
+  //       SET name = $2, description = $3, website_url = $4
+  //       WHERE id = $1
+  //     `,
+  //     [parseInt(id), name, description, websiteUrl],
+  //   );
 
-    return result.rowCount! > 0;
+  //   return result.rowCount! > 0;
+  // }
+
+  async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
+    const result = await this.blogEntityRepository
+      .createQueryBuilder()
+      .update(Blog)
+      .set({ name, description, websiteUrl })
+      .where({ id: parseInt(id) })
+      .execute();
+
+    return result.affected! > 0;
   }
 
   async deleteBlog(id: string): Promise<boolean> {
