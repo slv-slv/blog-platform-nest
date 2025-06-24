@@ -120,21 +120,32 @@ export class BlogsRepository {
       .createQueryBuilder()
       .update(Blog)
       .set({ name, description, websiteUrl })
-      .where({ id: parseInt(id) })
+      .where('id = :id', { id: parseInt(id) })
       .execute();
 
     return result.affected! > 0;
   }
 
-  async deleteBlog(id: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        DELETE FROM blogs
-        WHERE id = $1
-      `,
-      [parseInt(id)],
-    );
+  // async deleteBlog(id: string): Promise<boolean> {
+  //   const result = await this.pool.query(
+  //     `
+  //       DELETE FROM blogs
+  //       WHERE id = $1
+  //     `,
+  //     [parseInt(id)],
+  //   );
 
-    return result.rowCount! > 0;
+  //   return result.rowCount! > 0;
+  // }
+
+  async deleteBlog(id: string): Promise<boolean> {
+    const result = await this.blogEntityRepository
+      .createQueryBuilder()
+      .softDelete()
+      .from(Blog)
+      .where('id = :id', { id: parseInt(id) })
+      .execute();
+
+    return result.affected! > 0;
   }
 }
