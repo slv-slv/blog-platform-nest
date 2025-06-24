@@ -59,6 +59,29 @@ export class BlogsRepository {
     return blog;
   }
 
+  // async createBlog(
+  //   name: string,
+  //   description: string,
+  //   websiteUrl: string,
+  //   createdAt: string,
+  //   isMembership: boolean,
+  // ): Promise<BlogType> {
+  //   const newBlog = { name, description, websiteUrl, createdAt, isMembership };
+
+  //   const result = await this.pool.query(
+  //     `
+  //       INSERT INTO blogs (name, description, website_url, created_at, is_membership)
+  //       VALUES ($1, $2, $3, $4, $5)
+  //       RETURNING id
+  //     `,
+  //     [name, description, websiteUrl, createdAt, isMembership],
+  //   );
+
+  //   const id = result.rows[0].id.toString();
+
+  //   return { id, ...newBlog };
+  // }
+
   async createBlog(
     name: string,
     description: string,
@@ -68,16 +91,8 @@ export class BlogsRepository {
   ): Promise<BlogType> {
     const newBlog = { name, description, websiteUrl, createdAt, isMembership };
 
-    const result = await this.pool.query(
-      `
-        INSERT INTO blogs (name, description, website_url, created_at, is_membership)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING id
-      `,
-      [name, description, websiteUrl, createdAt, isMembership],
-    );
-
-    const id = result.rows[0].id.toString();
+    const result = await this.blogEntityRepository.createQueryBuilder().insert().values(newBlog).execute();
+    const id = result.identifiers[0].id.toString();
 
     return { id, ...newBlog };
   }
