@@ -53,7 +53,7 @@ export class User {
   @Column(() => PasswordRecoveryInfo)
   passwordRecovery: PasswordRecoveryInfo;
 
-  @DeleteDateColumn({ select: false })
+  @DeleteDateColumn({ type: 'timestamptz', select: false })
   deletedAt: Date;
 
   @OneToMany(() => Device, (device) => device.user)
