@@ -1,14 +1,14 @@
 import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { Device } from '../../../sessions/repositories/typeorm/sessions.entities.js';
-import { Comment } from '../../../../blog-content/comments/repositories/typeorm/comments.entities.js';
+import { Comment } from '../../../../blog-content/03-comments/repositories/typeorm/comments.entities.js';
 import {
   CommentDislike,
   CommentLike,
-} from '../../../../blog-content/likes/comments/repositories/typeorm/comment-likes.entities.js';
+} from '../../../../blog-content/04-likes/comments/repositories/typeorm/comment-likes.entities.js';
 import {
   PostDislike,
   PostLike,
-} from '../../../../blog-content/likes/posts/repositories/typeorm/post-likes.entities.js';
+} from '../../../../blog-content/04-likes/posts/repositories/typeorm/post-likes.entities.js';
 import { CurrentUserType, UserType, UserViewType } from '../../types/users.types.js';
 
 export class ConfirmationInfo {
