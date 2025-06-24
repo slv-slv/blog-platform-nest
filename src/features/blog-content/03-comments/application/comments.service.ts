@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CommentViewType } from '../types/comments.types.js';
 import { PostsRepository } from '../../02-posts/repositories/postgresql/posts.repository.js';
-import { UsersRepository } from '../../../user-accounts/users/repositories/postgresql/users.repository.js';
+import { UsersRepository } from '../../../user-accounts/01-users/repositories/postgresql/users.repository.js';
 import { CommentsRepository } from '../repositories/postgresql/comments.repository.js';
 import { CommentLikesService } from '../../04-likes/comments/application/comment-likes.service.js';
 

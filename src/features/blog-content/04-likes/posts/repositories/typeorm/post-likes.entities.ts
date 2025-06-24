@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 import { Post } from '../../../../02-posts/repositories/typeorm/posts.entities.js';
-import { User } from '../../../../../user-accounts/users/repositories/typeorm/users.entities.js';
+import { User } from '../../../../../user-accounts/01-users/repositories/typeorm/users.entities.js';
 
 @Entity({ schema: 'typeorm', name: 'post_likes' })
 export class PostLike {

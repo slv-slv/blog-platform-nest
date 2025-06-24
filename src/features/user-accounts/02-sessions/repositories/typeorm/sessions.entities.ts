@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
-import { User } from '../../../users/repositories/typeorm/users.entities.js';
+import { User } from '../../../01-users/repositories/typeorm/users.entities.js';
 
 @Entity({ schema: 'typeorm', name: 'devices' })
 export class Device {

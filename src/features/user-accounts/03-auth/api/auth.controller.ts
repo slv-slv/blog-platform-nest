@@ -12,15 +12,15 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { UsersQueryRepository } from '../../users/repositories/postgresql/users.query-repository.js';
-import { UsersService } from '../../users/application/users.service.js';
-import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../../users/types/users.types.js';
+import { UsersQueryRepository } from '../../01-users/repositories/postgresql/users.query-repository.js';
+import { UsersService } from '../../01-users/application/users.service.js';
+import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../../01-users/types/users.types.js';
 import { AuthService } from '../application/auth.service.js';
 import { CredentialsGuard } from '../../../../common/guards/credentials.guard.js';
 import { EmailConfirmationGuard } from '../../../../common/guards/email-confirmation.guard.js';
 import { AccessTokenGuard } from '../../../../common/guards/access-token.guard.js';
 import { RefreshTokenGuard } from '../../../../common/guards/refresh-token.guard.js';
-import { SessionsService } from '../../sessions/application/sessions.service.js';
+import { SessionsService } from '../../02-sessions/application/sessions.service.js';
 import { NoActiveSessionGuard } from '../../../../common/guards/no-active-session.guard.js';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { JwtService } from '@nestjs/jwt';

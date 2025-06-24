@@ -6,7 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { PostLikes } from './post-likes.schemas.js';
 import { PostLikesType } from '../../types/post-likes.types.js';
 import { Model } from 'mongoose';
-import { UsersQueryRepository } from '../../../../../user-accounts/users/repositories/mongoose/users.query-repository.js';
+import { UsersQueryRepository } from '../../../../../user-accounts/01-users/repositories/mongoose/users.query-repository.js';
 
 @Injectable()
 export class PostLikesQueryRepository {

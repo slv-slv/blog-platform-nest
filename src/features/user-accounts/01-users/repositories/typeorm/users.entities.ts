@@ -1,5 +1,5 @@
 import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
-import { Device } from '../../../sessions/repositories/typeorm/sessions.entities.js';
+import { Device } from '../../../02-sessions/repositories/typeorm/sessions.entities.js';
 import { Comment } from '../../../../blog-content/03-comments/repositories/typeorm/comments.entities.js';
 import {
   CommentDislike,

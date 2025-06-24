@@ -1,8 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { JwtRefreshPayload } from '../../features/user-accounts/auth/types/auth.types.js';
-import { SessionsService } from '../../features/user-accounts/sessions/application/sessions.service.js';
+import { JwtRefreshPayload } from '../../features/user-accounts/03-auth/types/auth.types.js';
+import { SessionsService } from '../../features/user-accounts/02-sessions/application/sessions.service.js';
 
 @Injectable()
 export class NoActiveSessionGuard implements CanActivate {

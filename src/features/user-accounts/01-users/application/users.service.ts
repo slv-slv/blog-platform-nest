@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { UsersRepository } from '../repositories/postgresql/users.repository.js';
 import { UsersQueryRepository } from '../repositories/postgresql/users.query-repository.js';
-import { AuthService } from '../../auth/application/auth.service.js';
+import { AuthService } from '../../03-auth/application/auth.service.js';
 import { EmailService } from '../../../../notifications/email/email.service.js';
 import { ConfirmationInfoType, PasswordRecoveryInfoType, UserViewType } from '../types/users.types.js';
 import { SETTINGS } from '../../../../settings.js';
