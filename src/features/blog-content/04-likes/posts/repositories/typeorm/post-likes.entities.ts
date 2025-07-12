@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from '
 import { Post } from '../../../../02-posts/repositories/typeorm/posts.entities.js';
 import { User } from '../../../../../user-accounts/01-users/repositories/typeorm/users.entities.js';
 
-@Entity({ schema: 'typeorm', name: 'post_likes' })
+@Entity({ name: 'post_likes' })
 export class PostLike {
   @PrimaryColumn()
   postId: number;
@@ -22,7 +22,7 @@ export class PostLike {
   createdAt: Date;
 }
 
-@Entity({ schema: 'typeorm', name: 'post_dislikes' })
+@Entity({ name: 'post_dislikes' })
 export class PostDislike {
   @PrimaryColumn()
   postId: number;

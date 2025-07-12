@@ -12,7 +12,7 @@ import { Blog } from '../../../01-blogs/repositories/typeorm/blogs.entities.js';
 import { Comment } from '../../../03-comments/repositories/typeorm/comments.entities.js';
 import { PostDislike, PostLike } from '../../../04-likes/posts/repositories/typeorm/post-likes.entities.js';
 
-@Entity({ schema: 'typeorm', name: 'posts' })
+@Entity({ name: 'posts' })
 export class Post {
   @PrimaryGeneratedColumn('identity')
   id: number;

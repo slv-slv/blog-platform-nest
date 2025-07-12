@@ -1,7 +1,7 @@
 import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { Post } from '../../../02-posts/repositories/typeorm/posts.entities.js';
 
-@Entity({ schema: 'typeorm', name: 'blogs' })
+@Entity({ name: 'blogs' })
 export class Blog {
   @PrimaryGeneratedColumn('identity')
   id: number;

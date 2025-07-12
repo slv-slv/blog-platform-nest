@@ -30,7 +30,7 @@ export class PasswordRecoveryInfo {
   expiration: Date;
 }
 
-@Entity({ schema: 'typeorm', name: 'users' })
+@Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('identity')
   id: number;

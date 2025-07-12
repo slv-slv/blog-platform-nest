@@ -39,6 +39,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
       host: SETTINGS.POSTGRES_SETTINGS.URL,
       username: SETTINGS.POSTGRES_SETTINGS.USER,
       password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
+      schema: 'typeorm',
       database: 'blog-platform',
       autoLoadEntities: true,
       synchronize: true,

@@ -6,7 +6,7 @@ import {
   CommentLike,
 } from '../../../04-likes/comments/repositories/typeorm/comment-likes.entities.js';
 
-@Entity({ schema: 'typeorm', name: 'comments' })
+@Entity({ name: 'comments' })
 export class Comment {
   @PrimaryGeneratedColumn('identity')
   id: number;

@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 import { User } from '../../../01-users/repositories/typeorm/users.entities.js';
 
-@Entity({ schema: 'typeorm', name: 'devices' })
+@Entity({ name: 'devices' })
 export class Device {
   @PrimaryColumn('uuid')
   id: string;
