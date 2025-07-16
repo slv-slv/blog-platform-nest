@@ -199,12 +199,11 @@ export class UsersQueryRepository {
   // }
 
   async isConfirmed(loginOrEmail: string): Promise<boolean> {
-    const user = await this.userEntityRepo.findOne({
-      select: { confirmation: { isConfirmed: true } },
-      where: [{ login: loginOrEmail }, { email: loginOrEmail }],
-    });
-
-    return user!.confirmation.isConfirmed === true; // Проверка существования пользователя выполняется в сервисе или middleware
+    // Проверка существования пользователя выполняется в сервисе или middleware
+    return await this.userEntityRepo.existsBy([
+      { confirmation: { isConfirmed: true }, login: loginOrEmail },
+      { confirmation: { isConfirmed: true }, email: loginOrEmail },
+    ]);
   }
 
   // async isLoginExists(login: string): Promise<boolean> {
