@@ -26,7 +26,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
-// @UseGuards(ThrottlerGuard)
+@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(
     private readonly usersService: UsersService,
