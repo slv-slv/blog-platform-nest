@@ -41,22 +41,12 @@ export class BlogsRepository {
 
   async findBlog(id: string): Promise<BlogType | null> {
     const blog = await this.blogEntityRepository
-      .createQueryBuilder('blogs')
-      .select(
-        `
-        blogs.id::varchar,
-        blogs.name,
-        blogs.description,
-        blogs.websiteUrl,
-        blogs.createdAt,
-        blogs.isMembership
-        `,
-      )
-      .where('blogs.id = :id', { id: parseInt(id) })
-      .getRawOne();
+      .createQueryBuilder('blog')
+      .where('blog.id = :id', { id: parseInt(id) })
+      .getOne();
 
     if (!blog) return null;
-    return blog;
+    return blog.toDto();
   }
 
   // async createBlog(
@@ -94,7 +84,7 @@ export class BlogsRepository {
     const result = await this.blogEntityRepository
       .createQueryBuilder()
       .insert()
-      .into(Blog)
+      // .into(Blog)
       .values(newBlog)
       .execute();
     const id = result.identifiers[0].id.toString();
