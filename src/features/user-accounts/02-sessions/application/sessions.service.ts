@@ -1,6 +1,7 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { SessionsRepository } from '../repositories/postgresql/sessions.repository.js';
 import { SessionsQueryRepository } from '../repositories/postgresql/sessions.query-repository.js';
+import { validate as isUuid } from 'uuid';
 
 @Injectable()
 export class SessionsService {
@@ -25,6 +26,10 @@ export class SessionsService {
   }
 
   async deleteDevice(userId: string, deviceId: string): Promise<void> {
+    if (!isUuid(deviceId)) {
+      throw new NotFoundException('Device not found');
+    }
+
     const device = await this.sessionsRepository.findDevice(deviceId);
     if (!device) {
       throw new NotFoundException('Device not found');
