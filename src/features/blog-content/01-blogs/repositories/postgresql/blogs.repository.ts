@@ -40,9 +40,12 @@ export class BlogsRepository {
   // }
 
   async findBlog(id: string): Promise<BlogType | null> {
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return null;
+
     const blog = await this.blogEntityRepository
       .createQueryBuilder('blog')
-      .where('blog.id = :id', { id: parseInt(id) })
+      .where('blog.id = :id', { id: idNum })
       .getOne();
 
     if (!blog) return null;
@@ -106,11 +109,14 @@ export class BlogsRepository {
   // }
 
   async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return false;
+
     const result = await this.blogEntityRepository
       .createQueryBuilder()
       .update(Blog)
       .set({ name, description, websiteUrl })
-      .where('id = :id', { id: parseInt(id) })
+      .where('id = :id', { id: idNum })
       .execute();
 
     return result.affected! > 0;
@@ -129,11 +135,14 @@ export class BlogsRepository {
   // }
 
   async deleteBlog(id: string): Promise<boolean> {
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return false;
+
     const result = await this.blogEntityRepository
       .createQueryBuilder()
       .softDelete()
       .from(Blog)
-      .where('id = :id', { id: parseInt(id) })
+      .where('id = :id', { id: idNum })
       .execute();
 
     return result.affected! > 0;
