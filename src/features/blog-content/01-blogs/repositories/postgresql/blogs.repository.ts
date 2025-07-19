@@ -79,17 +79,17 @@ export class BlogsRepository {
     createdAt: string,
     isMembership: boolean,
   ): Promise<BlogType> {
-    const newBlog = { name, description, websiteUrl, createdAt, isMembership };
+    // const newBlog = { name, description, websiteUrl, createdAt, isMembership };
 
     const result = await this.blogEntityRepository
       .createQueryBuilder()
       .insert()
       // .into(Blog)
-      .values(newBlog)
+      .values({ name, description, websiteUrl, createdAt, isMembership })
       .execute();
-    const id = result.identifiers[0].id.toString();
 
-    return { id, ...newBlog };
+    const id = result.identifiers[0].id.toString();
+    return { id, name, description, websiteUrl, createdAt, isMembership };
   }
 
   // async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
