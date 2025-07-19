@@ -87,7 +87,7 @@ export class BlogsRepository {
     const result = await this.blogEntityRepository
       .createQueryBuilder()
       .insert()
-      // .into(Blog)
+      .into(Blog)
       .values({ name, description, websiteUrl, createdAt, isMembership })
       .execute();
 
@@ -114,7 +114,7 @@ export class BlogsRepository {
 
     const result = await this.blogEntityRepository
       .createQueryBuilder()
-      .update()
+      .update(Blog)
       .set({ name, description, websiteUrl })
       .where('id = :id', { id: idNum })
       .execute();
