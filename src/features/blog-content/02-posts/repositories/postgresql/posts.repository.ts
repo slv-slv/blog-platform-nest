@@ -62,6 +62,51 @@ export class PostsRepository {
     return post.toDto();
   }
 
+  // async createPost(
+  //   title: string,
+  //   shortDescription: string,
+  //   content: string,
+  //   blogId: string,
+  //   createdAt: string,
+  // ): Promise<PostDtoType | null> {
+  //   const blogIdInt = parseInt(blogId);
+
+  //   const blogNameResult = await this.pool.query(
+  //     `
+  //       SELECT name FROM blogs
+  //       WHERE id = $1
+  //     `,
+  //     [blogIdInt],
+  //   );
+
+  //   if (blogNameResult.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const { name: blogName } = blogNameResult.rows[0];
+
+  //   const result = await this.pool.query(
+  //     `
+  //       INSERT INTO posts (blog_id, title, short_description, content, created_at)
+  //       VALUES ($1, $2, $3, $4, $5)
+  //       RETURNING id
+  //     `,
+  //     [blogIdInt, title, shortDescription, content, createdAt],
+  //   );
+
+  //   const id = result.rows[0].id.toString();
+
+  //   return {
+  //     id,
+  //     title,
+  //     shortDescription,
+  //     content,
+  //     blogId,
+  //     blogName,
+  //     createdAt,
+  //   };
+  // }
+
   async createPost(
     title: string,
     shortDescription: string,
@@ -69,42 +114,40 @@ export class PostsRepository {
     blogId: string,
     createdAt: string,
   ): Promise<PostDtoType | null> {
-    const blogIdInt = parseInt(blogId);
+    const blogIdNum = parseInt(blogId);
+    if (isNaN(blogIdNum)) return null;
 
-    const blogNameResult = await this.pool.query(
-      `
-        SELECT name FROM blogs
-        WHERE id = $1
-      `,
-      [blogIdInt],
-    );
+    const blog = await this.blogEntityRepository.findOne({
+      select: {
+        name: true,
+      },
+      where: { id: blogIdNum },
+    });
 
-    if (blogNameResult.rowCount === 0) {
-      return null;
-    }
+    if (!blog) return null;
 
-    const { name: blogName } = blogNameResult.rows[0];
+    const { name: blogName } = blog;
 
-    const result = await this.pool.query(
-      `
-        INSERT INTO posts (blog_id, title, short_description, content, created_at)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING id
-      `,
-      [blogIdInt, title, shortDescription, content, createdAt],
-    );
+    // const result = await this.postEntityRepository
+    //   .createQueryBuilder('post')
+    //   .insert()
+    //   .into(Post)
+    //   .values({ title, shortDescription, content, blog: { id: blogIdNum }, createdAt })
+    //   .execute();
 
-    const id = result.rows[0].id.toString();
+    // const id = result.identifiers[0].toString();
 
-    return {
-      id,
+    const savedPost = await this.postEntityRepository.save({
       title,
       shortDescription,
       content,
-      blogId,
-      blogName,
+      blog: { id: blogIdNum },
       createdAt,
-    };
+    });
+
+    const id = savedPost.id.toString();
+
+    return { id, title, shortDescription, content, blogId, blogName, createdAt };
   }
 
   async updatePost(id: string, title: string, shortDescription: string, content: string): Promise<boolean> {
