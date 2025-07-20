@@ -150,17 +150,31 @@ export class PostsRepository {
     return { id, title, shortDescription, content, blogId, blogName, createdAt };
   }
 
-  async updatePost(id: string, title: string, shortDescription: string, content: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        UPDATE posts
-        SET title = $2, short_description = $3, content = $4
-        WHERE id = $1
-      `,
-      [parseInt(id), title, shortDescription, content],
-    );
+  // async updatePost(id: string, title: string, shortDescription: string, content: string): Promise<boolean> {
+  //   const result = await this.pool.query(
+  //     `
+  //       UPDATE posts
+  //       SET title = $2, short_description = $3, content = $4
+  //       WHERE id = $1
+  //     `,
+  //     [parseInt(id), title, shortDescription, content],
+  //   );
 
-    return result.rowCount! > 0;
+  //   return result.rowCount! > 0;
+  // }
+
+  async updatePost(id: string, title: string, shortDescription: string, content: string): Promise<boolean> {
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return false;
+
+    const result = await this.postEntityRepository
+      .createQueryBuilder('post')
+      .update(Post)
+      .set({ title, shortDescription, content })
+      .where('post.id = :id', { id: idNum })
+      .execute();
+
+    return result.affected! > 0;
   }
 
   async deletePost(id: string): Promise<boolean> {
