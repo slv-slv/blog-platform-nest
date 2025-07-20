@@ -11,9 +11,12 @@ import {
 import { Blog } from '../../../01-blogs/repositories/typeorm/blogs.entities.js';
 import { Comment } from '../../../03-comments/repositories/typeorm/comments.entities.js';
 import { PostDislike, PostLike } from '../../../04-likes/posts/repositories/typeorm/post-likes.entities.js';
+import { PostLikesQueryRepository } from '../../../04-likes/posts/repositories/postgresql/post-likes.query-repository.js';
 
 @Entity({ name: 'posts' })
 export class Post {
+  constructor(private readonly postLikesQueryRepository: PostLikesQueryRepository) {}
+
   @PrimaryGeneratedColumn('identity')
   id: number;
 
@@ -44,4 +47,18 @@ export class Post {
 
   @OneToMany(() => PostDislike, (postDislike) => postDislike.post)
   dislikes: Relation<PostDislike[]>;
+
+  async toViewType(userId: string) {
+    const idStr = this.id.toString();
+    return {
+      id: idStr,
+      title: this.title,
+      shortDescription: this.shortDescription,
+      content: this.content,
+      blogId: this.blog.id.toString(),
+      blogName: this.blog.name,
+      createdAt: this.createdAt.toISOString(),
+      extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo(idStr, userId),
+    };
+  }
 }
