@@ -2,43 +2,64 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PostDtoType } from '../../types/posts.types.js';
 import { pool } from '../../../../../common/constants.js';
 import { Pool } from 'pg';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Post } from '../typeorm/posts.entities.js';
+import { Repository } from 'typeorm';
+import { Blog } from '../../../01-blogs/repositories/typeorm/blogs.entities.js';
 
 @Injectable()
 export class PostsRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(
+    @Inject(pool) private readonly pool: Pool,
+    @InjectRepository(Blog) private readonly blogEntityRepository: Repository<Blog>,
+    @InjectRepository(Post) private readonly postEntityRepository: Repository<Post>,
+  ) {}
+
+  // async findPost(id: string): Promise<PostDtoType | null> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT
+  //         posts.title,
+  //         posts.short_description,
+  //         posts.content,
+  //         posts.blog_id,
+  //         blogs.name AS blog_name,
+  //         posts.created_at
+  //       FROM posts JOIN blogs
+  //         ON posts.blog_id = blogs.id
+  //       WHERE posts.id = $1
+  //     `,
+  //     [parseInt(id)],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const rawPost = result.rows[0];
+
+  //   return {
+  //     id,
+  //     title: rawPost.title,
+  //     shortDescription: rawPost.short_description,
+  //     content: rawPost.content,
+  //     blogId: rawPost.blog_id.toString(),
+  //     blogName: rawPost.blog_name,
+  //     createdAt: rawPost.created_at,
+  //   };
+  // }
 
   async findPost(id: string): Promise<PostDtoType | null> {
-    const result = await this.pool.query(
-      `
-        SELECT
-          posts.title,
-          posts.short_description,
-          posts.content,
-          posts.blog_id,
-          blogs.name AS blog_name,
-          posts.created_at
-        FROM posts JOIN blogs
-          ON posts.blog_id = blogs.id
-        WHERE posts.id = $1
-      `,
-      [parseInt(id)],
-    );
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return null;
 
-    if (result.rowCount === 0) {
-      return null;
-    }
+    const post = await this.postEntityRepository
+      .createQueryBuilder('post')
+      .where('post.id = :id', { id: idNum })
+      .getOne();
 
-    const rawPost = result.rows[0];
-
-    return {
-      id,
-      title: rawPost.title,
-      shortDescription: rawPost.short_description,
-      content: rawPost.content,
-      blogId: rawPost.blog_id.toString(),
-      blogName: rawPost.blog_name,
-      createdAt: rawPost.created_at,
-    };
+    if (!post) return null;
+    return post.toDto();
   }
 
   async createPost(
