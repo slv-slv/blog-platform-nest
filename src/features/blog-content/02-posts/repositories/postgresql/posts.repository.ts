@@ -168,24 +168,38 @@ export class PostsRepository {
     if (isNaN(idNum)) return false;
 
     const result = await this.postEntityRepository
-      .createQueryBuilder('post')
+      .createQueryBuilder()
       .update(Post)
       .set({ title, shortDescription, content })
-      .where('post.id = :id', { id: idNum })
+      .where('id = :id', { id: idNum })
       .execute();
 
     return result.affected! > 0;
   }
 
-  async deletePost(id: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        DELETE FROM posts
-        WHERE id = $1
-      `,
-      [parseInt(id)],
-    );
+  // async deletePost(id: string): Promise<boolean> {
+  //   const result = await this.pool.query(
+  //     `
+  //       DELETE FROM posts
+  //       WHERE id = $1
+  //     `,
+  //     [parseInt(id)],
+  //   );
 
-    return result.rowCount! > 0;
+  //   return result.rowCount! > 0;
+  // }
+
+  async deletePost(id: string): Promise<boolean> {
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return false;
+
+    const result = await this.postEntityRepository
+      .createQueryBuilder()
+      .softDelete()
+      .from(Post)
+      .where('id = :id', { id: idNum })
+      .execute();
+
+    return result.affected! > 0;
   }
 }
