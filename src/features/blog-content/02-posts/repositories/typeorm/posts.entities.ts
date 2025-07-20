@@ -48,6 +48,18 @@ export class Post {
   @OneToMany(() => PostDislike, (postDislike) => postDislike.post)
   dislikes: Relation<PostDislike[]>;
 
+  async toDto() {
+    return {
+      id: this.id.toString(),
+      title: this.title,
+      shortDescription: this.shortDescription,
+      content: this.content,
+      blogId: this.blog.id.toString(),
+      blogName: this.blog.name,
+      createdAt: this.createdAt.toISOString(),
+    };
+  }
+
   async toViewType(userId: string) {
     const idStr = this.id.toString();
     return {
