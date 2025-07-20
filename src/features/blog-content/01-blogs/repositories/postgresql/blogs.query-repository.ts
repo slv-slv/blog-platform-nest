@@ -90,16 +90,25 @@ export class BlogsQueryRepository {
 
     const qb = this.blogEntityRepository.createQueryBuilder('blog');
 
-    qb.select(
-      `
-        blog.id::varchar,
-        blog.name,
-        blog.description,
-        blog.websiteUrl,
-        blog.createdAt,
-        blog.isMembership
-      `,
-    );
+    // qb.select(
+    //   `
+    //     blog.id::varchar,
+    //     blog."name",
+    //     blog."description",
+    //     blog."websiteUrl",
+    //     blog."createdAt",
+    //     blog."isMembership"
+    //   `,
+    // );
+
+    qb.select([
+      'blog.id::varchar',
+      'blog."name"',
+      'blog."description"',
+      'blog."websiteUrl"',
+      'blog."createdAt"',
+      'blog."isMembership"',
+    ]);
 
     if (searchNameTerm) {
       qb.where('blog.name ILIKE :search', { search: `%${searchNameTerm}%` });
@@ -109,6 +118,9 @@ export class BlogsQueryRepository {
     const skipCount = (pageNumber - 1) * pageSize;
 
     qb.orderBy(`blog.${sortBy}`, direction).take(pageSize).skip(skipCount);
+
+    // const [blogEntities, totalCount] = await qb.getManyAndCount();
+    // const blogs = blogEntities.map((blog) => blog.toDto());
 
     const totalCount = await qb.getCount();
     const blogs = await qb.getRawMany();
