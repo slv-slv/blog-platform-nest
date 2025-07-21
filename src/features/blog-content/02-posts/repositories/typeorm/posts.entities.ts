@@ -60,7 +60,7 @@ export class Post {
     };
   }
 
-  async toViewType(userId: string) {
+  async toViewType(userId: string | null) {
     const idStr = this.id.toString();
     return {
       id: idStr,
