@@ -4,50 +4,64 @@ import { PagingParamsType } from '../../../../../common/types/paging-params.type
 import { PostLikesQueryRepository } from '../../../04-likes/posts/repositories/postgresql/post-likes.query-repository.js';
 import { pool } from '../../../../../common/constants.js';
 import { Pool } from 'pg';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Post } from '../typeorm/posts.entities.js';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PostsQueryRepository {
   constructor(
     @Inject(pool) private readonly pool: Pool,
+    @InjectRepository(Post) private readonly postEntityRepository: Repository<Post>,
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 
+  // async findPost(id: string, userId: string | null): Promise<PostViewType | null> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT
+  //         posts.title,
+  //         posts.short_description,
+  //         posts.content,
+  //         posts.blog_id,
+  //         blogs.name AS blog_name,
+  //         posts.created_at
+  //       FROM posts JOIN blogs
+  //         ON posts.blog_id = blogs.id
+  //       WHERE posts.id = $1
+  //     `,
+  //     [parseInt(id)],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const rawPost = result.rows[0];
+
+  //   const post = {
+  //     id,
+  //     title: rawPost.title,
+  //     shortDescription: rawPost.short_description,
+  //     content: rawPost.content,
+  //     blogId: rawPost.blog_id.toString(),
+  //     blogName: rawPost.blog_name,
+  //     createdAt: rawPost.created_at,
+  //   };
+
+  //   const extendedLikesInfo = await this.postLikesQueryRepository.getLikesInfo(id, userId);
+
+  //   return { ...post, extendedLikesInfo };
+  // }
+
   async findPost(id: string, userId: string | null): Promise<PostViewType | null> {
-    const result = await this.pool.query(
-      `
-        SELECT
-          posts.title,
-          posts.short_description,
-          posts.content,
-          posts.blog_id,
-          blogs.name AS blog_name,
-          posts.created_at
-        FROM posts JOIN blogs
-          ON posts.blog_id = blogs.id
-        WHERE posts.id = $1
-      `,
-      [parseInt(id)],
-    );
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return null;
 
-    if (result.rowCount === 0) {
-      return null;
-    }
+    const post = await this.postEntityRepository.findOneBy({ id: idNum });
+    if (!post) return null;
 
-    const rawPost = result.rows[0];
-
-    const post = {
-      id,
-      title: rawPost.title,
-      shortDescription: rawPost.short_description,
-      content: rawPost.content,
-      blogId: rawPost.blog_id.toString(),
-      blogName: rawPost.blog_name,
-      createdAt: rawPost.created_at,
-    };
-
-    const extendedLikesInfo = await this.postLikesQueryRepository.getLikesInfo(id, userId);
-
-    return { ...post, extendedLikesInfo };
+    return post.toViewType(userId);
   }
 
   async getPosts(
