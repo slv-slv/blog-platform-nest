@@ -64,6 +64,89 @@ export class PostsQueryRepository {
     return post.toViewType(userId);
   }
 
+  // async getPosts(
+  //   userId: string | null,
+  //   pagingParams: PagingParamsType,
+  //   blogId?: string,
+  // ): Promise<PostsPaginatedType> {
+  //   const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
+
+  //   let orderBy: string;
+
+  //   switch (sortBy) {
+  //     case 'shortDescription':
+  //       orderBy = 'short_description';
+  //       break;
+  //     case 'blogId':
+  //       orderBy = 'blog_id';
+  //       break;
+  //     case 'blogName':
+  //       orderBy = 'blogs.name';
+  //       break;
+  //     case 'createdAt':
+  //       orderBy = 'created_at';
+  //       break;
+  //     default:
+  //       orderBy = sortBy;
+  //   }
+
+  //   const whereClause = blogId ? `WHERE posts.blog_id = ${parseInt(blogId)}` : ``;
+
+  //   const countResult = await this.pool.query(
+  //     `
+  //       SELECT COUNT(id)
+  //       FROM posts
+  //       ${whereClause}
+  //     `,
+  //   );
+
+  //   const totalCount = parseInt(countResult.rows[0].count);
+  //   const pagesCount = Math.ceil(totalCount / pageSize);
+  //   const skipCount = (pageNumber - 1) * pageSize;
+
+  //   const postsResult = await this.pool.query(
+  //     `
+  //       SELECT
+  //         posts.id,
+  //         posts.title,
+  //         posts.short_description,
+  //         posts.content,
+  //         posts.blog_id,
+  //         blogs.name AS blog_name,
+  //         posts.created_at
+  //       FROM posts JOIN blogs ON posts.blog_id = blogs.id
+  //       ${whereClause}
+  //       ORDER BY ${orderBy} ${sortDirection}
+  //       LIMIT $1
+  //       OFFSET $2
+  //     `,
+  //     [pageSize, skipCount],
+  //   );
+
+  //   const rawPosts = postsResult.rows;
+
+  //   const posts = await Promise.all(
+  //     rawPosts.map(async (post) => ({
+  //       id: post.id.toString(),
+  //       title: post.title,
+  //       shortDescription: post.short_description,
+  //       content: post.content,
+  //       blogId: post.blog_id.toString(),
+  //       blogName: post.blog_name,
+  //       createdAt: post.created_at,
+  //       extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo(post.id.toString(), userId),
+  //     })),
+  //   );
+
+  //   return {
+  //     pagesCount,
+  //     page: pageNumber,
+  //     pageSize,
+  //     totalCount,
+  //     items: posts,
+  //   };
+  // }
+
   async getPosts(
     userId: string | null,
     pagingParams: PagingParamsType,
@@ -71,71 +154,19 @@ export class PostsQueryRepository {
   ): Promise<PostsPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
-    let orderBy: string;
+    const qb = this.postEntityRepository.createQueryBuilder('post');
 
-    switch (sortBy) {
-      case 'shortDescription':
-        orderBy = 'short_description';
-        break;
-      case 'blogId':
-        orderBy = 'blog_id';
-        break;
-      case 'blogName':
-        orderBy = 'blogs.name';
-        break;
-      case 'createdAt':
-        orderBy = 'created_at';
-        break;
-      default:
-        orderBy = sortBy;
-    }
-
-    const whereClause = blogId ? `WHERE posts.blog_id = ${parseInt(blogId)}` : ``;
-
-    const countResult = await this.pool.query(
-      `
-        SELECT COUNT(id)
-        FROM posts
-        ${whereClause}
-      `,
-    );
-
-    const totalCount = parseInt(countResult.rows[0].count);
-    const pagesCount = Math.ceil(totalCount / pageSize);
+    const direction = sortDirection === 'asc' ? 'ASC' : 'DESC';
     const skipCount = (pageNumber - 1) * pageSize;
 
-    const postsResult = await this.pool.query(
-      `
-        SELECT
-          posts.id,
-          posts.title,
-          posts.short_description,
-          posts.content,
-          posts.blog_id,
-          blogs.name AS blog_name,
-          posts.created_at
-        FROM posts JOIN blogs ON posts.blog_id = blogs.id
-        ${whereClause}
-        ORDER BY ${orderBy} ${sortDirection}
-        LIMIT $1
-        OFFSET $2
-      `,
-      [pageSize, skipCount],
-    );
+    qb.orderBy(`post.${sortBy}`, direction).take(pageSize).skip(skipCount);
 
-    const rawPosts = postsResult.rows;
+    const totalCount = await qb.getCount();
+    const pagesCount = Math.ceil(totalCount / pageSize);
 
+    const postsEntities = await qb.getMany();
     const posts = await Promise.all(
-      rawPosts.map(async (post) => ({
-        id: post.id.toString(),
-        title: post.title,
-        shortDescription: post.short_description,
-        content: post.content,
-        blogId: post.blog_id.toString(),
-        blogName: post.blog_name,
-        createdAt: post.created_at,
-        extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo(post.id.toString(), userId),
-      })),
+      postsEntities.map(async (postEntity) => await postEntity.toViewType(userId)),
     );
 
     return {
