@@ -155,6 +155,9 @@ export class PostsQueryRepository {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     const qb = this.postEntityRepository.createQueryBuilder('post');
+    if (blogId) {
+      qb.innerJoinAndSelect('post.blog', 'blog').where('blog.id = :blogId', { blogId: parseInt(blogId) });
+    }
 
     const direction = sortDirection === 'asc' ? 'ASC' : 'DESC';
     const skipCount = (pageNumber - 1) * pageSize;
