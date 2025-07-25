@@ -6,6 +6,7 @@ import {
   CommentLike,
 } from '../../../04-likes/comments/repositories/typeorm/comment-likes.entities.js';
 import { CommentLikesQueryRepository } from '../../../04-likes/comments/repositories/postgresql/comment-likes.query-repository.js';
+import { CommentDtoType, CommentViewType } from '../../types/comments.types.js';
 
 @Entity({ name: 'comments' })
 export class Comment {
@@ -34,7 +35,7 @@ export class Comment {
   @OneToMany(() => CommentDislike, (commentDislike) => commentDislike.comment)
   dislikes: Relation<CommentDislike[]>;
 
-  toDto() {
+  toDto(): CommentDtoType {
     const idStr = this.id.toString();
     return {
       id: idStr,
@@ -47,7 +48,7 @@ export class Comment {
     };
   }
 
-  async toViewType(userId: string | null) {
+  async toViewType(userId: string | null): Promise<CommentViewType> {
     const idStr = this.id.toString();
     return {
       id: idStr,
