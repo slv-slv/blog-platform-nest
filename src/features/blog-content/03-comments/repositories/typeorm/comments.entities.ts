@@ -43,7 +43,7 @@ export class Comment {
         userId: this.user.id.toString(),
         userLogin: this.user.login,
       },
-      createdAt: this.createdAt,
+      createdAt: this.createdAt.toISOString(),
     };
   }
 
@@ -56,7 +56,7 @@ export class Comment {
         userId: this.user.id.toString(),
         userLogin: this.user.login,
       },
-      createdAt: this.createdAt,
+      createdAt: this.createdAt.toISOString(),
       likesInfo: await this.commentLikesQueryRepository.getLikesInfo(idStr, userId),
     };
   }
