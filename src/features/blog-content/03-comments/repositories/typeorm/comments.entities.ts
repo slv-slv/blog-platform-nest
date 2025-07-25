@@ -30,4 +30,17 @@ export class Comment {
 
   @OneToMany(() => CommentDislike, (commentDislike) => commentDislike.comment)
   dislikes: Relation<CommentDislike[]>;
+
+  toDto() {
+    const idStr = this.id.toString();
+    return {
+      id: idStr,
+      content: this.content,
+      commentatorInfo: {
+        userId: this.user.id.toString(),
+        userLogin: this.user.login,
+      },
+      createdAt: this.createdAt,
+    };
+  }
 }
