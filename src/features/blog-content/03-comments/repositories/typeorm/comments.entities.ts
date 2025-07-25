@@ -5,9 +5,12 @@ import {
   CommentDislike,
   CommentLike,
 } from '../../../04-likes/comments/repositories/typeorm/comment-likes.entities.js';
+import { CommentLikesQueryRepository } from '../../../04-likes/comments/repositories/postgresql/comment-likes.query-repository.js';
 
 @Entity({ name: 'comments' })
 export class Comment {
+  constructor(private readonly commentLikesQueryRepository: CommentLikesQueryRepository) {}
+
   @PrimaryGeneratedColumn('identity')
   id: number;
 
@@ -41,6 +44,20 @@ export class Comment {
         userLogin: this.user.login,
       },
       createdAt: this.createdAt,
+    };
+  }
+
+  async toViewType(userId: string | null) {
+    const idStr = this.id.toString();
+    return {
+      id: idStr,
+      content: this.content,
+      commentatorInfo: {
+        userId: this.user.id.toString(),
+        userLogin: this.user.login,
+      },
+      createdAt: this.createdAt,
+      likesInfo: await this.commentLikesQueryRepository.getLikesInfo(idStr, userId),
     };
   }
 }
