@@ -55,24 +55,51 @@ export class CommentsRepository {
     return comment.toDto();
   }
 
+  // async createComment(
+  //   postId: string,
+  //   content: string,
+  //   createdAt: string,
+  //   commentatorInfo: { userId: string; userLogin: string },
+  // ): Promise<CommentDtoType> {
+  //   const result = await this.pool.query(
+  //     `
+  //       INSERT INTO comments (post_id, user_id, content, created_at)
+  //       VALUES ($1, $2, $3, $4)
+  //       RETURNING id
+  //     `,
+  //     [parseInt(postId), commentatorInfo.userId, content, createdAt],
+  //   );
+
+  //   const id = result.rows[0].id.toString();
+
+  //   return { id, content, commentatorInfo, createdAt };
+  // }
+
   async createComment(
     postId: string,
     content: string,
     createdAt: string,
     commentatorInfo: { userId: string; userLogin: string },
   ): Promise<CommentDtoType> {
-    const result = await this.pool.query(
-      `
-        INSERT INTO comments (post_id, user_id, content, created_at)
-        VALUES ($1, $2, $3, $4)
-        RETURNING id
-      `,
-      [parseInt(postId), commentatorInfo.userId, content, createdAt],
-    );
+    const postIdNum = parseInt(postId);
+    const userIdNum = parseInt(commentatorInfo.userId);
 
-    const id = result.rows[0].id.toString();
+    const comment = this.commentEntityRepository.create({
+      post: { id: postIdNum },
+      user: { id: userIdNum },
+      content,
+      createdAt,
+    });
 
-    return { id, content, commentatorInfo, createdAt };
+    const savedComment = await this.commentEntityRepository.save(comment);
+    const id = savedComment.id.toString();
+
+    return {
+      id,
+      content,
+      commentatorInfo,
+      createdAt,
+    };
   }
 
   async updateComment(id: string, content: string): Promise<boolean> {
