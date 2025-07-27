@@ -137,13 +137,15 @@ export class PostsRepository {
 
     // const id = result.identifiers[0].toString();
 
-    const savedPost = await this.postEntityRepository.save({
+    const post = this.postEntityRepository.create({
       title,
       shortDescription,
       content,
       blog: { id: blogIdNum },
       createdAt,
     });
+
+    const savedPost = await this.postEntityRepository.save(post);
 
     return savedPost.toDto();
   }
