@@ -18,16 +18,19 @@ export class PostsService {
     content: string,
     blogId: string,
   ): Promise<PostViewType> {
+    const blog = await this.blogsRepository.findBlog(blogId);
+    if (!blog) throw new NotFoundException('Blog not found');
+    const blogName = blog.name;
+
     const createdAt = new Date().toISOString();
     const newPost = await this.postsRepository.createPost(
       title,
       shortDescription,
       content,
       blogId,
+      blogName,
       createdAt,
     );
-
-    if (!newPost) throw new NotFoundException('Blog not found');
 
     // const postId = newPost.id;
     // await this.postLikesService.createEmptyLikesInfo(postId);

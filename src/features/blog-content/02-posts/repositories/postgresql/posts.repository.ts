@@ -67,23 +67,10 @@ export class PostsRepository {
   //   shortDescription: string,
   //   content: string,
   //   blogId: string,
+  //   blogName: string,
   //   createdAt: string,
   // ): Promise<PostDtoType | null> {
   //   const blogIdInt = parseInt(blogId);
-
-  //   const blogNameResult = await this.pool.query(
-  //     `
-  //       SELECT name FROM blogs
-  //       WHERE id = $1
-  //     `,
-  //     [blogIdInt],
-  //   );
-
-  //   if (blogNameResult.rowCount === 0) {
-  //     return null;
-  //   }
-
-  //   const { name: blogName } = blogNameResult.rows[0];
 
   //   const result = await this.pool.query(
   //     `
@@ -112,21 +99,10 @@ export class PostsRepository {
     shortDescription: string,
     content: string,
     blogId: string,
+    blogName: string,
     createdAt: string,
-  ): Promise<PostDtoType | null> {
+  ): Promise<PostDtoType> {
     const blogIdNum = parseInt(blogId);
-    if (isNaN(blogIdNum)) return null;
-
-    const blog = await this.blogEntityRepository.findOne({
-      select: {
-        name: true,
-      },
-      where: { id: blogIdNum },
-    });
-
-    if (!blog) return null;
-
-    const { name: blogName } = blog;
 
     // const result = await this.postEntityRepository
     //   .createQueryBuilder('post')
@@ -146,8 +122,20 @@ export class PostsRepository {
     });
 
     const savedPost = await this.postEntityRepository.save(post);
+    const id = savedPost.id.toString();
 
-    return savedPost.toDto();
+    // так будет blogName запрашиваться в БД лишний раз
+    // return savedPost.toDto();
+
+    return {
+      id,
+      title,
+      shortDescription,
+      content,
+      blogId,
+      blogName,
+      createdAt,
+    };
   }
 
   // async updatePost(id: string, title: string, shortDescription: string, content: string): Promise<boolean> {

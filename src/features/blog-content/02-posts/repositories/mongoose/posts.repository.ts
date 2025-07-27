@@ -30,14 +30,10 @@ export class PostsRepository {
     shortDescription: string,
     content: string,
     blogId: string,
+    blogName: string,
     createdAt: string,
-  ): Promise<PostDtoType | null> {
+  ): Promise<PostDtoType> {
     const _id = new ObjectId();
-
-    const blog = await this.blogsRepository.findBlog(blogId);
-    if (!blog) return null;
-
-    const blogName = blog!.name;
     const newPost = { title, shortDescription, content, blogId, blogName, createdAt };
     await this.model.insertOne({ _id, ...newPost });
     const id = _id.toString();
