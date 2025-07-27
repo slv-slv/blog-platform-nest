@@ -102,17 +102,25 @@ export class CommentsRepository {
     };
   }
 
-  async updateComment(id: string, content: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        UPDATE comments
-        SET content = $2
-        WHERE id = $1
-      `,
-      [parseInt(id), content],
-    );
+  // async updateComment(id: string, content: string): Promise<boolean> {
+  //   const result = await this.pool.query(
+  //     `
+  //       UPDATE comments
+  //       SET content = $2
+  //       WHERE id = $1
+  //     `,
+  //     [parseInt(id), content],
+  //   );
 
-    return result.rowCount! > 0;
+  //   return result.rowCount! > 0;
+  // }
+
+  async updateComment(id: string, content: string): Promise<boolean> {
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return false;
+
+    const result = await this.commentEntityRepository.update({ id: idNum }, { content });
+    return result.affected! > 0;
   }
 
   async deleteComment(id: string): Promise<boolean> {
