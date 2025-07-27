@@ -145,9 +145,7 @@ export class PostsRepository {
       createdAt,
     });
 
-    const id = savedPost.id.toString();
-
-    return { id, title, shortDescription, content, blogId, blogName, createdAt };
+    return savedPost.toDto();
   }
 
   // async updatePost(id: string, title: string, shortDescription: string, content: string): Promise<boolean> {
