@@ -101,7 +101,7 @@ export class SessionsRepository {
       exp,
     });
 
-    await this.sessionEntityRepo.insert(device); // Возвращать сохраненную сущность не нужно, поэтому не save
+    await this.sessionEntityRepo.save(device);
   }
 
   // async deleteDevice(deviceId: string): Promise<void> {
