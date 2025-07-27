@@ -2,41 +2,57 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CommentDtoType } from '../../types/comments.types.js';
 import { pool } from '../../../../../common/constants.js';
 import { Pool } from 'pg';
+import { Comment } from '../typeorm/comments.entities.js';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CommentsRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(
+    @Inject(pool) private readonly pool: Pool,
+    @InjectRepository(Comment) private readonly commentEntityRepository: Repository<Comment>,
+  ) {}
+
+  // async findComment(id: string): Promise<CommentDtoType | null> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT
+  //         comments.content,
+  //         comments.created_at,
+  //         comments.user_id AS commentator_id,
+  //         users.login AS commentator_login
+  //       FROM comments JOIN users
+  //         ON comments.user_id = users.id
+  //       WHERE comments.id = $1
+  //     `,
+  //     [parseInt(id)],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const { content, created_at, commentator_id, commentator_login } = result.rows[0];
+
+  //   return {
+  //     id,
+  //     content,
+  //     commentatorInfo: {
+  //       userId: commentator_id.toString(),
+  //       userLogin: commentator_login,
+  //     },
+  //     createdAt: created_at,
+  //   };
+  // }
 
   async findComment(id: string): Promise<CommentDtoType | null> {
-    const result = await this.pool.query(
-      `
-        SELECT
-          comments.content,
-          comments.created_at,
-          comments.user_id AS commentator_id,
-          users.login AS commentator_login
-        FROM comments JOIN users
-          ON comments.user_id = users.id
-        WHERE comments.id = $1
-      `,
-      [parseInt(id)],
-    );
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return null;
 
-    if (result.rowCount === 0) {
-      return null;
-    }
+    const comment = await this.commentEntityRepository.findOneBy({ id: idNum });
+    if (!comment) return null;
 
-    const { content, created_at, commentator_id, commentator_login } = result.rows[0];
-
-    return {
-      id,
-      content,
-      commentatorInfo: {
-        userId: commentator_id.toString(),
-        userLogin: commentator_login,
-      },
-      createdAt: created_at,
-    };
+    return comment.toDto();
   }
 
   async createComment(
