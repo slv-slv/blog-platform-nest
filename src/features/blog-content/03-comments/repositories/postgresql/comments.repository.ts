@@ -123,15 +123,23 @@ export class CommentsRepository {
     return result.affected! > 0;
   }
 
-  async deleteComment(id: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        DELETE FROM comments
-        WHERE id = $1
-      `,
-      [parseInt(id)],
-    );
+  // async deleteComment(id: string): Promise<boolean> {
+  //   const result = await this.pool.query(
+  //     `
+  //       DELETE FROM comments
+  //       WHERE id = $1
+  //     `,
+  //     [parseInt(id)],
+  //   );
 
-    return result.rowCount! > 0;
+  //   return result.rowCount! > 0;
+  // }
+
+  async deleteComment(id: string): Promise<boolean> {
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return false;
+
+    const result = await this.commentEntityRepository.softDelete({ id: idNum });
+    return result.affected! > 0;
   }
 }
