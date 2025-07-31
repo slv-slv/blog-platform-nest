@@ -2,49 +2,66 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CommentsPaginatedType, CommentViewType } from '../../types/comments.types.js';
 import { PagingParamsType } from '../../../../../common/types/paging-params.types.js';
 import { CommentLikesQueryRepository } from '../../../04-likes/comments/repositories/postgresql/comment-likes.query-repository.js';
+import { Comment } from '../typeorm/comments.entities.js';
 import { pool } from '../../../../../common/constants.js';
 import { Pool } from 'pg';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
     @Inject(pool) private readonly pool: Pool,
+    @InjectRepository(Comment) private readonly commentEntityRepository: Repository<Comment>,
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
+  // async findComment(id: string, userId: string | null): Promise<CommentViewType | null> {
+  //   const result = await this.pool.query(
+  //     `
+  //       SELECT
+  //         comments.content,
+  //         comments.created_at,
+  //         comments.user_id AS commentator_id,
+  //         users.login AS commentator_login
+  //       FROM comments JOIN users
+  //         ON comments.user_id = users.id
+  //       WHERE comments.id = $1
+  //     `,
+  //     [parseInt(id)],
+  //   );
+
+  //   if (result.rowCount === 0) {
+  //     return null;
+  //   }
+
+  //   const { content, created_at, commentator_id, commentator_login } = result.rows[0];
+
+  //   const likesInfo = await this.commentLikesQueryRepository.getLikesInfo(id, userId);
+
+  //   return {
+  //     id,
+  //     content,
+  //     commentatorInfo: {
+  //       userId: commentator_id.toString(),
+  //       userLogin: commentator_login,
+  //     },
+  //     createdAt: created_at,
+  //     likesInfo,
+  //   };
+  // }
+
   async findComment(id: string, userId: string | null): Promise<CommentViewType | null> {
-    const result = await this.pool.query(
-      `
-        SELECT
-          comments.content,
-          comments.created_at,
-          comments.user_id AS commentator_id,
-          users.login AS commentator_login
-        FROM comments JOIN users
-          ON comments.user_id = users.id
-        WHERE comments.id = $1
-      `,
-      [parseInt(id)],
-    );
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return null;
 
-    if (result.rowCount === 0) {
-      return null;
-    }
+    const comment = await this.commentEntityRepository.findOne({
+      where: { id: idNum },
+      relations: { user: true },
+    });
+    if (!comment) return null;
 
-    const { content, created_at, commentator_id, commentator_login } = result.rows[0];
-
-    const likesInfo = await this.commentLikesQueryRepository.getLikesInfo(id, userId);
-
-    return {
-      id,
-      content,
-      commentatorInfo: {
-        userId: commentator_id.toString(),
-        userLogin: commentator_login,
-      },
-      createdAt: created_at,
-      likesInfo,
-    };
+    return comment.toViewType(userId);
   }
 
   async getComments(
