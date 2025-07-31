@@ -49,7 +49,10 @@ export class CommentsRepository {
     const idNum = parseInt(id);
     if (isNaN(idNum)) return null;
 
-    const comment = await this.commentEntityRepository.findOneBy({ id: idNum });
+    const comment = await this.commentEntityRepository.findOne({
+      where: { id: idNum },
+      relations: { user: true },
+    });
     if (!comment) return null;
 
     return comment.toDto();
