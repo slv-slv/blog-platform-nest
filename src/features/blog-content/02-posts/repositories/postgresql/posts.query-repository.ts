@@ -162,7 +162,7 @@ export class PostsQueryRepository {
     const direction = sortDirection === 'asc' ? 'ASC' : 'DESC';
     const skipCount = (pageNumber - 1) * pageSize;
 
-    qb.orderBy(`post.${sortBy}`, direction).take(pageSize).skip(skipCount);
+    qb.orderBy(sortBy, direction).take(pageSize).skip(skipCount);
 
     const totalCount = await qb.getCount();
     const pagesCount = Math.ceil(totalCount / pageSize);
