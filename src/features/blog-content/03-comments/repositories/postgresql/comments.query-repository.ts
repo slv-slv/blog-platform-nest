@@ -64,6 +64,82 @@ export class CommentsQueryRepository {
     return comment.toViewType(userId);
   }
 
+  // async getComments(
+  //   postId: string,
+  //   userId: string | null,
+  //   pagingParams: PagingParamsType,
+  // ): Promise<CommentsPaginatedType> {
+  //   const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
+
+  //   let orderBy: string;
+  //   switch (sortBy) {
+  //     case 'commentatorInfo':
+  //       orderBy = 'commentator_id';
+  //       break;
+  //     case 'createdAt':
+  //       orderBy = 'created_at';
+  //       break;
+  //     default:
+  //       orderBy = sortBy;
+  //   }
+
+  //   const countResult = await this.pool.query(
+  //     `
+  //       SELECT COUNT(id)
+  //       FROM comments
+  //       WHERE post_id = $1
+  //     `,
+  //     [parseInt(postId)],
+  //   );
+
+  //   const totalCount = parseInt(countResult.rows[0].count);
+  //   const pagesCount = Math.ceil(totalCount / pageSize);
+  //   const skipCount = (pageNumber - 1) * pageSize;
+
+  //   const commentsResult = await this.pool.query(
+  //     `
+  //       SELECT
+  //         comments.id,
+  //         comments.content,
+  //         comments.created_at,
+  //         comments.user_id AS commentator_id,
+  //         users.login AS commentator_login
+  //       FROM comments JOIN users
+  //         ON comments.user_id = users.id
+  //       WHERE comments.post_id = $1
+  //       ORDER BY ${orderBy} ${sortDirection}
+  //       LIMIT $2
+  //       OFFSET $3
+  //     `,
+  //     [parseInt(postId), pageSize, skipCount],
+  //   );
+
+  //   const rawComments = commentsResult.rows;
+
+  //   const comments = await Promise.all(
+  //     rawComments.map(async (comment) => {
+  //       return {
+  //         id: comment.id.toString(),
+  //         content: comment.content,
+  //         commentatorInfo: {
+  //           userId: comment.commentator_id.toString(),
+  //           userLogin: comment.commentator_login,
+  //         },
+  //         createdAt: comment.created_at,
+  //         likesInfo: await this.commentLikesQueryRepository.getLikesInfo(comment.id.toString(), userId),
+  //       };
+  //     }),
+  //   );
+
+  //   return {
+  //     pagesCount,
+  //     page: pageNumber,
+  //     pageSize,
+  //     totalCount,
+  //     items: comments,
+  //   };
+  // }
+
   async getComments(
     postId: string,
     userId: string | null,
@@ -71,64 +147,24 @@ export class CommentsQueryRepository {
   ): Promise<CommentsPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
-    let orderBy: string;
-    switch (sortBy) {
-      case 'commentatorInfo':
-        orderBy = 'commentator_id';
-        break;
-      case 'createdAt':
-        orderBy = 'created_at';
-        break;
-      default:
-        orderBy = sortBy;
-    }
-
-    const countResult = await this.pool.query(
-      `
-        SELECT COUNT(id)
-        FROM comments
-        WHERE post_id = $1
-      `,
-      [parseInt(postId)],
-    );
-
-    const totalCount = parseInt(countResult.rows[0].count);
-    const pagesCount = Math.ceil(totalCount / pageSize);
+    const direction = sortDirection === 'asc' ? 'ASC' : 'DESC';
     const skipCount = (pageNumber - 1) * pageSize;
 
-    const commentsResult = await this.pool.query(
-      `
-        SELECT
-          comments.id,
-          comments.content,
-          comments.created_at,
-          comments.user_id AS commentator_id,
-          users.login AS commentator_login
-        FROM comments JOIN users
-          ON comments.user_id = users.id
-        WHERE comments.post_id = $1
-        ORDER BY ${orderBy} ${sortDirection}
-        LIMIT $2
-        OFFSET $3
-      `,
-      [parseInt(postId), pageSize, skipCount],
-    );
+    const qb = this.commentEntityRepository
+      .createQueryBuilder('comment')
+      .innerJoinAndSelect('comment.user', 'user')
+      .innerJoinAndSelect('comment.post', 'post')
+      .where('post.id = :postId', { postId })
+      .orderBy(sortBy, direction)
+      .take(pageSize)
+      .skip(skipCount);
 
-    const rawComments = commentsResult.rows;
+    const totalCount = await qb.getCount();
+    const pagesCount = Math.ceil(totalCount / pageSize);
 
+    const commentsEntities = await qb.getMany();
     const comments = await Promise.all(
-      rawComments.map(async (comment) => {
-        return {
-          id: comment.id.toString(),
-          content: comment.content,
-          commentatorInfo: {
-            userId: comment.commentator_id.toString(),
-            userLogin: comment.commentator_login,
-          },
-          createdAt: comment.created_at,
-          likesInfo: await this.commentLikesQueryRepository.getLikesInfo(comment.id.toString(), userId),
-        };
-      }),
+      commentsEntities.map(async (commentEntity) => await commentEntity.toViewType(userId)),
     );
 
     return {
