@@ -156,7 +156,7 @@ export class PostsQueryRepository {
 
     const qb = this.postEntityRepository.createQueryBuilder('post');
     if (blogId) {
-      qb.innerJoinAndSelect('post.blog', 'blog').where('blog.id = :blogId', { blogId: parseInt(blogId) });
+      qb.innerJoin('post.blog', 'blog').where('blog.id = :blogId', { blogId: parseInt(blogId) });
     }
 
     const direction = sortDirection === 'asc' ? 'ASC' : 'DESC';
