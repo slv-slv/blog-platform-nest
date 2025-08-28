@@ -21,8 +21,11 @@ export class Post {
   @PrimaryGeneratedColumn('identity')
   id: number;
 
+  @Column()
+  blogId: number;
+
   @ManyToOne(() => Blog, (blog) => blog.posts)
-  @JoinColumn()
+  @JoinColumn({ name: 'blogId' })
   blog: Relation<Blog>;
 
   @Column()
@@ -68,7 +71,7 @@ export class Post {
       title: this.title,
       shortDescription: this.shortDescription,
       content: this.content,
-      blogId: this.blog.id.toString(),
+      blogId: this.blogId.toString(),
       blogName: this.blog.name,
       createdAt: this.createdAt.toISOString(),
       extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo(idStr, userId),
