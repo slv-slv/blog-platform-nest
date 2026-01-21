@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../../features/user-accounts/01-users/application/users.service.js';
+import { UsersService } from '../../features/application/users.service.js';
 
 @Injectable()
 export class EmailConfirmationGuard implements CanActivate {
