@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { PostLikes } from './post-likes.schemas.js';
 import { PostLikesType } from '../../types/post-likes.types.js';
 import { Model } from 'mongoose';
-import { LikeStatus } from '../../../types/likes.types.js';
+import { LikeStatus } from '../../types/likes.types.js';
 
 @Injectable()
 export class PostLikesRepository {
@@ -57,7 +57,7 @@ export class PostLikesRepository {
       likes: [],
       dislikes: [],
     };
-    await this.model.insertOne(likesInfo);
+    await this.model.create(likesInfo);
   }
 
   // async deleteLikesInfo(postId: string): Promise<void> {

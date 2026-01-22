@@ -52,7 +52,7 @@ export class SessionsRepository {
 
     const session = await this.model.findOne({ userId }).lean();
     if (!session) {
-      await this.model.insertOne({ userId, devices: [newDevice] });
+      await this.model.create({ userId, devices: [newDevice] });
     } else {
       await this.model.updateOne({ userId }, { $push: { devices: newDevice } });
     }

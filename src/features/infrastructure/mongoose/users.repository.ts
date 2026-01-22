@@ -56,10 +56,9 @@ export class UsersRepository {
     confirmation: ConfirmationInfoType,
     passwordRecovery: PasswordRecoveryInfoType,
   ): Promise<UserViewType> {
-    const _id = new ObjectId();
-    const newUser = { _id, login, email, hash, createdAt, confirmation, passwordRecovery };
-    await this.model.insertOne(newUser);
-    const id = _id.toString();
+    const newUser = { login, email, hash, createdAt, confirmation, passwordRecovery };
+    const insertedUser = await this.model.create(newUser as any);
+    const id = insertedUser._id.toString();
     return { id, login, email, createdAt };
   }
 
