@@ -28,10 +28,9 @@ export class BlogsRepository {
     createdAt: string,
     isMembership: boolean,
   ): Promise<BlogType> {
-    const _id = new ObjectId();
     const newBlog = { name, description, websiteUrl, createdAt, isMembership };
-    await this.model.insertOne({ _id, ...newBlog });
-    const id = _id.toString();
+    const insertedBlog = await this.model.create(newBlog);
+    const id = insertedBlog._id.toString();
     return { id, ...newBlog };
   }
 
