@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Post } from './posts.schemas.js';
 import { ObjectId } from 'mongodb';
 import { PostDtoType } from '../../types/posts.types.js';
-import { BlogsRepository } from '../../../01-blogs/repositories/mongoose/blogs.repository.js';
+import { BlogsRepository } from './blogs.repository.js';
 
 @Injectable()
 export class PostsRepository {
@@ -33,10 +33,9 @@ export class PostsRepository {
     blogName: string,
     createdAt: string,
   ): Promise<PostDtoType> {
-    const _id = new ObjectId();
     const newPost = { title, shortDescription, content, blogId, blogName, createdAt };
-    await this.model.insertOne({ _id, ...newPost });
-    const id = _id.toString();
+    const insertedPost = await this.model.create(newPost);
+    const id = insertedPost._id.toString();
     return { id, ...newPost };
   }
 
