@@ -27,15 +27,14 @@ export class CommentsRepository {
     createdAt: string,
     commentatorInfo: { userId: string; userLogin: string },
   ): Promise<CommentDtoType> {
-    const _id = new ObjectId();
-    await this.model.insertOne({
-      _id,
+    const createdComment = await this.model.create({
       postId,
       content,
       commentatorInfo,
       createdAt,
     });
-    const id = _id.toString();
+
+    const id = createdComment._id.toString();
     return { id, content, commentatorInfo, createdAt };
   }
 
