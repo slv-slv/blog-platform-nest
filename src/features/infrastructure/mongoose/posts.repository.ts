@@ -44,7 +44,11 @@ export class PostsRepository {
       return false;
     }
     const _id = new ObjectId(id);
-    const updateResult = await this.model.updateOne({ _id }, { $set: { title, shortDescription, content } });
+    const updateResult = await this.model.updateOne(
+      { _id },
+      { $set: { title, shortDescription, content } },
+      { runValidators: true },
+    );
     return updateResult.matchedCount > 0;
   }
 

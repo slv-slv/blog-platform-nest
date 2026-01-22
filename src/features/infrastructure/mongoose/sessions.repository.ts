@@ -54,15 +54,23 @@ export class SessionsRepository {
     if (!session) {
       await this.model.create({ userId, devices: [newDevice] });
     } else {
-      await this.model.updateOne({ userId }, { $push: { devices: newDevice } });
+      await this.model.updateOne({ userId }, { $push: { devices: newDevice } }, { runValidators: true });
     }
   }
 
   async deleteDevice(deviceId: string): Promise<void> {
-    await this.model.updateOne({ 'devices.id': deviceId }, { $pull: { devices: { id: deviceId } } });
+    await this.model.updateOne(
+      { 'devices.id': deviceId },
+      { $pull: { devices: { id: deviceId } } },
+      { runValidators: true },
+    );
   }
 
   async deleteOtherDevices(deviceId: string): Promise<void> {
-    await this.model.updateOne({ 'devices.id': deviceId }, { $pull: { devices: { id: { $ne: deviceId } } } });
+    await this.model.updateOne(
+      { 'devices.id': deviceId },
+      { $pull: { devices: { id: { $ne: deviceId } } } },
+      { runValidators: true },
+    );
   }
 }

@@ -70,7 +70,7 @@ export class CommentLikesRepository {
     await this.model.updateOne(
       { commentId },
       { $setOnInsert: { commentId, likes: [], dislikes: [] } },
-      { upsert: true },
+      { upsert: true, runValidators: true },
     );
 
     await this.model.updateOne(
@@ -88,7 +88,7 @@ export class CommentLikesRepository {
     await this.model.updateOne(
       { commentId },
       { $setOnInsert: { commentId, likes: [], dislikes: [] } },
-      { upsert: true },
+      { upsert: true, runValidators: true },
     );
 
     await this.model.updateOne(
@@ -97,6 +97,7 @@ export class CommentLikesRepository {
         $push: { dislikes: dislike },
         $pull: { likes: { userId: userId } },
       },
+      { runValidators: true },
     );
   }
 
@@ -106,6 +107,7 @@ export class CommentLikesRepository {
       {
         $pull: { likes: { userId: userId }, dislikes: { userId: userId } },
       },
+      { runValidators: true },
     );
   }
 }

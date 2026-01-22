@@ -39,7 +39,11 @@ export class BlogsRepository {
       return false;
     }
     const _id = new ObjectId(id);
-    const updateResult = await this.model.updateOne({ _id }, { $set: { name, description, websiteUrl } });
+    const updateResult = await this.model.updateOne(
+      { _id },
+      { $set: { name, description, websiteUrl } },
+      { runValidators: true },
+    );
     return updateResult.matchedCount > 0;
   }
 

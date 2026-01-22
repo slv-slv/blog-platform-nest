@@ -70,12 +70,13 @@ export class PostLikesRepository {
     await this.model.updateOne(
       { postId },
       { $setOnInsert: { postId, likes: [], dislikes: [] } },
-      { upsert: true },
+      { upsert: true, runValidators: true },
     );
 
     await this.model.updateOne(
       { postId },
       { $push: { likes: like }, $pull: { dislikes: { userId: userId } } },
+      { runValidators: true },
     );
   }
 
@@ -85,12 +86,13 @@ export class PostLikesRepository {
     await this.model.updateOne(
       { postId },
       { $setOnInsert: { postId, likes: [], dislikes: [] } },
-      { upsert: true },
+      { upsert: true, runValidators: true },
     );
 
     await this.model.updateOne(
       { postId },
       { $push: { dislikes: dislike }, $pull: { likes: { userId: userId } } },
+      { runValidators: true },
     );
   }
 
@@ -98,6 +100,7 @@ export class PostLikesRepository {
     await this.model.updateOne(
       { postId },
       { $pull: { likes: { userId: userId }, dislikes: { userId: userId } } },
+      { runValidators: true },
     );
   }
 }

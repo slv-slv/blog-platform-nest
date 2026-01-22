@@ -66,6 +66,7 @@ export class UsersRepository {
     await this.model.updateOne(
       { email },
       { $set: { 'confirmation.code': code, 'confirmation.expiration': expiration } },
+      { runValidators: true },
     );
   }
 
@@ -73,6 +74,7 @@ export class UsersRepository {
     const updateResult = await this.model.updateOne(
       { email },
       { $set: { 'passwordRecovery.code': code, 'passwordRecovery.expiration': expiration } },
+      { runValidators: true },
     );
 
     return updateResult.modifiedCount > 0;
@@ -82,6 +84,7 @@ export class UsersRepository {
     await this.model.updateOne(
       { 'passwordRecovery.code': recoveryCode },
       { $set: { hash, 'passwordRecovery.code': null, 'passwordRecovery.expiration': null } },
+      { runValidators: true },
     );
   }
 
@@ -89,6 +92,7 @@ export class UsersRepository {
     await this.model.updateOne(
       { 'confirmation.code': code },
       { $set: { 'confirmation.isConfirmed': true, 'confirmation.expiration': null } },
+      { runValidators: true },
     );
     // return updateResult.modifiedCount > 0; // Будет false если пользователь не найден или уже подтвержден
   }
