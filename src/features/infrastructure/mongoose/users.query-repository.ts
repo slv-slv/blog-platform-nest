@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './users.schemas.js';
 import { Model } from 'mongoose';
-import { PagingParamsType } from '../../../../../common/types/paging-params.types.js';
 import {
   ConfirmationInfoType,
   CurrentUserType,
@@ -11,6 +10,7 @@ import {
   UserViewType,
 } from '../../types/users.types.js';
 import { ObjectId } from 'mongodb';
+import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class UsersQueryRepository {

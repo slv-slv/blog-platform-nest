@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { BlogsPaginatedType } from '../../types/blogs.types.js';
-import { PagingParamsType } from '../../../../../common/types/paging-params.types.js';
+import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog } from './blogs.schemas.js';
 

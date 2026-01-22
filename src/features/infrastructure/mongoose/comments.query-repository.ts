@@ -4,8 +4,8 @@ import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
 import { Comment } from './comments.schemas.js';
 import { CommentsPaginatedType, CommentViewType } from '../../types/comments.types.js';
-import { PagingParamsType } from '../../../../../common/types/paging-params.types.js';
-import { CommentLikesQueryRepository } from '../../../04-likes/comments/repositories/mongoose/comment-likes.query-repository.js';
+import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
+import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class CommentsQueryRepository {

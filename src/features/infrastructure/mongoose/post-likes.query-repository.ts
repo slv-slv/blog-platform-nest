@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { ExtendedLikesInfoViewType } from '../../../types/likes.types.js';
 import { PostLikesRepository } from './post-likes.repository.js';
-import { SETTINGS } from '../../../../../../settings.js';
 import { InjectModel } from '@nestjs/mongoose';
 import { PostLikes } from './post-likes.schemas.js';
 import { PostLikesType } from '../../types/post-likes.types.js';
 import { Model } from 'mongoose';
-import { UsersQueryRepository } from '../../../../../user-accounts/01-users/repositories/mongoose/users.query-repository.js';
+import { UsersQueryRepository } from './users.query-repository.js';
+import { ExtendedLikesInfoViewType } from '../../types/likes.types.js';
+import { SETTINGS } from '../../../settings.js';
 
 @Injectable()
 export class PostLikesQueryRepository {

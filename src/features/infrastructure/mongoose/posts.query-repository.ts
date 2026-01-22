@@ -4,8 +4,8 @@ import { Model } from 'mongoose';
 import { Post } from './posts.schemas.js';
 import { PostsPaginatedType, PostViewType } from '../../types/posts.types.js';
 import { ObjectId } from 'mongodb';
-import { PagingParamsType } from '../../../../../common/types/paging-params.types.js';
-import { PostLikesQueryRepository } from '../../../04-likes/posts/repositories/mongoose/post-likes.query-repository.js';
+import { PostLikesQueryRepository } from './post-likes.query-repository.js';
+import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class PostsQueryRepository {
