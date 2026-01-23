@@ -8,9 +8,9 @@ import {
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
-import { AuthService } from '../../features/application/auth.service.js';
-import { LoginInputDto } from '../../features/types/users.types.js';
-import { UsersQueryRepository } from '../../features/infrastructure/postgresql/users.query-repository.js';
+import { AuthService } from '../../modules/user-accounts/application/auth.service.js';
+import { LoginInputDto } from '../../modules/user-accounts/types/users.types.js';
+import { UsersQueryRepository } from '../../modules/user-accounts/infrastructure/sql/users.query-repository.js';
 
 @Injectable()
 export class CredentialsGuard implements CanActivate {
