@@ -47,7 +47,7 @@ export class PostsRepository {
     blogId: string,
     blogName: string,
     createdAt: string,
-  ): Promise<PostDtoType | null> {
+  ): Promise<PostDtoType> {
     const blogIdInt = parseInt(blogId);
 
     const result = await this.pool.query(
