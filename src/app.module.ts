@@ -74,7 +74,9 @@ export class AppModule implements NestModule, OnApplicationBootstrap, BeforeAppl
       .apply(ExtractUserId)
       .forRoutes(
         { path: 'blogs/:blogId/posts', method: RequestMethod.GET },
-        { path: 'posts{*path}', method: RequestMethod.GET },
+        { path: 'posts', method: RequestMethod.GET },
+        { path: 'posts/:id', method: RequestMethod.GET },
+        { path: 'posts/:postId/comments', method: RequestMethod.GET },
         { path: 'comments/:id', method: RequestMethod.GET },
       );
   }
