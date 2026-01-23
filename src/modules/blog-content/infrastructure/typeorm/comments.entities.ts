@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { Post } from './posts.entities.js';
-import { User } from './users.entities.js';
+import { User } from '../../../user-accounts/infrastructure/typeorm/users.entities.js';
 import { CommentDislike, CommentLike } from './comment-likes.entities.js';
 import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
 import { CommentDtoType, CommentViewType } from '../../types/comments.types.js';
