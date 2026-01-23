@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PostsRepository } from '../../../02-posts/repositories/postgresql/posts.repository.js';
-import { PostLikesRepository } from '../infrastructure/typeorm/post-likes.repository.js';
+import { PostsRepository } from '../infrastructure/postgresql/posts.repository.js';
+import { PostLikesRepository } from '../infrastructure/postgresql/post-likes.repository.js';
 import { ExtendedLikesInfoViewType, LikeStatus } from '../../types/likes.types.js';
 import { PostLikesType } from '../types/post-likes.types.js';
 

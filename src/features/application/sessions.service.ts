@@ -1,6 +1,6 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { SessionsRepository } from '../infrastructure/typeorm/sessions.repository.js';
-import { SessionsQueryRepository } from '../infrastructure/typeorm/sessions.query-repository.js';
+import { SessionsRepository } from '../infrastructure/postgresql/sessions.repository.js';
+import { SessionsQueryRepository } from '../infrastructure/postgresql/sessions.query-repository.js';
 import { validate as isUuid } from 'uuid';
 
 @Injectable()

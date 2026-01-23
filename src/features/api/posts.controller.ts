@@ -14,8 +14,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PostsService } from '../application/posts.service.js';
-import { PostsQueryRepository } from '../infrastructure/typeorm/posts.query-repository.js';
-import { PostsRepository } from '../infrastructure/typeorm/posts.repository.js';
+import { PostsQueryRepository } from '../infrastructure/postgresql/posts.query-repository.js';
+import { PostsRepository } from '../infrastructure/postgresql/posts.repository.js';
 import {
   CreatePostForBlogInputDto,
   GetPostsQueryParams,

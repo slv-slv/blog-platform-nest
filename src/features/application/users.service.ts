@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { UsersRepository } from '../infrastructure/typeorm/users.repository.js';
-import { UsersQueryRepository } from '../infrastructure/typeorm/users.query-repository.js';
+import { UsersRepository } from '../infrastructure/postgresql/users.repository.js';
+import { UsersQueryRepository } from '../infrastructure/postgresql/users.query-repository.js';
 import { AuthService } from '../../03-auth/application/auth.service.js';
 import { EmailService } from '../../../../notifications/email/email.service.js';
 import { ConfirmationInfoType, PasswordRecoveryInfoType, UserViewType } from '../types/users.types.js';

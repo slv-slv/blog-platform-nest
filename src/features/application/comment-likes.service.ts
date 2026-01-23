@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CommentsRepository } from '../../../03-comments/repositories/postgresql/comments.repository.js';
-import { CommentLikesRepository } from '../infrastructure/typeorm/comment-likes.repository.js';
+import { CommentsRepository } from '../infrastructure/postgresql/comments.repository.js';
+import { CommentLikesRepository } from '../infrastructure/postgresql/comment-likes.repository.js';
 import { LikesInfoViewType, LikeStatus } from '../../types/likes.types.js';
 import { CommentLikesType } from '../types/comment-likes.types.js';
 
