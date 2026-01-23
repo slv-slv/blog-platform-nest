@@ -3,10 +3,14 @@ import { PostsPaginatedType, PostViewType } from '../../types/posts.types.js';
 import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 import { pool } from '../../../common/constants.js';
 import { Pool } from 'pg';
+import { PostLikesQueryRepository } from './post-likes.query-repository.js';
 
 @Injectable()
 export class PostsQueryRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(
+    @Inject(pool) private readonly pool: Pool,
+    private readonly postLikesQueryRepository: PostLikesQueryRepository,
+  ) {}
 
   async findPost(id: string, userId: string | null): Promise<PostViewType | null> {
     const result = await this.pool.query(

@@ -3,10 +3,14 @@ import { CommentsPaginatedType, CommentViewType } from '../../types/comments.typ
 import { PagingParamsType } from '../../../common/types/paging-params.types.js';
 import { pool } from '../../../common/constants.js';
 import { Pool } from 'pg';
+import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
 
 @Injectable()
 export class CommentsQueryRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(
+    @Inject(pool) private readonly pool: Pool,
+    private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
+  ) {}
 
   async findComment(id: string, userId: string | null): Promise<CommentViewType | null> {
     const result = await this.pool.query(
