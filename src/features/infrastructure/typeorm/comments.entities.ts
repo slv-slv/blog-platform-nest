@@ -1,11 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
-import { Post } from '../../../02-posts/repositories/typeorm/posts.entities.js';
-import { User } from '../../../../user-accounts/01-users/repositories/typeorm/users.entities.js';
-import {
-  CommentDislike,
-  CommentLike,
-} from '../../../04-likes/comments/repositories/typeorm/comment-likes.entities.js';
-import { CommentLikesQueryRepository } from '../../../04-likes/comments/repositories/postgresql/comment-likes.query-repository.js';
+import { Post } from './posts.entities.js';
+import { User } from './users.entities.js';
+import { CommentDislike, CommentLike } from './comment-likes.entities.js';
+import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
 import { CommentDtoType, CommentViewType } from '../../types/comments.types.js';
 
 @Entity({ name: 'comments' })

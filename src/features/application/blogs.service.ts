@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { BlogsRepository } from '../infrastructure/postgresql/blogs.repository.js';
+import { BlogsRepository } from '../infrastructure/typeorm/blogs.repository.js';
 import { BlogType } from '../types/blogs.types.js';
 
 @Injectable()

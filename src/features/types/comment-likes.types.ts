@@ -1,5 +1,5 @@
 import { WithId } from 'mongodb';
-import { LikeRecordType, LikeStatus } from '../../types/likes.types.js';
+import { LikeRecordType } from './likes.types.js';
 
 export type CommentLikesType = {
   commentId: string;

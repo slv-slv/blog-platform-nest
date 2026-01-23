@@ -1,14 +1,14 @@
 import { Response } from 'express';
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { UsersService } from '../application/users.service.js';
-import { UsersQueryRepository } from '../infrastructure/postgresql/users.query-repository.js';
+import { UsersQueryRepository } from '../infrastructure/typeorm/users.query-repository.js';
 import {
   CreateUserInputDto,
   GetUsersQueryParams,
   UsersPaginatedType,
   UserViewType,
 } from '../types/users.types.js';
-import { BasicAuthGuard } from '../../../../common/guards/basic-auth.guard.js';
+import { BasicAuthGuard } from '../../common/guards/basic-auth.guard.js';
 
 @Controller('sa/users')
 @UseGuards(BasicAuthGuard)

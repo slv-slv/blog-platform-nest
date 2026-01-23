@@ -8,10 +8,10 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { Blog } from '../../../01-blogs/repositories/typeorm/blogs.entities.js';
-import { Comment } from '../../../03-comments/repositories/typeorm/comments.entities.js';
-import { PostDislike, PostLike } from '../../../04-likes/posts/repositories/typeorm/post-likes.entities.js';
-import { PostLikesQueryRepository } from '../../../04-likes/posts/repositories/postgresql/post-likes.query-repository.js';
+import { Blog } from './blogs.entities.js';
+import { Comment } from './comments.entities.js';
+import { PostDislike, PostLike } from './post-likes.entities.js';
+import { PostLikesQueryRepository } from './post-likes.query-repository.js';
 import { PostDtoType, PostViewType } from '../../types/posts.types.js';
 
 @Entity({ name: 'posts' })

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { LikeStatus } from '../../../types/likes.types.js';
-import { pool } from '../../../../../../common/constants.js';
+import { LikeStatus } from '../../types/likes.types.js';
+import { pool } from '../../../common/constants.js';
 import { Pool } from 'pg';
 
 @Injectable()

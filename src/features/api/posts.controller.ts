@@ -14,8 +14,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PostsService } from '../application/posts.service.js';
-import { PostsQueryRepository } from '../infrastructure/postgresql/posts.query-repository.js';
-import { PostsRepository } from '../infrastructure/postgresql/posts.repository.js';
+import { PostsQueryRepository } from '../infrastructure/typeorm/posts.query-repository.js';
+import { PostsRepository } from '../infrastructure/typeorm/posts.repository.js';
 import {
   CreatePostForBlogInputDto,
   GetPostsQueryParams,
@@ -29,12 +29,12 @@ import {
   CreateCommentInputDto,
   GetCommentsQueryParams,
 } from '../types/comments.types.js';
-import { CommentsQueryRepository } from '../../03-comments/repositories/postgresql/comments.query-repository.js';
-import { CommentsService } from '../../03-comments/application/comments.service.js';
-import { SetLikeStatusDto } from '../../04-likes/types/likes.types.js';
-import { PostLikesService } from '../../04-likes/posts/application/post-likes.service.js';
-import { BasicAuthGuard } from '../../../../common/guards/basic-auth.guard.js';
-import { AccessTokenGuard } from '../../../../common/guards/access-token.guard.js';
+import { PostLikesService } from '../application/post-likes.service.js';
+import { CommentsService } from '../application/comments.service.js';
+import { CommentsQueryRepository } from '../infrastructure/postgresql/comments.query-repository.js';
+import { BasicAuthGuard } from '../../common/guards/basic-auth.guard.js';
+import { AccessTokenGuard } from '../../common/guards/access-token.guard.js';
+import { SetLikeStatusDto } from '../types/likes.types.js';
 
 @Controller('posts')
 export class PostsController {

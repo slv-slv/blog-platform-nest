@@ -11,13 +11,12 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-
 import { CommentsService } from '../application/comments.service.js';
-import { CommentsQueryRepository } from '../infrastructure/postgresql/comments.query-repository.js';
+import { CommentsQueryRepository } from '../infrastructure/typeorm/comments.query-repository.js';
 import { CommentViewType, UpdateCommentInputDto } from '../types/comments.types.js';
-import { CommentLikesService } from '../../04-likes/comments/application/comment-likes.service.js';
-import { SetLikeStatusDto } from '../../04-likes/types/likes.types.js';
-import { AccessTokenGuard } from '../../../../common/guards/access-token.guard.js';
+import { CommentLikesService } from '../application/comment-likes.service.js';
+import { AccessTokenGuard } from '../../common/guards/access-token.guard.js';
+import { SetLikeStatusDto } from '../types/likes.types.js';
 
 @Controller('comments')
 export class CommentsController {

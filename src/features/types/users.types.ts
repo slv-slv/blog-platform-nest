@@ -1,7 +1,7 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
 import { WithId } from 'mongodb';
-import { BasicPagingParams } from '../../../../common/types/paging-params.types.js';
-import { Trim } from '../../../../common/decorators/trim.js';
+import { Trim } from '../../common/decorators/trim.js';
+import { BasicPagingParams } from '../../common/types/paging-params.types.js';
 
 export type UserType = {
   id: string;

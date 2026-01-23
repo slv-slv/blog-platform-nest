@@ -1,5 +1,5 @@
 import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
-import { Post } from '../../../02-posts/repositories/typeorm/posts.entities.js';
+import { Post } from './posts.entities.js';
 import { BlogType } from '../../types/blogs.types.js';
 
 @Entity({ name: 'blogs' })

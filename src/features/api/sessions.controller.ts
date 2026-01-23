@@ -1,8 +1,8 @@
 import { Controller, Delete, Get, HttpCode, Inject, Param, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { SessionsService } from '../application/sessions.service.js';
-import { SessionsQueryRepository } from '../infrastructure/postgresql/sessions.query-repository.js';
-import { RefreshTokenGuard } from '../../../../common/guards/refresh-token.guard.js';
+import { SessionsQueryRepository } from '../infrastructure/typeorm/sessions.query-repository.js';
+import { RefreshTokenGuard } from '../../common/guards/refresh-token.guard.js';
 
 @Controller('security/devices')
 export class SessionsController {

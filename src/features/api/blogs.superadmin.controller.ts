@@ -13,8 +13,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { BlogsQueryRepository } from '../infrastructure/postgresql/blogs.query-repository.js';
-import { BlogsRepository } from '../infrastructure/postgresql/blogs.repository.js';
+import { BlogsQueryRepository } from '../infrastructure/typeorm/blogs.query-repository.js';
+import { BlogsRepository } from '../infrastructure/typeorm/blogs.repository.js';
 import {
   BlogsPaginatedType,
   BlogType,
@@ -30,9 +30,9 @@ import {
   PostViewType,
   UpdatePostInputDto,
 } from '../types/posts.types.js';
-import { PostsService } from '../../02-posts/application/posts.service.js';
-import { PostsQueryRepository } from '../infrastructure/postgresql/posts.query-repository.js';
-import { BasicAuthGuard } from '../../../../common/guards/basic-auth.guard.js';
+import { PostsQueryRepository } from '../infrastructure/typeorm/posts.query-repository.js';
+import { PostsService } from '../application/posts.service.js';
+import { BasicAuthGuard } from '../../common/guards/basic-auth.guard.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)

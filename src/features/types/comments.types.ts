@@ -1,8 +1,8 @@
 import { WithId } from 'mongodb';
-import { LikesInfoViewType } from '../../04-likes/types/likes.types.js';
 import { IsEnum, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
-import { BasicPagingParams } from '../../../../common/types/paging-params.types.js';
-import { Trim } from '../../../../common/decorators/trim.js';
+import { LikesInfoViewType } from './likes.types.js';
+import { Trim } from '../../common/decorators/trim.js';
+import { BasicPagingParams } from '../../common/types/paging-params.types.js';
 
 export type CommentDtoType = {
   id: string;

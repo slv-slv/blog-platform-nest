@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CommentLikesRepository } from './comment-likes.repository.js';
-import { LikesInfoViewType } from '../../../types/likes.types.js';
+import { LikesInfoViewType } from '../../types/likes.types.js';
 
 @Injectable()
 export class CommentLikesQueryRepository {

@@ -1,7 +1,7 @@
 import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
 import { WithId } from 'mongodb';
-import { BasicPagingParams } from '../../../../common/types/paging-params.types.js';
-import { Trim } from '../../../../common/decorators/trim.js';
+import { Trim } from '../../common/decorators/trim.js';
+import { BasicPagingParams } from '../../common/types/paging-params.types.js';
 
 export type BlogType = {
   id: string;

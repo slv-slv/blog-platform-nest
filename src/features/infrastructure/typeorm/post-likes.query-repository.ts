@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ExtendedLikesInfoViewType } from '../../../types/likes.types.js';
+import { ExtendedLikesInfoViewType } from '../../types/likes.types.js';
 import { PostLikesRepository } from './post-likes.repository.js';
-import { SETTINGS } from '../../../../../../settings.js';
-import { UsersQueryRepository } from '../../../../../user-accounts/01-users/repositories/postgresql/users.query-repository.js';
-import { pool } from '../../../../../../common/constants.js';
+import { SETTINGS } from '../../../settings.js';
+import { UsersQueryRepository } from '../postgresql/users.query-repository.js';
+import { pool } from '../../../common/constants.js';
 import { Pool } from 'pg';
 
 @Injectable()

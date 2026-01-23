@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
-import { Comment } from '../../../../03-comments/repositories/typeorm/comments.entities.js';
-import { User } from '../../../../../user-accounts/01-users/repositories/typeorm/users.entities.js';
+import { Comment } from './comments.entities.js';
+import { User } from './users.entities.js';
 
 @Entity({ name: 'comment_likes' })
 export class CommentLike {
