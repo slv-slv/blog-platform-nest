@@ -22,7 +22,6 @@ import { PostgresModule } from './common/dynamic-modules/postgres.module.js';
 import { PG_POOL } from './common/constants.js';
 import { Pool } from 'pg';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -50,15 +49,6 @@ import { MailerModule } from '@nestjs-modules/mailer';
       secret: SETTINGS.JWT_PRIVATE_KEY,
     }),
     ThrottlerModule.forRoot({ throttlers: [{ ttl: 10000, limit: 5 }] }),
-    MailerModule.forRoot({
-      transport: {
-        host: SETTINGS.SMTP_SERVER,
-        auth: { user: SETTINGS.EMAIL_CREDENTIALS.user, pass: SETTINGS.EMAIL_CREDENTIALS.password },
-        port: 465,
-        secure: true,
-      },
-      defaults: { from: '"Vyacheslav Solovev" <slvsl.spb@gmail.com>' },
-    }),
     BlogContentModule,
     UserAccountsModule,
     NotificationsModule,
