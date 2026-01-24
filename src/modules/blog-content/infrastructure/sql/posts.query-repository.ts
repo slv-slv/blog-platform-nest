@@ -2,13 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PostsPaginatedType, PostViewType } from '../../types/posts.types.js';
 import { Pool } from 'pg';
 import { PostLikesQueryRepository } from './post-likes.query-repository.js';
-import { pool } from '../../../../common/constants.js';
+import { PG_POOL } from '../../../../common/constants.js';
 import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class PostsQueryRepository {
   constructor(
-    @Inject(pool) private readonly pool: Pool,
+    @Inject(PG_POOL) private readonly pool: Pool,
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 

@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DeviceViewType } from '../../types/sessions.types.js';
-import { pool } from '../../../../common/constants.js';
+import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 
 @Injectable()
 export class SessionsRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async findDevice(deviceId: string): Promise<DeviceViewType | null> {
     const result = await this.pool.query(

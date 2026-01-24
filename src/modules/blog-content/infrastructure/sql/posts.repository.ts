@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PostDtoType } from '../../types/posts.types.js';
 import { Pool } from 'pg';
-import { pool } from '../../../../common/constants.js';
+import { PG_POOL } from '../../../../common/constants.js';
 
 @Injectable()
 export class PostsRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async findPost(id: string): Promise<PostDtoType | null> {
     const result = await this.pool.query(

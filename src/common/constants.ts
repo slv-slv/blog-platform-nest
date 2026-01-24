@@ -1,2 +1,2 @@
 export const pgClient = 'pgClient';
-export const pool = 'pool';
+export const PG_POOL = 'PG_POOL';

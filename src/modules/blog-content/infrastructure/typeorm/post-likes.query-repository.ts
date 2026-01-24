@@ -3,13 +3,13 @@ import { ExtendedLikesInfoViewType } from '../../types/likes.types.js';
 import { PostLikesRepository } from './post-likes.repository.js';
 import { SETTINGS } from '../../../../settings.js';
 import { UsersQueryRepository } from '../../../user-accounts/infrastructure/sql/users.query-repository.js';
-import { pool } from '../../../../common/constants.js';
+import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 
 @Injectable()
 export class PostLikesQueryRepository {
   constructor(
-    @Inject(pool) private readonly pool: Pool,
+    @Inject(PG_POOL) private readonly pool: Pool,
     private readonly postLikesRepository: PostLikesRepository,
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}

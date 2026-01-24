@@ -5,12 +5,12 @@ import {
   UserType,
   UserViewType,
 } from '../../types/users.types.js';
-import { pool } from '../../../../common/constants.js';
+import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 
 @Injectable()
 export class UsersRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async findUser(loginOrEmail: string): Promise<UserType | null> {
     const likeTerm = `%${loginOrEmail}%`;

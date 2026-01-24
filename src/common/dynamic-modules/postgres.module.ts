@@ -1,5 +1,5 @@
 import { DynamicModule, Global, Module, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { pgClient, pool } from '../constants.js';
+import { pgClient, PG_POOL } from '../constants.js';
 import { Client, ClientConfig, Pool } from 'pg';
 
 @Global()
@@ -23,12 +23,12 @@ export class PostgresModule {
       module: PostgresModule,
       providers: [
         {
-          provide: pool,
+          provide: PG_POOL,
           useFactory: (pgBaseConfig) => new Pool({ ...pgBaseConfig, database, ssl: true }),
           inject: ['PG_BASE_CONFIG'],
         },
       ],
-      exports: [pool],
+      exports: [PG_POOL],
     };
   }
 }

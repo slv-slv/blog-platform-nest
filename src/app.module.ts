@@ -19,7 +19,7 @@ import { ExtractUserId } from './common/middlewares/extract-userid.js';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { PostgresModule } from './common/dynamic-modules/postgres.module.js';
-import { pool } from './common/constants.js';
+import { PG_POOL } from './common/constants.js';
 import { Pool } from 'pg';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
@@ -67,7 +67,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
   providers: [AppService],
 })
 export class AppModule implements NestModule, OnApplicationBootstrap, BeforeApplicationShutdown {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   configure(consumer: MiddlewareConsumer) {
     consumer

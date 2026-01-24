@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { BlogType } from '../../types/blogs.types.js';
 import { Pool } from 'pg';
-import { pool } from '../../../../common/constants.js';
+import { PG_POOL } from '../../../../common/constants.js';
 
 @Injectable()
 export class BlogsRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async findBlog(id: string): Promise<BlogType | null> {
     const result = await this.pool.query(

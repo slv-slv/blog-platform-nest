@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { Controller, Delete, Get, HttpCode, Inject } from '@nestjs/common';
 import { AppService } from './app.service.js';
 import { InjectConnection } from '@nestjs/mongoose';
-import { pool } from './common/constants.js';
+import { PG_POOL } from './common/constants.js';
 import { Pool } from 'pg';
 import { EntityManager } from 'typeorm';
 import { InjectEntityManager } from '@nestjs/typeorm';
@@ -12,7 +12,7 @@ export class AppController {
   constructor(
     @InjectConnection() private readonly connection: mongoose.Connection,
     private readonly appService: AppService,
-    @Inject(pool) private readonly pool: Pool,
+    @Inject(PG_POOL) private readonly pool: Pool,
     @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {}
 

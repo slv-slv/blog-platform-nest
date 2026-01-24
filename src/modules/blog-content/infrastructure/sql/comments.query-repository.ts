@@ -2,13 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CommentsPaginatedType, CommentViewType } from '../../types/comments.types.js';
 import { Pool } from 'pg';
 import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
-import { pool } from '../../../../common/constants.js';
+import { PG_POOL } from '../../../../common/constants.js';
 import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
-    @Inject(pool) private readonly pool: Pool,
+    @Inject(PG_POOL) private readonly pool: Pool,
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 

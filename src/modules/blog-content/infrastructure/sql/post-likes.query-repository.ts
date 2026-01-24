@@ -2,13 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ExtendedLikesInfoViewType } from '../../types/likes.types.js';
 import { PostLikesRepository } from './post-likes.repository.js';
 import { Pool } from 'pg';
-import { pool } from '../../../../common/constants.js';
+import { PG_POOL } from '../../../../common/constants.js';
 import { SETTINGS } from '../../../../settings.js';
 
 @Injectable()
 export class PostLikesQueryRepository {
   constructor(
-    @Inject(pool) private readonly pool: Pool,
+    @Inject(PG_POOL) private readonly pool: Pool,
     private readonly postLikesRepository: PostLikesRepository,
   ) {}
 

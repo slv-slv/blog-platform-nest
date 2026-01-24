@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CommentDtoType } from '../../types/comments.types.js';
 import { Pool } from 'pg';
-import { pool } from '../../../../common/constants.js';
+import { PG_POOL } from '../../../../common/constants.js';
 
 @Injectable()
 export class CommentsRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async findComment(id: string): Promise<CommentDtoType | null> {
     const result = await this.pool.query(

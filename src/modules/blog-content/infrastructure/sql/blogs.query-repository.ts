@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { BlogsPaginatedType } from '../../types/blogs.types.js';
 import { Pool } from 'pg';
-import { pool } from '../../../../common/constants.js';
+import { PG_POOL } from '../../../../common/constants.js';
 import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class BlogsQueryRepository {
-  constructor(@Inject(pool) private readonly pool: Pool) {}
+  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getAllBlogs(
     searchNameTerm: string | null,
