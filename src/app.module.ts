@@ -31,8 +31,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       host: SETTINGS.POSTGRES_SETTINGS.URL,
       user: SETTINGS.POSTGRES_SETTINGS.USER,
       password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
+      database: 'blog-platform',
+      ssl: true,
     }),
-    PostgresModule.forFeature('blog-platform'),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: SETTINGS.POSTGRES_SETTINGS.URL,

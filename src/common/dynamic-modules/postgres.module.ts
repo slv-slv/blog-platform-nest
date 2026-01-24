@@ -1,31 +1,17 @@
 import { DynamicModule, Global, Module, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { pgClient, PG_POOL } from '../constants.js';
-import { Client, ClientConfig, Pool } from 'pg';
+import { PG_POOL } from '../constants.js';
+import { Pool, PoolConfig } from 'pg';
 
 @Global()
 @Module({})
 export class PostgresModule {
-  static forRoot(pgBaseConfig: { host: string; user: string; password: string }): DynamicModule {
-    return {
-      module: PostgresModule,
-      providers: [
-        {
-          provide: 'PG_BASE_CONFIG',
-          useValue: pgBaseConfig,
-        },
-      ],
-      exports: ['PG_BASE_CONFIG'],
-    };
-  }
-
-  static forFeature(database: string): DynamicModule {
+  static forRoot(config: PoolConfig): DynamicModule {
     return {
       module: PostgresModule,
       providers: [
         {
           provide: PG_POOL,
-          useFactory: (pgBaseConfig) => new Pool({ ...pgBaseConfig, database, ssl: true }),
-          inject: ['PG_BASE_CONFIG'],
+          useValue: new Pool(config),
         },
       ],
       exports: [PG_POOL],
