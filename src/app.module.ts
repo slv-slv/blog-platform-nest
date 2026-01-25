@@ -18,8 +18,8 @@ import { ExtractUserId } from './common/middlewares/extract-userid.js';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { DatabaseModule } from './modules/database/database.module.js';
-import { PG_POOL } from './common/constants.js';
-import { Pool } from 'pg';
+import { APP_FILTER } from '@nestjs/core';
+import { DomainExceptionFilter } from './common/exception-filters/domain-exception-filter.js';
 
 @Module({
   imports: [
@@ -36,7 +36,13 @@ import { Pool } from 'pg';
     DatabaseModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: DomainExceptionFilter,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
