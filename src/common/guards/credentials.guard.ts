@@ -19,8 +19,9 @@ export class CredentialsGuard implements CanActivate {
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req: Request = context.switchToHttp().getRequest();
-    const res: Response = context.switchToHttp().getResponse();
+    const httpCtx = context.switchToHttp();
+    const req: Request = httpCtx.getRequest();
+    const res: Response = httpCtx.getResponse();
 
     const loginInputDto = plainToInstance(LoginInputDto, req.body);
     const errorsMessages = await validate(loginInputDto);

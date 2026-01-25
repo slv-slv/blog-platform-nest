@@ -8,6 +8,7 @@ export class EmailConfirmationGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const res: Response = context.switchToHttp().getResponse();
+
     const user = res.locals.user;
     const email = user.email;
 
