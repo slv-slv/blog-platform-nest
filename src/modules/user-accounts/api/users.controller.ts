@@ -17,6 +17,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
+
   @Get()
   async getAllUsers(
     @Query() query: GetUsersQueryParams,

@@ -5,7 +5,9 @@ import { BlogsRepository } from '../infrastructure/sql/blogs.repository.js';
 import { BlogsPaginatedType, BlogType, GetBlogsQueryParams } from '../types/blogs.types.js';
 import { GetPostsQueryParams, PostsPaginatedType } from '../types/posts.types.js';
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
+import { Public } from '../../../common/decorators/public.js';
 
+Public();
 @Controller('blogs')
 export class BlogsController {
   constructor(

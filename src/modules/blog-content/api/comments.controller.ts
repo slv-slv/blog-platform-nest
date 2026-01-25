@@ -18,8 +18,10 @@ import { CommentLikesService } from '../application/comment-likes.service.js';
 
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
+import { Public } from '../../../common/decorators/public.js';
 
 @Controller('comments')
+@UseGuards(AccessTokenGuard)
 export class CommentsController {
   constructor(
     private readonly commentsService: CommentsService,
@@ -28,6 +30,7 @@ export class CommentsController {
   ) {}
 
   @Get(':id')
+  @Public()
   async findComment(
     @Param('id') id: string,
     @Res({ passthrough: true }) res: Response,
@@ -41,7 +44,6 @@ export class CommentsController {
 
   @Put(':commentId')
   @HttpCode(204)
-  @UseGuards(AccessTokenGuard)
   async updateComment(
     @Body() body: UpdateCommentInputDto,
     @Param('commentId') commentId: string,
@@ -55,7 +57,6 @@ export class CommentsController {
 
   @Delete(':commentId')
   @HttpCode(204)
-  @UseGuards(AccessTokenGuard)
   async deleteComment(@Param('commentId') commentId: string, @Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
 
@@ -64,7 +65,6 @@ export class CommentsController {
 
   @Put(':commentId/like-status')
   @HttpCode(204)
-  @UseGuards(AccessTokenGuard)
   async setLikeStatus(
     @Body() body: SetLikeStatusDto,
     @Param('commentId') commentId: string,
