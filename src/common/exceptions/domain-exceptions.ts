@@ -47,21 +47,21 @@ export abstract class DomainException extends Error {
 }
 
 // Blog content
-export class DomainBlogNotFoundException extends DomainException {
+export class BlogNotFoundDomainException extends DomainException {
   constructor(message = 'Blog not found') {
     super(message);
     this.statusCode = DomainExceptionCode.BLOG_NOT_FOUND;
   }
 }
 
-export class DomainPostNotFoundException extends DomainException {
+export class PostNotFoundDomainException extends DomainException {
   constructor(message = 'Post not found') {
     super(message);
     this.statusCode = DomainExceptionCode.POST_NOT_FOUND;
   }
 }
 
-export class DomainCommentNotFoundException extends DomainException {
+export class CommentNotFoundDomainException extends DomainException {
   constructor(message = 'Comment not found') {
     super(message);
     this.statusCode = DomainExceptionCode.COMMENT_NOT_FOUND;
@@ -69,21 +69,21 @@ export class DomainCommentNotFoundException extends DomainException {
 }
 
 // Security / sessions
-export class DomainDeviceNotFoundException extends DomainException {
+export class DeviceNotFoundDomainException extends DomainException {
   constructor(message = 'Device not found') {
     super(message);
     this.statusCode = DomainExceptionCode.DEVICE_NOT_FOUND;
   }
 }
 
-export class DomainSessionNotActiveException extends DomainException {
+export class SessionNotActiveDomainException extends DomainException {
   constructor(message = 'No active session found') {
     super(message);
     this.statusCode = DomainExceptionCode.SESSION_NOT_ACTIVE;
   }
 }
 
-export class DomainUserAlreadyLoggedInException extends DomainException {
+export class UserAlreadyLoggedInDomainException extends DomainException {
   constructor(message = 'The user is already logged in') {
     super(message);
     this.statusCode = DomainExceptionCode.USER_ALREADY_LOGGED_IN;
@@ -91,21 +91,21 @@ export class DomainUserAlreadyLoggedInException extends DomainException {
 }
 
 // Users
-export class DomainUserNotFoundException extends DomainException {
+export class UserNotFoundDomainException extends DomainException {
   constructor(message = 'User not found') {
     super(message);
     this.statusCode = DomainExceptionCode.USER_NOT_FOUND;
   }
 }
 
-export class DomainLoginAlreadyExistsException extends DomainException {
+export class LoginAlreadyExistsDomainException extends DomainException {
   constructor(message = 'Login already exists') {
     super(message);
     this.statusCode = DomainExceptionCode.LOGIN_ALREADY_EXISTS;
   }
 }
 
-export class DomainEmailAlreadyExistsException extends DomainException {
+export class EmailAlreadyExistsDomainException extends DomainException {
   constructor(message = 'Email already exists') {
     super(message);
     this.statusCode = DomainExceptionCode.EMAIL_ALREADY_EXISTS;
@@ -113,49 +113,49 @@ export class DomainEmailAlreadyExistsException extends DomainException {
 }
 
 // Auth
-export class DomainCredentialsIncorrectException extends DomainException {
+export class CredentialsIncorrectDomainException extends DomainException {
   constructor(message = 'Incorrect login/password') {
     super(message);
     this.statusCode = DomainExceptionCode.CREDENTIALS_INCORRECT;
   }
 }
 
-export class DomainEmailNotConfirmedException extends DomainException {
+export class EmailNotConfirmedDomainException extends DomainException {
   constructor(message = 'Email has not been confirmed') {
     super(message);
     this.statusCode = DomainExceptionCode.EMAIL_NOT_CONFIRMED;
   }
 }
 
-export class DomainEmailAlreadyConfirmedException extends DomainException {
+export class EmailAlreadyConfirmedDomainException extends DomainException {
   constructor(message = 'Email already confirmed') {
     super(message);
     this.statusCode = DomainExceptionCode.EMAIL_ALREADY_CONFIRMED;
   }
 }
 
-export class DomainConfirmationCodeInvalidException extends DomainException {
+export class ConfirmationCodeInvalidDomainException extends DomainException {
   constructor(message = 'Invalid confirmation code') {
     super(message);
     this.statusCode = DomainExceptionCode.CONFIRMATION_CODE_INVALID;
   }
 }
 
-export class DomainConfirmationCodeExpiredException extends DomainException {
+export class ConfirmationCodeExpiredDomainException extends DomainException {
   constructor(message = 'The confirmation code has expired') {
     super(message);
     this.statusCode = DomainExceptionCode.CONFIRMATION_CODE_EXPIRED;
   }
 }
 
-export class DomainRecoveryCodeInvalidException extends DomainException {
+export class RecoveryCodeInvalidDomainException extends DomainException {
   constructor(message = 'Invalid recovery code') {
     super(message);
     this.statusCode = DomainExceptionCode.RECOVERY_CODE_INVALID;
   }
 }
 
-export class DomainRecoveryCodeExpiredException extends DomainException {
+export class RecoveryCodeExpiredDomainException extends DomainException {
   constructor(message = 'The recovery code has expired') {
     super(message);
     this.statusCode = DomainExceptionCode.RECOVERY_CODE_EXPIRED;
@@ -163,7 +163,7 @@ export class DomainRecoveryCodeExpiredException extends DomainException {
 }
 
 // Access
-export class DomainAccessDeniedException extends DomainException {
+export class AccessDeniedDomainException extends DomainException {
   constructor(message = 'Access denied') {
     super(message);
     this.statusCode = DomainExceptionCode.ACCESS_DENIED;
