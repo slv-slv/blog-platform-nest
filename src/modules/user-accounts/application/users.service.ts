@@ -1,10 +1,21 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../infrastructure/sql/users.repository.js';
 import { UsersQueryRepository } from '../infrastructure/sql/users.query-repository.js';
 import { AuthService } from './auth.service.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
 import { ConfirmationInfoType, PasswordRecoveryInfoType, UserViewType } from '../types/users.types.js';
 import { SETTINGS } from '../../../settings.js';
+import {
+  ConfirmationCodeExpiredDomainException,
+  ConfirmationCodeInvalidDomainException,
+  EmailAlreadyConfirmedDomainException,
+  EmailAlreadyExistsDomainException,
+  IncorrectEmailDomainException,
+  LoginAlreadyExistsDomainException,
+  RecoveryCodeExpiredDomainException,
+  RecoveryCodeInvalidDomainException,
+  UserNotFoundDomainException,
+} from '../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class UsersService {
@@ -25,14 +36,8 @@ export class UsersService {
     },
     passwordRecovery: PasswordRecoveryInfoType = { code: null, expiration: null },
   ): Promise<UserViewType> {
-    if (await this.isLoginExists(login))
-      throw new BadRequestException({
-        errorsMessages: [{ message: 'Login already exists', field: 'login' }],
-      });
-    if (await this.isEmailExists(email))
-      throw new BadRequestException({
-        errorsMessages: [{ message: 'Email already exists', field: 'email' }],
-      });
+    if (await this.isLoginExists(login)) throw new LoginAlreadyExistsDomainException();
+    if (await this.isEmailExists(email)) throw new EmailAlreadyExistsDomainException();
 
     const hash = await this.authService.hashPassword(password);
     const createdAt = new Date();
@@ -71,14 +76,12 @@ export class UsersService {
 
   async resendConfirmationCode(email: string): Promise<void> {
     if (!(await this.usersRepository.findUser(email))) {
-      throw new BadRequestException({ errorsMessages: [{ message: 'Incorrect email', field: 'email' }] });
+      throw new IncorrectEmailDomainException();
       // return;
     }
 
     if (await this.isConfirmed(email)) {
-      throw new BadRequestException({
-        errorsMessages: [{ message: 'Email already confirmed', field: 'email' }],
-      });
+      throw new EmailAlreadyConfirmedDomainException();
     }
 
     const code = crypto.randomUUID();
@@ -111,24 +114,18 @@ export class UsersService {
   async confirmUser(code: string): Promise<void> {
     const confirmationInfo = await this.usersRepository.getConfirmationInfo(code);
     if (!confirmationInfo) {
-      throw new BadRequestException({
-        errorsMessages: [{ message: 'Invalid confirmation code', field: 'code' }],
-      });
+      throw new ConfirmationCodeInvalidDomainException();
     }
 
     if (confirmationInfo.isConfirmed) {
-      throw new BadRequestException({
-        errorsMessages: [{ message: 'Email already confirmed', field: 'code' }],
-      });
+      throw new EmailAlreadyConfirmedDomainException();
     }
 
     const expirationDate = new Date(confirmationInfo.expiration!);
     const currentDate = new Date();
 
     if (expirationDate < currentDate) {
-      throw new BadRequestException({
-        errorsMessages: [{ message: 'The confirmation code has expired', field: 'code' }],
-      });
+      throw new ConfirmationCodeExpiredDomainException();
     }
 
     await this.usersRepository.confirmUser(code);
@@ -138,18 +135,14 @@ export class UsersService {
     const passwordRecoveryInfo = await this.usersRepository.getPasswordRecoveryInfo(recoveryCode);
 
     if (!passwordRecoveryInfo) {
-      throw new BadRequestException({
-        errorsMessages: [{ message: 'Invalid recovery code', field: 'code' }],
-      });
+      throw new RecoveryCodeInvalidDomainException();
     }
 
     const expirationDate = passwordRecoveryInfo.expiration!;
     const currentDate = new Date();
 
     if (expirationDate < currentDate) {
-      throw new BadRequestException({
-        errorsMessages: [{ message: 'The recovery code has expired', field: 'code' }],
-      });
+      throw new RecoveryCodeExpiredDomainException();
     }
 
     const hash = await this.authService.hashPassword(newPassword);
@@ -158,7 +151,7 @@ export class UsersService {
 
   async deleteUser(id: string): Promise<void> {
     const isDeleted = await this.usersRepository.deleteUser(id);
-    if (!isDeleted) throw new NotFoundException('User not found');
+    if (!isDeleted) throw new UserNotFoundDomainException();
   }
 
   async isLoginExists(login: string): Promise<boolean> {

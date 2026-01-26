@@ -1,7 +1,11 @@
-import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { SessionsRepository } from '../infrastructure/sql/sessions.repository.js';
 import { SessionsQueryRepository } from '../infrastructure/sql/sessions.query-repository.js';
 import { validate as isUuid } from 'uuid';
+import {
+  AccessDeniedDomainException,
+  DeviceNotFoundDomainException,
+} from '../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class SessionsService {
@@ -27,17 +31,17 @@ export class SessionsService {
 
   async deleteDevice(userId: string, deviceId: string): Promise<void> {
     if (!isUuid(deviceId)) {
-      throw new NotFoundException('Device not found');
+      throw new DeviceNotFoundDomainException();
     }
 
     const device = await this.sessionsRepository.findDevice(deviceId);
     if (!device) {
-      throw new NotFoundException('Device not found');
+      throw new DeviceNotFoundDomainException();
     }
 
     const deviceOwner = await this.sessionsRepository.getDeviceOwner(deviceId);
     if (deviceOwner !== userId) {
-      throw new ForbiddenException('Access denied');
+      throw new AccessDeniedDomainException();
     }
 
     await this.sessionsRepository.deleteDevice(deviceId);

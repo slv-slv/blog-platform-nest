@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PostsRepository } from '../infrastructure/sql/posts.repository.js';
 import { PostLikesRepository } from '../infrastructure/sql/post-likes.repository.js';
 import { PostLikesType } from '../types/post-likes.types.js';
 import { ExtendedLikesInfoViewType, LikeStatus } from '../types/likes.types.js';
+import { PostNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class PostLikesService {
@@ -12,7 +13,7 @@ export class PostLikesService {
   ) {}
   async setLikeStatus(postId: string, userId: string, likeStatus: LikeStatus): Promise<void> {
     const post = await this.postsRepository.findPost(postId);
-    if (!post) throw new NotFoundException('Post not found');
+    if (!post) throw new PostNotFoundDomainException();
 
     const currentLikeStatus = await this.postLikesRepository.getLikeStatus(postId, userId);
     if (likeStatus === currentLikeStatus) return;

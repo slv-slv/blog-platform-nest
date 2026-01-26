@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BlogsRepository } from '../infrastructure/sql/blogs.repository.js';
 import { BlogType } from '../types/blogs.types.js';
+import { BlogNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class BlogsService {
@@ -14,11 +15,11 @@ export class BlogsService {
 
   async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<void> {
     const updateResult = await this.blogsRepository.updateBlog(id, name, description, websiteUrl);
-    if (!updateResult) throw new NotFoundException('Blog not found');
+    if (!updateResult) throw new BlogNotFoundDomainException();
   }
 
   async deleteBlog(id: string): Promise<void> {
     const deleteResult = await this.blogsRepository.deleteBlog(id);
-    if (!deleteResult) throw new NotFoundException('Blog not found');
+    if (!deleteResult) throw new BlogNotFoundDomainException();
   }
 }

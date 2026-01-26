@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CommentsRepository } from '../infrastructure/sql/comments.repository.js';
 import { CommentLikesRepository } from '../infrastructure/sql/comment-likes.repository.js';
 import { CommentLikesType } from '../types/comment-likes.types.js';
 import { LikesInfoViewType, LikeStatus } from '../types/likes.types.js';
+import { CommentNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class CommentLikesService {
@@ -13,7 +14,7 @@ export class CommentLikesService {
 
   async setLikeStatus(commentId: string, userId: string, likeStatus: LikeStatus): Promise<void> {
     const comment = await this.commentsRepository.findComment(commentId);
-    if (!comment) throw new NotFoundException('Comment not found');
+    if (!comment) throw new CommentNotFoundDomainException();
 
     const currentLikeStatus = await this.commentLikesRepository.getLikeStatus(commentId, userId);
     if (likeStatus === currentLikeStatus) return;
