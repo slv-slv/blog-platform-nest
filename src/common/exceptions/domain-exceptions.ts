@@ -134,7 +134,7 @@ export class CredentialsIncorrectDomainException extends DomainException {
 }
 
 export class UnauthorizedDomainException extends DomainException {
-  constructor(message = 'Access denied') {
+  constructor(message = 'Authentication required') {
     super(message);
     this.statusCode = DomainExceptionStatus.UNAUTHORIZED;
   }
