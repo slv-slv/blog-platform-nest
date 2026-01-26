@@ -116,6 +116,14 @@ export class EmailAlreadyExistsDomainException extends DomainException {
   }
 }
 
+export class IncorrectEmailDomainException extends DomainException {
+  constructor(message = 'Incorrect email') {
+    super(message);
+    this.statusCode = DomainExceptionStatus.INCORRECT_EMAIL;
+    this.field = 'email';
+  }
+}
+
 // Auth
 export class CredentialsIncorrectDomainException extends DomainException {
   constructor(message = 'Incorrect login/password') {
