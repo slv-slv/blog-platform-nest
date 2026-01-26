@@ -1,8 +1,9 @@
 import { HttpStatus } from '@nestjs/common';
-import { DomainExceptionCode } from './domain-exception-codes.js';
+import { DomainExceptionStatus } from './domain-exception-codes.js';
 
 export abstract class DomainException extends Error {
-  protected statusCode: DomainExceptionCode;
+  protected statusCode: DomainExceptionStatus;
+  field?: string;
 
   constructor(message: string) {
     super(message);
@@ -12,32 +13,33 @@ export abstract class DomainException extends Error {
   getHttpCode(): HttpStatus {
     switch (this.statusCode) {
       // 404
-      case DomainExceptionCode.BLOG_NOT_FOUND:
-      case DomainExceptionCode.POST_NOT_FOUND:
-      case DomainExceptionCode.COMMENT_NOT_FOUND:
-      case DomainExceptionCode.DEVICE_NOT_FOUND:
-      case DomainExceptionCode.USER_NOT_FOUND:
+      case DomainExceptionStatus.BLOG_NOT_FOUND:
+      case DomainExceptionStatus.POST_NOT_FOUND:
+      case DomainExceptionStatus.COMMENT_NOT_FOUND:
+      case DomainExceptionStatus.DEVICE_NOT_FOUND:
+      case DomainExceptionStatus.USER_NOT_FOUND:
         return HttpStatus.NOT_FOUND;
 
       // 401
-      case DomainExceptionCode.CREDENTIALS_INCORRECT:
-      case DomainExceptionCode.EMAIL_NOT_CONFIRMED:
-      case DomainExceptionCode.SESSION_NOT_ACTIVE:
-      case DomainExceptionCode.USER_ALREADY_LOGGED_IN:
+      case DomainExceptionStatus.CREDENTIALS_INCORRECT:
+      case DomainExceptionStatus.EMAIL_NOT_CONFIRMED:
+      case DomainExceptionStatus.SESSION_NOT_ACTIVE:
+      case DomainExceptionStatus.USER_ALREADY_LOGGED_IN:
         return HttpStatus.UNAUTHORIZED;
 
       // 403
-      case DomainExceptionCode.ACCESS_DENIED:
+      case DomainExceptionStatus.ACCESS_DENIED:
         return HttpStatus.FORBIDDEN;
 
       // 400
-      case DomainExceptionCode.LOGIN_ALREADY_EXISTS:
-      case DomainExceptionCode.EMAIL_ALREADY_EXISTS:
-      case DomainExceptionCode.EMAIL_ALREADY_CONFIRMED:
-      case DomainExceptionCode.CONFIRMATION_CODE_INVALID:
-      case DomainExceptionCode.CONFIRMATION_CODE_EXPIRED:
-      case DomainExceptionCode.RECOVERY_CODE_INVALID:
-      case DomainExceptionCode.RECOVERY_CODE_EXPIRED:
+      case DomainExceptionStatus.LOGIN_ALREADY_EXISTS:
+      case DomainExceptionStatus.EMAIL_ALREADY_EXISTS:
+      case DomainExceptionStatus.INCORRECT_EMAIL:
+      case DomainExceptionStatus.EMAIL_ALREADY_CONFIRMED:
+      case DomainExceptionStatus.CONFIRMATION_CODE_INVALID:
+      case DomainExceptionStatus.CONFIRMATION_CODE_EXPIRED:
+      case DomainExceptionStatus.RECOVERY_CODE_INVALID:
+      case DomainExceptionStatus.RECOVERY_CODE_EXPIRED:
         return HttpStatus.BAD_REQUEST;
 
       default:
@@ -50,21 +52,21 @@ export abstract class DomainException extends Error {
 export class BlogNotFoundDomainException extends DomainException {
   constructor(message = 'Blog not found') {
     super(message);
-    this.statusCode = DomainExceptionCode.BLOG_NOT_FOUND;
+    this.statusCode = DomainExceptionStatus.BLOG_NOT_FOUND;
   }
 }
 
 export class PostNotFoundDomainException extends DomainException {
   constructor(message = 'Post not found') {
     super(message);
-    this.statusCode = DomainExceptionCode.POST_NOT_FOUND;
+    this.statusCode = DomainExceptionStatus.POST_NOT_FOUND;
   }
 }
 
 export class CommentNotFoundDomainException extends DomainException {
   constructor(message = 'Comment not found') {
     super(message);
-    this.statusCode = DomainExceptionCode.COMMENT_NOT_FOUND;
+    this.statusCode = DomainExceptionStatus.COMMENT_NOT_FOUND;
   }
 }
 
@@ -72,21 +74,21 @@ export class CommentNotFoundDomainException extends DomainException {
 export class DeviceNotFoundDomainException extends DomainException {
   constructor(message = 'Device not found') {
     super(message);
-    this.statusCode = DomainExceptionCode.DEVICE_NOT_FOUND;
+    this.statusCode = DomainExceptionStatus.DEVICE_NOT_FOUND;
   }
 }
 
 export class SessionNotActiveDomainException extends DomainException {
   constructor(message = 'No active session found') {
     super(message);
-    this.statusCode = DomainExceptionCode.SESSION_NOT_ACTIVE;
+    this.statusCode = DomainExceptionStatus.SESSION_NOT_ACTIVE;
   }
 }
 
 export class UserAlreadyLoggedInDomainException extends DomainException {
   constructor(message = 'The user is already logged in') {
     super(message);
-    this.statusCode = DomainExceptionCode.USER_ALREADY_LOGGED_IN;
+    this.statusCode = DomainExceptionStatus.USER_ALREADY_LOGGED_IN;
   }
 }
 
@@ -94,21 +96,23 @@ export class UserAlreadyLoggedInDomainException extends DomainException {
 export class UserNotFoundDomainException extends DomainException {
   constructor(message = 'User not found') {
     super(message);
-    this.statusCode = DomainExceptionCode.USER_NOT_FOUND;
+    this.statusCode = DomainExceptionStatus.USER_NOT_FOUND;
   }
 }
 
 export class LoginAlreadyExistsDomainException extends DomainException {
   constructor(message = 'Login already exists') {
     super(message);
-    this.statusCode = DomainExceptionCode.LOGIN_ALREADY_EXISTS;
+    this.statusCode = DomainExceptionStatus.LOGIN_ALREADY_EXISTS;
+    this.field = 'login';
   }
 }
 
 export class EmailAlreadyExistsDomainException extends DomainException {
   constructor(message = 'Email already exists') {
     super(message);
-    this.statusCode = DomainExceptionCode.EMAIL_ALREADY_EXISTS;
+    this.statusCode = DomainExceptionStatus.EMAIL_ALREADY_EXISTS;
+    this.field = 'email';
   }
 }
 
@@ -116,49 +120,54 @@ export class EmailAlreadyExistsDomainException extends DomainException {
 export class CredentialsIncorrectDomainException extends DomainException {
   constructor(message = 'Incorrect login/password') {
     super(message);
-    this.statusCode = DomainExceptionCode.CREDENTIALS_INCORRECT;
+    this.statusCode = DomainExceptionStatus.CREDENTIALS_INCORRECT;
   }
 }
 
 export class EmailNotConfirmedDomainException extends DomainException {
   constructor(message = 'Email has not been confirmed') {
     super(message);
-    this.statusCode = DomainExceptionCode.EMAIL_NOT_CONFIRMED;
+    this.statusCode = DomainExceptionStatus.EMAIL_NOT_CONFIRMED;
   }
 }
 
 export class EmailAlreadyConfirmedDomainException extends DomainException {
   constructor(message = 'Email already confirmed') {
     super(message);
-    this.statusCode = DomainExceptionCode.EMAIL_ALREADY_CONFIRMED;
+    this.statusCode = DomainExceptionStatus.EMAIL_ALREADY_CONFIRMED;
+    this.field = 'email';
   }
 }
 
 export class ConfirmationCodeInvalidDomainException extends DomainException {
   constructor(message = 'Invalid confirmation code') {
     super(message);
-    this.statusCode = DomainExceptionCode.CONFIRMATION_CODE_INVALID;
+    this.statusCode = DomainExceptionStatus.CONFIRMATION_CODE_INVALID;
+    this.field = 'code';
   }
 }
 
 export class ConfirmationCodeExpiredDomainException extends DomainException {
   constructor(message = 'The confirmation code has expired') {
     super(message);
-    this.statusCode = DomainExceptionCode.CONFIRMATION_CODE_EXPIRED;
+    this.statusCode = DomainExceptionStatus.CONFIRMATION_CODE_EXPIRED;
+    this.field = 'code';
   }
 }
 
 export class RecoveryCodeInvalidDomainException extends DomainException {
   constructor(message = 'Invalid recovery code') {
     super(message);
-    this.statusCode = DomainExceptionCode.RECOVERY_CODE_INVALID;
+    this.statusCode = DomainExceptionStatus.RECOVERY_CODE_INVALID;
+    this.field = 'code';
   }
 }
 
 export class RecoveryCodeExpiredDomainException extends DomainException {
   constructor(message = 'The recovery code has expired') {
     super(message);
-    this.statusCode = DomainExceptionCode.RECOVERY_CODE_EXPIRED;
+    this.statusCode = DomainExceptionStatus.RECOVERY_CODE_EXPIRED;
+    this.field = 'code';
   }
 }
 
@@ -166,6 +175,6 @@ export class RecoveryCodeExpiredDomainException extends DomainException {
 export class AccessDeniedDomainException extends DomainException {
   constructor(message = 'Access denied') {
     super(message);
-    this.statusCode = DomainExceptionCode.ACCESS_DENIED;
+    this.statusCode = DomainExceptionStatus.ACCESS_DENIED;
   }
 }

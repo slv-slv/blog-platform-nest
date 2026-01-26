@@ -1,4 +1,4 @@
-export enum DomainExceptionCode {
+export enum DomainExceptionStatus {
   // Blog content
   BLOG_NOT_FOUND = 'BLOG_NOT_FOUND',
   POST_NOT_FOUND = 'POST_NOT_FOUND',
@@ -13,6 +13,7 @@ export enum DomainExceptionCode {
   USER_NOT_FOUND = 'USER_NOT_FOUND',
   LOGIN_ALREADY_EXISTS = 'LOGIN_ALREADY_EXISTS',
   EMAIL_ALREADY_EXISTS = 'EMAIL_ALREADY_EXISTS',
+  INCORRECT_EMAIL = 'INCORRECT_EMAIL',
 
   // Auth
   CREDENTIALS_INCORRECT = 'CREDENTIALS_INCORRECT',
