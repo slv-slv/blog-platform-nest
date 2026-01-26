@@ -22,6 +22,7 @@ export abstract class DomainException extends Error {
 
       // 401
       case DomainExceptionStatus.CREDENTIALS_INCORRECT:
+      case DomainExceptionStatus.UNAUTHORIZED:
       case DomainExceptionStatus.EMAIL_NOT_CONFIRMED:
       case DomainExceptionStatus.SESSION_NOT_ACTIVE:
       case DomainExceptionStatus.USER_ALREADY_LOGGED_IN:
@@ -129,6 +130,13 @@ export class CredentialsIncorrectDomainException extends DomainException {
   constructor(message = 'Incorrect login/password') {
     super(message);
     this.statusCode = DomainExceptionStatus.CREDENTIALS_INCORRECT;
+  }
+}
+
+export class UnauthorizedDomainException extends DomainException {
+  constructor(message = 'Access denied') {
+    super(message);
+    this.statusCode = DomainExceptionStatus.UNAUTHORIZED;
   }
 }
 
