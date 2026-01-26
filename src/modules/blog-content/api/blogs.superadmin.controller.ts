@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   HttpCode,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -33,6 +32,7 @@ import {
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { PostsService } from '../application/posts.service.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
+import { BlogNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -58,7 +58,7 @@ export class BlogsSuperadminController {
   async findBlog(@Param('id') id: string): Promise<BlogType> {
     const blog = await this.blogsRepo.findBlog(id);
     if (!blog) {
-      throw new NotFoundException('Blog not found');
+      throw new BlogNotFoundDomainException();
     }
     return blog;
   }
@@ -96,7 +96,7 @@ export class BlogsSuperadminController {
 
     const blog = await this.blogsRepo.findBlog(blogId);
     if (!blog) {
-      throw new NotFoundException('Blog not found');
+      throw new BlogNotFoundDomainException();
     }
 
     const posts = await this.postsQueryRepository.getPosts(userId, pagingParams, blogId);

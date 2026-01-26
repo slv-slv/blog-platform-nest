@@ -5,7 +5,6 @@ import {
   Delete,
   Get,
   HttpCode,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -35,6 +34,7 @@ import { CommentsQueryRepository } from '../infrastructure/sql/comments.query-re
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
+import { PostNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 @Controller('posts')
 export class PostsController {
@@ -67,7 +67,7 @@ export class PostsController {
 
     const post = await this.postsQueryRepository.findPost(id, userId);
 
-    if (!post) throw new NotFoundException('Post not found');
+    if (!post) throw new PostNotFoundDomainException();
     return post;
   }
 
@@ -104,7 +104,7 @@ export class PostsController {
     const userId = res.locals.userId;
 
     const post = await this.postsRepository.findPost(postId);
-    if (!post) throw new NotFoundException('Post not found');
+    if (!post) throw new PostNotFoundDomainException();
 
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };

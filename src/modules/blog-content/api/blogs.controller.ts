@@ -1,4 +1,4 @@
-import { Controller, Get, NotFoundException, Param, Query, Res } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { BlogsQueryRepository } from '../infrastructure/sql/blogs.query-repository.js';
 import { BlogsRepository } from '../infrastructure/sql/blogs.repository.js';
@@ -6,6 +6,7 @@ import { BlogsPaginatedType, BlogType, GetBlogsQueryParams } from '../types/blog
 import { GetPostsQueryParams, PostsPaginatedType } from '../types/posts.types.js';
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { Public } from '../../../common/decorators/public.js';
+import { BlogNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 Public();
 @Controller('blogs')
@@ -37,7 +38,7 @@ export class BlogsController {
 
     const blog = await this.blogsRepo.findBlog(blogId);
     if (!blog) {
-      throw new NotFoundException('Blog not found');
+      throw new BlogNotFoundDomainException();
     }
 
     const posts = await this.postsQueryRepository.getPosts(userId, pagingParams, blogId);
@@ -48,7 +49,7 @@ export class BlogsController {
   async findBlog(@Param('id') id: string): Promise<BlogType> {
     const blog = await this.blogsRepo.findBlog(id);
     if (!blog) {
-      throw new NotFoundException('Blog not found');
+      throw new BlogNotFoundDomainException();
     }
     return blog;
   }

@@ -1,16 +1,5 @@
 import { Response } from 'express';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  NotFoundException,
-  Param,
-  Put,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Put, Res, UseGuards } from '@nestjs/common';
 import { CommentsService } from '../application/comments.service.js';
 import { CommentsQueryRepository } from '../infrastructure/sql/comments.query-repository.js';
 import { CommentViewType, UpdateCommentInputDto } from '../types/comments.types.js';
@@ -19,6 +8,7 @@ import { CommentLikesService } from '../application/comment-likes.service.js';
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { Public } from '../../../common/decorators/public.js';
+import { CommentNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 @Controller('comments')
 @UseGuards(AccessTokenGuard)
@@ -38,7 +28,7 @@ export class CommentsController {
     const userId = res.locals.userId;
 
     const comment = await this.commentsQueryRepository.findComment(id, userId);
-    if (!comment) throw new NotFoundException('Comment not found');
+    if (!comment) throw new CommentNotFoundDomainException();
     return comment;
   }
 

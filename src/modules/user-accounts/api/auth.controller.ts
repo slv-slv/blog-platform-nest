@@ -1,17 +1,5 @@
 import { Response } from 'express';
-import {
-  Body,
-  Controller,
-  Get,
-  Headers,
-  HttpCode,
-  Ip,
-  Post,
-  Req,
-  Res,
-  UnauthorizedException,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { JwtService } from '@nestjs/jwt';
 import { UsersQueryRepository } from '../infrastructure/sql/users.query-repository.js';
@@ -24,6 +12,7 @@ import { EmailConfirmationGuard } from '../../../common/guards/email-confirmatio
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
 import { NoActiveSessionGuard } from '../../../common/guards/no-active-session.guard.js';
+import { UnauthorizedDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 @Controller('auth')
 // @UseGuards(ThrottlerGuard)
@@ -118,7 +107,7 @@ export class AuthController {
     const userId = res.locals.userId;
     const user = await this.usersQueryRepository.getCurrentUser(userId);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedDomainException('User not found');
     }
     return user;
   }
