@@ -1,3 +1,4 @@
+import { ConfigModule } from '@nestjs/config';
 import {
   BeforeApplicationShutdown,
   Inject,
@@ -7,7 +8,6 @@ import {
   OnApplicationBootstrap,
   RequestMethod,
 } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { SETTINGS } from './settings.js';
@@ -23,7 +23,14 @@ import { DomainExceptionFilter } from './common/exception-filters/domain-excepti
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: [
+        // process.env.ENV_FILE_PATH,
+        `.env.${process.env.NODE_ENV}.local`,
+        `.env.${process.env.NODE_ENV}`,
+        `.env.production`,
+      ],
+    }),
 
     JwtModule.register({
       global: true,
