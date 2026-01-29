@@ -8,12 +8,12 @@ import { Pool } from 'pg';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(SETTINGS.MONGO_URL, { dbName: 'blog-platform' }),
+    MongooseModule.forRoot(SETTINGS.MONGO_SETTINGS.URL, { dbName: SETTINGS.MONGO_SETTINGS.DATABASE }),
     PostgresModule.forRoot({
       host: SETTINGS.POSTGRES_SETTINGS.URL,
       user: SETTINGS.POSTGRES_SETTINGS.USER,
       password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
-      database: 'blog-platform',
+      database: SETTINGS.POSTGRES_SETTINGS.DATABASE,
       ssl: true,
     }),
     TypeOrmModule.forRoot({
@@ -22,7 +22,7 @@ import { Pool } from 'pg';
       username: SETTINGS.POSTGRES_SETTINGS.USER,
       password: SETTINGS.POSTGRES_SETTINGS.PASSWORD,
       schema: 'typeorm',
-      database: 'blog-platform',
+      database: SETTINGS.POSTGRES_SETTINGS.DATABASE,
       autoLoadEntities: true,
       synchronize: true,
       ssl: true,
