@@ -20,14 +20,15 @@ export class BasicAuthGuard implements CanActivate {
       throw new UnauthorizedException('Authorization header missing');
     }
 
-    const [authMethod, credsBase64] = authHeader.split(' ');
-    const credentials = SETTINGS.CREDENTIALS;
+    const [authMethod, credentials] = authHeader.split(' ');
 
     if (authMethod !== 'Basic') {
       throw new UnauthorizedException('Invalid authorization method');
     }
 
-    if (!credentials.map((user) => user.base64).includes(credsBase64)) {
+    const adminCredentials = SETTINGS.ADMIN_CREDENTIALS_BASE64;
+
+    if (credentials !== adminCredentials) {
       throw new UnauthorizedException('Incorrect credentials');
     }
 
