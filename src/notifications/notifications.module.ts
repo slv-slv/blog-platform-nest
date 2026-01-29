@@ -7,7 +7,7 @@ import { SETTINGS } from '../settings.js';
   imports: [
     MailerModule.forRoot({
       transport: {
-        host: SETTINGS.SMTP_SERVER,
+        host: SETTINGS.SMTP_URL,
         auth: { user: SETTINGS.EMAIL_CREDENTIALS.user, pass: SETTINGS.EMAIL_CREDENTIALS.password },
         port: 465,
         secure: true,
