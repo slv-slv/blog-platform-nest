@@ -1,16 +1,7 @@
 import { ConfigModule } from '@nestjs/config';
-import {
-  BeforeApplicationShutdown,
-  Inject,
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  OnApplicationBootstrap,
-  RequestMethod,
-} from '@nestjs/common';
+import { Global, MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
-import { SETTINGS } from './settings.js';
 import { BlogContentModule } from './modules/blog-content/blog-content.module.js';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
@@ -20,21 +11,26 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { DatabaseModule } from './modules/database/database.module.js';
 import { APP_FILTER } from '@nestjs/core';
 import { DomainExceptionFilter } from './common/exception-filters/domain-exception-filter.js';
+import { AppConfig } from './app.config.js';
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: [
         // process.env.ENV_FILE_PATH,
+        `.env.development.local`,
         `.env.${process.env.NODE_ENV}.local`,
         `.env.${process.env.NODE_ENV}`,
         `.env.production`,
       ],
     }),
-
-    JwtModule.register({
+    JwtModule.registerAsync({
       global: true,
-      secret: SETTINGS.JWT_PRIVATE_KEY,
+      inject: [AppConfig],
+      useFactory: (appConfig: AppConfig) => ({
+        secret: appConfig.jwtPrivateKey,
+      }),
     }),
     ThrottlerModule.forRoot({ throttlers: [{ ttl: 10000, limit: 5 }] }),
     BlogContentModule,
@@ -45,11 +41,13 @@ import { DomainExceptionFilter } from './common/exception-filters/domain-excepti
   controllers: [AppController],
   providers: [
     AppService,
+    AppConfig,
     {
       provide: APP_FILTER,
       useClass: DomainExceptionFilter,
     },
   ],
+  exports: [AppConfig],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
