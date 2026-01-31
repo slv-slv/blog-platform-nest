@@ -1,10 +1,10 @@
-import { Global, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PagingParamsType, SortDirection } from './common/types/paging-params.types.js';
+import { PagingParamsType, SortDirection } from '../common/types/paging-params.types.js';
 
-@Global()
 @Injectable()
-export class AppConfig {
+export class CoreConfig {
+  port2: number = this.configService.getOrThrow<number>('PORT');
   constructor(private readonly configService: ConfigService) {}
 
   get port(): number {
