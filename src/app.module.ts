@@ -1,4 +1,3 @@
-import { ConfigModule } from '@nestjs/config';
 import { Global, MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
@@ -8,46 +7,35 @@ import { NotificationsModule } from './notifications/notifications.module.js';
 import { ExtractUserId } from './common/middlewares/extract-userid.js';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { DatabaseModule } from './modules/database/database.module.js';
 import { APP_FILTER } from '@nestjs/core';
 import { DomainExceptionFilter } from './common/exception-filters/domain-exception-filter.js';
-import { AppConfig } from './app.config.js';
+import { CoreConfig } from './core/core.config.js';
+import { CoreModule } from './core/core.module.js';
 
 @Global()
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: [
-        // process.env.ENV_FILE_PATH,
-        `.env.development.local`,
-        `.env.${process.env.NODE_ENV}.local`,
-        `.env.${process.env.NODE_ENV}`,
-        `.env.production`,
-      ],
-    }),
+    CoreModule,
     JwtModule.registerAsync({
       global: true,
-      inject: [AppConfig],
-      useFactory: (appConfig: AppConfig) => ({
-        secret: appConfig.jwtPrivateKey,
+      inject: [CoreConfig],
+      useFactory: (coreConfig: CoreConfig) => ({
+        secret: coreConfig.jwtPrivateKey,
       }),
     }),
     ThrottlerModule.forRoot({ throttlers: [{ ttl: 10000, limit: 5 }] }),
     BlogContentModule,
     UserAccountsModule,
     NotificationsModule,
-    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    AppConfig,
     {
       provide: APP_FILTER,
       useClass: DomainExceptionFilter,
     },
   ],
-  exports: [AppConfig],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
