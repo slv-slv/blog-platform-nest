@@ -10,9 +10,20 @@ import { SessionsController } from './api/sessions.controller.js';
 import { SessionsService } from './application/sessions.service.js';
 import { SessionsRepository } from './infrastructure/sql/sessions.repository.js';
 import { SessionsQueryRepository } from './infrastructure/sql/sessions.query-repository.js';
+import { JwtModule } from '@nestjs/jwt';
+import { CoreConfig } from '../../core/core.config.js';
 
 @Module({
-  imports: [NotificationsModule],
+  imports: [
+    NotificationsModule,
+    JwtModule.registerAsync({
+      global: true,
+      inject: [CoreConfig],
+      useFactory: (coreConfig: CoreConfig) => ({
+        secret: coreConfig.jwtPrivateKey,
+      }),
+    }),
+  ],
   controllers: [UsersController, AuthController, SessionsController],
   providers: [
     UsersService,

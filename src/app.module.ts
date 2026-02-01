@@ -5,24 +5,15 @@ import { BlogContentModule } from './modules/blog-content/blog-content.module.js
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
 import { ExtractUserId } from './common/middlewares/extract-userid.js';
-import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER } from '@nestjs/core';
 import { DomainExceptionFilter } from './common/exception-filters/domain-exception-filter.js';
-import { CoreConfig } from './core/core.config.js';
 import { CoreModule } from './core/core.module.js';
 
 @Global()
 @Module({
   imports: [
     CoreModule,
-    JwtModule.registerAsync({
-      global: true,
-      inject: [CoreConfig],
-      useFactory: (coreConfig: CoreConfig) => ({
-        secret: coreConfig.jwtPrivateKey,
-      }),
-    }),
     ThrottlerModule.forRoot({ throttlers: [{ ttl: 10000, limit: 5 }] }),
     BlogContentModule,
     UserAccountsModule,
