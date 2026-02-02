@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EmailService } from './email/email.service.js';
-import { CoreConfig } from '../core/core.config.js';
+import { EmailConfig } from '../core/core.config.js';
 
 @Module({
   imports: [
     MailerModule.forRootAsync({
-      inject: [CoreConfig],
-      useFactory: (coreConfig: CoreConfig) => ({
+      inject: [EmailConfig],
+      useFactory: (emailConfig: EmailConfig) => ({
         transport: {
-          host: coreConfig.smtpUrl,
-          auth: { user: coreConfig.emailCredentials.user, pass: coreConfig.emailCredentials.password },
+          host: emailConfig.smtpUrl,
+          auth: { user: emailConfig.emailCredentials.user, pass: emailConfig.emailCredentials.password },
           port: 465,
           secure: true,
         },
