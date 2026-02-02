@@ -1,11 +1,18 @@
-import dotenv from 'dotenv';
-import { PagingParamsType } from './common/types/paging-params.types.js';
 import { registerAs } from '@nestjs/config';
+import { PagingParamsType } from './common/types/paging-params.types.js';
 
-// dotenv.config();
-
-export const settingsNamespace = registerAs('settings', () => ({
+export const coreSettings = registerAs('core', () => ({
   port: process.env.PORT!,
+  pagingDefaultParams: {
+    sortBy: 'createdAt',
+    sortDirection: 'desc',
+    pageNumber: 1,
+    pageSize: 10,
+  } as PagingParamsType,
+  newestLikesNumber: 3,
+}));
+
+export const databaseSettings = registerAs('database', () => ({
   mongoSettings: {
     url: process.env.MONGO_URL!,
     database: process.env.MONGO_DATABASE!,
@@ -18,19 +25,18 @@ export const settingsNamespace = registerAs('settings', () => ({
     database: process.env.POSTGRES_DATABASE!,
     port: 5432,
   },
-  pagingDefaultParams: {
-    sortBy: 'createdAt',
-    sortDirection: 'desc',
-    pageNumber: 1,
-    pageSize: 10,
-  } as PagingParamsType,
+}));
+
+export const authSettings = registerAs('auth', () => ({
   adminCredentialsBase64: process.env.ADMIN_CREDENTIALS_BASE64!,
-  emailCredentials: { user: process.env.EMAIL_LOGIN_GOOGLE!, password: process.env.EMAIL_PASSWORD_GOOGLE! },
-  smtpUrl: process.env.SMTP_URL!,
   jwtPrivateKey: process.env.JWT_PRIVATE_KEY!,
   accessTokenLifetime: '10m' as const,
   refreshTokenLifetime: '20m' as const,
   confirmationCodeLifetime: 24,
   recoveryCodeLifetime: 24,
-  newestLikesNumber: 3,
+}));
+
+export const emailSettings = registerAs('email', () => ({
+  emailCredentials: { user: process.env.EMAIL_LOGIN_GOOGLE!, password: process.env.EMAIL_PASSWORD_GOOGLE! },
+  smtpUrl: process.env.SMTP_URL!,
 }));
