@@ -1,35 +1,36 @@
 import dotenv from 'dotenv';
 import { PagingParamsType } from './common/types/paging-params.types.js';
+import { registerAs } from '@nestjs/config';
 
-dotenv.config();
+// dotenv.config();
 
-export const SETTINGS = {
-  PORT: process.env.PORT,
-  MONGO_SETTINGS: {
-    URL: process.env.MONGO_URL!,
-    DATABASE: process.env.MONGO_DATABASE!,
+export const settingsNamespace = registerAs('settings', () => ({
+  port: process.env.PORT!,
+  mongoSettings: {
+    url: process.env.MONGO_URL!,
+    database: process.env.MONGO_DATABASE!,
   },
-  POSTGRES_SETTINGS: {
-    CONNECTION_STRING: process.env.POSTGRES_CONNECTION_STRING!,
-    URL: process.env.POSTGRES_URL!,
-    USER: process.env.POSTGRES_USER!,
-    PASSWORD: process.env.POSTGRES_PASSWORD!,
-    DATABASE: process.env.POSTGRES_DATABASE!,
-    PORT: 5432,
+  postgresSettings: {
+    connectionString: process.env.POSTGRES_CONNECTION_STRING!,
+    url: process.env.POSTGRES_URL!,
+    user: process.env.POSTGRES_USER!,
+    password: process.env.POSTGRES_PASSWORD!,
+    database: process.env.POSTGRES_DATABASE!,
+    port: 5432,
   },
-  PAGING_DEFAULT_PARAMS: {
+  pagingDefaultParams: {
     sortBy: 'createdAt',
     sortDirection: 'desc',
     pageNumber: 1,
     pageSize: 10,
   } as PagingParamsType,
-  ADMIN_CREDENTIALS_BASE64: process.env.ADMIN_CREDENTIALS_BASE64,
-  EMAIL_CREDENTIALS: { user: process.env.EMAIL_LOGIN_GOOGLE, password: process.env.EMAIL_PASSWORD_GOOGLE },
-  SMTP_URL: process.env.SMTP_URL,
-  JWT_PRIVATE_KEY: process.env.JWT_PRIVATE_KEY,
-  ACCESS_TOKEN_LIFETIME: '10m' as const,
-  REFRESH_TOKEN_LIFETIME: '20m' as const,
-  CONFIRMATION_CODE_LIFETIME: 24,
-  RECOVERY_CODE_LIFETIME: 24,
-  NEWEST_LIKES_NUMBER: 3,
-};
+  adminCredentialsBase64: process.env.ADMIN_CREDENTIALS_BASE64!,
+  emailCredentials: { user: process.env.EMAIL_LOGIN_GOOGLE!, password: process.env.EMAIL_PASSWORD_GOOGLE! },
+  smtpUrl: process.env.SMTP_URL!,
+  jwtPrivateKey: process.env.JWT_PRIVATE_KEY!,
+  accessTokenLifetime: '10m' as const,
+  refreshTokenLifetime: '20m' as const,
+  confirmationCodeLifetime: 24,
+  recoveryCodeLifetime: 24,
+  newestLikesNumber: 3,
+}));
