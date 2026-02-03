@@ -29,7 +29,7 @@ class AuthConfigSchema {
   declare recoveryCodeLifetime: number;
 }
 
-export const authSettings = registerAs('auth', () => {
+export const authConfig = registerAs('auth', () => {
   const authConfigEnvInput = {
     adminCredentialsBase64: process.env.ADMIN_CREDENTIALS_BASE64,
     jwtPrivateKey: process.env.JWT_PRIVATE_KEY,
