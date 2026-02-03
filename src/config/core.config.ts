@@ -2,7 +2,7 @@ import { registerAs } from '@nestjs/config';
 import { PagingParamsType } from '../common/types/paging-params.types.js';
 
 export const coreConfig = registerAs('core', () => ({
-  port: process.env.PORT!,
+  port: process.env.PORT,
   pagingDefaultParams: {
     sortBy: 'createdAt',
     sortDirection: 'desc',
