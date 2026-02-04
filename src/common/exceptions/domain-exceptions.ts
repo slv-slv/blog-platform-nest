@@ -2,7 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { DomainExceptionStatus } from './domain-exception-codes.js';
 
 export abstract class DomainException extends Error {
-  protected statusCode: DomainExceptionStatus;
+  declare protected statusCode: DomainExceptionStatus;
   field?: string;
 
   constructor(message: string) {
