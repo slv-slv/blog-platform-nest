@@ -1,14 +1,15 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 import { Public } from '../decorators/public.js';
-import { AuthConfig } from '../../core/core.config.js';
+import { authConfig } from '../../config/auth.config.js';
 
 @Injectable()
 export class BasicAuthGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly authConfig: AuthConfig,
+    @Inject(authConfig.KEY) private readonly auth: ConfigType<typeof authConfig>,
   ) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -29,7 +30,7 @@ export class BasicAuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid authorization method');
     }
 
-    const adminCredentials = this.authConfig.adminCredentialsBase64;
+    const adminCredentials = this.auth.adminCredentialsBase64;
 
     if (credentials !== adminCredentials) {
       throw new UnauthorizedException('Incorrect credentials');
