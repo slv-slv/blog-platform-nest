@@ -1,11 +1,13 @@
 import { registerAs } from '@nestjs/config';
 import { plainToInstance } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
+import { IsBase64, IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 import { validateOrThrow } from './validate-or-throw.js';
+import type { JwtSignOptions } from '@nestjs/jwt';
 
-class AuthConfigSchema {
+class AuthConfig {
   @IsString()
   @IsNotEmpty()
+  @IsBase64()
   declare adminCredentialsBase64: string;
 
   @IsString()
@@ -14,11 +16,11 @@ class AuthConfigSchema {
 
   @IsString()
   @IsNotEmpty()
-  declare accessTokenLifetime: string;
+  declare accessTokenLifetime: JwtSignOptions['expiresIn'];
 
   @IsString()
   @IsNotEmpty()
-  declare refreshTokenLifetime: string;
+  declare refreshTokenLifetime: JwtSignOptions['expiresIn'];
 
   @IsInt()
   @Min(1)
@@ -39,6 +41,6 @@ export const authConfig = registerAs('auth', () => {
     recoveryCodeLifetime: 24,
   };
 
-  const authConfigEnv = plainToInstance(AuthConfigSchema, authConfigEnvInput);
+  const authConfigEnv = plainToInstance(AuthConfig, authConfigEnvInput);
   return validateOrThrow(authConfigEnv, 'auth config');
 });
