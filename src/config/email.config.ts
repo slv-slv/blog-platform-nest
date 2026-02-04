@@ -3,7 +3,7 @@ import { plainToInstance, Type } from 'class-transformer';
 import { IsDefined, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { validateOrThrow } from './validate-or-throw.js';
 
-class EmailCredentialsSchema {
+class EmailCredentials {
   @IsString()
   @IsNotEmpty()
   declare user: string;
@@ -13,18 +13,18 @@ class EmailCredentialsSchema {
   declare password: string;
 }
 
-class EmailConfigSchema {
+class EmailConfig {
   @ValidateNested()
-  @Type(() => EmailCredentialsSchema)
+  @Type(() => EmailCredentials)
   @IsDefined()
-  declare emailCredentials: EmailCredentialsSchema;
+  declare emailCredentials: EmailCredentials;
 
   @IsString()
   @IsNotEmpty()
   declare smtpUrl: string;
 }
 
-export const emailconfig = registerAs('email', () => {
+export const emailConfig = registerAs('email', () => {
   const emailConfigEnvInput = {
     emailCredentials: {
       user: process.env.EMAIL_LOGIN_GOOGLE,
@@ -33,6 +33,6 @@ export const emailconfig = registerAs('email', () => {
     smtpUrl: process.env.SMTP_URL,
   };
 
-  const emailConfigEnv = plainToInstance(EmailConfigSchema, emailConfigEnvInput);
+  const emailConfigEnv = plainToInstance(EmailConfig, emailConfigEnvInput);
   return validateOrThrow(emailConfigEnv, 'email config');
 });

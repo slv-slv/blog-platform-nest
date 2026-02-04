@@ -3,7 +3,7 @@ import { plainToInstance, Type } from 'class-transformer';
 import { IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
 import { validateOrThrow } from './validate-or-throw.js';
 
-class PostgresConfigSchema {
+class PostgresConfig {
   @IsString()
   @IsNotEmpty()
   declare connectionString: string;
@@ -41,6 +41,6 @@ export const postgresConfig = registerAs('postgres', () => {
     port: 5432,
   };
 
-  const postgresConfigEnv = plainToInstance(PostgresConfigSchema, postgresConfigEnvInput);
+  const postgresConfigEnv = plainToInstance(PostgresConfig, postgresConfigEnvInput);
   return validateOrThrow(postgresConfigEnv, 'postgres config');
 });

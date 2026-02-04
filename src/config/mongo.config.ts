@@ -3,7 +3,7 @@ import { plainToInstance } from 'class-transformer';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { validateOrThrow } from './validate-or-throw.js';
 
-class MongoConfigSchema {
+class MongoConfig {
   @IsString()
   @IsNotEmpty()
   declare url: string;
@@ -19,6 +19,6 @@ export const mongoConfig = registerAs('mongo', () => {
     database: process.env.MONGO_DATABASE,
   };
 
-  const mongoConfigEnv = plainToInstance(MongoConfigSchema, mongoConfigEnvInput);
+  const mongoConfigEnv = plainToInstance(MongoConfig, mongoConfigEnvInput);
   return validateOrThrow(mongoConfigEnv, 'mongo config');
 });

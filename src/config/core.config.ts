@@ -4,7 +4,7 @@ import { IsDefined, IsEnum, IsInt, IsNotEmpty, IsString, Max, Min, ValidateNeste
 import { PagingParamsType, SortDirection } from '../common/types/paging-params.types.js';
 import { validateOrThrow } from './validate-or-throw.js';
 
-class PagingDefaultParamsSchema implements PagingParamsType {
+class PagingDefaultParams implements PagingParamsType {
   @IsString()
   @IsNotEmpty()
   declare sortBy: string;
@@ -23,7 +23,7 @@ class PagingDefaultParamsSchema implements PagingParamsType {
   declare pageSize: number;
 }
 
-class CoreConfigSchema {
+class CoreConfig {
   @IsInt()
   @Min(1)
   @Max(65535)
@@ -31,9 +31,9 @@ class CoreConfigSchema {
   declare port: number;
 
   @ValidateNested()
-  @Type(() => PagingDefaultParamsSchema)
+  @Type(() => PagingDefaultParams)
   @IsDefined()
-  declare pagingDefaultParams: PagingDefaultParamsSchema;
+  declare pagingDefaultParams: PagingDefaultParams;
 
   @IsInt()
   @Min(0)
@@ -52,6 +52,6 @@ export const coreConfig = registerAs('core', () => {
     newestLikesNumber: 3,
   };
 
-  const coreConfigEnv = plainToInstance(CoreConfigSchema, coreConfigEnvInput);
+  const coreConfigEnv = plainToInstance(CoreConfig, coreConfigEnvInput);
   return validateOrThrow(coreConfigEnv, 'core config');
 });
