@@ -2,8 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PagingParamsType, SortDirection } from '../common/types/paging-params.types.js';
 
+// Legacy config container kept for experiments. Prefer configs in src/config/*.config.ts.
+
 @Injectable()
-export class CoreConfig {
+export class CoreConfigProvider {
   readonly port: number;
   readonly pagingDefaultParams: PagingParamsType;
   readonly newestLikesNumber: number;
@@ -21,9 +23,9 @@ export class CoreConfig {
 }
 
 @Injectable()
-export class DatabaseConfig {
-  readonly mongoSettings: { url: string; database: string };
-  readonly postgresSettings: {
+export class DatabaseConfigProvider {
+  readonly mongo: { url: string; database: string };
+  readonly postgres: {
     connectionString: string;
     url: string;
     user: string;
@@ -33,11 +35,11 @@ export class DatabaseConfig {
   };
 
   constructor(private readonly configService: ConfigService) {
-    this.mongoSettings = {
+    this.mongo = {
       url: this.configService.getOrThrow<string>('MONGO_URL'),
       database: this.configService.getOrThrow<string>('MONGO_DATABASE'),
     };
-    this.postgresSettings = {
+    this.postgres = {
       connectionString: this.configService.getOrThrow<string>('POSTGRES_CONNECTION_STRING'),
       url: this.configService.getOrThrow<string>('POSTGRES_URL'),
       user: this.configService.getOrThrow<string>('POSTGRES_USER'),
@@ -49,7 +51,7 @@ export class DatabaseConfig {
 }
 
 @Injectable()
-export class AuthConfig {
+export class AuthConfigProvider {
   readonly adminCredentialsBase64: string;
   readonly jwtPrivateKey: string;
   readonly accessTokenLifetime: string;
@@ -68,7 +70,7 @@ export class AuthConfig {
 }
 
 @Injectable()
-export class EmailConfig {
+export class EmailConfigProvider {
   readonly emailCredentials: { user: string; password: string };
   readonly smtpUrl: string;
 
