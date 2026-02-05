@@ -50,7 +50,7 @@ export class CreateCommentInputDto {
   @Trim()
   @IsNotEmpty()
   @Length(20, 300)
-  content: string;
+  declare content: string;
 }
 
 export class UpdateCommentInputDto extends CreateCommentInputDto {}

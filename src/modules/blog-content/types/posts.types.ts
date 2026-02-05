@@ -56,19 +56,19 @@ export class CreatePostInputDto {
   @Trim()
   @IsNotEmpty()
   @MaxLength(30)
-  title: string;
+  declare title: string;
 
   @IsString()
   @Trim()
   @IsNotEmpty()
   @MaxLength(100)
-  shortDescription: string;
+  declare shortDescription: string;
 
   @IsString()
   @Trim()
   @IsNotEmpty()
   @MaxLength(1000)
-  content: string;
+  declare content: string;
 }
 
 export class UpdatePostInputDto extends CreatePostInputDto {}
@@ -77,7 +77,7 @@ export class CreatePostForBlogInputDto extends CreatePostInputDto {
   @IsString()
   @Trim()
   @IsNotEmpty()
-  blogId: string;
+  declare blogId: string;
 }
 
 export class UpdatePostForBlogInputDto extends CreatePostForBlogInputDto {}

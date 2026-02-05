@@ -63,7 +63,7 @@ export type PasswordRecoveryInfoType = {
 export class EmailInputDto {
   @Trim()
   @IsEmail()
-  email: string;
+  declare email: string;
 }
 
 export class CreateUserInputDto {
@@ -71,16 +71,16 @@ export class CreateUserInputDto {
   @Trim()
   @Length(3, 10)
   @Matches('^[a-zA-Z0-9_-]*$')
-  login: string;
+  declare login: string;
 
   @IsString()
   @Trim()
   @Length(6, 20)
-  password: string;
+  declare password: string;
 
   @Trim()
   @IsEmail()
-  email: string;
+  declare email: string;
 }
 
 export class GetUsersQueryParams extends BasicPagingParams {
@@ -103,22 +103,22 @@ export class LoginInputDto {
   @IsString()
   @Trim()
   @IsNotEmpty()
-  loginOrEmail: string;
+  declare loginOrEmail: string;
 
   @IsString()
   @Trim()
   @IsNotEmpty()
-  password: string;
+  declare password: string;
 }
 
 export class NewPasswordInputDto {
   @IsString()
   @Trim()
   @Length(6, 20)
-  newPassword: string;
+  declare newPassword: string;
 
   @IsString()
   @Trim()
   @IsNotEmpty()
-  recoveryCode: string;
+  declare recoveryCode: string;
 }

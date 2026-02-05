@@ -41,17 +41,17 @@ export class CreateBlogInputDto {
   @Trim()
   @IsNotEmpty()
   @MaxLength(15)
-  name: string;
+  declare name: string;
 
   @IsString()
   @Trim()
   @IsNotEmpty()
   @MaxLength(500)
-  description: string;
+  declare description: string;
 
   @Trim()
   @IsUrl()
-  websiteUrl: string;
+  declare websiteUrl: string;
 }
 
 export class UpdateBlogInputDto extends CreateBlogInputDto {}

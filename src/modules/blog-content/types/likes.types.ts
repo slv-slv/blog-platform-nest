@@ -9,7 +9,7 @@ export enum LikeStatus {
 
 export class SetLikeStatusDto {
   @IsEnum(LikeStatus)
-  likeStatus: LikeStatus;
+  declare likeStatus: LikeStatus;
 }
 
 export type LikesInfoViewType = {
@@ -37,10 +37,10 @@ export type LikeRecordType = {
 @Schema({ _id: false })
 export class LikeRecord {
   @Prop({ required: true })
-  userId: String;
+  declare userId: String;
 
   @Prop({ required: true })
-  createdAt: Date;
+  declare createdAt: Date;
 }
 
 export const LikeRecordSchema = SchemaFactory.createForClass(LikeRecord);
