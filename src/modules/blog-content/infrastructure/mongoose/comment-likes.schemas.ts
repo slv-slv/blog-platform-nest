@@ -4,13 +4,13 @@ import { LikeRecordSchema, LikeRecordType } from '../../types/likes.types.js';
 @Schema({ versionKey: false })
 export class CommentLikes {
   @Prop({ required: true })
-  commentId: string;
+  declare commentId: string;
 
   @Prop({ type: [LikeRecordSchema], required: true })
-  likes: LikeRecordType[];
+  declare likes: LikeRecordType[];
 
   @Prop({ type: [LikeRecordSchema], required: true })
-  dislikes: LikeRecordType[];
+  declare dislikes: LikeRecordType[];
 }
 
 export const CommentLikesSchema = SchemaFactory.createForClass(CommentLikes);

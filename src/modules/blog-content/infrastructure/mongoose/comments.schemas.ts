@@ -4,10 +4,10 @@ import { CommentatorInfoType } from '../../types/comments.types.js';
 @Schema({ _id: false })
 class CommentatorInfo {
   @Prop({ required: true })
-  userId: string;
+  declare userId: string;
 
   @Prop({ required: true })
-  userLogin: string;
+  declare userLogin: string;
 }
 
 const CommentatorInfoSchema = SchemaFactory.createForClass(CommentatorInfo);
@@ -15,19 +15,19 @@ const CommentatorInfoSchema = SchemaFactory.createForClass(CommentatorInfo);
 @Schema({ versionKey: false })
 export class Comment {
   @Prop({ required: true })
-  postId: string;
+  declare postId: string;
 
   @Prop({ required: true })
-  content: string;
+  declare content: string;
 
   @Prop({
     type: CommentatorInfoSchema,
     required: true,
   })
-  commentatorInfo: CommentatorInfoType;
+  declare commentatorInfo: CommentatorInfoType;
 
   @Prop({ required: true })
-  createdAt: string;
+  declare createdAt: string;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

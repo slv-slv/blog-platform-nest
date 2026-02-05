@@ -5,19 +5,19 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @Schema({ versionKey: false })
 export class Blog {
   @Prop({ required: true })
-  name: string;
+  declare name: string;
 
   @Prop({ required: true })
-  description: string;
+  declare description: string;
 
   @Prop({ required: true })
-  websiteUrl: string;
+  declare websiteUrl: string;
 
   @Prop({ required: true })
-  createdAt: string;
+  declare createdAt: string;
 
   @Prop({ required: true })
-  isMembership: boolean;
+  declare isMembership: boolean;
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);

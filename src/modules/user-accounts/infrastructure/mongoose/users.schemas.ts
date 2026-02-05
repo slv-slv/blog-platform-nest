@@ -4,13 +4,13 @@ import { ConfirmationInfoType } from '../../types/users.types.js';
 @Schema({ _id: false })
 class ConfirmationInfo {
   @Prop({ required: true })
-  isConfirmed: boolean;
+  declare isConfirmed: boolean;
 
   @Prop({ default: null })
-  code: string;
+  declare code: string;
 
   @Prop({ default: null })
-  expiration: Date;
+  declare expiration: Date;
 }
 
 const ConfirmationInfoSchema = SchemaFactory.createForClass(ConfirmationInfo);
@@ -18,10 +18,10 @@ const ConfirmationInfoSchema = SchemaFactory.createForClass(ConfirmationInfo);
 @Schema({ _id: false })
 class PasswordRecoveryInfo {
   @Prop({ default: null })
-  code: string;
+  declare code: string;
 
   @Prop({ default: null })
-  expiration: Date;
+  declare expiration: Date;
 }
 
 const PasswordRecoveryInfoSchema = SchemaFactory.createForClass(PasswordRecoveryInfo);
@@ -29,22 +29,22 @@ const PasswordRecoveryInfoSchema = SchemaFactory.createForClass(PasswordRecovery
 @Schema({ versionKey: false })
 export class User {
   @Prop({ required: true })
-  login: string;
+  declare login: string;
 
   @Prop({ required: true })
-  email: string;
+  declare email: string;
 
   @Prop({ required: true })
-  hash: string;
+  declare hash: string;
 
   @Prop({ required: true })
-  createdAt: Date;
+  declare createdAt: Date;
 
   @Prop({ type: ConfirmationInfoSchema, required: true })
-  confirmation: ConfirmationInfoType;
+  declare confirmation: ConfirmationInfoType;
 
   @Prop({ type: PasswordRecoveryInfoSchema, required: true })
-  passwordRecovery: PasswordRecoveryInfo;
+  declare passwordRecovery: PasswordRecoveryInfo;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

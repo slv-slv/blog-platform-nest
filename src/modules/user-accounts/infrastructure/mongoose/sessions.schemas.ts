@@ -11,19 +11,19 @@ export type DeviceType = {
 @Schema({ _id: false })
 export class Device {
   @Prop({ required: true })
-  id: string;
+  declare id: string;
 
   @Prop({ required: true })
-  name: string;
+  declare name: string;
 
   @Prop({ required: true })
-  ip: string;
+  declare ip: string;
 
   @Prop({ required: true })
-  iat: number;
+  declare iat: number;
 
   @Prop({ required: true })
-  exp: number;
+  declare exp: number;
 }
 
 const DeviceSchema = SchemaFactory.createForClass(Device);
@@ -31,10 +31,10 @@ const DeviceSchema = SchemaFactory.createForClass(Device);
 @Schema({ versionKey: false })
 export class Session {
   @Prop({ required: true })
-  userId: string;
+  declare userId: string;
 
   @Prop({ type: [DeviceSchema], required: true })
-  devices: DeviceType[];
+  declare devices: DeviceType[];
 }
 
 export const SessionSchema = SchemaFactory.createForClass(Session);

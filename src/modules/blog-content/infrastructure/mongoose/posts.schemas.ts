@@ -3,22 +3,22 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 @Schema({ versionKey: false })
 export class Post {
   @Prop({ required: true })
-  title: string;
+  declare title: string;
 
   @Prop({ required: true })
-  shortDescription: string;
+  declare shortDescription: string;
 
   @Prop({ required: true })
-  content: string;
+  declare content: string;
 
   @Prop({ required: true })
-  blogId: string;
+  declare blogId: string;
 
   @Prop({ required: true })
-  blogName: string;
+  declare blogName: string;
 
   @Prop({ required: true })
-  createdAt: string;
+  declare createdAt: string;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
