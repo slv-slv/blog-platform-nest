@@ -1,12 +1,15 @@
 import { BeforeApplicationShutdown, Global, Inject, Module, OnApplicationBootstrap } from '@nestjs/common';
-import { AuthConfig, CoreConfig, DatabaseConfig, EmailConfig } from './core.config.js';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigType } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PostgresModule } from '../common/dynamic-modules/postgres.module.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PG_POOL } from '../common/constants.js';
 import { Pool } from 'pg';
-import { authSettings, coreSettings, databaseSettings, emailSettings } from '../settings.js';
+import { authConfig } from '../config/auth.config.js';
+import { coreConfig } from '../config/core.config.js';
+import { emailConfig } from '../config/email.config.js';
+import { mongoConfig } from '../config/mongo.config.js';
+import { postgresConfig } from '../config/postgres.config.js';
 
 @Global()
 @Module({
@@ -19,42 +22,40 @@ import { authSettings, coreSettings, databaseSettings, emailSettings } from '../
         `.env.${process.env.NODE_ENV}`,
         `.env.production`,
       ],
-      load: [coreSettings, databaseSettings, authSettings, emailSettings],
+      load: [coreConfig, mongoConfig, postgresConfig, authConfig, emailConfig],
     }),
     MongooseModule.forRootAsync({
-      inject: [DatabaseConfig],
-      useFactory: (databaseConfig: DatabaseConfig) => ({
-        uri: databaseConfig.mongoSettings.url,
-        dbName: databaseConfig.mongoSettings.database,
+      inject: [mongoConfig.KEY],
+      useFactory: (mongo: ConfigType<typeof mongoConfig>) => ({
+        uri: mongo.url,
+        dbName: mongo.database,
       }),
     }),
     PostgresModule.forRootAsync({
-      inject: [DatabaseConfig],
-      useFactory: (databaseConfig: DatabaseConfig) => ({
-        host: databaseConfig.postgresSettings.url,
-        user: databaseConfig.postgresSettings.user,
-        password: databaseConfig.postgresSettings.password,
-        database: databaseConfig.postgresSettings.database,
+      inject: [postgresConfig.KEY],
+      useFactory: (postgres: ConfigType<typeof postgresConfig>) => ({
+        host: postgres.url,
+        user: postgres.user,
+        password: postgres.password,
+        database: postgres.database,
         ssl: true,
       }),
     }),
     TypeOrmModule.forRootAsync({
-      inject: [DatabaseConfig],
-      useFactory: (databaseConfig: DatabaseConfig) => ({
+      inject: [postgresConfig.KEY],
+      useFactory: (postgres: ConfigType<typeof postgresConfig>) => ({
         type: 'postgres',
-        host: databaseConfig.postgresSettings.url,
-        username: databaseConfig.postgresSettings.user,
-        password: databaseConfig.postgresSettings.password,
+        host: postgres.url,
+        username: postgres.user,
+        password: postgres.password,
         schema: 'typeorm',
-        database: databaseConfig.postgresSettings.database,
+        database: postgres.database,
         autoLoadEntities: true,
         synchronize: true,
         ssl: true,
       }),
     }),
   ],
-  providers: [CoreConfig, DatabaseConfig, AuthConfig, EmailConfig],
-  exports: [CoreConfig, DatabaseConfig, AuthConfig, EmailConfig],
 })
 export class CoreModule implements OnApplicationBootstrap, BeforeApplicationShutdown {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}

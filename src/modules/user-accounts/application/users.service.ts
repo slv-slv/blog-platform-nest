@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { UsersRepository } from '../infrastructure/sql/users.repository.js';
 import { UsersQueryRepository } from '../infrastructure/sql/users.query-repository.js';
 import { AuthService } from './auth.service.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
 import { ConfirmationInfoType, PasswordRecoveryInfoType, UserViewType } from '../types/users.types.js';
-import { SETTINGS } from '../../../settings.js';
+import { authConfig } from '../../../config/auth.config.js';
 import {
   ConfirmationCodeExpiredDomainException,
   ConfirmationCodeInvalidDomainException,
@@ -24,6 +25,7 @@ export class UsersService {
     private readonly usersQueryRepository: UsersQueryRepository,
     private readonly authService: AuthService,
     private readonly emailService: EmailService,
+    @Inject(authConfig.KEY) private readonly auth: ConfigType<typeof authConfig>,
   ) {}
   async createUser(
     login: string,
@@ -59,7 +61,7 @@ export class UsersService {
 
     const expiration = new Date();
     const hours = expiration.getHours();
-    expiration.setHours(hours + SETTINGS.CONFIRMATION_CODE_LIFETIME);
+    expiration.setHours(hours + this.auth.confirmationCodeLifetime);
 
     const confirmation = {
       isConfirmed: false,
@@ -88,7 +90,7 @@ export class UsersService {
 
     const expiration = new Date();
     const hours = expiration.getHours();
-    expiration.setHours(hours + SETTINGS.CONFIRMATION_CODE_LIFETIME);
+    expiration.setHours(hours + this.auth.confirmationCodeLifetime);
 
     await this.emailService.sendConfirmationCode(email, code);
 
@@ -100,7 +102,7 @@ export class UsersService {
 
     const expiration = new Date();
     const hours = expiration.getHours();
-    expiration.setHours(hours + SETTINGS.RECOVERY_CODE_LIFETIME);
+    expiration.setHours(hours + this.auth.recoveryCodeLifetime);
 
     const result = await this.usersRepository.updateRecoveryCode(email, code, expiration);
 

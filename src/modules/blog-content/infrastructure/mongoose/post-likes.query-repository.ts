@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { PostLikesRepository } from './post-likes.repository.js';
 import { InjectModel } from '@nestjs/mongoose';
 import { PostLikes } from './post-likes.schemas.js';
@@ -6,7 +7,7 @@ import { PostLikesType } from '../../types/post-likes.types.js';
 import { Model } from 'mongoose';
 import { ExtendedLikesInfoViewType } from '../../types/likes.types.js';
 import { UsersQueryRepository } from '../../../user-accounts/infrastructure/mongoose/users.query-repository.js';
-import { SETTINGS } from '../../../../settings.js';
+import { coreConfig } from '../../../../config/core.config.js';
 
 @Injectable()
 export class PostLikesQueryRepository {
@@ -14,13 +15,14 @@ export class PostLikesQueryRepository {
     @InjectModel(PostLikes.name) private readonly model: Model<PostLikesType>,
     private readonly postLikesRepository: PostLikesRepository,
     private readonly usersQueryRepository: UsersQueryRepository,
+    @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}
   async getLikesInfo(postId: string, userId: string): Promise<ExtendedLikesInfoViewType> {
     const likesCount = await this.postLikesRepository.getLikesCount(postId);
     const dislikesCount = await this.postLikesRepository.getDislikesCount(postId);
     const myStatus = await this.postLikesRepository.getLikeStatus(postId, userId);
 
-    const newestLikesNumber = SETTINGS.NEWEST_LIKES_NUMBER;
+    const newestLikesNumber = this.core.newestLikesNumber;
 
     const result = await this.model.aggregate([
       { $match: { postId } },
