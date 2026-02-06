@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { ExtendedLikesInfoViewType } from '../../types/likes.types.js';
 import { PostLikesRepository } from './post-likes.repository.js';
-import { SETTINGS } from '../../../../settings.js';
 import { UsersQueryRepository } from '../../../user-accounts/infrastructure/sql/users.query-repository.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
+import { coreConfig } from '../../../../config/core.config.js';
 
 @Injectable()
 export class PostLikesQueryRepository {
@@ -12,6 +13,7 @@ export class PostLikesQueryRepository {
     @Inject(PG_POOL) private readonly pool: Pool,
     private readonly postLikesRepository: PostLikesRepository,
     private readonly usersQueryRepository: UsersQueryRepository,
+    @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}
 
   async getLikesInfo(postId: string, userId: string | null): Promise<ExtendedLikesInfoViewType> {
@@ -19,7 +21,7 @@ export class PostLikesQueryRepository {
     const dislikesCount = await this.postLikesRepository.getDislikesCount(postId);
     const myStatus = await this.postLikesRepository.getLikeStatus(postId, userId);
 
-    const newestLikesNumber = SETTINGS.NEWEST_LIKES_NUMBER;
+    const newestLikesNumber = this.core.newestLikesNumber;
 
     const result = await this.pool.query(
       `

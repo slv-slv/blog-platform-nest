@@ -10,66 +10,66 @@ import { CurrentUserType, UserType, UserViewType } from '../../types/users.types
 
 export class ConfirmationInfo {
   @Column()
-  isConfirmed: boolean;
+  declare isConfirmed: boolean;
 
   @Column({ nullable: true })
-  code: string;
+  declare code: string;
 
   @Column('timestamptz', { nullable: true })
-  expiration: Date;
+  declare expiration: Date;
 }
 
 export class PasswordRecoveryInfo {
   @Column({ nullable: true })
-  code: string;
+  declare code: string;
 
   @Column('timestamptz', { nullable: true })
-  expiration: Date;
+  declare expiration: Date;
 }
 
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('identity')
-  id: number;
+  declare id: number;
 
   @Column({ unique: true })
-  login: string;
+  declare login: string;
 
   @Column({ unique: true })
-  email: string;
+  declare email: string;
 
   @Column()
-  hash: string;
+  declare hash: string;
 
   @Column('timestamptz')
-  createdAt: Date;
+  declare createdAt: Date;
 
   @Column(() => ConfirmationInfo)
-  confirmation: ConfirmationInfo;
+  declare confirmation: ConfirmationInfo;
 
   @Column(() => PasswordRecoveryInfo)
-  passwordRecovery: PasswordRecoveryInfo;
+  declare passwordRecovery: PasswordRecoveryInfo;
 
   @DeleteDateColumn({ type: 'timestamptz', select: false })
-  deletedAt: Date;
+  declare deletedAt: Date;
 
   @OneToMany(() => Device, (device) => device.user)
-  devices: Relation<Device[]>;
+  declare devices: Relation<Device[]>;
 
   @OneToMany(() => Comment, (comment) => comment.user)
-  comments: Relation<Comment[]>;
+  declare comments: Relation<Comment[]>;
 
   @OneToMany(() => CommentLike, (commentLike) => commentLike.user)
-  commentLikes: Relation<CommentLike[]>;
+  declare commentLikes: Relation<CommentLike[]>;
 
   @OneToMany(() => CommentDislike, (commentDislike) => commentDislike.user)
-  commentDislikes: Relation<CommentDislike[]>;
+  declare commentDislikes: Relation<CommentDislike[]>;
 
   @OneToMany(() => PostLike, (postLike) => postLike.user)
-  postLikes: Relation<PostLike[]>;
+  declare postLikes: Relation<PostLike[]>;
 
   @OneToMany(() => PostDislike, (postDislike) => postDislike.user)
-  postDislikes: Relation<PostDislike[]>;
+  declare postDislikes: Relation<PostDislike[]>;
 
   toDto(): UserType {
     return {

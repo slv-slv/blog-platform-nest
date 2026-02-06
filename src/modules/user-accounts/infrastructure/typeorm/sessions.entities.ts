@@ -4,26 +4,26 @@ import { User } from './users.entities.js';
 @Entity({ name: 'devices' })
 export class Device {
   @PrimaryColumn('uuid')
-  id: string;
+  declare id: string;
 
   @Column()
-  userId: number;
+  declare userId: number;
 
   @ManyToOne(() => User, (user) => user.devices)
   @JoinColumn({ name: 'userId' })
-  user: Relation<User>;
+  declare user: Relation<User>;
 
   @Column()
-  name: string;
+  declare name: string;
 
   @Column()
-  ip: string;
+  declare ip: string;
 
   @Column()
-  iat: number;
+  declare iat: number;
 
   @Column()
-  exp: number;
+  declare exp: number;
 
   toViewType() {
     return {

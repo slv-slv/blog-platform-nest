@@ -5,39 +5,39 @@ import { User } from '../../../user-accounts/infrastructure/typeorm/users.entiti
 @Entity({ name: 'comment_likes' })
 export class CommentLike {
   @PrimaryColumn()
-  commentId: number;
+  declare commentId: number;
 
   @ManyToOne(() => Comment, (comment) => comment.likes)
   @JoinColumn({ name: 'commentId' })
-  comment: Relation<Comment>;
+  declare comment: Relation<Comment>;
 
   @PrimaryColumn()
-  userId: number;
+  declare userId: number;
 
   @ManyToOne(() => User, (user) => user.commentLikes)
   @JoinColumn({ name: 'userId' })
-  user: Relation<User>;
+  declare user: Relation<User>;
 
   @Column('timestamptz')
-  createdAt: Date;
+  declare createdAt: Date;
 }
 
 @Entity({ name: 'comment_dislikes' })
 export class CommentDislike {
   @PrimaryColumn()
-  commentId: number;
+  declare commentId: number;
 
   @ManyToOne(() => Comment, (comment) => comment.dislikes)
   @JoinColumn({ name: 'commentId' })
-  comment: Relation<Comment>;
+  declare comment: Relation<Comment>;
 
   @PrimaryColumn()
-  userId: number;
+  declare userId: number;
 
   @ManyToOne(() => User, (user) => user.commentDislikes)
   @JoinColumn({ name: 'userId' })
-  user: Relation<User>;
+  declare user: Relation<User>;
 
   @Column('timestamptz')
-  createdAt: Date;
+  declare createdAt: Date;
 }

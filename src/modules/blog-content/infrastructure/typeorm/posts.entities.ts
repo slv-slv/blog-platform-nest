@@ -19,38 +19,38 @@ export class Post {
   constructor(private readonly postLikesQueryRepository: PostLikesQueryRepository) {}
 
   @PrimaryGeneratedColumn('identity')
-  id: number;
+  declare id: number;
 
   @Column()
-  blogId: number;
+  declare blogId: number;
 
   @ManyToOne(() => Blog, (blog) => blog.posts)
   @JoinColumn({ name: 'blogId' })
-  blog: Relation<Blog>;
+  declare blog: Relation<Blog>;
 
   @Column()
-  title: string;
+  declare title: string;
 
   @Column()
-  shortDescription: string;
+  declare shortDescription: string;
 
   @Column('text')
-  content: string;
+  declare content: string;
 
   @Column('timestamptz')
-  createdAt: Date;
+  declare createdAt: Date;
 
   @DeleteDateColumn({ type: 'timestamptz', select: false })
-  deletedAt: Date;
+  declare deletedAt: Date;
 
   @OneToMany(() => Comment, (comment) => comment.post)
-  comments: Relation<Comment[]>;
+  declare comments: Relation<Comment[]>;
 
   @OneToMany(() => PostLike, (postLike) => postLike.post)
-  likes: Relation<PostLike[]>;
+  declare likes: Relation<PostLike[]>;
 
   @OneToMany(() => PostDislike, (postDislike) => postDislike.post)
-  dislikes: Relation<PostDislike[]>;
+  declare dislikes: Relation<PostDislike[]>;
 
   toDto(): PostDtoType {
     return {

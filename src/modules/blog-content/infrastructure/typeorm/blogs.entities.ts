@@ -5,28 +5,28 @@ import { BlogType } from '../../types/blogs.types.js';
 @Entity({ name: 'blogs' })
 export class Blog {
   @PrimaryGeneratedColumn('identity')
-  id: number;
+  declare id: number;
 
   @Column()
-  name: string;
+  declare name: string;
 
   @Column()
-  description: string;
+  declare description: string;
 
   @Column()
-  websiteUrl: string;
+  declare websiteUrl: string;
 
   @Column('timestamptz')
-  createdAt: Date;
+  declare createdAt: Date;
 
   @Column()
-  isMembership: boolean;
+  declare isMembership: boolean;
 
   @DeleteDateColumn({ type: 'timestamptz', select: false })
-  deletedAt: Date;
+  declare deletedAt: Date;
 
   @OneToMany(() => Post, (post) => post.blog)
-  posts: Relation<Post[]>;
+  declare posts: Relation<Post[]>;
 
   toDto(): BlogType {
     return {

@@ -10,27 +10,27 @@ export class Comment {
   constructor(private readonly commentLikesQueryRepository: CommentLikesQueryRepository) {}
 
   @PrimaryGeneratedColumn('identity')
-  id: number;
+  declare id: number;
 
   @ManyToOne(() => Post, (post) => post.comments)
   @JoinColumn()
-  post: Relation<Post>;
+  declare post: Relation<Post>;
 
   @ManyToOne(() => User, (user) => user.comments)
   @JoinColumn()
-  user: Relation<User>;
+  declare user: Relation<User>;
 
   @Column('text')
-  content: string;
+  declare content: string;
 
   @Column('timestamptz')
-  createdAt: Date;
+  declare createdAt: Date;
 
   @OneToMany(() => CommentLike, (commentLike) => commentLike.comment)
-  likes: Relation<CommentLike[]>;
+  declare likes: Relation<CommentLike[]>;
 
   @OneToMany(() => CommentDislike, (commentDislike) => commentDislike.comment)
-  dislikes: Relation<CommentDislike[]>;
+  declare dislikes: Relation<CommentDislike[]>;
 
   toDto(): CommentDtoType {
     const idStr = this.id.toString();
