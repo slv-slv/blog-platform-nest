@@ -61,7 +61,7 @@ export class UsersService {
 
     const expiration = new Date();
     const hours = expiration.getHours();
-    expiration.setHours(hours + this.auth.confirmationCodeLifetime);
+    expiration.setHours(hours + this.auth.confirmationCodeExpiresIn);
 
     const confirmation = {
       isConfirmed: false,
@@ -90,7 +90,7 @@ export class UsersService {
 
     const expiration = new Date();
     const hours = expiration.getHours();
-    expiration.setHours(hours + this.auth.confirmationCodeLifetime);
+    expiration.setHours(hours + this.auth.confirmationCodeExpiresIn);
 
     await this.emailService.sendConfirmationCode(email, code);
 
@@ -102,7 +102,7 @@ export class UsersService {
 
     const expiration = new Date();
     const hours = expiration.getHours();
-    expiration.setHours(hours + this.auth.recoveryCodeLifetime);
+    expiration.setHours(hours + this.auth.recoveryCodeExpiresIn);
 
     const result = await this.usersRepository.updateRecoveryCode(email, code, expiration);
 

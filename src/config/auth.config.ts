@@ -16,29 +16,29 @@ class AuthConfig {
 
   @IsString()
   @IsNotEmpty()
-  declare accessTokenLifetime: JwtSignOptions['expiresIn'];
+  declare accessTokenExpiresIn: JwtSignOptions['expiresIn'];
 
   @IsString()
   @IsNotEmpty()
-  declare refreshTokenLifetime: JwtSignOptions['expiresIn'];
+  declare refreshTokenExpiresIn: JwtSignOptions['expiresIn'];
 
   @IsInt()
   @Min(1)
-  declare confirmationCodeLifetime: number;
+  declare confirmationCodeExpiresIn: number;
 
   @IsInt()
   @Min(1)
-  declare recoveryCodeLifetime: number;
+  declare recoveryCodeExpiresIn: number;
 }
 
 export const authConfig = registerAs('auth', () => {
   const authConfigEnvInput = {
     adminCredentialsBase64: process.env.ADMIN_CREDENTIALS_BASE64,
     jwtPrivateKey: process.env.JWT_PRIVATE_KEY,
-    accessTokenLifetime: '10m',
-    refreshTokenLifetime: '20m',
-    confirmationCodeLifetime: 24,
-    recoveryCodeLifetime: 24,
+    accessTokenExpiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN,
+    refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
+    confirmationCodeExpiresIn: process.env.CONFIRMATION_CODE_EXPIRES_IN,
+    recoveryCodeExpiresIn: process.env.RECOVERY_CODE_EXPIRES_IN,
   };
 
   const authConfigEnv = plainToInstance(AuthConfig, authConfigEnvInput);

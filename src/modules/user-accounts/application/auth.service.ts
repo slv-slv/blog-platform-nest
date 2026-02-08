@@ -29,7 +29,7 @@ export class AuthService {
   async generateAcessToken(userId: string): Promise<string> {
     const jwtAccessPayload = { sub: userId };
     const accessToken = await this.jwtService.signAsync(jwtAccessPayload, {
-      expiresIn: this.auth.accessTokenLifetime,
+      expiresIn: this.auth.accessTokenExpiresIn,
     });
     return accessToken;
   }
@@ -37,7 +37,7 @@ export class AuthService {
   async generateRefreshToken(userId: string, deviceId: string = crypto.randomUUID()): Promise<string> {
     const jwtRefreshPayload = { sub: userId, deviceId };
     const refreshToken = await this.jwtService.signAsync(jwtRefreshPayload, {
-      expiresIn: this.auth.refreshTokenLifetime,
+      expiresIn: this.auth.refreshTokenExpiresIn,
     });
     return refreshToken;
   }

@@ -54,18 +54,18 @@ export class DatabaseConfigProvider {
 export class AuthConfigProvider {
   readonly adminCredentialsBase64: string;
   readonly jwtPrivateKey: string;
-  readonly accessTokenLifetime: string;
-  readonly refreshTokenLifetime: string;
-  readonly confirmationCodeLifetime: number;
-  readonly recoveryCodeLifetime: number;
+  readonly accessTokenExpiresIn: string;
+  readonly refreshTokenExpiresIn: string;
+  readonly confirmationCodeExpiresIn: number;
+  readonly recoveryCodeExpiresIn: number;
 
   constructor(private readonly configService: ConfigService) {
     this.adminCredentialsBase64 = this.configService.getOrThrow<string>('ADMIN_CREDENTIALS_BASE64');
     this.jwtPrivateKey = this.configService.getOrThrow<string>('JWT_PRIVATE_KEY');
-    this.accessTokenLifetime = '10m';
-    this.refreshTokenLifetime = '20m';
-    this.confirmationCodeLifetime = 24;
-    this.recoveryCodeLifetime = 24;
+    this.accessTokenExpiresIn = '10m';
+    this.refreshTokenExpiresIn = '20m';
+    this.confirmationCodeExpiresIn = 24;
+    this.recoveryCodeExpiresIn = 24;
   }
 }
 
