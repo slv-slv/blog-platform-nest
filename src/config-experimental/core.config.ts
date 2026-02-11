@@ -51,25 +51,6 @@ export class DatabaseConfigProvider {
 }
 
 @Injectable()
-export class AuthConfigProvider {
-  readonly adminCredentialsBase64: string;
-  readonly jwtPrivateKey: string;
-  readonly accessTokenExpiresIn: string;
-  readonly refreshTokenExpiresIn: string;
-  readonly confirmationCodeExpiresIn: number;
-  readonly recoveryCodeExpiresIn: number;
-
-  constructor(private readonly configService: ConfigService) {
-    this.adminCredentialsBase64 = this.configService.getOrThrow<string>('ADMIN_CREDENTIALS_BASE64');
-    this.jwtPrivateKey = this.configService.getOrThrow<string>('JWT_PRIVATE_KEY');
-    this.accessTokenExpiresIn = '10m';
-    this.refreshTokenExpiresIn = '20m';
-    this.confirmationCodeExpiresIn = 24;
-    this.recoveryCodeExpiresIn = 24;
-  }
-}
-
-@Injectable()
 export class EmailConfigProvider {
   readonly emailCredentials: { user: string; password: string };
   readonly smtpUrl: string;
