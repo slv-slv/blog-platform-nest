@@ -17,8 +17,7 @@ import { postgresConfig } from '../config/postgres.config.js';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [
-        // process.env.ENV_FILE_PATH,
-        `.env.development.local`,
+        process.env.ENV_FILE_PATH ?? '',
         `.env.${process.env.NODE_ENV}.local`,
         `.env.${process.env.NODE_ENV}`,
         `.env.production`,
