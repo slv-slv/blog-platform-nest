@@ -1,6 +1,11 @@
-import { DynamicModule, Global, Module, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { DynamicModule, Global, Module, ModuleMetadata } from '@nestjs/common';
 import { PG_BASE_CONFIG, PG_POOL } from '../constants.js';
 import { Pool, PoolConfig } from 'pg';
+
+type PostgresModuleAsyncOptions = {
+  inject?: any[];
+  useFactory: (...args: any[]) => PoolConfig | Promise<PoolConfig>;
+};
 
 @Global()
 @Module({})
@@ -12,6 +17,23 @@ export class PostgresModule {
         {
           provide: PG_POOL,
           useValue: new Pool(pgConfig),
+        },
+      ],
+      exports: [PG_POOL],
+    };
+  }
+
+  static forRootAsync(options: PostgresModuleAsyncOptions): DynamicModule {
+    return {
+      module: PostgresModule,
+      providers: [
+        {
+          provide: PG_POOL,
+          useFactory: async (...args: any[]) => {
+            const pgConfig = await options.useFactory(...args);
+            return new Pool(pgConfig);
+          },
+          inject: options.inject ?? [],
         },
       ],
       exports: [PG_POOL],
