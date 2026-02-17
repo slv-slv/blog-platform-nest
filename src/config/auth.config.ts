@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config';
-import { plainToInstance } from 'class-transformer';
+import { plainToInstance, Type } from 'class-transformer';
 import { IsBase64, IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 import { validateOrThrow } from './validate-or-throw.js';
 import type { JwtSignOptions } from '@nestjs/jwt';
@@ -24,10 +24,12 @@ class AuthConfig {
 
   @IsInt()
   @Min(1)
+  @Type(() => Number)
   declare confirmationCodeExpiresIn: number;
 
   @IsInt()
   @Min(1)
+  @Type(() => Number)
   declare recoveryCodeExpiresIn: number;
 }
 
