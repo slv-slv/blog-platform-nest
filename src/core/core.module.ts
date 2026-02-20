@@ -39,6 +39,7 @@ import { postgresConfig } from '../config/postgres.config.js';
         password: postgres.password,
         database: postgres.database,
         ssl: true,
+        connectionTimeoutMillis: 5000,
       }),
     }),
     TypeOrmModule.forRootAsync({
