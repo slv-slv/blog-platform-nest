@@ -3,6 +3,7 @@ import { PG_BASE_CONFIG, PG_POOL } from '../constants.js';
 import { Pool, PoolConfig } from 'pg';
 
 type PostgresModuleAsyncOptions = {
+  imports?: ModuleMetadata['imports'];
   inject?: any[];
   useFactory: (...args: any[]) => PoolConfig | Promise<PoolConfig>;
 };
@@ -26,6 +27,7 @@ export class PostgresModule {
   static forRootAsync(options: PostgresModuleAsyncOptions): DynamicModule {
     return {
       module: PostgresModule,
+      imports: options.imports ?? [],
       providers: [
         {
           provide: PG_POOL,
