@@ -7,6 +7,7 @@ import { AppModule } from '../../../app.module.js';
 import { authConfig } from '../../../config/auth.config.js';
 import { appSetup } from '../../../setup/app.setup.js';
 import { HTTP_STATUS } from '../../utils/http-status.js';
+import { EmailService } from '../../../notifications/email/email.service.js';
 
 describe('LOGIN', () => {
   let app: INestApplication<App>;
@@ -16,7 +17,10 @@ describe('LOGIN', () => {
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(EmailService)
+      .useValue({ sendConfirmationCode: () => {} })
+      .compile();
 
     app = moduleRef.createNestApplication();
     appSetup(app);
