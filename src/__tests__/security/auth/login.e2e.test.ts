@@ -19,7 +19,7 @@ describe('LOGIN', () => {
       imports: [AppModule],
     })
       .overrideProvider(EmailService)
-      .useValue({ sendConfirmationCode: () => {} })
+      .useValue({ sendConfirmationCode: () => {}, sendRecoveryCode: () => {} })
       .compile();
 
     app = moduleRef.createNestApplication();
