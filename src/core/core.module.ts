@@ -65,7 +65,7 @@ export class CoreModule implements OnApplicationBootstrap, BeforeApplicationShut
     try {
       const client = await this.pool.connect();
       client.release();
-      console.log('PostgreSQL successfully connected');
+      // console.log('PostgreSQL successfully connected');
     } catch (e) {
       console.error('PostgreSQL connection error:\n', e);
     }
