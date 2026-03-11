@@ -2,12 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PostDtoType } from '../../types/posts.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
+import { PostNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class PostsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async findPost(id: string): Promise<PostDtoType | null> {
+  async findPost(id: string): Promise<PostDtoType> {
     const result = await this.pool.query(
       `
         SELECT
@@ -25,7 +26,7 @@ export class PostsRepository {
     );
 
     if (result.rowCount === 0) {
-      return null;
+      throw new PostNotFoundDomainException();
     }
 
     const rawPost = result.rows[0];
@@ -40,6 +41,7 @@ export class PostsRepository {
       createdAt: rawPost.created_at,
     };
   }
+
   async createPost(
     title: string,
     shortDescription: string,
@@ -71,7 +73,7 @@ export class PostsRepository {
       createdAt,
     };
   }
-  async updatePost(id: string, title: string, shortDescription: string, content: string): Promise<boolean> {
+  async updatePost(id: string, title: string, shortDescription: string, content: string): Promise<void> {
     const result = await this.pool.query(
       `
         UPDATE posts
@@ -81,9 +83,12 @@ export class PostsRepository {
       [parseInt(id), title, shortDescription, content],
     );
 
-    return result.rowCount! > 0;
+    if (!result.rowCount) {
+      throw new PostNotFoundDomainException();
+    }
   }
-  async deletePost(id: string): Promise<boolean> {
+
+  async deletePost(id: string): Promise<void> {
     const result = await this.pool.query(
       `
         DELETE FROM posts
@@ -92,6 +97,8 @@ export class PostsRepository {
       [parseInt(id)],
     );
 
-    return result.rowCount! > 0;
+    if (!result.rowCount) {
+      throw new PostNotFoundDomainException();
+    }
   }
 }
