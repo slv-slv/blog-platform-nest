@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { PostLikesQueryRepository } from './post-likes.query-repository.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
+import { PostNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -12,7 +13,7 @@ export class PostsQueryRepository {
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 
-  async findPost(id: string, userId: string | null): Promise<PostViewType | null> {
+  async findPost(id: string, userId: string | null): Promise<PostViewType> {
     const result = await this.pool.query(
       `
         SELECT
@@ -29,8 +30,8 @@ export class PostsQueryRepository {
       [parseInt(id)],
     );
 
-    if (result.rowCount === 0) {
-      return null;
+    if (!result.rowCount) {
+      throw new PostNotFoundDomainException();
     }
 
     const rawPost = result.rows[0];
