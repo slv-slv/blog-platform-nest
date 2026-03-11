@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
+import { CommentNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class CommentsQueryRepository {
@@ -12,7 +13,7 @@ export class CommentsQueryRepository {
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
-  async findComment(id: string, userId: string | null): Promise<CommentViewType | null> {
+  async findComment(id: string, userId: string | null): Promise<CommentViewType> {
     const result = await this.pool.query(
       `
         SELECT
@@ -27,8 +28,8 @@ export class CommentsQueryRepository {
       [parseInt(id)],
     );
 
-    if (result.rowCount === 0) {
-      return null;
+    if (!result.rowCount) {
+      throw new CommentNotFoundDomainException();
     }
 
     const { content, created_at, commentator_id, commentator_login } = result.rows[0];
