@@ -27,9 +27,7 @@ export class CommentsController {
   ): Promise<CommentViewType> {
     const userId = res.locals.userId;
 
-    const comment = await this.commentsQueryRepository.findComment(id, userId);
-    if (!comment) throw new CommentNotFoundDomainException();
-    return comment;
+    return await this.commentsQueryRepository.findComment(id, userId);
   }
 
   @Put(':commentId')
