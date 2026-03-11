@@ -32,7 +32,6 @@ import {
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { PostsService } from '../application/posts.service.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
-import { BlogNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -50,25 +49,19 @@ export class BlogsSuperadminController {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
 
-    const blogs = await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
-    return blogs;
+    return await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
   }
 
   @Get(':id')
   async findBlog(@Param('id') id: string): Promise<BlogType> {
-    const blog = await this.blogsRepo.findBlog(id);
-    if (!blog) {
-      throw new BlogNotFoundDomainException();
-    }
-    return blog;
+    return await this.blogsRepo.findBlog(id);
   }
 
   @Post()
   @HttpCode(201)
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogType> {
     const { name, description, websiteUrl } = body;
-    const newBlog = await this.blogsService.createBlog(name, description, websiteUrl);
-    return newBlog;
+    return await this.blogsService.createBlog(name, description, websiteUrl);
   }
 
   @Put(':id')
@@ -94,21 +87,16 @@ export class BlogsSuperadminController {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
-    const blog = await this.blogsRepo.findBlog(blogId);
-    if (!blog) {
-      throw new BlogNotFoundDomainException();
-    }
+    await this.blogsRepo.findBlog(blogId);
 
-    const posts = await this.postsQueryRepository.getPosts(userId, pagingParams, blogId);
-    return posts;
+    return await this.postsQueryRepository.getPosts(userId, pagingParams, blogId);
   }
 
   @Post(':blogId/posts')
   @HttpCode(201)
   async createPost(@Param('blogId') blogId: string, @Body() body: CreatePostInputDto): Promise<PostViewType> {
     const { title, shortDescription, content } = body;
-    const newPost = await this.postsService.createPost(title, shortDescription, content, blogId);
-    return newPost;
+    return await this.postsService.createPost(title, shortDescription, content, blogId);
   }
 
   @Put(':blogId/posts/:postId')
