@@ -6,7 +6,6 @@ import { BlogsPaginatedType, BlogType, GetBlogsQueryParams } from '../types/blog
 import { GetPostsQueryParams, PostsPaginatedType } from '../types/posts.types.js';
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { Public } from '../../../common/decorators/public.js';
-import { BlogNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 Public();
 @Controller('blogs')
@@ -22,8 +21,7 @@ export class BlogsController {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
 
-    const blogs = await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
-    return blogs;
+    return await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
   }
 
   @Get(':blogId/posts')
@@ -36,10 +34,7 @@ export class BlogsController {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
-    const blog = await this.blogsRepo.findBlog(blogId);
-    if (!blog) {
-      throw new BlogNotFoundDomainException();
-    }
+    await this.blogsRepo.findBlog(blogId);
 
     const posts = await this.postsQueryRepository.getPosts(userId, pagingParams, blogId);
     return posts;
@@ -47,10 +42,6 @@ export class BlogsController {
 
   @Get(':id')
   async findBlog(@Param('id') id: string): Promise<BlogType> {
-    const blog = await this.blogsRepo.findBlog(id);
-    if (!blog) {
-      throw new BlogNotFoundDomainException();
-    }
-    return blog;
+    return await this.blogsRepo.findBlog(id);
   }
 }
