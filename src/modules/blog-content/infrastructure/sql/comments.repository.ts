@@ -2,12 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CommentDtoType } from '../../types/comments.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
+import { CommentNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class CommentsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async findComment(id: string): Promise<CommentDtoType | null> {
+  async findComment(id: string): Promise<CommentDtoType> {
     const result = await this.pool.query(
       `
         SELECT
@@ -23,7 +24,7 @@ export class CommentsRepository {
     );
 
     if (result.rowCount === 0) {
-      return null;
+      throw new CommentNotFoundDomainException();
     }
 
     const { content, created_at, commentator_id, commentator_login } = result.rows[0];
@@ -38,6 +39,7 @@ export class CommentsRepository {
       createdAt: created_at,
     };
   }
+
   async createComment(
     postId: string,
     content: string,
