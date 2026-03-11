@@ -6,9 +6,6 @@ import { UsersRepository } from '../../user-accounts/infrastructure/sql/users.re
 import { CommentLikesService } from './comment-likes.service.js';
 import {
   AccessDeniedDomainException,
-  CommentNotFoundDomainException,
-  PostNotFoundDomainException,
-  UnauthorizedDomainException,
 } from '../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
@@ -20,11 +17,9 @@ export class CommentsService {
     private readonly commentLikesService: CommentLikesService,
   ) {}
   async createComment(postId: string, content: string, userId: string): Promise<CommentViewType> {
-    const post = await this.postsRepository.findPost(postId);
-    if (!post) throw new PostNotFoundDomainException();
+    await this.postsRepository.findPost(postId);
 
     const userLogin = await this.usersRepository.getLogin(userId);
-    if (!userLogin) throw new UnauthorizedDomainException();
 
     const commentatorInfo = { userId, userLogin };
     const createdAt = new Date().toISOString();
@@ -44,7 +39,6 @@ export class CommentsService {
 
   async updateComment(commentId: string, content: string, userId: string): Promise<void> {
     const comment = await this.commentsRepository.findComment(commentId);
-    if (!comment) throw new CommentNotFoundDomainException();
 
     const ownerId = comment.commentatorInfo.userId;
     if (userId !== ownerId) throw new AccessDeniedDomainException();
@@ -54,7 +48,6 @@ export class CommentsService {
 
   async deleteComment(commentId: string, userId: string): Promise<void> {
     const comment = await this.commentsRepository.findComment(commentId);
-    if (!comment) throw new CommentNotFoundDomainException();
 
     const ownerId = comment.commentatorInfo.userId;
     if (userId !== ownerId) throw new AccessDeniedDomainException();
