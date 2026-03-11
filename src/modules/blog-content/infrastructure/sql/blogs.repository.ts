@@ -2,12 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { BlogType } from '../../types/blogs.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
+import { BlogNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class BlogsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async findBlog(id: string): Promise<BlogType | null> {
+  async findBlog(id: string): Promise<BlogType> {
     const result = await this.pool.query(
       `
         SELECT *
@@ -18,7 +19,7 @@ export class BlogsRepository {
     );
 
     if (result.rowCount === 0) {
-      return null;
+      throw new BlogNotFoundDomainException();
     }
 
     const blog = result.rows[0];
@@ -32,6 +33,7 @@ export class BlogsRepository {
       isMembership: blog.is_membership,
     };
   }
+
   async createBlog(
     name: string,
     description: string,
@@ -54,7 +56,7 @@ export class BlogsRepository {
 
     return { id, ...newBlog };
   }
-  async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
+  async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<void> {
     const result = await this.pool.query(
       `
         UPDATE blogs
@@ -64,9 +66,12 @@ export class BlogsRepository {
       [parseInt(id), name, description, websiteUrl],
     );
 
-    return result.rowCount! > 0;
+    if (!result.rowCount) {
+      throw new BlogNotFoundDomainException();
+    }
   }
-  async deleteBlog(id: string): Promise<boolean> {
+
+  async deleteBlog(id: string): Promise<void> {
     const result = await this.pool.query(
       `
         DELETE FROM blogs
@@ -75,6 +80,8 @@ export class BlogsRepository {
       [parseInt(id)],
     );
 
-    return result.rowCount! > 0;
+    if (!result.rowCount) {
+      throw new BlogNotFoundDomainException();
+    }
   }
 }
