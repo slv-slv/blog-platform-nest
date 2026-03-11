@@ -57,18 +57,13 @@ export class PostsController {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
-    const posts = await this.postsQueryRepository.getPosts(userId, pagingParams);
-    return posts;
+    return await this.postsQueryRepository.getPosts(userId, pagingParams);
   }
 
   @Get(':id')
   async findPost(@Param('id') id: string, @Res({ passthrough: true }) res: Response): Promise<PostViewType> {
     const userId = res.locals.userId;
-
-    const post = await this.postsQueryRepository.findPost(id, userId);
-
-    if (!post) throw new PostNotFoundDomainException();
-    return post;
+    return await this.postsQueryRepository.findPost(id, userId);
   }
 
   @Post()
@@ -76,8 +71,7 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   async createPost(@Body() body: CreatePostForBlogInputDto): Promise<PostViewType> {
     const { title, shortDescription, content, blogId } = body;
-    const newPost = await this.postsService.createPost(title, shortDescription, content, blogId);
-    return newPost;
+    return await this.postsService.createPost(title, shortDescription, content, blogId);
   }
 
   @Put(':id')
@@ -103,14 +97,12 @@ export class PostsController {
   ): Promise<CommentsPaginatedType> {
     const userId = res.locals.userId;
 
-    const post = await this.postsRepository.findPost(postId);
-    if (!post) throw new PostNotFoundDomainException();
+    await this.postsRepository.findPost(postId);
 
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
 
-    const comments = await this.commentsQueryRepository.getComments(postId, userId, pagingParams);
-    return comments;
+    return await this.commentsQueryRepository.getComments(postId, userId, pagingParams);
   }
 
   @Post(':postId/comments')
@@ -124,8 +116,7 @@ export class PostsController {
     const content = body.content;
     const userId = res.locals.userId;
 
-    const newComment = await this.commentsService.createComment(postId, content, userId);
-    return newComment;
+    return await this.commentsService.createComment(postId, content, userId);
   }
 
   @Put(':postId/like-status')
