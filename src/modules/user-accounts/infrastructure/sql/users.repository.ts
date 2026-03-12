@@ -7,12 +7,19 @@ import {
 } from '../../types/users.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
+import {
+  ConfirmationCodeInvalidDomainException,
+  IncorrectEmailDomainException,
+  RecoveryCodeInvalidDomainException,
+  UnauthorizedDomainException,
+  UserNotFoundDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class UsersRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async findUser(loginOrEmail: string): Promise<UserType | null> {
+  async findUser(loginOrEmail: string): Promise<UserType> {
     const likeTerm = `%${loginOrEmail}%`;
     const usersResult = await this.pool.query(
       `
@@ -24,7 +31,7 @@ export class UsersRepository {
     );
 
     if (usersResult.rowCount === 0) {
-      return null;
+      throw new IncorrectEmailDomainException();
     }
 
     const {
@@ -53,7 +60,8 @@ export class UsersRepository {
 
     return { id: id.toString(), login, email, hash, createdAt: created_at, confirmation, passwordRecovery };
   }
-  async getLogin(id: string): Promise<string | null> {
+
+  async getLogin(id: string): Promise<string> {
     const idInt = Number.parseInt(id);
 
     const result = await this.pool.query(
@@ -66,13 +74,14 @@ export class UsersRepository {
     );
 
     if (result.rowCount === 0) {
-      return null;
+      throw new UnauthorizedDomainException();
     }
 
     const { login } = result.rows[0];
     return login;
   }
-  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {
+
+  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType> {
     const result = await this.pool.query(
       `
         SELECT is_confirmed, confirmation_expiration
@@ -83,13 +92,14 @@ export class UsersRepository {
     );
 
     if (result.rowCount === 0) {
-      return null;
+      throw new ConfirmationCodeInvalidDomainException();
     }
 
     const { is_confirmed: isConfirmed, confirmation_expiration: expiration } = result.rows[0];
     return { isConfirmed, code, expiration };
   }
-  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {
+
+  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType> {
     const result = await this.pool.query(
       `
         SELECT recovery_expiration FROM users
@@ -99,12 +109,13 @@ export class UsersRepository {
     );
 
     if (result.rowCount === 0) {
-      return null;
+      throw new RecoveryCodeInvalidDomainException();
     }
 
     const { recovery_expiration: expiration } = result.rows[0];
     return { code, expiration };
   }
+
   async createUser(
     login: string,
     email: string,
@@ -188,7 +199,7 @@ export class UsersRepository {
       [code],
     );
   }
-  async deleteUser(id: string): Promise<boolean> {
+  async deleteUser(id: string): Promise<void> {
     const idInt = Number.parseInt(id);
 
     const deleteResult = await this.pool.query(
@@ -199,6 +210,8 @@ export class UsersRepository {
       [idInt],
     );
 
-    return deleteResult.rowCount! > 0;
+    if (!deleteResult.rowCount) {
+      throw new UserNotFoundDomainException();
+    }
   }
 }
