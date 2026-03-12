@@ -12,6 +12,14 @@ export type BlogType = {
   isMembership: boolean;
 };
 
+export type BlogsPaginatedType = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: BlogType[];
+};
+
 export enum BlogsSortBy {
   name = 'name',
   description = 'description',
@@ -76,11 +84,3 @@ export type BlogDbType = WithId<{
   createdAt: string;
   isMembership: boolean;
 }>;
-
-export type BlogsPaginatedType = {
-  pagesCount: number;
-  page: number;
-  pageSize: number;
-  totalCount: number;
-  items: BlogType[];
-};
