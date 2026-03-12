@@ -12,22 +12,6 @@ export type BlogType = {
   isMembership: boolean;
 };
 
-export type BlogDbType = WithId<{
-  name: string;
-  description: string;
-  websiteUrl: string;
-  createdAt: string;
-  isMembership: boolean;
-}>;
-
-export type BlogsPaginatedType = {
-  pagesCount: number;
-  page: number;
-  pageSize: number;
-  totalCount: number;
-  items: BlogType[];
-};
-
 export enum BlogsSortBy {
   name = 'name',
   description = 'description',
@@ -66,3 +50,37 @@ export class GetBlogsQueryParams extends BasicPagingParams {
   @IsEnum(BlogsSortBy)
   sortBy: BlogsSortBy = BlogsSortBy.createdAt;
 }
+
+export type CreateBlogParams = {
+  name: string;
+  description: string;
+  websiteUrl: string;
+};
+
+export type UpdateBlogParams = CreateBlogParams & {
+  id: string;
+};
+
+export type CreateBlogRepoParams = CreateBlogParams & {
+  createdAt: string;
+  isMembership: boolean;
+};
+
+export type UpdateBlogRepoParams = UpdateBlogParams;
+
+// mongoose only
+export type BlogDbType = WithId<{
+  name: string;
+  description: string;
+  websiteUrl: string;
+  createdAt: string;
+  isMembership: boolean;
+}>;
+
+export type BlogsPaginatedType = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: BlogType[];
+};
