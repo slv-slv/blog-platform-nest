@@ -8,14 +8,10 @@ import { ConfirmationInfoType, PasswordRecoveryInfoType, UserViewType } from '..
 import { authConfig } from '../../../config/auth.config.js';
 import {
   ConfirmationCodeExpiredDomainException,
-  ConfirmationCodeInvalidDomainException,
   EmailAlreadyConfirmedDomainException,
   EmailAlreadyExistsDomainException,
-  IncorrectEmailDomainException,
   LoginAlreadyExistsDomainException,
   RecoveryCodeExpiredDomainException,
-  RecoveryCodeInvalidDomainException,
-  UserNotFoundDomainException,
 } from '../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
@@ -77,10 +73,7 @@ export class UsersService {
   }
 
   async resendConfirmationCode(email: string): Promise<void> {
-    if (!(await this.usersRepository.findUser(email))) {
-      throw new IncorrectEmailDomainException();
-      // return;
-    }
+    await this.usersRepository.findUser(email);
 
     if (await this.isConfirmed(email)) {
       throw new EmailAlreadyConfirmedDomainException();
@@ -115,9 +108,6 @@ export class UsersService {
 
   async confirmUser(code: string): Promise<void> {
     const confirmationInfo = await this.usersRepository.getConfirmationInfo(code);
-    if (!confirmationInfo) {
-      throw new ConfirmationCodeInvalidDomainException();
-    }
 
     if (confirmationInfo.isConfirmed) {
       throw new EmailAlreadyConfirmedDomainException();
@@ -136,10 +126,6 @@ export class UsersService {
   async updatePassword(recoveryCode: string, newPassword: string): Promise<void> {
     const passwordRecoveryInfo = await this.usersRepository.getPasswordRecoveryInfo(recoveryCode);
 
-    if (!passwordRecoveryInfo) {
-      throw new RecoveryCodeInvalidDomainException();
-    }
-
     const expirationDate = passwordRecoveryInfo.expiration!;
     const currentDate = new Date();
 
@@ -152,8 +138,7 @@ export class UsersService {
   }
 
   async deleteUser(id: string): Promise<void> {
-    const isDeleted = await this.usersRepository.deleteUser(id);
-    if (!isDeleted) throw new UserNotFoundDomainException();
+    await this.usersRepository.deleteUser(id);
   }
 
   async isLoginExists(login: string): Promise<boolean> {
