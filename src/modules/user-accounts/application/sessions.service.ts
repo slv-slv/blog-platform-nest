@@ -34,10 +34,7 @@ export class SessionsService {
       throw new DeviceNotFoundDomainException();
     }
 
-    const device = await this.sessionsRepository.findDevice(deviceId);
-    if (!device) {
-      throw new DeviceNotFoundDomainException();
-    }
+    await this.sessionsRepository.findDevice(deviceId);
 
     const deviceOwner = await this.sessionsRepository.getDeviceOwner(deviceId);
     if (deviceOwner !== userId) {
