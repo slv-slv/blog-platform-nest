@@ -14,25 +14,9 @@ export type PostDtoType = {
   createdAt: string;
 };
 
-export type PostViewType = {
-  id: string;
-  title: string;
-  shortDescription: string;
-  content: string;
-  blogId: string;
-  blogName: string;
-  createdAt: string;
+export type PostViewType = PostDtoType & {
   extendedLikesInfo: ExtendedLikesInfoViewType;
 };
-
-export type PostDbType = WithId<{
-  title: string;
-  shortDescription: string;
-  content: string;
-  blogId: string;
-  blogName: string;
-  createdAt: string;
-}>;
 
 export enum PostsSortBy {
   title = 'title',
@@ -87,3 +71,41 @@ export class GetPostsQueryParams extends BasicPagingParams {
   @IsEnum(PostsSortBy)
   sortBy: PostsSortBy = PostsSortBy.createdAt;
 }
+
+export type CreatePostParams = {
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
+};
+
+export type UpdatePostParams = CreatePostParams & {
+  postId: string;
+};
+
+export type DeletePostParams = {
+  blogId: string;
+  postId: string;
+};
+
+export type CreatePostRepoParams = CreatePostParams & {
+  blogName: string;
+  createdAt: string;
+};
+
+export type UpdatePostRepoParams = {
+  id: string;
+  title: string;
+  shortDescription: string;
+  content: string;
+};
+
+// mongoose only
+export type PostDbType = WithId<{
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
+  blogName: string;
+  createdAt: string;
+}>;
