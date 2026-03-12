@@ -2,12 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { DeviceViewType } from '../../types/sessions.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
+import { DeviceNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class SessionsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async findDevice(deviceId: string): Promise<DeviceViewType | null> {
+  async findDevice(deviceId: string): Promise<DeviceViewType> {
     const result = await this.pool.query(
       `
         SELECT id, name, ip, iat
@@ -18,7 +19,7 @@ export class SessionsRepository {
     );
 
     if (result.rowCount === 0) {
-      return null;
+      throw new DeviceNotFoundDomainException();
     }
 
     const device = result.rows[0];
@@ -30,6 +31,7 @@ export class SessionsRepository {
       deviceId: device.id,
     };
   }
+
   async getDeviceOwner(deviceId: string): Promise<string | null> {
     const result = await this.pool.query(
       `
