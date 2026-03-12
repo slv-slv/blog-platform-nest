@@ -11,20 +11,9 @@ export type CommentDtoType = {
   createdAt: string;
 };
 
-export type CommentViewType = {
-  id: string;
-  content: string;
-  commentatorInfo: CommentatorInfoType;
-  createdAt: string;
+export type CommentViewType = CommentDtoType & {
   likesInfo: LikesInfoViewType;
 };
-
-export type CommentDbType = WithId<{
-  postId: string;
-  content: string;
-  commentatorInfo: CommentatorInfoType;
-  createdAt: string;
-}>;
 
 export type CommentatorInfoType = {
   userId: string;
@@ -60,3 +49,40 @@ export class GetCommentsQueryParams extends BasicPagingParams {
   @IsEnum(CommentsSortBy)
   sortBy: CommentsSortBy = CommentsSortBy.createdAt;
 }
+
+export type CreateCommentParams = {
+  postId: string;
+  content: string;
+  userId: string;
+};
+
+export type UpdateCommentParams = {
+  commentId: string;
+  content: string;
+  userId: string;
+};
+
+export type DeleteCommentParams = {
+  commentId: string;
+  userId: string;
+};
+
+export type CreateCommentRepoParams = {
+  postId: string;
+  content: string;
+  createdAt: string;
+  commentatorInfo: CommentatorInfoType;
+};
+
+export type UpdateCommentRepoParams = {
+  id: string;
+  content: string;
+};
+
+// mongoose only
+export type CommentDbType = WithId<{
+  postId: string;
+  content: string;
+  commentatorInfo: CommentatorInfoType;
+  createdAt: string;
+}>;
