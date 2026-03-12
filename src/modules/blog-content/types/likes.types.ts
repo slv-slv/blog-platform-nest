@@ -7,11 +7,6 @@ export enum LikeStatus {
   Dislike = 'Dislike',
 }
 
-export class SetLikeStatusDto {
-  @IsEnum(LikeStatus)
-  declare likeStatus: LikeStatus;
-}
-
 export type LikesInfoViewType = {
   likesCount: number;
   dislikesCount: number;
@@ -29,18 +24,19 @@ export type ExtendedLikesInfoViewType = {
   }[];
 };
 
-export type LikeRecordType = {
-  userId: string;
-  createdAt: Date;
-};
-
-@Schema({ _id: false })
-export class LikeRecord {
-  @Prop({ required: true, type: String })
-  declare userId: string;
-
-  @Prop({ required: true, type: Date })
-  declare createdAt: Date;
+export class SetLikeStatusDto {
+  @IsEnum(LikeStatus)
+  declare likeStatus: LikeStatus;
 }
 
-export const LikeRecordSchema = SchemaFactory.createForClass(LikeRecord);
+export type SetPostLikeStatusParams = {
+  postId: string;
+  userId: string;
+  likeStatus: LikeStatus;
+};
+
+export type SetCommentLikeStatusParams = {
+  commentId: string;
+  userId: string;
+  likeStatus: LikeStatus;
+};
