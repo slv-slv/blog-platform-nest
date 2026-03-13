@@ -2,12 +2,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import { DeviceViewType } from '../../types/sessions.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
+import { CheckSessionParams } from '../../types/sessions.types.js';
 
 @Injectable()
 export class SessionsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async isSessionActive(userId: string, deviceId: string, iat: number): Promise<boolean> {
+  async isSessionActive(params: CheckSessionParams): Promise<boolean> {
+    const { userId, deviceId, iat } = params;
     const result = await this.pool.query(
       `
         SELECT *

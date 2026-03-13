@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CurrentUserType, UsersPaginatedType, UserViewType } from '../../types/users.types.js';
+import { CurrentUserType, GetAllUsersParams, UsersPaginatedType, UserViewType } from '../../types/users.types.js';
 import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
@@ -8,11 +8,8 @@ import { Pool } from 'pg';
 export class UsersQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getAllUsers(
-    searchLoginTerm: string | null,
-    searchEmailTerm: string | null,
-    pagingParams: PagingParamsType,
-  ): Promise<UsersPaginatedType> {
+  async getAllUsers(params: GetAllUsersParams): Promise<UsersPaginatedType> {
+    const { searchLoginTerm, searchEmailTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     const orderBy = sortBy === 'createdAt' ? 'created_at' : sortBy;

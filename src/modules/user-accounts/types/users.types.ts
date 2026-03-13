@@ -1,7 +1,7 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
 import { WithId } from 'mongodb';
 import { Trim } from '../../../common/decorators/trim.js';
-import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
+import { BasicPagingParams, PagingParamsType } from '../../../common/types/paging-params.types.js';
 
 export type UserType = {
   id: string;
@@ -122,3 +122,44 @@ export class NewPasswordInputDto {
   @IsNotEmpty()
   declare recoveryCode: string;
 }
+
+export type GetAllUsersParams = {
+  searchLoginTerm: string | null;
+  searchEmailTerm: string | null;
+  pagingParams: PagingParamsType;
+};
+
+export type CreateUserParams = {
+  login: string;
+  email: string;
+  password: string;
+  confirmation?: ConfirmationInfoType;
+  passwordRecovery?: PasswordRecoveryInfoType;
+};
+
+export type RegisterUserParams = {
+  login: string;
+  email: string;
+  password: string;
+};
+
+export type CreateUserRepoParams = {
+  login: string;
+  email: string;
+  hash: string;
+  createdAt: Date;
+  confirmation: ConfirmationInfoType;
+  passwordRecovery: PasswordRecoveryInfoType;
+};
+
+export type UpdateConfirmationCodeParams = {
+  email: string;
+  code: string;
+  expiration: Date;
+};
+
+export type UpdateRecoveryCodeParams = {
+  email: string;
+  code: string;
+  expiration: Date;
+};

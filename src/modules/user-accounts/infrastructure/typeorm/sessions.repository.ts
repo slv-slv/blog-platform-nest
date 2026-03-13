@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DeviceViewType } from '../../types/sessions.types.js';
+import { CreateSessionParams, DeviceViewType } from '../../types/sessions.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from './sessions.entities.js';
 import { Not, Repository } from 'typeorm';
@@ -20,14 +20,8 @@ export class SessionsRepository {
     return device.userId.toString();
   }
 
-  async createSession(
-    userId: string,
-    deviceId: string,
-    deviceName: string,
-    ip: string,
-    iat: number,
-    exp: number,
-  ): Promise<void> {
+  async createSession(params: CreateSessionParams): Promise<void> {
+    const { userId, deviceId, deviceName, ip, iat, exp } = params;
     const device = this.sessionEntityRepo.create({
       id: deviceId,
       userId: parseInt(userId),

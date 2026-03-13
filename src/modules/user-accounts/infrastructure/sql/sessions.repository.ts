@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DeviceViewType } from '../../types/sessions.types.js';
+import { CreateSessionParams, DeviceViewType } from '../../types/sessions.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 import { DeviceNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
@@ -49,14 +49,8 @@ export class SessionsRepository {
     const { user_id } = result.rows[0];
     return user_id.toString();
   }
-  async createSession(
-    userId: string,
-    deviceId: string,
-    deviceName: string,
-    ip: string,
-    iat: number,
-    exp: number,
-  ): Promise<void> {
+  async createSession(params: CreateSessionParams): Promise<void> {
+    const { userId, deviceId, deviceName, ip, iat, exp } = params;
     await this.pool.query(
       `
         INSERT INTO devices

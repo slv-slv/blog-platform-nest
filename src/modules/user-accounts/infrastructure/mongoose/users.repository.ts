@@ -4,7 +4,10 @@ import { Model } from 'mongoose';
 import { User } from './users.schemas.js';
 import {
   ConfirmationInfoType,
+  CreateUserRepoParams,
   PasswordRecoveryInfoType,
+  UpdateConfirmationCodeParams,
+  UpdateRecoveryCodeParams,
   UserType,
   UserViewType,
 } from '../../types/users.types.js';
@@ -48,21 +51,16 @@ export class UsersRepository {
     return user.passwordRecovery;
   }
 
-  async createUser(
-    login: string,
-    email: string,
-    hash: string,
-    createdAt: string,
-    confirmation: ConfirmationInfoType,
-    passwordRecovery: PasswordRecoveryInfoType,
-  ): Promise<UserViewType> {
+  async createUser(params: CreateUserRepoParams): Promise<UserViewType> {
+    const { login, email, hash, createdAt, confirmation, passwordRecovery } = params;
     const newUser = { login, email, hash, createdAt, confirmation, passwordRecovery };
     const insertedUser = await this.model.create(newUser as any);
     const id = insertedUser._id.toString();
-    return { id, login, email, createdAt };
+    return { id, login, email, createdAt: createdAt.toISOString() };
   }
 
-  async updateConfirmationCode(email: string, code: string, expiration: string): Promise<void> {
+  async updateConfirmationCode(params: UpdateConfirmationCodeParams): Promise<void> {
+    const { email, code, expiration } = params;
     await this.model.updateOne(
       { email },
       { $set: { 'confirmation.code': code, 'confirmation.expiration': expiration } },
@@ -70,7 +68,8 @@ export class UsersRepository {
     );
   }
 
-  async updateRecoveryCode(email: string, code: string, expiration: string): Promise<boolean> {
+  async updateRecoveryCode(params: UpdateRecoveryCodeParams): Promise<boolean> {
+    const { email, code, expiration } = params;
     const updateResult = await this.model.updateOne(
       { email },
       { $set: { 'passwordRecovery.code': code, 'passwordRecovery.expiration': expiration } },

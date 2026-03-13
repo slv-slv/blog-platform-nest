@@ -41,7 +41,7 @@ export class AuthController {
     const refreshToken = await this.authService.generateRefreshToken(userId);
 
     const { deviceId, iat, exp } = this.jwtService.decode(refreshToken);
-    await this.sessionsService.createSession(userId, deviceId, deviceName, ip, iat, exp);
+    await this.sessionsService.createSession({ userId, deviceId, deviceName, ip, iat, exp });
 
     const cookieExpiration = new Date();
     const years = cookieExpiration.getFullYear();
@@ -73,7 +73,7 @@ export class AuthController {
     const refreshToken = await this.authService.generateRefreshToken(userId, deviceId);
 
     const { iat, exp } = this.jwtService.decode(refreshToken);
-    await this.sessionsService.createSession(userId, deviceId, deviceName, ip, iat, exp);
+    await this.sessionsService.createSession({ userId, deviceId, deviceName, ip, iat, exp });
 
     const cookieExpiration = new Date();
     const years = cookieExpiration.getFullYear();
@@ -116,7 +116,7 @@ export class AuthController {
   @HttpCode(204)
   async registration(@Body() body: CreateUserInputDto) {
     const { login, email, password } = body;
-    await this.usersService.registerUser(login, email, password);
+    await this.usersService.registerUser({ login, email, password });
   }
 
   @Post('registration-email-resending')

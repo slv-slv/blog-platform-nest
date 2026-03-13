@@ -1,7 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   ConfirmationInfoType,
+  CreateUserRepoParams,
   PasswordRecoveryInfoType,
+  UpdateConfirmationCodeParams,
+  UpdateRecoveryCodeParams,
   UserType,
   UserViewType,
 } from '../../types/users.types.js';
@@ -57,14 +60,8 @@ export class UsersRepository {
     return user.passwordRecovery;
   }
 
-  async createUser(
-    login: string,
-    email: string,
-    hash: string,
-    createdAt: Date,
-    confirmation: ConfirmationInfoType,
-    passwordRecovery: PasswordRecoveryInfoType,
-  ): Promise<UserViewType> {
+  async createUser(params: CreateUserRepoParams): Promise<UserViewType> {
+    const { login, email, hash, createdAt, confirmation, passwordRecovery } = params;
     const confirmationEntity = new ConfirmationInfo();
     confirmationEntity.isConfirmed = confirmation.isConfirmed;
     confirmationEntity.code = confirmation.code!;
@@ -87,7 +84,8 @@ export class UsersRepository {
     return savedUser.toViewType();
   }
 
-  async updateConfirmationCode(email: string, code: string, expiration: Date): Promise<void> {
+  async updateConfirmationCode(params: UpdateConfirmationCodeParams): Promise<void> {
+    const { email, code, expiration } = params;
     await this.userEntityRepo.update(
       { email },
       {
@@ -99,7 +97,8 @@ export class UsersRepository {
     );
   }
 
-  async updateRecoveryCode(email: string, code: string, expiration: Date): Promise<boolean> {
+  async updateRecoveryCode(params: UpdateRecoveryCodeParams): Promise<boolean> {
+    const { email, code, expiration } = params;
     const updateResult = await this.userEntityRepo.update(
       { email },
       {

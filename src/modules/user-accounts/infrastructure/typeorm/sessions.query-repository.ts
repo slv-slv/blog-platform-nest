@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DeviceViewType } from '../../types/sessions.types.js';
+import { CheckSessionParams, DeviceViewType } from '../../types/sessions.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from './sessions.entities.js';
 import { Repository } from 'typeorm';
@@ -8,7 +8,8 @@ import { Repository } from 'typeorm';
 export class SessionsQueryRepository {
   constructor(@InjectRepository(Device) private readonly sessionEntityRepo: Repository<Device>) {}
 
-  async isSessionActive(userId: string, deviceId: string, iat: number): Promise<boolean> {
+  async isSessionActive(params: CheckSessionParams): Promise<boolean> {
+    const { userId, deviceId, iat } = params;
     return await this.sessionEntityRepo.existsBy({ id: deviceId, userId: parseInt(userId), iat });
   }
 

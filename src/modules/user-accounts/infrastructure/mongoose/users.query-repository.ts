@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import {
   ConfirmationInfoType,
   CurrentUserType,
+  GetAllUsersParams,
   PasswordRecoveryInfoType,
   UsersPaginatedType,
   UserViewType,
@@ -16,11 +17,8 @@ import { PagingParamsType } from '../../../../common/types/paging-params.types.j
 export class UsersQueryRepository {
   constructor(@InjectModel(User.name) private readonly model: Model<User>) {}
 
-  async getAllUsers(
-    searchLoginTerm: string | null,
-    searchEmailTerm: string | null,
-    pagingParams: PagingParamsType,
-  ): Promise<UsersPaginatedType> {
+  async getAllUsers(params: GetAllUsersParams): Promise<UsersPaginatedType> {
+    const { searchLoginTerm, searchEmailTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     let filter = {};

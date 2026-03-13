@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeviceType, Session } from './sessions.schemas.js';
 import { Model } from 'mongoose';
-import { DeviceViewType } from '../../types/sessions.types.js';
+import { CreateSessionParams, DeviceViewType } from '../../types/sessions.types.js';
 
 @Injectable()
 export class SessionsRepository {
@@ -34,14 +34,8 @@ export class SessionsRepository {
     return session.userId;
   }
 
-  async createSession(
-    userId: string,
-    deviceId: string,
-    deviceName: string,
-    ip: string,
-    iat: number,
-    exp: number,
-  ): Promise<void> {
+  async createSession(params: CreateSessionParams): Promise<void> {
+    const { userId, deviceId, deviceName, ip, iat, exp } = params;
     const newDevice: DeviceType = {
       id: deviceId,
       name: deviceName,

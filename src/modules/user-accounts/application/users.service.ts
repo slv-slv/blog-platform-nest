@@ -4,7 +4,13 @@ import { UsersRepository } from '../infrastructure/sql/users.repository.js';
 import { UsersQueryRepository } from '../infrastructure/sql/users.query-repository.js';
 import { AuthService } from './auth.service.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
-import { ConfirmationInfoType, PasswordRecoveryInfoType, UserViewType } from '../types/users.types.js';
+import {
+  ConfirmationInfoType,
+  CreateUserParams,
+  PasswordRecoveryInfoType,
+  RegisterUserParams,
+  UserViewType,
+} from '../types/users.types.js';
 import { authConfig } from '../../../config/auth.config.js';
 import {
   ConfirmationCodeExpiredDomainException,
@@ -23,36 +29,39 @@ export class UsersService {
     private readonly emailService: EmailService,
     @Inject(authConfig.KEY) private readonly auth: ConfigType<typeof authConfig>,
   ) {}
-  async createUser(
-    login: string,
-    email: string,
-    password: string,
-    confirmation: ConfirmationInfoType = {
-      isConfirmed: true,
-      code: null,
-      expiration: null,
-    },
-    passwordRecovery: PasswordRecoveryInfoType = { code: null, expiration: null },
-  ): Promise<UserViewType> {
+  async createUser(params: CreateUserParams): Promise<UserViewType> {
+    const {
+      login,
+      email,
+      password,
+      confirmation = {
+        isConfirmed: true,
+        code: null,
+        expiration: null,
+      },
+      passwordRecovery = { code: null, expiration: null },
+    } = params;
+
     if (await this.isLoginExists(login)) throw new LoginAlreadyExistsDomainException();
     if (await this.isEmailExists(email)) throw new EmailAlreadyExistsDomainException();
 
     const hash = await this.authService.hashPassword(password);
     const createdAt = new Date();
 
-    const newUser = await this.usersRepository.createUser(
+    const newUser = await this.usersRepository.createUser({
       login,
       email,
       hash,
       createdAt,
       confirmation,
       passwordRecovery,
-    );
+    });
 
     return newUser;
   }
 
-  async registerUser(login: string, email: string, password: string): Promise<UserViewType> {
+  async registerUser(params: RegisterUserParams): Promise<UserViewType> {
+    const { login, email, password } = params;
     const code = crypto.randomUUID();
 
     const expiration = new Date();
@@ -69,7 +78,7 @@ export class UsersService {
 
     await this.emailService.sendConfirmationCode(email, code);
 
-    return await this.createUser(login, email, password, confirmation, passwordRecovery);
+    return await this.createUser({ login, email, password, confirmation, passwordRecovery });
   }
 
   async resendConfirmationCode(email: string): Promise<void> {
@@ -87,7 +96,7 @@ export class UsersService {
 
     await this.emailService.sendConfirmationCode(email, code);
 
-    await this.usersRepository.updateConfirmationCode(email, code, expiration);
+    await this.usersRepository.updateConfirmationCode({ email, code, expiration });
   }
 
   async sendRecoveryCode(email: string): Promise<void> {
@@ -97,7 +106,7 @@ export class UsersService {
     const hours = expiration.getHours();
     expiration.setHours(hours + this.auth.recoveryCodeExpiresIn);
 
-    const result = await this.usersRepository.updateRecoveryCode(email, code, expiration);
+    const result = await this.usersRepository.updateRecoveryCode({ email, code, expiration });
 
     if (!result) {
       return; // Чтобы контроллер выбросил 204 статус, даже если такого email нет в БД

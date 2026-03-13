@@ -26,7 +26,11 @@ export class UsersController {
     const { searchLoginTerm, searchEmailTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
 
-    const users = await this.usersQueryRepository.getAllUsers(searchLoginTerm, searchEmailTerm, pagingParams);
+    const users = await this.usersQueryRepository.getAllUsers({
+      searchLoginTerm,
+      searchEmailTerm,
+      pagingParams,
+    });
     return users;
   }
 
@@ -34,7 +38,7 @@ export class UsersController {
   @HttpCode(201)
   async createUser(@Body() body: CreateUserInputDto): Promise<UserViewType> {
     const { login, password, email } = body;
-    const newUser = await this.usersService.createUser(login, email, password);
+    const newUser = await this.usersService.createUser({ login, email, password });
     return newUser;
   }
 

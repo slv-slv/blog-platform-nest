@@ -31,7 +31,7 @@ export class RefreshTokenGuard implements CanActivate {
 
     const { sub, deviceId, iat } = payload;
 
-    const isSessionActive = await this.sessionsService.checkSession(sub, deviceId, iat);
+    const isSessionActive = await this.sessionsService.checkSession({ userId: sub, deviceId, iat });
     if (!isSessionActive) {
       throw new UnauthorizedException('No active session found');
     }

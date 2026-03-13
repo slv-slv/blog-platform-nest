@@ -1,7 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   ConfirmationInfoType,
+  CreateUserRepoParams,
   PasswordRecoveryInfoType,
+  UpdateConfirmationCodeParams,
+  UpdateRecoveryCodeParams,
   UserType,
   UserViewType,
 } from '../../types/users.types.js';
@@ -116,14 +119,8 @@ export class UsersRepository {
     return { code, expiration };
   }
 
-  async createUser(
-    login: string,
-    email: string,
-    hash: string,
-    createdAt: Date,
-    confirmation: ConfirmationInfoType,
-    passwordRecovery: PasswordRecoveryInfoType,
-  ): Promise<UserViewType> {
+  async createUser(params: CreateUserRepoParams): Promise<UserViewType> {
+    const { login, email, hash, createdAt, confirmation, passwordRecovery } = params;
     let id: number;
     const result = await this.pool.query(
       `
@@ -157,7 +154,8 @@ export class UsersRepository {
 
     return { id: id.toString(), login, email, createdAt: createdAt.toISOString() };
   }
-  async updateConfirmationCode(email: string, code: string, expiration: Date): Promise<void> {
+  async updateConfirmationCode(params: UpdateConfirmationCodeParams): Promise<void> {
+    const { email, code, expiration } = params;
     await this.pool.query(
       `
         UPDATE users
@@ -167,7 +165,8 @@ export class UsersRepository {
       [email, code, expiration],
     );
   }
-  async updateRecoveryCode(email: string, code: string, expiration: Date): Promise<boolean> {
+  async updateRecoveryCode(params: UpdateRecoveryCodeParams): Promise<boolean> {
+    const { email, code, expiration } = params;
     const updateResult = await this.pool.query(
       `
         UPDATE users

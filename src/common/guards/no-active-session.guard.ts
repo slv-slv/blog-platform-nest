@@ -29,7 +29,7 @@ export class NoActiveSessionGuard implements CanActivate {
 
     const { sub, deviceId, iat } = payload;
 
-    const isSessionActive = this.sessionsService.checkSession(sub, deviceId, iat);
+    const isSessionActive = this.sessionsService.checkSession({ userId: sub, deviceId, iat });
     if (!isSessionActive) {
       return true;
     }

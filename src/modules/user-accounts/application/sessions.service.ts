@@ -6,6 +6,7 @@ import {
   AccessDeniedDomainException,
   DeviceNotFoundDomainException,
 } from '../../../common/exceptions/domain-exceptions.js';
+import { CheckSessionParams, CreateSessionParams } from '../types/sessions.types.js';
 
 @Injectable()
 export class SessionsService {
@@ -13,20 +14,14 @@ export class SessionsService {
     @Inject(SessionsRepository) private sessionsRepository: SessionsRepository,
     @Inject(SessionsQueryRepository) private sessionsQueryRepository: SessionsQueryRepository,
   ) {}
-  async createSession(
-    userId: string,
-    deviceId: string,
-    deviceName: string,
-    ip: string,
-    iat: number,
-    exp: number,
-  ): Promise<void> {
+  async createSession(params: CreateSessionParams): Promise<void> {
+    const { deviceId } = params;
     await this.sessionsRepository.deleteDevice(deviceId);
-    await this.sessionsRepository.createSession(userId, deviceId, deviceName, ip, iat, exp);
+    await this.sessionsRepository.createSession(params);
   }
 
-  async checkSession(userId: string, deviceId: string, iat: number): Promise<boolean> {
-    return await this.sessionsQueryRepository.isSessionActive(userId, deviceId, iat);
+  async checkSession(params: CheckSessionParams): Promise<boolean> {
+    return await this.sessionsQueryRepository.isSessionActive(params);
   }
 
   async deleteDevice(userId: string, deviceId: string): Promise<void> {

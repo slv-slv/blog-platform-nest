@@ -3,6 +3,7 @@ import { PagingParamsType } from '../../../../common/types/paging-params.types.j
 import {
   ConfirmationInfoType,
   CurrentUserType,
+  GetAllUsersParams,
   PasswordRecoveryInfoType,
   UsersPaginatedType,
   UserViewType,
@@ -15,11 +16,8 @@ import { ILike, Like, Repository } from 'typeorm';
 export class UsersQueryRepository {
   constructor(@InjectRepository(User) private readonly userEntityRepo: Repository<User>) {}
 
-  async getAllUsers(
-    searchLoginTerm: string | null,
-    searchEmailTerm: string | null,
-    pagingParams: PagingParamsType,
-  ): Promise<UsersPaginatedType> {
+  async getAllUsers(params: GetAllUsersParams): Promise<UsersPaginatedType> {
+    const { searchLoginTerm, searchEmailTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     const whereParams = [];

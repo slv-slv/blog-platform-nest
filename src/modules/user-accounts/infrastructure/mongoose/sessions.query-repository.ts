@@ -2,13 +2,14 @@ import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeviceType, Session } from './sessions.schemas.js';
-import { DeviceViewType } from '../../types/sessions.types.js';
+import { CheckSessionParams, DeviceViewType } from '../../types/sessions.types.js';
 
 @Injectable()
 export class SessionsQueryRepository {
   constructor(@InjectModel(Session.name) private readonly model: Model<Session>) {}
 
-  async isSessionActive(userId: string, deviceId: string, iat: number): Promise<boolean> {
+  async isSessionActive(params: CheckSessionParams): Promise<boolean> {
+    const { userId, deviceId, iat } = params;
     const session = await this.model
       .findOne({ userId, devices: { $elemMatch: { id: deviceId, iat } } })
       .lean();
