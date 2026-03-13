@@ -25,12 +25,7 @@ export type CreateSessionParams = {
   deviceId: string;
   deviceName: string;
   ip: string;
+  jti: string;
   iat: number;
   exp: number;
-};
-
-export type CheckSessionParams = {
-  userId: string;
-  deviceId: string;
-  iat: number;
 };

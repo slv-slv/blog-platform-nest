@@ -50,13 +50,13 @@ export class SessionsRepository {
     return user_id.toString();
   }
   async createSession(params: CreateSessionParams): Promise<void> {
-    const { userId, deviceId, deviceName, ip, iat, exp } = params;
+    const { userId, deviceId, deviceName, ip, jti, iat, exp } = params;
     await this.pool.query(
       `
         INSERT INTO devices
-        VALUES ($1, $2, $3, $4, $5, $6)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
       `,
-      [deviceId, parseInt(userId), deviceName, ip, iat, exp],
+      [deviceId, parseInt(userId), deviceName, ip, jti, iat, exp],
     );
   }
   async deleteDevice(deviceId: string): Promise<void> {

@@ -7,6 +7,7 @@ export interface JwtAcessPayload {
 export interface JwtRefreshPayload {
   sub: string;
   deviceId: string;
+  jti: string;
   iat: number;
   exp: number;
 }

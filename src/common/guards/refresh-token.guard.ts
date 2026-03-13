@@ -29,15 +29,16 @@ export class RefreshTokenGuard implements CanActivate {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const { sub, deviceId, iat } = payload;
+    const { sub, deviceId, jti } = payload;
 
-    const isSessionActive = await this.sessionsService.checkSession({ userId: sub, deviceId, iat });
+    const isSessionActive = await this.sessionsService.checkSession(jti);
     if (!isSessionActive) {
       throw new UnauthorizedException('No active session found');
     }
 
     res.locals.userId = sub;
     res.locals.deviceId = deviceId;
+    res.locals.jti = jti;
     return true;
   }
 }

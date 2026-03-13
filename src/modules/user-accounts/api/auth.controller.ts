@@ -40,8 +40,8 @@ export class AuthController {
     const accessToken = await this.authService.generateAcessToken(userId);
     const refreshToken = await this.authService.generateRefreshToken(userId);
 
-    const { deviceId, iat, exp } = this.jwtService.decode(refreshToken);
-    await this.sessionsService.createSession({ userId, deviceId, deviceName, ip, iat, exp });
+    const { deviceId, jti, iat, exp } = this.jwtService.decode(refreshToken);
+    await this.sessionsService.createSession({ userId, deviceId, deviceName, ip, jti, iat, exp });
 
     const cookieExpiration = new Date();
     const years = cookieExpiration.getFullYear();
@@ -72,8 +72,8 @@ export class AuthController {
     const accessToken = await this.authService.generateAcessToken(userId);
     const refreshToken = await this.authService.generateRefreshToken(userId, deviceId);
 
-    const { iat, exp } = this.jwtService.decode(refreshToken);
-    await this.sessionsService.createSession({ userId, deviceId, deviceName, ip, iat, exp });
+    const { jti, iat, exp } = this.jwtService.decode(refreshToken);
+    await this.sessionsService.createSession({ userId, deviceId, deviceName, ip, jti, iat, exp });
 
     const cookieExpiration = new Date();
     const years = cookieExpiration.getFullYear();

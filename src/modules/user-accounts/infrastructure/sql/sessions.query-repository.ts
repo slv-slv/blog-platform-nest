@@ -2,21 +2,19 @@ import { Inject, Injectable } from '@nestjs/common';
 import { DeviceViewType } from '../../types/sessions.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
-import { CheckSessionParams } from '../../types/sessions.types.js';
 
 @Injectable()
 export class SessionsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async isSessionActive(params: CheckSessionParams): Promise<boolean> {
-    const { userId, deviceId, iat } = params;
+  async isSessionActive(jti: string): Promise<boolean> {
     const result = await this.pool.query(
       `
         SELECT *
         FROM devices
-        WHERE id = $1 AND user_id = $2 AND iat = $3
+        WHERE jti = $1
       `,
-      [deviceId, parseInt(userId), iat],
+      [jti],
     );
 
     return result.rowCount! > 0;

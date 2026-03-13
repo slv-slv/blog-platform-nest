@@ -35,7 +35,8 @@ export class AuthService {
   }
 
   async generateRefreshToken(userId: string, deviceId: string = crypto.randomUUID()): Promise<string> {
-    const jwtRefreshPayload = { sub: userId, deviceId };
+    const jti = crypto.randomUUID();
+    const jwtRefreshPayload = { sub: userId, deviceId, jti };
     const refreshToken = await this.jwtService.signAsync(jwtRefreshPayload, {
       expiresIn: this.auth.refreshTokenExpiresIn,
     });
