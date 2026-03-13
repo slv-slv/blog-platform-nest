@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { LikeRecordSchema, LikeRecordType } from '../../types/likes.types.js';
+import { LikeRecordSchema, LikeRecordType } from './like-record-schema.js';
 
 @Schema({ versionKey: false })
 export class PostLikes {
