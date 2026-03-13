@@ -9,6 +9,17 @@ import { appSetup } from '../../../setup/app.setup.js';
 import { HTTP_STATUS } from '../../utils/http-status.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
 
+function extractRefreshToken(setCookieHeader: string | string[] | undefined): string {
+  const setCookies = Array.isArray(setCookieHeader) ? setCookieHeader : setCookieHeader ? [setCookieHeader] : [];
+  const refreshTokenCookie = setCookies.find((cookie) => cookie.startsWith('refreshToken='));
+
+  if (!refreshTokenCookie) {
+    throw new Error('refreshToken cookie is missing');
+  }
+
+  return refreshTokenCookie.split(';')[0].replace('refreshToken=', '');
+}
+
 describe('LOGIN', () => {
   let app: INestApplication<App>;
   let httpServer: ReturnType<INestApplication<App>['getHttpServer']>;
@@ -137,17 +148,7 @@ describe('LOGIN', () => {
       .post('/auth/login')
       .send({ loginOrEmail: user.login, password: user.password })
       .expect(HTTP_STATUS.OK_200);
-    const loginSetCookieHeader = loginResponse.headers['set-cookie'];
-    const loginSetCookies = Array.isArray(loginSetCookieHeader)
-      ? loginSetCookieHeader
-      : loginSetCookieHeader
-        ? [loginSetCookieHeader]
-        : [];
-    const refreshTokenCookie = loginSetCookies.find((cookie) => cookie.startsWith('refreshToken='));
-    if (!refreshTokenCookie) {
-      throw new Error('refreshToken cookie is missing');
-    }
-    const refreshToken = refreshTokenCookie.split(';')[0].replace('refreshToken=', '');
+    const refreshToken = extractRefreshToken(loginResponse.headers['set-cookie']);
 
     const response = await request(httpServer)
       .get('/security/devices')
@@ -156,5 +157,26 @@ describe('LOGIN', () => {
 
     expect(response.body).toHaveLength(1);
     expect(response.body[0]).toHaveProperty('deviceId');
+  });
+
+  it('should return 401 status code if user already has an active session', async () => {
+    const user = { login: 'NewUser', email: 'example@gmail.com', password: 'somepassword' };
+    await request(httpServer)
+      .post('/sa/users')
+      .set('Authorization', adminAuthHeader)
+      .send(user)
+      .expect(HTTP_STATUS.CREATED_201);
+
+    const loginResponse = await request(httpServer)
+      .post('/auth/login')
+      .send({ loginOrEmail: user.login, password: user.password })
+      .expect(HTTP_STATUS.OK_200);
+    const refreshToken = extractRefreshToken(loginResponse.headers['set-cookie']);
+
+    await request(httpServer)
+      .post('/auth/login')
+      .set('Cookie', `refreshToken=${refreshToken}`)
+      .send({ loginOrEmail: user.login, password: user.password })
+      .expect(HTTP_STATUS.UNAUTHORIZED_401);
   });
 });
