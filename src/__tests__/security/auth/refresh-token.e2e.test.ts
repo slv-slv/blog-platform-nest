@@ -140,7 +140,7 @@ describe('REFRESH-TOKEN', () => {
     expect(devicesResponse.body[0]).toHaveProperty('deviceId');
   });
 
-  it('should return 401 if the user sends the same token a second time', async () => {
+  it('should return 401 when a rotated refresh token is reused', async () => {
     const user = { login: 'NewUser', email: 'example@gmail.com', password: 'somepassword' };
     await request(httpServer)
       .post('/sa/users')
