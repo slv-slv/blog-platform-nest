@@ -17,7 +17,7 @@ export class PostLikesQueryRepository {
     private readonly usersQueryRepository: UsersQueryRepository,
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}
-  async getLikesInfo(postId: string, userId: string): Promise<ExtendedLikesInfoViewType> {
+  async getLikesInfo(postId: string, userId: string | null): Promise<ExtendedLikesInfoViewType> {
     const likesCount = await this.postLikesRepository.getLikesCount(postId);
     const dislikesCount = await this.postLikesRepository.getDislikesCount(postId);
     const myStatus = await this.postLikesRepository.getLikeStatus({ postId, userId });

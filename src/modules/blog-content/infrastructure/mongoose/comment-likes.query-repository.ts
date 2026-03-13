@@ -12,7 +12,7 @@ export class CommentLikesQueryRepository {
     @InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesType>,
     private readonly commentLikesRepository: CommentLikesRepository,
   ) {}
-  async getLikesInfo(commentId: string, userId: string): Promise<LikesInfoViewType> {
+  async getLikesInfo(commentId: string, userId: string | null): Promise<LikesInfoViewType> {
     const likesCount = await this.commentLikesRepository.getLikesCount(commentId);
     const dislikesCount = await this.commentLikesRepository.getDislikesCount(commentId);
     const myStatus = await this.commentLikesRepository.getLikeStatus({ commentId, userId });
