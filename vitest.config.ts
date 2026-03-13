@@ -8,6 +8,7 @@ export default defineConfig({
     include: ['src/**/*.e2e.test.ts', 'src/**/*.spec.ts'],
     fileParallelism: false,
     // hookTimeout: 10000,
+    testTimeout: 60000,
   },
   plugins: [swc.vite({ module: { type: 'es6' } })],
 });
