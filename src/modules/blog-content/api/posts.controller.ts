@@ -34,7 +34,6 @@ import { CommentsQueryRepository } from '../infrastructure/sql/comments.query-re
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
-import { PostNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 @Controller('posts')
 export class PostsController {
@@ -57,7 +56,7 @@ export class PostsController {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
-    return await this.postsQueryRepository.getPosts(userId, pagingParams);
+    return await this.postsQueryRepository.getPosts(pagingParams, userId);
   }
 
   @Get(':id')
@@ -71,7 +70,7 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   async createPost(@Body() body: CreatePostForBlogInputDto): Promise<PostViewType> {
     const { title, shortDescription, content, blogId } = body;
-    return await this.postsService.createPost(title, shortDescription, content, blogId);
+    return await this.postsService.createPost({ title, shortDescription, content, blogId });
   }
 
   @Put(':id')
@@ -79,7 +78,7 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   async updatePost(@Param('id') id: string, @Body() body: UpdatePostForBlogInputDto): Promise<void> {
     const { title, shortDescription, content, blogId } = body;
-    await this.postsService.updatePost(id, title, shortDescription, content, blogId);
+    await this.postsService.updatePost({ postId: id, title, shortDescription, content, blogId });
   }
 
   // @Delete(':id')
@@ -116,7 +115,7 @@ export class PostsController {
     const content = body.content;
     const userId = res.locals.userId;
 
-    return await this.commentsService.createComment(postId, content, userId);
+    return await this.commentsService.createComment({ postId, content, userId });
   }
 
   @Put(':postId/like-status')
@@ -130,6 +129,6 @@ export class PostsController {
     const likeStatus = body.likeStatus;
     const userId = res.locals.userId;
 
-    await this.postLikesService.setLikeStatus(postId, userId, likeStatus);
+    await this.postLikesService.setLikeStatus({ postId, userId, likeStatus });
   }
 }

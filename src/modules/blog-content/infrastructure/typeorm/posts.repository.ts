@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PostDtoType } from '../../types/posts.types.js';
+import { CreatePostRepoParams, PostDtoType, UpdatePostRepoParams } from '../../types/posts.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './posts.entities.js';
 import { Repository } from 'typeorm';
@@ -25,14 +25,8 @@ export class PostsRepository {
     return post.toDto();
   }
 
-  async createPost(
-    title: string,
-    shortDescription: string,
-    content: string,
-    blogId: string,
-    blogName: string,
-    createdAt: string,
-  ): Promise<PostDtoType> {
+  async createPost(params: CreatePostRepoParams): Promise<PostDtoType> {
+    const { title, shortDescription, content, blogId, blogName, createdAt } = params;
     const blogIdNum = parseInt(blogId);
 
     // const result = await this.postEntityRepository
@@ -69,7 +63,8 @@ export class PostsRepository {
     };
   }
 
-  async updatePost(id: string, title: string, shortDescription: string, content: string): Promise<boolean> {
+  async updatePost(params: UpdatePostRepoParams): Promise<boolean> {
+    const { id, title, shortDescription, content } = params;
     const idNum = parseInt(id);
     if (isNaN(idNum)) return false;
 

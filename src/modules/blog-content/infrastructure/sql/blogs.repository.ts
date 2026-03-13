@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BlogType } from '../../types/blogs.types.js';
+import { BlogType, CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
 import { BlogNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
@@ -34,13 +34,8 @@ export class BlogsRepository {
     };
   }
 
-  async createBlog(
-    name: string,
-    description: string,
-    websiteUrl: string,
-    createdAt: string,
-    isMembership: boolean,
-  ): Promise<BlogType> {
+  async createBlog(params: CreateBlogRepoParams): Promise<BlogType> {
+    const { name, description, websiteUrl, createdAt, isMembership } = params;
     const newBlog = { name, description, websiteUrl, createdAt, isMembership };
 
     const result = await this.pool.query(
@@ -56,7 +51,8 @@ export class BlogsRepository {
 
     return { id, ...newBlog };
   }
-  async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<void> {
+  async updateBlog(params: UpdateBlogRepoParams): Promise<void> {
+    const { id, name, description, websiteUrl } = params;
     const result = await this.pool.query(
       `
         UPDATE blogs

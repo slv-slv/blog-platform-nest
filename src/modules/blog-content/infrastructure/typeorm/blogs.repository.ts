@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BlogType } from '../../types/blogs.types.js';
+import { BlogType, CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './blogs.entities.js';
 import { Repository } from 'typeorm';
@@ -21,13 +21,8 @@ export class BlogsRepository {
     return blog.toDto();
   }
 
-  async createBlog(
-    name: string,
-    description: string,
-    websiteUrl: string,
-    createdAt: string,
-    isMembership: boolean,
-  ): Promise<BlogType> {
+  async createBlog(params: CreateBlogRepoParams): Promise<BlogType> {
+    const { name, description, websiteUrl, createdAt, isMembership } = params;
     // const newBlog = { name, description, websiteUrl, createdAt, isMembership };
 
     const result = await this.blogEntityRepository
@@ -41,7 +36,8 @@ export class BlogsRepository {
     return { id, name, description, websiteUrl, createdAt, isMembership };
   }
 
-  async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
+  async updateBlog(params: UpdateBlogRepoParams): Promise<boolean> {
+    const { id, name, description, websiteUrl } = params;
     const idNum = parseInt(id);
     if (isNaN(idNum)) return false;
 

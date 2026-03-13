@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CommentLikes } from './comment-likes.schemas.js';
-import { CommentLikesType } from '../../types/comment-likes.types.js';
+import {
+  CommentLikeStatusRepoParams,
+  CommentLikesType,
+  SetCommentLikeRepoParams,
+  SetCommentNoneRepoParams,
+} from '../../types/comment-likes.types.js';
 import { Model } from 'mongoose';
 import { LikeStatus } from '../../types/likes.types.js';
 
@@ -30,7 +35,8 @@ export class CommentLikesRepository {
     return result[0].dislikesCount;
   }
 
-  async getLikeStatus(commentId: string, userId: string): Promise<LikeStatus> {
+  async getLikeStatus(params: CommentLikeStatusRepoParams): Promise<LikeStatus> {
+    const { commentId, userId } = params;
     if (userId === null) return LikeStatus.None;
 
     const comment = await this.model
@@ -64,7 +70,8 @@ export class CommentLikesRepository {
   //   await this.model.deleteOne({ commentId });
   // }
 
-  async setLike(commentId: string, userId: string, createdAt: Date): Promise<void> {
+  async setLike(params: SetCommentLikeRepoParams): Promise<void> {
+    const { commentId, userId, createdAt } = params;
     const like = { userId, createdAt };
 
     await this.model.updateOne(
@@ -82,7 +89,8 @@ export class CommentLikesRepository {
     );
   }
 
-  async setDislike(commentId: string, userId: string, createdAt: Date): Promise<void> {
+  async setDislike(params: SetCommentLikeRepoParams): Promise<void> {
+    const { commentId, userId, createdAt } = params;
     const dislike = { userId, createdAt };
 
     await this.model.updateOne(
@@ -101,7 +109,8 @@ export class CommentLikesRepository {
     );
   }
 
-  async setNone(commentId: string, userId: string): Promise<void> {
+  async setNone(params: SetCommentNoneRepoParams): Promise<void> {
+    const { commentId, userId } = params;
     await this.model.updateOne(
       { commentId },
       {

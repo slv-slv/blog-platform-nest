@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PostDtoType } from '../../types/posts.types.js';
+import { CreatePostRepoParams, PostDtoType, UpdatePostRepoParams } from '../../types/posts.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
 import { PostNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
@@ -42,14 +42,8 @@ export class PostsRepository {
     };
   }
 
-  async createPost(
-    title: string,
-    shortDescription: string,
-    content: string,
-    blogId: string,
-    blogName: string,
-    createdAt: string,
-  ): Promise<PostDtoType> {
+  async createPost(params: CreatePostRepoParams): Promise<PostDtoType> {
+    const { title, shortDescription, content, blogId, blogName, createdAt } = params;
     const blogIdInt = parseInt(blogId);
 
     const result = await this.pool.query(
@@ -73,7 +67,8 @@ export class PostsRepository {
       createdAt,
     };
   }
-  async updatePost(id: string, title: string, shortDescription: string, content: string): Promise<void> {
+  async updatePost(params: UpdatePostRepoParams): Promise<void> {
+    const { id, title, shortDescription, content } = params;
     const result = await this.pool.query(
       `
         UPDATE posts

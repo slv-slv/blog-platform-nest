@@ -15,7 +15,7 @@ export class CommentLikesQueryRepository {
   async getLikesInfo(commentId: string, userId: string): Promise<LikesInfoViewType> {
     const likesCount = await this.commentLikesRepository.getLikesCount(commentId);
     const dislikesCount = await this.commentLikesRepository.getDislikesCount(commentId);
-    const myStatus = await this.commentLikesRepository.getLikeStatus(commentId, userId);
+    const myStatus = await this.commentLikesRepository.getLikeStatus({ commentId, userId });
 
     return { likesCount, dislikesCount, myStatus };
   }

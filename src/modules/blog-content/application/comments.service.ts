@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { CommentViewType } from '../types/comments.types.js';
+import {
+  CommentViewType,
+  CreateCommentParams,
+  CreateCommentRepoParams,
+  DeleteCommentParams,
+  UpdateCommentParams,
+  UpdateCommentRepoParams,
+} from '../types/comments.types.js';
 import { PostsRepository } from '../infrastructure/sql/posts.repository.js';
 import { CommentsRepository } from '../infrastructure/sql/comments.repository.js';
 import { UsersRepository } from '../../user-accounts/infrastructure/sql/users.repository.js';
 import { CommentLikesService } from './comment-likes.service.js';
-import {
-  AccessDeniedDomainException,
-} from '../../../common/exceptions/domain-exceptions.js';
+import { AccessDeniedDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class CommentsService {
@@ -16,7 +21,9 @@ export class CommentsService {
     private readonly usersRepository: UsersRepository,
     private readonly commentLikesService: CommentLikesService,
   ) {}
-  async createComment(postId: string, content: string, userId: string): Promise<CommentViewType> {
+
+  async createComment(params: CreateCommentParams): Promise<CommentViewType> {
+    const { postId, content, userId } = params;
     await this.postsRepository.findPost(postId);
 
     const userLogin = await this.usersRepository.getLogin(userId);
@@ -24,12 +31,8 @@ export class CommentsService {
     const commentatorInfo = { userId, userLogin };
     const createdAt = new Date().toISOString();
 
-    const newComment = await this.commentsRepository.createComment(
-      postId,
-      content,
-      createdAt,
-      commentatorInfo,
-    );
+    const repoParams: CreateCommentRepoParams = { postId, content, createdAt, commentatorInfo };
+    const newComment = await this.commentsRepository.createComment(repoParams);
 
     // const commentId = newComment.id;
     // await this.commentLikesService.createEmptyLikesInfo(commentId);
@@ -37,16 +40,19 @@ export class CommentsService {
     return { ...newComment, likesInfo };
   }
 
-  async updateComment(commentId: string, content: string, userId: string): Promise<void> {
+  async updateComment(params: UpdateCommentParams): Promise<void> {
+    const { commentId, content, userId } = params;
     const comment = await this.commentsRepository.findComment(commentId);
 
     const ownerId = comment.commentatorInfo.userId;
     if (userId !== ownerId) throw new AccessDeniedDomainException();
 
-    await this.commentsRepository.updateComment(commentId, content);
+    const repoParams: UpdateCommentRepoParams = { id: commentId, content };
+    await this.commentsRepository.updateComment(repoParams);
   }
 
-  async deleteComment(commentId: string, userId: string): Promise<void> {
+  async deleteComment(params: DeleteCommentParams): Promise<void> {
+    const { commentId, userId } = params;
     const comment = await this.commentsRepository.findComment(commentId);
 
     const ownerId = comment.commentatorInfo.userId;

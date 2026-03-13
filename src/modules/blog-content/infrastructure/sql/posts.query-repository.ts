@@ -51,8 +51,8 @@ export class PostsQueryRepository {
     return { ...post, extendedLikesInfo };
   }
   async getPosts(
-    userId: string | null,
     pagingParams: PagingParamsType,
+    userId: string | null,
     blogId?: string,
   ): Promise<PostsPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;

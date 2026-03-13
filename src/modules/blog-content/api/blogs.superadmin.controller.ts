@@ -61,14 +61,14 @@ export class BlogsSuperadminController {
   @HttpCode(201)
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogType> {
     const { name, description, websiteUrl } = body;
-    return await this.blogsService.createBlog(name, description, websiteUrl);
+    return await this.blogsService.createBlog({ name, description, websiteUrl });
   }
 
   @Put(':id')
   @HttpCode(204)
   async updateBlog(@Param('id') id: string, @Body() body: UpdateBlogInputDto) {
     const { name, description, websiteUrl } = body;
-    await this.blogsService.updateBlog(id, name, description, websiteUrl);
+    await this.blogsService.updateBlog({ id, name, description, websiteUrl });
   }
 
   @Delete(':id')
@@ -83,20 +83,20 @@ export class BlogsSuperadminController {
     @Query() query: GetPostsQueryParams,
     @Res({ passthrough: true }) res: Response,
   ): Promise<PostsPaginatedType> {
-    const userId = res.locals.userId;
+    const userId = null;
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
     await this.blogsRepo.findBlog(blogId);
 
-    return await this.postsQueryRepository.getPosts(userId, pagingParams, blogId);
+    return await this.postsQueryRepository.getPosts(pagingParams, userId, blogId);
   }
 
   @Post(':blogId/posts')
   @HttpCode(201)
   async createPost(@Param('blogId') blogId: string, @Body() body: CreatePostInputDto): Promise<PostViewType> {
     const { title, shortDescription, content } = body;
-    return await this.postsService.createPost(title, shortDescription, content, blogId);
+    return await this.postsService.createPost({ title, shortDescription, content, blogId });
   }
 
   @Put(':blogId/posts/:postId')
@@ -107,12 +107,12 @@ export class BlogsSuperadminController {
     @Body() body: UpdatePostInputDto,
   ): Promise<void> {
     const { title, shortDescription, content } = body;
-    await this.postsService.updatePost(postId, title, shortDescription, content, blogId);
+    await this.postsService.updatePost({ postId, title, shortDescription, content, blogId });
   }
 
   @Delete(':blogId/posts/:postId')
   @HttpCode(204)
   async deletePost(@Param('blogId') blogId: string, @Param('postId') postId: string): Promise<void> {
-    await this.postsService.deletePost(blogId, postId);
+    await this.postsService.deletePost({ blogId, postId });
   }
 }

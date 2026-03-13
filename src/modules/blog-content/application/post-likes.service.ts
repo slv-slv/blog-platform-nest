@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PostsRepository } from '../infrastructure/sql/posts.repository.js';
 import { PostLikesRepository } from '../infrastructure/sql/post-likes.repository.js';
-import { PostLikesType } from '../types/post-likes.types.js';
-import { ExtendedLikesInfoViewType, LikeStatus } from '../types/likes.types.js';
+import { ExtendedLikesInfoViewType, LikeStatus, SetPostLikeStatusParams } from '../types/likes.types.js';
+import { PostLikeStatusRepoParams } from '../types/post-likes.types.js';
 
 @Injectable()
 export class PostLikesService {
@@ -10,23 +10,26 @@ export class PostLikesService {
     private readonly postsRepository: PostsRepository,
     private readonly postLikesRepository: PostLikesRepository,
   ) {}
-  async setLikeStatus(postId: string, userId: string, likeStatus: LikeStatus): Promise<void> {
+
+  async setLikeStatus(params: SetPostLikeStatusParams): Promise<void> {
+    const { postId, userId, likeStatus } = params;
     await this.postsRepository.findPost(postId);
 
-    const currentLikeStatus = await this.postLikesRepository.getLikeStatus(postId, userId);
+    const likeStatusParams: PostLikeStatusRepoParams = { postId, userId };
+    const currentLikeStatus = await this.postLikesRepository.getLikeStatus(likeStatusParams);
     if (likeStatus === currentLikeStatus) return;
 
     const createdAt = new Date();
 
     switch (likeStatus) {
       case LikeStatus.None:
-        await this.postLikesRepository.setNone(postId, userId);
+        await this.postLikesRepository.setNone({ postId, userId });
         break;
       case LikeStatus.Like:
-        await this.postLikesRepository.setLike(postId, userId, createdAt);
+        await this.postLikesRepository.setLike({ postId, userId, createdAt });
         break;
       case LikeStatus.Dislike:
-        await this.postLikesRepository.setDislike(postId, userId, createdAt);
+        await this.postLikesRepository.setDislike({ postId, userId, createdAt });
         break;
     }
   }

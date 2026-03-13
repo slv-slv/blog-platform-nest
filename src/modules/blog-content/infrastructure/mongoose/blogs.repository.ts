@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog } from './blogs.schemas.js';
 import { Model } from 'mongoose';
-import { BlogType } from '../../types/blogs.types.js';
+import { BlogType, CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
 import { ObjectId } from 'mongodb';
 
 @Injectable()
@@ -21,20 +21,16 @@ export class BlogsRepository {
     return { id, ...blog };
   }
 
-  async createBlog(
-    name: string,
-    description: string,
-    websiteUrl: string,
-    createdAt: string,
-    isMembership: boolean,
-  ): Promise<BlogType> {
+  async createBlog(params: CreateBlogRepoParams): Promise<BlogType> {
+    const { name, description, websiteUrl, createdAt, isMembership } = params;
     const newBlog = { name, description, websiteUrl, createdAt, isMembership };
     const insertedBlog = await this.model.create(newBlog);
     const id = insertedBlog._id.toString();
     return { id, ...newBlog };
   }
 
-  async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
+  async updateBlog(params: UpdateBlogRepoParams): Promise<boolean> {
+    const { id, name, description, websiteUrl } = params;
     if (!ObjectId.isValid(id)) {
       return false;
     }

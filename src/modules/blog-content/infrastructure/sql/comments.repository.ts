@@ -1,5 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CommentDtoType } from '../../types/comments.types.js';
+import {
+  CommentDtoType,
+  CreateCommentRepoParams,
+  UpdateCommentRepoParams,
+} from '../../types/comments.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
 import { CommentNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
@@ -40,12 +44,8 @@ export class CommentsRepository {
     };
   }
 
-  async createComment(
-    postId: string,
-    content: string,
-    createdAt: string,
-    commentatorInfo: { userId: string; userLogin: string },
-  ): Promise<CommentDtoType> {
+  async createComment(params: CreateCommentRepoParams): Promise<CommentDtoType> {
+    const { postId, content, createdAt, commentatorInfo } = params;
     const result = await this.pool.query(
       `
         INSERT INTO comments (post_id, user_id, content, created_at)
@@ -59,7 +59,8 @@ export class CommentsRepository {
 
     return { id, content, commentatorInfo, createdAt };
   }
-  async updateComment(id: string, content: string): Promise<boolean> {
+  async updateComment(params: UpdateCommentRepoParams): Promise<boolean> {
+    const { id, content } = params;
     const result = await this.pool.query(
       `
         UPDATE comments

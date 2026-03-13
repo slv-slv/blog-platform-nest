@@ -36,7 +36,7 @@ export class BlogsController {
 
     await this.blogsRepo.findBlog(blogId);
 
-    const posts = await this.postsQueryRepository.getPosts(userId, pagingParams, blogId);
+    const posts = await this.postsQueryRepository.getPosts(pagingParams, userId, blogId);
     return posts;
   }
 

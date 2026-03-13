@@ -2,6 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { LikeStatus } from '../../types/likes.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
+import {
+  CommentLikeStatusRepoParams,
+  SetCommentLikeRepoParams,
+  SetCommentNoneRepoParams,
+} from '../../types/comment-likes.types.js';
 
 @Injectable()
 export class CommentLikesRepository {
@@ -33,7 +38,8 @@ export class CommentLikesRepository {
     return parseInt(result.rows[0].count);
   }
 
-  async getLikeStatus(commentId: string, userId: string | null): Promise<LikeStatus> {
+  async getLikeStatus(params: CommentLikeStatusRepoParams): Promise<LikeStatus> {
+    const { commentId, userId } = params;
     if (userId === null) return LikeStatus.None;
 
     const commentIdInt = parseInt(commentId);
@@ -79,7 +85,8 @@ export class CommentLikesRepository {
     }
   }
 
-  async setLike(commentId: string, userId: string, createdAt: Date): Promise<void> {
+  async setLike(params: SetCommentLikeRepoParams): Promise<void> {
+    const { commentId, userId, createdAt } = params;
     const commentIdInt = parseInt(commentId);
     const userIdInt = parseInt(userId);
 
@@ -111,7 +118,8 @@ export class CommentLikesRepository {
     }
   }
 
-  async setDislike(commentId: string, userId: string, createdAt: Date): Promise<void> {
+  async setDislike(params: SetCommentLikeRepoParams): Promise<void> {
+    const { commentId, userId, createdAt } = params;
     const commentIdInt = parseInt(commentId);
     const userIdInt = parseInt(userId);
 
@@ -143,7 +151,8 @@ export class CommentLikesRepository {
     }
   }
 
-  async setNone(commentId: string, userId: string): Promise<void> {
+  async setNone(params: SetCommentNoneRepoParams): Promise<void> {
+    const { commentId, userId } = params;
     const commentIdInt = parseInt(commentId);
     const userIdInt = parseInt(userId);
 

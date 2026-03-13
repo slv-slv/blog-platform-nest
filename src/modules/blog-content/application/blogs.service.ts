@@ -1,19 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { BlogsRepository } from '../infrastructure/sql/blogs.repository.js';
-import { BlogType } from '../types/blogs.types.js';
+import { BlogType, CreateBlogParams, CreateBlogRepoParams, UpdateBlogParams } from '../types/blogs.types.js';
 
 @Injectable()
 export class BlogsService {
   constructor(private readonly blogsRepository: BlogsRepository) {}
 
-  async createBlog(name: string, description: string, websiteUrl: string): Promise<BlogType> {
+  async createBlog(params: CreateBlogParams): Promise<BlogType> {
+    const { name, description, websiteUrl } = params;
     const createdAt = new Date().toISOString();
     const isMembership = false;
-    return await this.blogsRepository.createBlog(name, description, websiteUrl, createdAt, isMembership);
+
+    const repoParams: CreateBlogRepoParams = { name, description, websiteUrl, createdAt, isMembership };
+    return await this.blogsRepository.createBlog(repoParams);
   }
 
-  async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<void> {
-    await this.blogsRepository.updateBlog(id, name, description, websiteUrl);
+  async updateBlog(params: UpdateBlogParams): Promise<void> {
+    await this.blogsRepository.updateBlog(params);
   }
 
   async deleteBlog(id: string): Promise<void> {

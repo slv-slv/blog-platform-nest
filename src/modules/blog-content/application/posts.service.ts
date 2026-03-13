@@ -1,6 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PostsRepository } from '../infrastructure/sql/posts.repository.js';
-import { PostViewType } from '../types/posts.types.js';
+import {
+  CreatePostParams,
+  CreatePostRepoParams,
+  DeletePostParams,
+  PostViewType,
+  UpdatePostParams,
+  UpdatePostRepoParams,
+} from '../types/posts.types.js';
 import { PostLikesService } from './post-likes.service.js';
 import { BlogsRepository } from '../infrastructure/sql/blogs.repository.js';
 
@@ -12,24 +19,14 @@ export class PostsService {
     private readonly blogsRepository: BlogsRepository,
   ) {}
 
-  async createPost(
-    title: string,
-    shortDescription: string,
-    content: string,
-    blogId: string,
-  ): Promise<PostViewType> {
+  async createPost(params: CreatePostParams): Promise<PostViewType> {
+    const { title, shortDescription, content, blogId } = params;
     const blog = await this.blogsRepository.findBlog(blogId);
     const blogName = blog.name;
 
     const createdAt = new Date().toISOString();
-    const newPost = await this.postsRepository.createPost(
-      title,
-      shortDescription,
-      content,
-      blogId,
-      blogName,
-      createdAt,
-    );
+    const repoParams: CreatePostRepoParams = { title, shortDescription, content, blogId, blogName, createdAt };
+    const newPost = await this.postsRepository.createPost(repoParams);
 
     // const postId = newPost.id;
     // await this.postLikesService.createEmptyLikesInfo(postId);
@@ -38,19 +35,16 @@ export class PostsService {
     return { ...newPost, extendedLikesInfo };
   }
 
-  async updatePost(
-    postId: string,
-    title: string,
-    shortDescription: string,
-    content: string,
-    blogId: string,
-  ): Promise<void> {
+  async updatePost(params: UpdatePostParams): Promise<void> {
+    const { postId, title, shortDescription, content, blogId } = params;
     await this.blogsRepository.findBlog(blogId);
 
-    await this.postsRepository.updatePost(postId, title, shortDescription, content);
+    const repoParams: UpdatePostRepoParams = { id: postId, title, shortDescription, content };
+    await this.postsRepository.updatePost(repoParams);
   }
 
-  async deletePost(blogId: string, postId: string): Promise<void> {
+  async deletePost(params: DeletePostParams): Promise<void> {
+    const { blogId, postId } = params;
     await this.blogsRepository.findBlog(blogId);
 
     await this.postsRepository.deletePost(postId);

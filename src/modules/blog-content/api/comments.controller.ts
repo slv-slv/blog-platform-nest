@@ -40,7 +40,7 @@ export class CommentsController {
     const content = body.content;
     const userId = res.locals.userId;
 
-    await this.commentsService.updateComment(commentId, content, userId);
+    await this.commentsService.updateComment({ commentId, content, userId });
   }
 
   @Delete(':commentId')
@@ -48,7 +48,7 @@ export class CommentsController {
   async deleteComment(@Param('commentId') commentId: string, @Res({ passthrough: true }) res: Response) {
     const userId = res.locals.userId;
 
-    await this.commentsService.deleteComment(commentId, userId);
+    await this.commentsService.deleteComment({ commentId, userId });
   }
 
   @Put(':commentId/like-status')
@@ -61,6 +61,6 @@ export class CommentsController {
     const likeStatus = body.likeStatus;
     const userId = res.locals.userId;
 
-    await this.commentLikesService.setLikeStatus(commentId, userId, likeStatus);
+    await this.commentLikesService.setLikeStatus({ commentId, userId, likeStatus });
   }
 }

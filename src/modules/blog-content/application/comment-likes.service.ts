@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CommentsRepository } from '../infrastructure/sql/comments.repository.js';
 import { CommentLikesRepository } from '../infrastructure/sql/comment-likes.repository.js';
-import { CommentLikesType } from '../types/comment-likes.types.js';
-import { LikesInfoViewType, LikeStatus } from '../types/likes.types.js';
+import { LikesInfoViewType, LikeStatus, SetCommentLikeStatusParams } from '../types/likes.types.js';
+import { CommentLikeStatusRepoParams } from '../types/comment-likes.types.js';
 
 @Injectable()
 export class CommentLikesService {
@@ -11,23 +11,25 @@ export class CommentLikesService {
     private readonly commentLikesRepository: CommentLikesRepository,
   ) {}
 
-  async setLikeStatus(commentId: string, userId: string, likeStatus: LikeStatus): Promise<void> {
+  async setLikeStatus(params: SetCommentLikeStatusParams): Promise<void> {
+    const { commentId, userId, likeStatus } = params;
     await this.commentsRepository.findComment(commentId);
 
-    const currentLikeStatus = await this.commentLikesRepository.getLikeStatus(commentId, userId);
+    const likeStatusParams: CommentLikeStatusRepoParams = { commentId, userId };
+    const currentLikeStatus = await this.commentLikesRepository.getLikeStatus(likeStatusParams);
     if (likeStatus === currentLikeStatus) return;
 
     const createdAt = new Date();
 
     switch (likeStatus) {
       case LikeStatus.None:
-        await this.commentLikesRepository.setNone(commentId, userId);
+        await this.commentLikesRepository.setNone({ commentId, userId });
         break;
       case LikeStatus.Like:
-        await this.commentLikesRepository.setLike(commentId, userId, createdAt);
+        await this.commentLikesRepository.setLike({ commentId, userId, createdAt });
         break;
       case LikeStatus.Dislike:
-        await this.commentLikesRepository.setDislike(commentId, userId, createdAt);
+        await this.commentLikesRepository.setDislike({ commentId, userId, createdAt });
         break;
     }
   }
