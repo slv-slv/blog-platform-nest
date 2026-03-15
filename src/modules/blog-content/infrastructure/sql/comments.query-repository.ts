@@ -14,6 +14,7 @@ export class CommentsQueryRepository {
   ) {}
 
   async findComment(id: string, userId: string | null): Promise<CommentViewType> {
+    const commentIdInt = parseInt(id);
     const result = await this.pool.query(
       `
         SELECT
@@ -25,7 +26,7 @@ export class CommentsQueryRepository {
           ON comments.user_id = users.id
         WHERE comments.id = $1
       `,
-      [parseInt(id)],
+      [commentIdInt],
     );
 
     if (!result.rowCount) {
@@ -33,8 +34,7 @@ export class CommentsQueryRepository {
     }
 
     const { content, created_at, commentator_id, commentator_login } = result.rows[0];
-
-    const likesInfo = await this.commentLikesQueryRepository.getLikesInfo(id, userId);
+    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo([commentIdInt], userId);
 
     return {
       id,
@@ -43,8 +43,8 @@ export class CommentsQueryRepository {
         userId: commentator_id.toString(),
         userLogin: commentator_login,
       },
-      createdAt: created_at,
-      likesInfo,
+      createdAt: created_at.toISOString(),
+      likesInfo: likesInfoMap.get(commentIdInt)!,
     };
   }
   async getComments(
@@ -68,15 +68,15 @@ export class CommentsQueryRepository {
 
     const countResult = await this.pool.query(
       `
-        SELECT COUNT(id)
+        SELECT COUNT(id)::int AS count
         FROM comments
         WHERE post_id = $1
       `,
       [parseInt(postId)],
     );
 
-    const totalCount = parseInt(countResult.rows[0].count);
-    const pagesCount = Math.ceil(totalCount / pageSize);
+    const totalCount = countResult.rows[0].count;
+    const pagesCount = totalCount ? Math.ceil(totalCount / pageSize) : 0;
     const skipCount = (pageNumber - 1) * pageSize;
 
     const commentsResult = await this.pool.query(
@@ -98,21 +98,19 @@ export class CommentsQueryRepository {
     );
 
     const rawComments = commentsResult.rows;
+    const commentIdArr = rawComments.map((comment) => comment.id);
+    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo(commentIdArr, userId);
 
-    const comments = await Promise.all(
-      rawComments.map(async (comment) => {
-        return {
-          id: comment.id.toString(),
-          content: comment.content,
-          commentatorInfo: {
-            userId: comment.commentator_id.toString(),
-            userLogin: comment.commentator_login,
-          },
-          createdAt: comment.created_at,
-          likesInfo: await this.commentLikesQueryRepository.getLikesInfo(comment.id.toString(), userId),
-        };
-      }),
-    );
+    const comments = rawComments.map((comment) => ({
+      id: comment.id.toString(),
+      content: comment.content,
+      commentatorInfo: {
+        userId: comment.commentator_id.toString(),
+        userLogin: comment.commentator_login,
+      },
+      createdAt: comment.created_at.toISOString(),
+      likesInfo: likesInfoMap.get(comment.id)!,
+    }));
 
     return {
       pagesCount,
