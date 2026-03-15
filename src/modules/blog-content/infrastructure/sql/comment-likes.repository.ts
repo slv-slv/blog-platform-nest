@@ -3,7 +3,6 @@ import { LikeStatus } from '../../types/likes.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
 import {
-  CommentLikeStatusRepoParams,
   SetCommentLikeRepoParams,
   SetCommentNoneRepoParams,
 } from '../../types/comment-likes.types.js';
@@ -12,62 +11,69 @@ import {
 export class CommentLikesRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getLikesCount(commentId: string): Promise<number> {
+  async getLikesCount(commentIdArr: number[]): Promise<{ commentId: number; likesCount: number }[]> {
     const result = await this.pool.query(
       `
-        SELECT COUNT(*)
+        SELECT
+          comment_id AS "commentId",
+          COUNT(user_id)::int AS "likesCount"
         FROM comment_likes
-        WHERE comment_id = $1
+        WHERE comment_id = ANY($1::int[])
+        GROUP BY comment_id
       `,
-      [parseInt(commentId)],
+      [commentIdArr],
     );
 
-    return parseInt(result.rows[0].count);
+    return result.rows;
   }
 
-  async getDislikesCount(commentId: string): Promise<number> {
+  async getDislikesCount(commentIdArr: number[]): Promise<{ commentId: number; dislikesCount: number }[]> {
     const result = await this.pool.query(
       `
-        SELECT COUNT(*)
+        SELECT
+          comment_id AS "commentId",
+          COUNT(user_id)::int AS "dislikesCount"
         FROM comment_dislikes
-        WHERE comment_id = $1
+        WHERE comment_id = ANY($1::int[])
+        GROUP BY comment_id
       `,
-      [parseInt(commentId)],
+      [commentIdArr],
     );
 
-    return parseInt(result.rows[0].count);
+    return result.rows;
   }
 
-  async getLikeStatus(params: CommentLikeStatusRepoParams): Promise<LikeStatus> {
-    const { commentId, userId } = params;
-    if (userId === null) return LikeStatus.None;
+  async getLikeStatus(
+    commentIdArr: number[],
+    userId: string | null,
+  ): Promise<{ commentId: number; myStatus: LikeStatus }[]> {
+    if (userId === null) {
+      return commentIdArr.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
+    }
 
-    const commentIdInt = parseInt(commentId);
     const userIdInt = parseInt(userId);
 
-    const likeResult = await this.pool.query(
+    const result = await this.pool.query(
       `
-        SELECT COUNT(*)
-        FROM comment_likes
-        WHERE comment_id = $1 AND user_id = $2
+        SELECT
+          c.comment_id AS "commentId",
+          CASE
+            WHEN cl.user_id IS NOT NULL THEN 'Like'
+            WHEN cd.user_id IS NOT NULL THEN 'Dislike'
+            ELSE 'None'
+          END AS "myStatus"
+        FROM unnest($1::int[]) AS c(comment_id)
+        LEFT JOIN comment_likes AS cl
+          ON c.comment_id = cl.comment_id
+          AND cl.user_id = $2
+        LEFT JOIN comment_dislikes AS cd
+          ON c.comment_id = cd.comment_id
+          AND cd.user_id = $2
       `,
-      [commentIdInt, userIdInt],
+      [commentIdArr, userIdInt],
     );
 
-    if (parseInt(likeResult.rows[0].count) > 0) return LikeStatus.Like;
-
-    const dislikeResult = await this.pool.query(
-      `
-        SELECT COUNT(*)
-        FROM comment_dislikes
-        WHERE comment_id = $1 AND user_id = $2
-      `,
-      [commentIdInt, userIdInt],
-    );
-
-    if (parseInt(dislikeResult.rows[0].count) > 0) return LikeStatus.Dislike;
-
-    return LikeStatus.None;
+    return result.rows;
   }
 
   async deleteLikesInfo(commentId: string): Promise<void> {
