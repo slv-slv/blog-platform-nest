@@ -7,67 +7,110 @@ import {
   SetPostLikeRepoParams,
   SetPostNoneRepoParams,
 } from '../../types/post-likes.types.js';
+import { coreConfig } from '../../../../config/core.config.js';
+import { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class PostLikesRepository {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  constructor(
+    @Inject(PG_POOL) private readonly pool: Pool,
+    @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
+  ) {}
 
-  async getLikesCount(postId: string): Promise<number> {
+  async getLikesCount(postIdArr: number[]): Promise<{ postId: number; likesCount: number }[]> {
     const result = await this.pool.query(
       `
-        SELECT COUNT(*)
+        SELECT
+          post_id AS "postId",  
+          COUNT(user_id)::int AS "likesCount"
         FROM post_likes
-        WHERE post_id = $1
+        WHERE post_id = ANY($1)
+        GROUP BY post_id
       `,
-      [parseInt(postId)],
+      [postIdArr],
     );
 
-    return parseInt(result.rows[0].count);
+    return result.rows;
   }
 
-  async getDislikesCount(postId: string): Promise<number> {
+  async getDislikesCount(postIdArr: number[]): Promise<{ postId: number; dislikesCount: number }[]> {
     const result = await this.pool.query(
       `
-        SELECT COUNT(*)
+        SELECT
+          post_id AS "postId",  
+          COUNT(user_id)::int AS "dislikesCount"
         FROM post_dislikes
-        WHERE post_id = $1
+        WHERE post_id = ANY($1)
+        GROUP BY post_id
       `,
-      [parseInt(postId)],
+      [postIdArr],
     );
 
-    return parseInt(result.rows[0].count);
+    return result.rows;
   }
 
-  async getLikeStatus(params: PostLikeStatusRepoParams): Promise<LikeStatus> {
-    const { postId, userId } = params;
-    if (userId === null) return LikeStatus.None;
+  async getLikeStatus(
+    postIdArr: number[],
+    userId: string | null,
+  ): Promise<{ postId: number; myStatus: LikeStatus }[]> {
+    if (userId === null) {
+      return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
+    }
 
-    const postIdInt = parseInt(postId);
-    const userIdInt = parseInt(userId);
+    const userIdInt = +userId;
 
-    const likeResult = await this.pool.query(
+    const myStatusResult = await this.pool.query(
       `
-        SELECT COUNT(*)
+        SELECT
+          p.post_id AS "postId",
+          CASE
+            WHEN pl.user_id IS NOT NULL THEN 'Like'
+            WHEN pd.user_id IS NOT NULL THEN 'Dislike'
+            ELSE 'None'
+          END AS "myStatus"
+        FROM unnest($1::int[]) AS p(post_id)
+        LEFT JOIN post_likes AS pl
+          ON p.post_id = pl.post_id
+          AND pl.user_id = $2
+        LEFT JOIN post_dislikes AS pd
+          ON p.post_id = pd.post_id
+          AND pd.user_id = $2
+      `,
+      [postIdArr, userIdInt],
+    );
+
+    return myStatusResult.rows;
+  }
+
+  async getNewestLikes(
+    postIdArr: number[],
+  ): Promise<{ postId: number; addedAt: Date; userId: number; login: string }[]> {
+    const newestLikesNumber = this.core.newestLikesNumber;
+
+    const newestLikesResult = await this.pool.query(
+      `
+        WITH like_row_numbers AS
+        (SELECT
+          post_id,
+          created_at,
+          user_id,
+          ROW_NUMBER() OVER (PARTITION BY post_id ORDER BY created_at DESC) AS rn
         FROM post_likes
-        WHERE post_id = $1 AND user_id = $2
+        WHERE post_id = ANY($1))
+        SELECT
+          post_id AS "postId",
+          lrn.created_at AS "addedAt",
+          user_id AS "userId",
+          u.login
+        FROM like_row_numbers AS lrn JOIN users AS u
+          ON lrn.user_id = u.id
+        WHERE lrn.rn <= $2
+        ORDER BY post_id, lrn.created_at DESC
       `,
-      [postIdInt, userIdInt],
+      [postIdArr, newestLikesNumber],
     );
 
-    if (parseInt(likeResult.rows[0].count) > 0) return LikeStatus.Like;
-
-    const dislikeResult = await this.pool.query(
-      `
-        SELECT COUNT(*)
-        FROM post_dislikes
-        WHERE post_id = $1 AND user_id = $2
-      `,
-      [postIdInt, userIdInt],
-    );
-
-    if (parseInt(dislikeResult.rows[0].count) > 0) return LikeStatus.Dislike;
-
-    return LikeStatus.None;
+    return newestLikesResult.rows;
   }
 
   // async deleteLikesInfo(postId: string): Promise<void> {
