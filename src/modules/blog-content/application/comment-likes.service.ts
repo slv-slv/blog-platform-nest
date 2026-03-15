@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { CommentsRepository } from '../infrastructure/sql/comments.repository.js';
 import { CommentLikesRepository } from '../infrastructure/sql/comment-likes.repository.js';
 import { LikesInfoViewType, LikeStatus, SetCommentLikeStatusParams } from '../types/likes.types.js';
-import { CommentLikeStatusRepoParams } from '../types/comment-likes.types.js';
 
 @Injectable()
 export class CommentLikesService {
@@ -15,8 +14,8 @@ export class CommentLikesService {
     const { commentId, userId, likeStatus } = params;
     await this.commentsRepository.findComment(commentId);
 
-    const likeStatusParams: CommentLikeStatusRepoParams = { commentId, userId };
-    const currentLikeStatus = await this.commentLikesRepository.getLikeStatus(likeStatusParams);
+    const currentLikeStatus = (await this.commentLikesRepository.getLikeStatus([parseInt(commentId)], userId))[0]
+      .myStatus;
     if (likeStatus === currentLikeStatus) return;
 
     const createdAt = new Date();
