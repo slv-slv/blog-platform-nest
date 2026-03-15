@@ -13,10 +13,12 @@ export class PostsQueryRepository {
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 
-  async findPost(id: string, userId: string | null): Promise<PostViewType> {
+  async findPost(postId: string, userId: string | null): Promise<PostViewType> {
+    const postIdInt = parseInt(postId);
     const result = await this.pool.query(
       `
         SELECT
+          posts.id,
           posts.title,
           posts.short_description,
           posts.content,
@@ -25,9 +27,9 @@ export class PostsQueryRepository {
           posts.created_at
         FROM posts JOIN blogs
           ON posts.blog_id = blogs.id
-        WHERE posts.id = $1
+        WHERE posts.id = $1::int
       `,
-      [parseInt(id)],
+      [postIdInt],
     );
 
     if (!result.rowCount) {
@@ -37,18 +39,18 @@ export class PostsQueryRepository {
     const rawPost = result.rows[0];
 
     const post = {
-      id,
+      id: postId,
       title: rawPost.title,
       shortDescription: rawPost.short_description,
       content: rawPost.content,
       blogId: rawPost.blog_id.toString(),
       blogName: rawPost.blog_name,
-      createdAt: rawPost.created_at,
+      createdAt: rawPost.created_at.toISOString(),
     };
 
-    const extendedLikesInfo = await this.postLikesQueryRepository.getLikesInfo(id, userId);
+    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo([postIdInt], userId);
 
-    return { ...post, extendedLikesInfo };
+    return { ...post, extendedLikesInfo: likesInfoMap.get(postIdInt)! };
   }
   async getPosts(
     pagingParams: PagingParamsType,
@@ -76,18 +78,19 @@ export class PostsQueryRepository {
         orderBy = sortBy;
     }
 
-    const whereClause = blogId ? `WHERE posts.blog_id = ${parseInt(blogId)}` : ``;
+    const blogIdInt = blogId ? parseInt(blogId) : null;
 
     const countResult = await this.pool.query(
       `
-        SELECT COUNT(id)
+        SELECT COUNT(posts.id)::int AS count
         FROM posts
-        ${whereClause}
+        WHERE ($1::int IS NULL OR posts.blog_id = $1::int)
       `,
+      [blogIdInt],
     );
 
-    const totalCount = parseInt(countResult.rows[0].count);
-    const pagesCount = Math.ceil(totalCount / pageSize);
+    const totalCount = countResult.rows[0].count;
+    const pagesCount = totalCount ? Math.ceil(totalCount / pageSize) : 0;
     const skipCount = (pageNumber - 1) * pageSize;
 
     const postsResult = await this.pool.query(
@@ -101,28 +104,28 @@ export class PostsQueryRepository {
           blogs.name AS blog_name,
           posts.created_at
         FROM posts JOIN blogs ON posts.blog_id = blogs.id
-        ${whereClause}
+        WHERE ($1::int IS NULL OR posts.blog_id = $1::int)
         ORDER BY ${orderBy} ${sortDirection}
-        LIMIT $1
-        OFFSET $2
+        LIMIT $2
+        OFFSET $3
       `,
-      [pageSize, skipCount],
+      [blogIdInt, pageSize, skipCount],
     );
 
     const rawPosts = postsResult.rows;
+    const postIdArr = rawPosts.map((post) => post.id);
+    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo(postIdArr, userId);
 
-    const posts = await Promise.all(
-      rawPosts.map(async (post) => ({
-        id: post.id.toString(),
-        title: post.title,
-        shortDescription: post.short_description,
-        content: post.content,
-        blogId: post.blog_id.toString(),
-        blogName: post.blog_name,
-        createdAt: post.created_at,
-        extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo(post.id.toString(), userId),
-      })),
-    );
+    const posts = rawPosts.map((post) => ({
+      id: post.id.toString(),
+      title: post.title,
+      shortDescription: post.short_description,
+      content: post.content,
+      blogId: post.blog_id.toString(),
+      blogName: post.blog_name,
+      createdAt: post.created_at.toISOString(),
+      extendedLikesInfo: likesInfoMap.get(post.id)!,
+    }));
 
     return {
       pagesCount,
