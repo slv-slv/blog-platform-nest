@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PostsRepository } from '../infrastructure/sql/posts.repository.js';
 import { PostLikesRepository } from '../infrastructure/sql/post-likes.repository.js';
 import { ExtendedLikesInfoViewType, LikeStatus, SetPostLikeStatusParams } from '../types/likes.types.js';
-import { PostLikeStatusRepoParams } from '../types/post-likes.types.js';
 
 @Injectable()
 export class PostLikesService {
@@ -15,8 +14,8 @@ export class PostLikesService {
     const { postId, userId, likeStatus } = params;
     await this.postsRepository.findPost(postId);
 
-    const likeStatusParams: PostLikeStatusRepoParams = { postId, userId };
-    const currentLikeStatus = await this.postLikesRepository.getLikeStatus(likeStatusParams);
+    const currentLikeStatus = (await this.postLikesRepository.getLikeStatus([parseInt(postId)], userId))[0]
+      .myStatus;
     if (likeStatus === currentLikeStatus) return;
 
     const createdAt = new Date();
