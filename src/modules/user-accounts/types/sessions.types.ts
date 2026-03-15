@@ -20,6 +20,12 @@ export type DeviceViewType = {
   deviceId: string;
 };
 
+export type CheckSessionParams = {
+  userId: string;
+  deviceId: string;
+  iat: number;
+};
+
 export type CreateSessionParams = {
   userId: string;
   deviceId: string;
