@@ -14,8 +14,9 @@ export class CommentLikesService {
     const { commentId, userId, likeStatus } = params;
     await this.commentsRepository.findComment(commentId);
 
-    const currentLikeStatus = (await this.commentLikesRepository.getLikeStatus([parseInt(commentId)], userId))[0]
-      .myStatus;
+    const currentLikeStatus = (
+      await this.commentLikesRepository.getLikeStatus([parseInt(commentId)], userId)
+    )[0].myStatus;
     if (likeStatus === currentLikeStatus) return;
 
     const createdAt = new Date();
