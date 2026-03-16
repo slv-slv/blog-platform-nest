@@ -24,9 +24,9 @@ export class SessionsQueryRepository {
       `
         SELECT id, name, ip, iat
         FROM devices
-        WHERE user_id = $1
+        WHERE user_id = $1::int
       `,
-      [parseInt(userId)],
+      [userId],
     );
 
     return result.rows.map((device) => ({

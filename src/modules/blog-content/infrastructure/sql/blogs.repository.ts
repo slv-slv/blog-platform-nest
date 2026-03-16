@@ -13,9 +13,9 @@ export class BlogsRepository {
       `
         SELECT *
         FROM blogs
-        WHERE id = $1
+        WHERE id = $1::int
       `,
-      [parseInt(id)],
+      [id],
     );
 
     if (result.rowCount === 0) {
@@ -57,9 +57,9 @@ export class BlogsRepository {
       `
         UPDATE blogs
         SET name = $2, description = $3, website_url = $4
-        WHERE id = $1
+        WHERE id = $1::int
       `,
-      [parseInt(id), name, description, websiteUrl],
+      [id, name, description, websiteUrl],
     );
 
     if (!result.rowCount) {
@@ -71,9 +71,9 @@ export class BlogsRepository {
     const result = await this.pool.query(
       `
         DELETE FROM blogs
-        WHERE id = $1
+        WHERE id = $1::int
       `,
-      [parseInt(id)],
+      [id],
     );
 
     if (!result.rowCount) {

@@ -2,11 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { LikeStatus } from '../../types/likes.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
-import {
-  PostLikeStatusRepoParams,
-  SetPostLikeRepoParams,
-  SetPostNoneRepoParams,
-} from '../../types/post-likes.types.js';
+import { SetPostLikeRepoParams, SetPostNoneRepoParams } from '../../types/post-likes.types.js';
 import { coreConfig } from '../../../../config/core.config.js';
 import { ConfigType } from '@nestjs/config';
 
@@ -57,8 +53,6 @@ export class PostLikesRepository {
       return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
     }
 
-    const userIdInt = +userId;
-
     const myStatusResult = await this.pool.query(
       `
         SELECT
@@ -71,12 +65,12 @@ export class PostLikesRepository {
         FROM unnest($1::int[]) AS p(post_id)
         LEFT JOIN post_likes AS pl
           ON p.post_id = pl.post_id
-          AND pl.user_id = $2
+          AND pl.user_id = $2::int
         LEFT JOIN post_dislikes AS pd
           ON p.post_id = pd.post_id
-          AND pd.user_id = $2
+          AND pd.user_id = $2::int
       `,
-      [postIdArr, userIdInt],
+      [postIdArr, userId],
     );
 
     return myStatusResult.rows;
@@ -130,8 +124,6 @@ export class PostLikesRepository {
 
   async setLike(params: SetPostLikeRepoParams): Promise<void> {
     const { postId, userId, createdAt } = params;
-    const postIdInt = parseInt(postId);
-    const userIdInt = parseInt(userId);
 
     const client = await this.pool.connect();
     try {
@@ -139,18 +131,18 @@ export class PostLikesRepository {
       await client.query(
         `
           DELETE FROM post_dislikes
-          WHERE post_id = $1 AND user_id = $2
+          WHERE post_id = $1::int AND user_id = $2::int
         `,
-        [postIdInt, userIdInt],
+        [postId, userId],
       );
       await client.query(
         `
           INSERT INTO post_likes (post_id, user_id, created_at)
-          VALUES ($1, $2, $3)
+          VALUES ($1::int, $2::int, $3)
           ON CONFLICT (post_id, user_id) DO UPDATE
           SET created_at = EXCLUDED.created_at
         `,
-        [postIdInt, userIdInt, createdAt],
+        [postId, userId, createdAt],
       );
       await client.query(`COMMIT`);
     } catch (e) {
@@ -163,8 +155,6 @@ export class PostLikesRepository {
 
   async setDislike(params: SetPostLikeRepoParams): Promise<void> {
     const { postId, userId, createdAt } = params;
-    const postIdInt = parseInt(postId);
-    const userIdInt = parseInt(userId);
 
     const client = await this.pool.connect();
     try {
@@ -172,18 +162,18 @@ export class PostLikesRepository {
       await client.query(
         `
           DELETE FROM post_likes
-          WHERE post_id = $1 AND user_id = $2
+          WHERE post_id = $1::int AND user_id = $2::int
         `,
-        [postIdInt, userIdInt],
+        [postId, userId],
       );
       await client.query(
         `
           INSERT INTO post_dislikes (post_id, user_id, created_at)
-          VALUES ($1, $2, $3)
+          VALUES ($1::int, $2::int, $3)
           ON CONFLICT (post_id, user_id) DO UPDATE
           SET created_at = EXCLUDED.created_at
         `,
-        [postIdInt, userIdInt, createdAt],
+        [postId, userId, createdAt],
       );
       await client.query(`COMMIT`);
     } catch (e) {
@@ -196,8 +186,6 @@ export class PostLikesRepository {
 
   async setNone(params: SetPostNoneRepoParams): Promise<void> {
     const { postId, userId } = params;
-    const postIdInt = parseInt(postId);
-    const userIdInt = parseInt(userId);
 
     const client = await this.pool.connect();
     try {
@@ -205,16 +193,16 @@ export class PostLikesRepository {
       await client.query(
         `
           DELETE FROM post_likes
-          WHERE post_id = $1 AND user_id = $2
+          WHERE post_id = $1::int AND user_id = $2::int
         `,
-        [postIdInt, userIdInt],
+        [postId, userId],
       );
       await client.query(
         `
           DELETE FROM post_dislikes
-          WHERE post_id = $1 AND user_id = $2
+          WHERE post_id = $1::int AND user_id = $2::int
         `,
-        [postIdInt, userIdInt],
+        [postId, userId],
       );
       await client.query(`COMMIT`);
     } catch (e) {

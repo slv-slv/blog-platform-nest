@@ -20,9 +20,9 @@ export class PostsRepository {
           posts.created_at
         FROM posts JOIN blogs
           ON posts.blog_id = blogs.id
-        WHERE posts.id = $1
+        WHERE posts.id = $1::int
       `,
-      [parseInt(id)],
+      [id],
     );
 
     if (result.rowCount === 0) {
@@ -44,15 +44,14 @@ export class PostsRepository {
 
   async createPost(params: CreatePostRepoParams): Promise<PostDtoType> {
     const { title, shortDescription, content, blogId, blogName, createdAt } = params;
-    const blogIdInt = parseInt(blogId);
 
     const result = await this.pool.query(
       `
         INSERT INTO posts (blog_id, title, short_description, content, created_at)
-        VALUES ($1, $2, $3, $4, $5)
+        VALUES ($1::int, $2, $3, $4, $5)
         RETURNING id
       `,
-      [blogIdInt, title, shortDescription, content, createdAt],
+      [blogId, title, shortDescription, content, createdAt],
     );
 
     const id = result.rows[0].id.toString();
@@ -73,9 +72,9 @@ export class PostsRepository {
       `
         UPDATE posts
         SET title = $2, short_description = $3, content = $4
-        WHERE id = $1
+        WHERE id = $1::int
       `,
-      [parseInt(id), title, shortDescription, content],
+      [id, title, shortDescription, content],
     );
 
     if (!result.rowCount) {
@@ -87,9 +86,9 @@ export class PostsRepository {
     const result = await this.pool.query(
       `
         DELETE FROM posts
-        WHERE id = $1
+        WHERE id = $1::int
       `,
-      [parseInt(id)],
+      [id],
     );
 
     if (!result.rowCount) {

@@ -56,7 +56,7 @@ export class SessionsRepository {
         INSERT INTO devices
         VALUES ($1, $2, $3, $4, $5, $6, $7)
       `,
-      [deviceId, parseInt(userId), deviceName, ip, jti, iat, exp],
+      [deviceId, userId, deviceName, ip, jti, iat, exp],
     );
   }
   async deleteDevice(deviceId: string): Promise<void> {

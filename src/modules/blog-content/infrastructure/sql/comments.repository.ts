@@ -22,9 +22,9 @@ export class CommentsRepository {
           users.login AS commentator_login
         FROM comments JOIN users
           ON comments.user_id = users.id
-        WHERE comments.id = $1
+        WHERE comments.id = $1::int
       `,
-      [parseInt(id)],
+      [id],
     );
 
     if (result.rowCount === 0) {
@@ -49,10 +49,10 @@ export class CommentsRepository {
     const result = await this.pool.query(
       `
         INSERT INTO comments (post_id, user_id, content, created_at)
-        VALUES ($1, $2, $3, $4)
+        VALUES ($1::int, $2::int, $3, $4)
         RETURNING id
       `,
-      [parseInt(postId), commentatorInfo.userId, content, createdAt],
+      [postId, commentatorInfo.userId, content, createdAt],
     );
 
     const id = result.rows[0].id.toString();
@@ -65,9 +65,9 @@ export class CommentsRepository {
       `
         UPDATE comments
         SET content = $2
-        WHERE id = $1
+        WHERE id = $1::int
       `,
-      [parseInt(id), content],
+      [id, content],
     );
 
     return result.rowCount! > 0;
@@ -76,9 +76,9 @@ export class CommentsRepository {
     const result = await this.pool.query(
       `
         DELETE FROM comments
-        WHERE id = $1
+        WHERE id = $1::int
       `,
-      [parseInt(id)],
+      [id],
     );
 
     return result.rowCount! > 0;

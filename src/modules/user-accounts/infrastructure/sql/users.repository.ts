@@ -65,15 +65,13 @@ export class UsersRepository {
   }
 
   async getLogin(id: string): Promise<string> {
-    const idInt = Number.parseInt(id);
-
     const result = await this.pool.query(
       `
         SELECT login
         FROM users
-        WHERE id = $1
+        WHERE id = $1::int
       `,
-      [idInt],
+      [id],
     );
 
     if (result.rowCount === 0) {
@@ -199,14 +197,12 @@ export class UsersRepository {
     );
   }
   async deleteUser(id: string): Promise<void> {
-    const idInt = Number.parseInt(id);
-
     const deleteResult = await this.pool.query(
       `
           DELETE FROM users
-            WHERE id = $1
+            WHERE id = $1::int
         `,
-      [idInt],
+      [id],
     );
 
     if (!deleteResult.rowCount) {

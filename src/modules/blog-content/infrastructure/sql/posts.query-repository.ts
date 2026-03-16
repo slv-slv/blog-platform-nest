@@ -14,7 +14,6 @@ export class PostsQueryRepository {
   ) {}
 
   async findPost(postId: string, userId: string | null): Promise<PostViewType> {
-    const postIdInt = parseInt(postId);
     const result = await this.pool.query(
       `
         SELECT
@@ -29,7 +28,7 @@ export class PostsQueryRepository {
           ON posts.blog_id = blogs.id
         WHERE posts.id = $1::int
       `,
-      [postIdInt],
+      [postId],
     );
 
     if (!result.rowCount) {
@@ -37,6 +36,7 @@ export class PostsQueryRepository {
     }
 
     const rawPost = result.rows[0];
+    const postIdInt = rawPost.id;
 
     const post = {
       id: postId,
@@ -78,19 +78,17 @@ export class PostsQueryRepository {
         orderBy = sortBy;
     }
 
-    const blogIdInt = blogId ? parseInt(blogId) : null;
-
     const countResult = await this.pool.query(
       `
-        SELECT COUNT(posts.id)::int AS count
+        SELECT COUNT(posts.id)::int
         FROM posts
         WHERE ($1::int IS NULL OR posts.blog_id = $1::int)
       `,
-      [blogIdInt],
+      [blogId ?? null],
     );
 
     const totalCount = countResult.rows[0].count;
-    const pagesCount = totalCount ? Math.ceil(totalCount / pageSize) : 0;
+    const pagesCount = Math.ceil(totalCount / pageSize);
     const skipCount = (pageNumber - 1) * pageSize;
 
     const postsResult = await this.pool.query(
@@ -109,7 +107,7 @@ export class PostsQueryRepository {
         LIMIT $2
         OFFSET $3
       `,
-      [blogIdInt, pageSize, skipCount],
+      [blogId ?? null, pageSize, skipCount],
     );
 
     const rawPosts = postsResult.rows;

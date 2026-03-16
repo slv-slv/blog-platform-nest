@@ -34,13 +34,13 @@ export class BlogsQueryRepository {
 
     const countResult = await this.pool.query(
       `
-        SELECT COUNT(id)
+        SELECT COUNT(id)::int
         FROM blogs
         ${whereClause}
       `,
     );
 
-    const totalCount = parseInt(countResult.rows[0].count);
+    const totalCount = countResult.rows[0].count;
     const pagesCount = Math.ceil(totalCount / pageSize);
     const skipCount = (pageNumber - 1) * pageSize;
 

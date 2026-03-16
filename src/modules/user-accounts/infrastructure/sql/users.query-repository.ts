@@ -1,5 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CurrentUserType, GetAllUsersParams, UsersPaginatedType, UserViewType } from '../../types/users.types.js';
+import {
+  CurrentUserType,
+  GetAllUsersParams,
+  UsersPaginatedType,
+  UserViewType,
+} from '../../types/users.types.js';
 import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
@@ -30,13 +35,13 @@ export class UsersQueryRepository {
 
     const countResult = await this.pool.query(
       `
-        SELECT COUNT(id)
+        SELECT COUNT(id)::int
         FROM users
         ${whereClause}
       `,
     );
 
-    const totalCount = parseInt(countResult.rows[0].count);
+    const totalCount = countResult.rows[0].count;
     const pagesCount = Math.ceil(totalCount / pageSize);
     const skipCount = (pageNumber - 1) * pageSize;
 
@@ -89,15 +94,13 @@ export class UsersQueryRepository {
     return { id: id.toString(), login, email, createdAt: created_at };
   }
   async getCurrentUser(userId: string): Promise<CurrentUserType | null> {
-    const idInt = Number.parseInt(userId);
-
     const result = await this.pool.query(
       `
         SELECT login, email
         FROM users
-        WHERE id = $1
+        WHERE id = $1::int
       `,
-      [idInt],
+      [userId],
     );
 
     if (result.rowCount === 0) {
