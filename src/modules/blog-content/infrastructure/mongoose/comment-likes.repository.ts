@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CommentLikes } from './comment-likes.schemas.js';
 import {
-  CommentLikeStatusRepoParams,
   CommentLikesType,
   SetCommentLikeRepoParams,
   SetCommentNoneRepoParams,
@@ -13,48 +12,71 @@ import { LikeStatus } from '../../types/likes.types.js';
 @Injectable()
 export class CommentLikesRepository {
   constructor(@InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesType>) {}
-  async getLikesCount(commentId: string): Promise<number> {
-    const comment = await this.model.findOne({ commentId }).lean();
-    if (!comment) return 0;
 
-    const result = await this.model.aggregate([
-      { $match: { commentId } },
-      { $project: { likesCount: { $size: '$likes' } } },
-    ]);
-    return result[0].likesCount;
-  }
+  async getLikesCount(commentIdArr: string[]): Promise<{ commentId: string; likesCount: number }[]> {
+    if (commentIdArr.length === 0) {
+      return [];
+    }
 
-  async getDislikesCount(commentId: string): Promise<number> {
-    const comment = await this.model.findOne({ commentId }).lean();
-    if (!comment) return 0;
-
-    const result = await this.model.aggregate([
-      { $match: { commentId } },
-      { $project: { dislikesCount: { $size: '$dislikes' } } },
-    ]);
-    return result[0].dislikesCount;
-  }
-
-  async getLikeStatus(params: CommentLikeStatusRepoParams): Promise<LikeStatus> {
-    const { commentId, userId } = params;
-    if (userId === null) return LikeStatus.None;
-
-    const comment = await this.model
-      .findOne(
-        { commentId },
-        {
-          likes: { $elemMatch: { userId } },
-          dislikes: { $elemMatch: { userId } },
+    return this.model.aggregate<{ commentId: string; likesCount: number }>([
+      { $match: { commentId: { $in: commentIdArr } } },
+      {
+        $project: {
+          _id: 0,
+          commentId: 1,
+          likesCount: { $size: '$likes' },
         },
-      )
-      .lean();
+      },
+    ]);
+  }
 
-    if (!comment) return LikeStatus.None;
+  async getDislikesCount(commentIdArr: string[]): Promise<{ commentId: string; dislikesCount: number }[]> {
+    if (commentIdArr.length === 0) {
+      return [];
+    }
 
-    if (comment.likes) return LikeStatus.Like;
-    if (comment.dislikes) return LikeStatus.Dislike;
+    return this.model.aggregate<{ commentId: string; dislikesCount: number }>([
+      { $match: { commentId: { $in: commentIdArr } } },
+      {
+        $project: {
+          _id: 0,
+          commentId: 1,
+          dislikesCount: { $size: '$dislikes' },
+        },
+      },
+    ]);
+  }
 
-    return LikeStatus.None;
+  async getLikeStatus(
+    commentIdArr: string[],
+    userId: string | null,
+  ): Promise<{ commentId: string; myStatus: LikeStatus }[]> {
+    if (commentIdArr.length === 0) {
+      return [];
+    }
+
+    if (userId === null) {
+      return commentIdArr.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
+    }
+
+    return this.model.aggregate<{ commentId: string; myStatus: LikeStatus }>([
+      { $match: { commentId: { $in: commentIdArr } } },
+      {
+        $project: {
+          _id: 0,
+          commentId: 1,
+          myStatus: {
+            $switch: {
+              branches: [
+                { case: { $in: [userId, '$likes.userId'] }, then: LikeStatus.Like },
+                { case: { $in: [userId, '$dislikes.userId'] }, then: LikeStatus.Dislike },
+              ],
+              default: LikeStatus.None,
+            },
+          },
+        },
+      },
+    ]);
   }
 
   async createEmptyLikesInfo(commentId: string): Promise<void> {
@@ -72,41 +94,12 @@ export class CommentLikesRepository {
 
   async setLike(params: SetCommentLikeRepoParams): Promise<void> {
     const { commentId, userId, createdAt } = params;
-    const like = { userId, createdAt };
-
-    await this.model.updateOne(
-      { commentId },
-      { $setOnInsert: { commentId, likes: [], dislikes: [] } },
-      { upsert: true, runValidators: true },
-    );
-
-    await this.model.updateOne(
-      { commentId },
-      {
-        $push: { likes: like },
-        $pull: { dislikes: { userId: userId } },
-      },
-    );
+    await this.setReaction(commentId, 'likes', userId, createdAt);
   }
 
   async setDislike(params: SetCommentLikeRepoParams): Promise<void> {
     const { commentId, userId, createdAt } = params;
-    const dislike = { userId, createdAt };
-
-    await this.model.updateOne(
-      { commentId },
-      { $setOnInsert: { commentId, likes: [], dislikes: [] } },
-      { upsert: true, runValidators: true },
-    );
-
-    await this.model.updateOne(
-      { commentId },
-      {
-        $push: { dislikes: dislike },
-        $pull: { likes: { userId: userId } },
-      },
-      { runValidators: true },
-    );
+    await this.setReaction(commentId, 'dislikes', userId, createdAt);
   }
 
   async setNone(params: SetCommentNoneRepoParams): Promise<void> {
@@ -114,9 +107,38 @@ export class CommentLikesRepository {
     await this.model.updateOne(
       { commentId },
       {
-        $pull: { likes: { userId: userId }, dislikes: { userId: userId } },
+        $pull: { likes: { userId }, dislikes: { userId } },
       },
       { runValidators: true },
     );
+  }
+
+  private async setReaction(
+    commentId: string,
+    target: 'likes' | 'dislikes',
+    userId: string,
+    createdAt: Date,
+  ): Promise<void> {
+    await this.model.bulkWrite([
+      {
+        updateOne: {
+          filter: { commentId },
+          update: { $setOnInsert: { commentId, likes: [], dislikes: [] } },
+          upsert: true,
+        },
+      },
+      {
+        updateOne: {
+          filter: { commentId },
+          update: { $pull: { likes: { userId }, dislikes: { userId } } },
+        },
+      },
+      {
+        updateOne: {
+          filter: { commentId },
+          update: { $push: { [target]: { userId, createdAt } } },
+        },
+      },
+    ]);
   }
 }

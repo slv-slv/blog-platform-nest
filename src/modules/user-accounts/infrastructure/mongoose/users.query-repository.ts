@@ -82,6 +82,18 @@ export class UsersQueryRepository {
     return { email, login, userId };
   }
 
+  async getUserLoginsMap(userIdArr: string[]): Promise<Map<string, string>> {
+    const uniqueUserIds = [...new Set(userIdArr)].filter((userId) => ObjectId.isValid(userId));
+    if (uniqueUserIds.length === 0) {
+      return new Map();
+    }
+
+    const objectIds = uniqueUserIds.map((userId) => new ObjectId(userId));
+    const users = await this.model.find({ _id: { $in: objectIds } }, { login: 1 }).lean();
+
+    return new Map(users.map((user) => [user._id.toString(), user.login]));
+  }
+
   async isConfirmed(loginOrEmail: string): Promise<boolean> {
     const filter = loginOrEmail.includes('@') ? { email: loginOrEmail } : { login: loginOrEmail };
     const user = await this.model.findOne(filter, { _id: 0, 'confirmation.isConfirmed': 1 }).lean();

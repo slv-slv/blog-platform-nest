@@ -24,9 +24,9 @@ export class CommentsQueryRepository {
       return null;
     }
 
-    const likesInfo = await this.commentLikesQueryRepository.getLikesInfo(id, userId);
+    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo([id], userId);
 
-    return { id, ...comment, likesInfo };
+    return { id, ...comment, likesInfo: likesInfoMap.get(id)! };
   }
 
   async getComments(
@@ -46,19 +46,20 @@ export class CommentsQueryRepository {
       .limit(pageSize)
       .lean();
 
-    // const commentIds = commentsWithObjectId.map((comment) => comment._id.toString());
+    const commentIds = commentsWithObjectId.map((comment) => comment._id.toString());
+    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo(commentIds, userId);
 
-    const comments = await Promise.all(
-      commentsWithObjectId.map(async (comment) => {
-        return {
-          id: comment._id.toString(),
-          content: comment.content,
-          commentatorInfo: comment.commentatorInfo,
-          createdAt: comment.createdAt,
-          likesInfo: await this.commentLikesQueryRepository.getLikesInfo(comment._id.toString(), userId),
-        };
-      }),
-    );
+    const comments = commentsWithObjectId.map((comment) => {
+      const commentId = comment._id.toString();
+
+      return {
+        id: commentId,
+        content: comment.content,
+        commentatorInfo: comment.commentatorInfo,
+        createdAt: comment.createdAt,
+        likesInfo: likesInfoMap.get(commentId)!,
+      };
+    });
 
     return {
       pagesCount,

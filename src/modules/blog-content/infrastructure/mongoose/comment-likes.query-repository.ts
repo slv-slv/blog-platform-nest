@@ -1,22 +1,34 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { CommentLikes } from './comment-likes.schemas.js';
-import { Model } from 'mongoose';
 import { CommentLikesRepository } from './comment-likes.repository.js';
-import { CommentLikesType } from '../../types/comment-likes.types.js';
-import { LikesInfoViewType } from '../../types/likes.types.js';
+import { LikeStatus, LikesInfoViewType } from '../../types/likes.types.js';
 
 @Injectable()
 export class CommentLikesQueryRepository {
-  constructor(
-    @InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesType>,
-    private readonly commentLikesRepository: CommentLikesRepository,
-  ) {}
-  async getLikesInfo(commentId: string, userId: string | null): Promise<LikesInfoViewType> {
-    const likesCount = await this.commentLikesRepository.getLikesCount(commentId);
-    const dislikesCount = await this.commentLikesRepository.getDislikesCount(commentId);
-    const myStatus = await this.commentLikesRepository.getLikeStatus({ commentId, userId });
+  constructor(private readonly commentLikesRepository: CommentLikesRepository) {}
 
-    return { likesCount, dislikesCount, myStatus };
+  async getLikesInfo(commentIdArr: string[], userId: string | null): Promise<Map<string, LikesInfoViewType>> {
+    const likesCountArr = await this.commentLikesRepository.getLikesCount(commentIdArr);
+    const likesCountMap = new Map(
+      likesCountArr.map(({ commentId, likesCount }) => [commentId, likesCount]),
+    );
+
+    const dislikesCountArr = await this.commentLikesRepository.getDislikesCount(commentIdArr);
+    const dislikesCountMap = new Map(
+      dislikesCountArr.map(({ commentId, dislikesCount }) => [commentId, dislikesCount]),
+    );
+
+    const myStatusArr = await this.commentLikesRepository.getLikeStatus(commentIdArr, userId);
+    const myStatusMap = new Map(myStatusArr.map(({ commentId, myStatus }) => [commentId, myStatus]));
+
+    const likesInfoMap = new Map<string, LikesInfoViewType>();
+    for (const commentId of commentIdArr) {
+      likesInfoMap.set(commentId, {
+        likesCount: likesCountMap.get(commentId) ?? 0,
+        dislikesCount: dislikesCountMap.get(commentId) ?? 0,
+        myStatus: myStatusMap.get(commentId) ?? LikeStatus.None,
+      });
+    }
+
+    return likesInfoMap;
   }
 }

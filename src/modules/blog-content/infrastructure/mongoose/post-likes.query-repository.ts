@@ -1,64 +1,54 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
+import { Injectable } from '@nestjs/common';
 import { PostLikesRepository } from './post-likes.repository.js';
-import { InjectModel } from '@nestjs/mongoose';
-import { PostLikes } from './post-likes.schemas.js';
-import { PostLikesType } from '../../types/post-likes.types.js';
-import { Model } from 'mongoose';
-import { ExtendedLikesInfoViewType } from '../../types/likes.types.js';
+import { ExtendedLikesInfoViewType, LikeStatus } from '../../types/likes.types.js';
 import { UsersQueryRepository } from '../../../user-accounts/infrastructure/mongoose/users.query-repository.js';
-import { coreConfig } from '../../../../config/core.config.js';
 
 @Injectable()
 export class PostLikesQueryRepository {
   constructor(
-    @InjectModel(PostLikes.name) private readonly model: Model<PostLikesType>,
     private readonly postLikesRepository: PostLikesRepository,
     private readonly usersQueryRepository: UsersQueryRepository,
-    @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}
-  async getLikesInfo(postId: string, userId: string | null): Promise<ExtendedLikesInfoViewType> {
-    const likesCount = await this.postLikesRepository.getLikesCount(postId);
-    const dislikesCount = await this.postLikesRepository.getDislikesCount(postId);
-    const myStatus = await this.postLikesRepository.getLikeStatus({ postId, userId });
 
-    const newestLikesNumber = this.core.newestLikesNumber;
+  async getLikesInfo(postIdArr: string[], userId: string | null): Promise<Map<string, ExtendedLikesInfoViewType>> {
+    const likesCountArr = await this.postLikesRepository.getLikesCount(postIdArr);
+    const likesCountMap = new Map(likesCountArr.map(({ postId, likesCount }) => [postId, likesCount]));
 
-    const result = await this.model.aggregate([
-      { $match: { postId } },
-      { $unwind: '$likes' },
-      { $sort: { 'likes.createdAt': -1 } },
-      { $limit: newestLikesNumber },
-      {
-        $group: {
-          _id: '$_id',
-          likes: { $push: '$likes' },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          likes: 1,
-        },
-      },
-    ]);
+    const dislikesCountArr = await this.postLikesRepository.getDislikesCount(postIdArr);
+    const dislikesCountMap = new Map(
+      dislikesCountArr.map(({ postId, dislikesCount }) => [postId, dislikesCount]),
+    );
 
-    const post = result[0];
+    const myStatusArr = await this.postLikesRepository.getLikeStatus(postIdArr, userId);
+    const myStatusMap = new Map(myStatusArr.map(({ postId, myStatus }) => [postId, myStatus]));
 
-    const newestLikes = post
-      ? await Promise.all(
-          post.likes.map(async (like: { userId: string; createdAt: Date }) => {
-            const addedAt = like.createdAt.toISOString();
-            const userId = like.userId;
+    const newestLikesArr = await this.postLikesRepository.getNewestLikes(postIdArr);
+    const userIds = [...new Set(newestLikesArr.map((row) => row.userId))];
+    const userLoginMap = await this.usersQueryRepository.getUserLoginsMap(userIds);
 
-            const user = await this.usersQueryRepository.getCurrentUser(userId);
-            const login = user?.login;
+    const newestLikesMap = new Map<string, { addedAt: string; userId: string; login: string }[]>();
+    for (const row of newestLikesArr) {
+      const likes = newestLikesMap.get(row.postId) ?? [];
+      const login = userLoginMap.get(row.userId);
 
-            return { addedAt, userId, login };
-          }),
-        )
-      : [];
+      if (!login) {
+        continue;
+      }
 
-    return { likesCount, dislikesCount, myStatus, newestLikes };
+      likes.push({ addedAt: row.addedAt.toISOString(), userId: row.userId, login });
+      newestLikesMap.set(row.postId, likes);
+    }
+
+    const likesInfoMap = new Map<string, ExtendedLikesInfoViewType>();
+    for (const postId of postIdArr) {
+      likesInfoMap.set(postId, {
+        likesCount: likesCountMap.get(postId) ?? 0,
+        dislikesCount: dislikesCountMap.get(postId) ?? 0,
+        myStatus: myStatusMap.get(postId) ?? LikeStatus.None,
+        newestLikes: newestLikesMap.get(postId) ?? [],
+      });
+    }
+
+    return likesInfoMap;
   }
 }

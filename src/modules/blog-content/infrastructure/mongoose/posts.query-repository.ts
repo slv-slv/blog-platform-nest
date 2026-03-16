@@ -24,9 +24,9 @@ export class PostsQueryRepository {
       return null;
     }
 
-    const extendedLikesInfo = await this.postLikesQueryRepository.getLikesInfo(id, userId);
+    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo([id], userId);
 
-    return { id, ...post, extendedLikesInfo };
+    return { id, ...post, extendedLikesInfo: likesInfoMap.get(id)! };
   }
 
   async getPosts(
@@ -48,20 +48,23 @@ export class PostsQueryRepository {
       .limit(pageSize)
       .lean();
 
-    const posts = await Promise.all(
-      postsWithObjectId.map(async (post) => {
-        return {
-          id: post._id.toString(),
-          title: post.title,
-          shortDescription: post.shortDescription,
-          content: post.content,
-          blogId: post.blogId,
-          blogName: post.blogName,
-          createdAt: post.createdAt,
-          extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo(post._id.toString(), userId),
-        };
-      }),
-    );
+    const postIds = postsWithObjectId.map((post) => post._id.toString());
+    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo(postIds, userId);
+
+    const posts = postsWithObjectId.map((post) => {
+      const postId = post._id.toString();
+
+      return {
+        id: postId,
+        title: post.title,
+        shortDescription: post.shortDescription,
+        content: post.content,
+        blogId: post.blogId,
+        blogName: post.blogName,
+        createdAt: post.createdAt,
+        extendedLikesInfo: likesInfoMap.get(postId)!,
+      };
+    });
 
     return {
       pagesCount,
