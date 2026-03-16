@@ -31,11 +31,11 @@ export class PostLikesQueryRepository {
           users.login
         FROM post_likes JOIN users
           ON post_likes.user_id = users.id
-        WHERE post_likes.post_id = $1
+        WHERE post_likes.post_id = $1::int
         ORDER BY post_likes.created_at DESC
         LIMIT $2
       `,
-      [parseInt(postId), newestLikesNumber],
+      [postId, newestLikesNumber],
     );
 
     const newestLikes = result.rows.map((like) => ({

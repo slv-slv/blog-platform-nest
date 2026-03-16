@@ -15,57 +15,54 @@ export class PostLikesRepository {
   async getLikesCount(postId: string): Promise<number> {
     const result = await this.pool.query(
       `
-        SELECT COUNT(*)
+        SELECT COUNT(*)::int
         FROM post_likes
-        WHERE post_id = $1
+        WHERE post_id = $1::int
       `,
-      [parseInt(postId)],
+      [postId],
     );
 
-    return parseInt(result.rows[0].count);
+    return result.rows[0].count;
   }
 
   async getDislikesCount(postId: string): Promise<number> {
     const result = await this.pool.query(
       `
-        SELECT COUNT(*)
+        SELECT COUNT(*)::int
         FROM post_dislikes
-        WHERE post_id = $1
+        WHERE post_id = $1::int
       `,
-      [parseInt(postId)],
+      [postId],
     );
 
-    return parseInt(result.rows[0].count);
+    return result.rows[0].count;
   }
 
   async getLikeStatus(params: PostLikeStatusRepoParams): Promise<LikeStatus> {
     const { postId, userId } = params;
     if (userId === null) return LikeStatus.None;
 
-    const postIdInt = parseInt(postId);
-    const userIdInt = parseInt(userId);
-
     const likeResult = await this.pool.query(
       `
-        SELECT COUNT(*)
+        SELECT COUNT(*)::int
         FROM post_likes
-        WHERE post_id = $1 AND user_id = $2
+        WHERE post_id = $1::int AND user_id = $2::int
       `,
-      [postIdInt, userIdInt],
+      [postId, userId],
     );
 
-    if (parseInt(likeResult.rows[0].count) > 0) return LikeStatus.Like;
+    if (likeResult.rows[0].count > 0) return LikeStatus.Like;
 
     const dislikeResult = await this.pool.query(
       `
-        SELECT COUNT(*)
+        SELECT COUNT(*)::int
         FROM post_dislikes
-        WHERE post_id = $1 AND user_id = $2
+        WHERE post_id = $1::int AND user_id = $2::int
       `,
-      [postIdInt, userIdInt],
+      [postId, userId],
     );
 
-    if (parseInt(dislikeResult.rows[0].count) > 0) return LikeStatus.Dislike;
+    if (dislikeResult.rows[0].count > 0) return LikeStatus.Dislike;
 
     return LikeStatus.None;
   }
@@ -87,8 +84,6 @@ export class PostLikesRepository {
 
   async setLike(params: SetPostLikeRepoParams): Promise<void> {
     const { postId, userId, createdAt } = params;
-    const postIdInt = parseInt(postId);
-    const userIdInt = parseInt(userId);
 
     const client = await this.pool.connect();
     try {
@@ -96,18 +91,18 @@ export class PostLikesRepository {
       await client.query(
         `
           DELETE FROM post_dislikes
-          WHERE post_id = $1 AND user_id = $2
+          WHERE post_id = $1::int AND user_id = $2::int
         `,
-        [postIdInt, userIdInt],
+        [postId, userId],
       );
       await client.query(
         `
           INSERT INTO post_likes (post_id, user_id, created_at)
-          VALUES ($1, $2, $3)
+          VALUES ($1::int, $2::int, $3)
           ON CONFLICT (post_id, user_id) DO UPDATE
           SET created_at = EXCLUDED.created_at
         `,
-        [postIdInt, userIdInt, createdAt],
+        [postId, userId, createdAt],
       );
       await client.query(`COMMIT`);
     } catch (e) {
@@ -120,8 +115,6 @@ export class PostLikesRepository {
 
   async setDislike(params: SetPostLikeRepoParams): Promise<void> {
     const { postId, userId, createdAt } = params;
-    const postIdInt = parseInt(postId);
-    const userIdInt = parseInt(userId);
 
     const client = await this.pool.connect();
     try {
@@ -129,18 +122,18 @@ export class PostLikesRepository {
       await client.query(
         `
           DELETE FROM post_likes
-          WHERE post_id = $1 AND user_id = $2
+          WHERE post_id = $1::int AND user_id = $2::int
         `,
-        [postIdInt, userIdInt],
+        [postId, userId],
       );
       await client.query(
         `
           INSERT INTO post_dislikes (post_id, user_id, created_at)
-          VALUES ($1, $2, $3)
+          VALUES ($1::int, $2::int, $3)
           ON CONFLICT (post_id, user_id) DO UPDATE
           SET created_at = EXCLUDED.created_at
         `,
-        [postIdInt, userIdInt, createdAt],
+        [postId, userId, createdAt],
       );
       await client.query(`COMMIT`);
     } catch (e) {
@@ -153,8 +146,6 @@ export class PostLikesRepository {
 
   async setNone(params: SetPostNoneRepoParams): Promise<void> {
     const { postId, userId } = params;
-    const postIdInt = parseInt(postId);
-    const userIdInt = parseInt(userId);
 
     const client = await this.pool.connect();
     try {
@@ -162,16 +153,16 @@ export class PostLikesRepository {
       await client.query(
         `
           DELETE FROM post_likes
-          WHERE post_id = $1 AND user_id = $2
+          WHERE post_id = $1::int AND user_id = $2::int
         `,
-        [postIdInt, userIdInt],
+        [postId, userId],
       );
       await client.query(
         `
           DELETE FROM post_dislikes
-          WHERE post_id = $1 AND user_id = $2
+          WHERE post_id = $1::int AND user_id = $2::int
         `,
-        [postIdInt, userIdInt],
+        [postId, userId],
       );
       await client.query(`COMMIT`);
     } catch (e) {
