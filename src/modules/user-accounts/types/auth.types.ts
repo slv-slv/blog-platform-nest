@@ -1,4 +1,4 @@
-export interface JwtAcessPayload {
+export interface JwtAcсessPayload {
   sub: string;
   iat: number;
   exp: number;
