@@ -17,27 +17,37 @@ export class AccessTokenGuard implements CanActivate {
     const res: Response = httpCtx.getResponse();
 
     const isPublic = this.reflector.getAllAndOverride(Public, [context.getHandler(), context.getClass()]);
-    if (isPublic) {
-      res.locals.userId = null;
-      return true;
-    }
 
     const authHeader = req.headers.authorization;
+
     if (!authHeader) {
+      if (isPublic) {
+        res.locals.userId = null;
+        return true;
+      }
       throw new UnauthorizedException('Authorization header missing');
     }
 
     const [authMethod, token] = authHeader.split(' ');
     if (authMethod !== 'Bearer' || !token) {
+      if (isPublic) {
+        res.locals.userId = null;
+        return true;
+      }
       throw new UnauthorizedException('Invalid authorization method');
     }
 
     try {
       const payload = await this.jwtService.verifyAsync(token);
-      const { sub } = payload;
-      res.locals.userId = sub;
-    } catch {
-      throw new UnauthorizedException('Invalid access token');
+      if (!payload.sub) throw new UnauthorizedException('Missing sub JWT claim');
+      res.locals.userId = payload.sub;
+    } catch (error) {
+      if (isPublic) {
+        res.locals.userId = null;
+      } else {
+        if (error instanceof UnauthorizedException) throw error;
+        throw new UnauthorizedException('Invalid access token');
+      }
     }
 
     return true;
