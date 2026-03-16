@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Res } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { BlogsQueryRepository } from '../infrastructure/sql/blogs.query-repository.js';
 import { BlogsRepository } from '../infrastructure/sql/blogs.repository.js';
@@ -6,8 +6,8 @@ import { BlogsPaginatedType, BlogType, GetBlogsQueryParams } from '../types/blog
 import { GetPostsQueryParams, PostsPaginatedType } from '../types/posts.types.js';
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { Public } from '../../../common/decorators/public.js';
+import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 
-Public();
 @Controller('blogs')
 export class BlogsController {
   constructor(
@@ -25,6 +25,8 @@ export class BlogsController {
   }
 
   @Get(':blogId/posts')
+  @Public()
+  @UseGuards(AccessTokenGuard)
   async getPostsByBlogId(
     @Param('blogId') blogId: string,
     @Query() query: GetPostsQueryParams,

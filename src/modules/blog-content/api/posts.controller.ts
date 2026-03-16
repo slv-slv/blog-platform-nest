@@ -34,6 +34,7 @@ import { CommentsQueryRepository } from '../infrastructure/sql/comments.query-re
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
+import { Public } from '../../../common/decorators/public.js';
 
 @Controller('posts')
 export class PostsController {
@@ -47,6 +48,8 @@ export class PostsController {
   ) {}
 
   @Get()
+  @Public()
+  @UseGuards(AccessTokenGuard)
   async getAllPosts(
     @Query() query: GetPostsQueryParams,
     @Res({ passthrough: true }) res: Response,
@@ -60,6 +63,8 @@ export class PostsController {
   }
 
   @Get(':id')
+  @Public()
+  @UseGuards(AccessTokenGuard)
   async findPost(@Param('id') id: string, @Res({ passthrough: true }) res: Response): Promise<PostViewType> {
     const userId = res.locals.userId;
     return await this.postsQueryRepository.findPost(id, userId);
@@ -89,6 +94,8 @@ export class PostsController {
   // }
 
   @Get(':postId/comments')
+  @Public()
+  @UseGuards(AccessTokenGuard)
   async getCommentsForPost(
     @Param('postId') postId: string,
     @Query() query: GetCommentsQueryParams,

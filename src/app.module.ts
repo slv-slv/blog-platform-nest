@@ -28,16 +28,18 @@ import { CoreModule } from './core/core.module.js';
     },
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(ExtractUserId)
-      .forRoutes(
-        { path: 'blogs/:blogId/posts', method: RequestMethod.GET },
-        { path: 'posts', method: RequestMethod.GET },
-        { path: 'posts/:id', method: RequestMethod.GET },
-        { path: 'posts/:postId/comments', method: RequestMethod.GET },
-        { path: 'comments/:id', method: RequestMethod.GET },
-      );
-  }
-}
+export class AppModule {}
+
+// export class AppModule implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer
+//       .apply(ExtractUserId)
+//       .forRoutes(
+//         { path: 'blogs/:blogId/posts', method: RequestMethod.GET },
+//         { path: 'posts', method: RequestMethod.GET },
+//         { path: 'posts/:id', method: RequestMethod.GET },
+//         { path: 'posts/:postId/comments', method: RequestMethod.GET },
+//         { path: 'comments/:id', method: RequestMethod.GET },
+//       );
+//   }
+// }
