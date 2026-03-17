@@ -1,5 +1,4 @@
-import { Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { BlogsQueryRepository } from '../infrastructure/sql/blogs.query-repository.js';
 import { BlogsRepository } from '../infrastructure/sql/blogs.repository.js';
 import { BlogsPaginatedType, BlogType, GetBlogsQueryParams } from '../types/blogs.types.js';
@@ -7,6 +6,7 @@ import { GetPostsQueryParams, PostsPaginatedType } from '../types/posts.types.js
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { Public } from '../../../common/decorators/public.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
+import { RequestWithOptionalUserId } from '../../../common/types/requests.type.js';
 
 @Controller('blogs')
 export class BlogsController {
@@ -30,9 +30,9 @@ export class BlogsController {
   async getPostsByBlogId(
     @Param('blogId') blogId: string,
     @Query() query: GetPostsQueryParams,
-    @Res({ passthrough: true }) res: Response,
+    @Req() req: RequestWithOptionalUserId,
   ): Promise<PostsPaginatedType> {
-    const userId = res.locals.userId;
+    const userId = req.userId;
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
