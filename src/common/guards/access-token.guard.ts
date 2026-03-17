@@ -1,8 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { Request, Response } from 'express';
 import { Public } from '../decorators/public.js';
+import { RequestWithOptionalUserId } from '../types/requests.type.js';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
@@ -13,8 +13,7 @@ export class AccessTokenGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const httpCtx = context.switchToHttp();
-    const req: Request = httpCtx.getRequest();
-    const res: Response = httpCtx.getResponse();
+    const req = httpCtx.getRequest<RequestWithOptionalUserId>();
 
     const isPublic = this.reflector.getAllAndOverride(Public, [context.getHandler(), context.getClass()]);
 
@@ -22,7 +21,7 @@ export class AccessTokenGuard implements CanActivate {
 
     if (!authHeader) {
       if (isPublic) {
-        res.locals.userId = null;
+        req.userId = null;
         return true;
       }
       throw new UnauthorizedException('Authorization header missing');
@@ -31,19 +30,19 @@ export class AccessTokenGuard implements CanActivate {
     const [authMethod, token] = authHeader.split(' ');
     if (authMethod !== 'Bearer' || !token) {
       if (isPublic) {
-        res.locals.userId = null;
+        req.userId = null;
         return true;
       }
       throw new UnauthorizedException('Invalid authorization method');
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token);
+      const payload = await this.jwtService.verifyAsync<{ sub?: string }>(token);
       if (!payload.sub) throw new UnauthorizedException('Missing sub JWT claim');
-      res.locals.userId = payload.sub;
+      req.userId = payload.sub;
     } catch (error) {
       if (isPublic) {
-        res.locals.userId = null;
+        req.userId = null;
       } else {
         if (error instanceof UnauthorizedException) throw error;
         throw new UnauthorizedException('Invalid access token');
