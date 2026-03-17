@@ -1,4 +1,3 @@
-import { Request, Response } from 'express';
 import {
   BadRequestException,
   CanActivate,
@@ -11,6 +10,7 @@ import { validate } from 'class-validator';
 import { AuthService } from '../../modules/user-accounts/application/auth.service.js';
 import { LoginInputDto } from '../../modules/user-accounts/types/users.types.js';
 import { UsersQueryRepository } from '../../modules/user-accounts/infrastructure/sql/users.query-repository.js';
+import { RequestWithUser } from '../types/requests.type.js';
 
 @Injectable()
 export class CredentialsGuard implements CanActivate {
@@ -20,8 +20,7 @@ export class CredentialsGuard implements CanActivate {
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const httpCtx = context.switchToHttp();
-    const req: Request = httpCtx.getRequest();
-    const res: Response = httpCtx.getResponse();
+    const req = httpCtx.getRequest<RequestWithUser>();
 
     const loginInputDto = plainToInstance(LoginInputDto, req.body);
     const errorsMessages = await validate(loginInputDto);
@@ -37,7 +36,11 @@ export class CredentialsGuard implements CanActivate {
     }
 
     const user = await this.usersQueryRepository.findUser(loginOrEmail);
-    res.locals.user = user;
+    if (!user) {
+      throw new UnauthorizedException('Incorrect login/password');
+    }
+
+    req.user = user;
 
     return true;
   }
