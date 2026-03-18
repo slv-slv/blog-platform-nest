@@ -16,5 +16,4 @@ export type RequestWithUser = Request & {
 export type RequestWithSession = Request & {
   userId: string;
   deviceId: string;
-  jti: string;
 };
