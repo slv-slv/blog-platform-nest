@@ -13,6 +13,11 @@ import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
 import { NoActiveSessionGuard } from '../../../common/guards/no-active-session.guard.js';
 import { UnauthorizedDomainException } from '../../../common/exceptions/domain-exceptions.js';
+import {
+  RequestWithSession,
+  RequestWithUser,
+  RequestWithUserId,
+} from '../../../common/types/requests.type.js';
 
 @Controller('auth')
 // @UseGuards(ThrottlerGuard)
@@ -29,11 +34,12 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(NoActiveSessionGuard, CredentialsGuard, EmailConfirmationGuard)
   async login(
+    @Req() req: RequestWithUser,
     @Res({ passthrough: true }) res: Response,
     @Headers('User-Agent') userAgent: string,
     @Ip() ip: string,
   ) {
-    const user = res.locals.user;
+    const user = req.user;
     const userId = user.id;
     const deviceName = userAgent ?? 'unknown';
 
@@ -61,12 +67,13 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(RefreshTokenGuard)
   async refreshToken(
+    @Req() req: RequestWithSession,
     @Res({ passthrough: true }) res: Response,
     @Headers('User-Agent') userAgent: string,
     @Ip() ip: string,
   ) {
-    const userId = res.locals.userId;
-    const deviceId = res.locals.deviceId;
+    const userId = req.userId;
+    const deviceId = req.deviceId;
     const deviceName = userAgent ?? 'unknown';
 
     const accessToken = await this.authService.generateAcessToken(userId);
@@ -92,9 +99,9 @@ export class AuthController {
   @Post('logout')
   @HttpCode(204)
   @UseGuards(RefreshTokenGuard)
-  async logout(@Res({ passthrough: true }) res: Response) {
-    const userId = res.locals.userId;
-    const deviceId = res.locals.deviceId;
+  async logout(@Req() req: RequestWithSession, @Res({ passthrough: true }) res: Response) {
+    const userId = req.userId;
+    const deviceId = req.deviceId;
 
     await this.sessionsService.deleteDevice(userId, deviceId);
 
@@ -103,8 +110,8 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AccessTokenGuard)
-  async me(@Res({ passthrough: true }) res: Response) {
-    const userId = res.locals.userId;
+  async me(@Req() req: RequestWithUserId) {
+    const userId = req.userId;
     const user = await this.usersQueryRepository.getCurrentUser(userId);
     if (!user) {
       throw new UnauthorizedDomainException('User not found');
