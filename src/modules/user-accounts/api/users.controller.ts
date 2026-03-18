@@ -1,4 +1,3 @@
-import { Response } from 'express';
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { UsersService } from '../application/users.service.js';
 import { UsersQueryRepository } from '../infrastructure/sql/users.query-repository.js';
@@ -19,10 +18,7 @@ export class UsersController {
   ) {}
 
   @Get()
-  async getAllUsers(
-    @Query() query: GetUsersQueryParams,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<UsersPaginatedType> {
+  async getAllUsers(@Query() query: GetUsersQueryParams): Promise<UsersPaginatedType> {
     const { searchLoginTerm, searchEmailTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
 
