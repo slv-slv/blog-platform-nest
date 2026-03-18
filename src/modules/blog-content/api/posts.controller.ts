@@ -1,17 +1,4 @@
-import { Response } from 'express';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  Param,
-  Post,
-  Put,
-  Query,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { PostsService } from '../application/posts.service.js';
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { PostsRepository } from '../infrastructure/sql/posts.repository.js';
@@ -35,6 +22,7 @@ import { SetLikeStatusDto } from '../types/likes.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { Public } from '../../../common/decorators/public.js';
+import { RequestWithOptionalUserId, RequestWithUserId } from '../../../common/types/requests.type.js';
 
 @Controller('posts')
 export class PostsController {
@@ -52,9 +40,9 @@ export class PostsController {
   @UseGuards(AccessTokenGuard)
   async getAllPosts(
     @Query() query: GetPostsQueryParams,
-    @Res({ passthrough: true }) res: Response,
+    @Req() req: RequestWithOptionalUserId,
   ): Promise<PostsPaginatedType> {
-    const userId = res.locals.userId;
+    const userId = req.userId;
 
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
@@ -65,8 +53,8 @@ export class PostsController {
   @Get(':id')
   @Public()
   @UseGuards(AccessTokenGuard)
-  async findPost(@Param('id') id: string, @Res({ passthrough: true }) res: Response): Promise<PostViewType> {
-    const userId = res.locals.userId;
+  async findPost(@Param('id') id: string, @Req() req: RequestWithOptionalUserId): Promise<PostViewType> {
+    const userId = req.userId;
     return await this.postsQueryRepository.findPost(id, userId);
   }
 
@@ -99,9 +87,9 @@ export class PostsController {
   async getCommentsForPost(
     @Param('postId') postId: string,
     @Query() query: GetCommentsQueryParams,
-    @Res({ passthrough: true }) res: Response,
+    @Req() req: RequestWithOptionalUserId,
   ): Promise<CommentsPaginatedType> {
-    const userId = res.locals.userId;
+    const userId = req.userId;
 
     await this.postsRepository.findPost(postId);
 
@@ -117,10 +105,10 @@ export class PostsController {
   async createComment(
     @Body() body: CreateCommentInputDto,
     @Param('postId') postId: string,
-    @Res({ passthrough: true }) res: Response,
+    @Req() req: RequestWithUserId,
   ): Promise<CommentViewType> {
     const content = body.content;
-    const userId = res.locals.userId;
+    const userId = req.userId;
 
     return await this.commentsService.createComment({ postId, content, userId });
   }
@@ -131,10 +119,10 @@ export class PostsController {
   async setLikeStatus(
     @Body() body: SetLikeStatusDto,
     @Param('postId') postId: string,
-    @Res({ passthrough: true }) res: Response,
+    @Req() req: RequestWithUserId,
   ) {
     const likeStatus = body.likeStatus;
-    const userId = res.locals.userId;
+    const userId = req.userId;
 
     await this.postLikesService.setLikeStatus({ postId, userId, likeStatus });
   }
