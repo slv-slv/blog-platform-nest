@@ -1,17 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  Param,
-  Post,
-  Put,
-  Query,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
-import { Response } from 'express';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { BlogsQueryRepository } from '../infrastructure/sql/blogs.query-repository.js';
 import { BlogsRepository } from '../infrastructure/sql/blogs.repository.js';
 import {
@@ -38,7 +25,7 @@ import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 export class BlogsSuperadminController {
   constructor(
     private readonly blogsService: BlogsService,
-    private readonly blogsRepo: BlogsRepository,
+    private readonly blogsRepository: BlogsRepository,
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsQueryRepository,
@@ -54,7 +41,7 @@ export class BlogsSuperadminController {
 
   @Get(':id')
   async findBlog(@Param('id') id: string): Promise<BlogType> {
-    return await this.blogsRepo.findBlog(id);
+    return await this.blogsRepository.findBlog(id);
   }
 
   @Post()
@@ -81,13 +68,12 @@ export class BlogsSuperadminController {
   async getPostsForBlog(
     @Param('blogId') blogId: string,
     @Query() query: GetPostsQueryParams,
-    @Res({ passthrough: true }) res: Response,
   ): Promise<PostsPaginatedType> {
     const userId = null;
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
-    await this.blogsRepo.findBlog(blogId);
+    await this.blogsRepository.findBlog(blogId);
 
     return await this.postsQueryRepository.getPosts(pagingParams, userId, blogId);
   }

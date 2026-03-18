@@ -11,7 +11,7 @@ import { RequestWithOptionalUserId } from '../../../common/types/requests.type.j
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private readonly blogsRepo: BlogsRepository,
+    private readonly blogsRepository: BlogsRepository,
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
   ) {}
@@ -36,7 +36,7 @@ export class BlogsController {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
-    await this.blogsRepo.findBlog(blogId);
+    await this.blogsRepository.findBlog(blogId);
 
     const posts = await this.postsQueryRepository.getPosts(pagingParams, userId, blogId);
     return posts;
@@ -44,6 +44,6 @@ export class BlogsController {
 
   @Get(':id')
   async findBlog(@Param('id') id: string): Promise<BlogType> {
-    return await this.blogsRepo.findBlog(id);
+    return await this.blogsRepository.findBlog(id);
   }
 }
