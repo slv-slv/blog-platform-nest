@@ -1,5 +1,4 @@
-import { Response } from 'express';
-import { Body, Controller, Delete, Get, HttpCode, Param, Put, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Put, Req, UseGuards } from '@nestjs/common';
 import { CommentsService } from '../application/comments.service.js';
 import { CommentsQueryRepository } from '../infrastructure/sql/comments.query-repository.js';
 import { CommentViewType, UpdateCommentInputDto } from '../types/comments.types.js';
@@ -8,7 +7,7 @@ import { CommentLikesService } from '../application/comment-likes.service.js';
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { Public } from '../../../common/decorators/public.js';
-import { CommentNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
+import { RequestWithOptionalUserId, RequestWithUserId } from '../../../common/types/requests.type.js';
 
 @Controller('comments')
 @UseGuards(AccessTokenGuard)
@@ -23,9 +22,9 @@ export class CommentsController {
   @Public()
   async findComment(
     @Param('id') id: string,
-    @Res({ passthrough: true }) res: Response,
+    @Req() req: RequestWithOptionalUserId,
   ): Promise<CommentViewType> {
-    const userId = res.locals.userId;
+    const userId = req.userId;
 
     return await this.commentsQueryRepository.findComment(id, userId);
   }
@@ -35,18 +34,18 @@ export class CommentsController {
   async updateComment(
     @Body() body: UpdateCommentInputDto,
     @Param('commentId') commentId: string,
-    @Res({ passthrough: true }) res: Response,
+    @Req() req: RequestWithUserId,
   ): Promise<void> {
     const content = body.content;
-    const userId = res.locals.userId;
+    const userId = req.userId;
 
     await this.commentsService.updateComment({ commentId, content, userId });
   }
 
   @Delete(':commentId')
   @HttpCode(204)
-  async deleteComment(@Param('commentId') commentId: string, @Res({ passthrough: true }) res: Response) {
-    const userId = res.locals.userId;
+  async deleteComment(@Param('commentId') commentId: string, @Req() req: RequestWithUserId) {
+    const userId = req.userId;
 
     await this.commentsService.deleteComment({ commentId, userId });
   }
@@ -56,10 +55,10 @@ export class CommentsController {
   async setLikeStatus(
     @Body() body: SetLikeStatusDto,
     @Param('commentId') commentId: string,
-    @Res({ passthrough: true }) res: Response,
+    @Req() req: RequestWithUserId,
   ) {
     const likeStatus = body.likeStatus;
-    const userId = res.locals.userId;
+    const userId = req.userId;
 
     await this.commentLikesService.setLikeStatus({ commentId, userId, likeStatus });
   }
