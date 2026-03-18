@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from '../application/users.service.js';
 import { UsersQueryRepository } from '../infrastructure/sql/users.query-repository.js';
 import {

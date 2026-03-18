@@ -4,7 +4,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { JwtService } from '@nestjs/jwt';
 import { UsersQueryRepository } from '../infrastructure/sql/users.query-repository.js';
 import { UsersService } from '../application/users.service.js';
-import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto } from '../types/users.types.js';
+import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto, UserType } from '../types/users.types.js';
 import { AuthService } from '../application/auth.service.js';
 import { SessionsService } from '../application/sessions.service.js';
 import { CredentialsGuard } from '../../../common/guards/credentials.guard.js';
@@ -13,11 +13,9 @@ import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
 import { NoActiveSessionGuard } from '../../../common/guards/no-active-session.guard.js';
 import { UnauthorizedDomainException } from '../../../common/exceptions/domain-exceptions.js';
-import {
-  RequestWithSession,
-  RequestWithUser,
-  RequestWithUserId,
-} from '../../../common/types/requests.type.js';
+import { User } from '../../../common/decorators/user.js';
+import { UserId } from '../../../common/decorators/userId.js';
+import { DeviceId } from '../../../common/decorators/deviceId.js';
 
 @Controller('auth')
 // @UseGuards(ThrottlerGuard)
@@ -34,12 +32,11 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(NoActiveSessionGuard, CredentialsGuard, EmailConfirmationGuard)
   async login(
-    @Req() req: RequestWithUser,
     @Res({ passthrough: true }) res: Response,
     @Headers('User-Agent') userAgent: string,
+    @User() user: UserType,
     @Ip() ip: string,
   ) {
-    const user = req.user;
     const userId = user.id;
     const deviceName = userAgent ?? 'unknown';
 
@@ -67,13 +64,12 @@ export class AuthController {
   @HttpCode(200)
   @UseGuards(RefreshTokenGuard)
   async refreshToken(
-    @Req() req: RequestWithSession,
     @Res({ passthrough: true }) res: Response,
     @Headers('User-Agent') userAgent: string,
+    @UserId() userId: string,
+    @DeviceId() deviceId: string,
     @Ip() ip: string,
   ) {
-    const userId = req.userId;
-    const deviceId = req.deviceId;
     const deviceName = userAgent ?? 'unknown';
 
     const accessToken = await this.authService.generateAcessToken(userId);
@@ -99,19 +95,18 @@ export class AuthController {
   @Post('logout')
   @HttpCode(204)
   @UseGuards(RefreshTokenGuard)
-  async logout(@Req() req: RequestWithSession, @Res({ passthrough: true }) res: Response) {
-    const userId = req.userId;
-    const deviceId = req.deviceId;
-
+  async logout(
+    @Res({ passthrough: true }) res: Response,
+    @UserId() userId: string,
+    @DeviceId() deviceId: string,
+  ) {
     await this.sessionsService.deleteDevice(userId, deviceId);
-
     res.clearCookie('refreshToken');
   }
 
   @Get('me')
   @UseGuards(AccessTokenGuard)
-  async me(@Req() req: RequestWithUserId) {
-    const userId = req.userId;
+  async me(@UserId() userId: string) {
     const user = await this.usersQueryRepository.getCurrentUser(userId);
     if (!user) {
       throw new UnauthorizedDomainException('User not found');

@@ -6,7 +6,7 @@ import { GetPostsQueryParams, PostsPaginatedType } from '../types/posts.types.js
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { Public } from '../../../common/decorators/public.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
-import { RequestWithOptionalUserId } from '../../../common/types/requests.type.js';
+import { UserId } from '../../../common/decorators/userId.js';
 
 @Controller('blogs')
 export class BlogsController {
@@ -20,7 +20,6 @@ export class BlogsController {
   async getAllBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedType> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-
     return await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
   }
 
@@ -30,16 +29,12 @@ export class BlogsController {
   async getPostsByBlogId(
     @Param('blogId') blogId: string,
     @Query() query: GetPostsQueryParams,
-    @Req() req: RequestWithOptionalUserId,
+    @UserId() userId: string,
   ): Promise<PostsPaginatedType> {
-    const userId = req.userId;
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
-
     await this.blogsRepository.findBlog(blogId);
-
-    const posts = await this.postsQueryRepository.getPosts(pagingParams, userId, blogId);
-    return posts;
+    return await this.postsQueryRepository.getPosts(pagingParams, userId, blogId);
   }
 
   @Get(':id')

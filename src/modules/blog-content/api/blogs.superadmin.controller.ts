@@ -35,7 +35,6 @@ export class BlogsSuperadminController {
   async getAllBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedType> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-
     return await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
   }
 
@@ -72,9 +71,7 @@ export class BlogsSuperadminController {
     const userId = null;
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
-
     await this.blogsRepository.findBlog(blogId);
-
     return await this.postsQueryRepository.getPosts(pagingParams, userId, blogId);
   }
 

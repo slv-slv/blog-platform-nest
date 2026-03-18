@@ -22,7 +22,7 @@ import { SetLikeStatusDto } from '../types/likes.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { Public } from '../../../common/decorators/public.js';
-import { RequestWithOptionalUserId, RequestWithUserId } from '../../../common/types/requests.type.js';
+import { UserId } from '../../../common/decorators/userId.js';
 
 @Controller('posts')
 export class PostsController {
@@ -40,10 +40,8 @@ export class PostsController {
   @UseGuards(AccessTokenGuard)
   async getAllPosts(
     @Query() query: GetPostsQueryParams,
-    @Req() req: RequestWithOptionalUserId,
+    @UserId() userId: string,
   ): Promise<PostsPaginatedType> {
-    const userId = req.userId;
-
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
@@ -53,8 +51,7 @@ export class PostsController {
   @Get(':id')
   @Public()
   @UseGuards(AccessTokenGuard)
-  async findPost(@Param('id') id: string, @Req() req: RequestWithOptionalUserId): Promise<PostViewType> {
-    const userId = req.userId;
+  async findPost(@Param('id') id: string, @UserId() userId: string): Promise<PostViewType> {
     return await this.postsQueryRepository.findPost(id, userId);
   }
 
@@ -87,15 +84,11 @@ export class PostsController {
   async getCommentsForPost(
     @Param('postId') postId: string,
     @Query() query: GetCommentsQueryParams,
-    @Req() req: RequestWithOptionalUserId,
+    @UserId() userId: string,
   ): Promise<CommentsPaginatedType> {
-    const userId = req.userId;
-
     await this.postsRepository.findPost(postId);
-
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-
     return await this.commentsQueryRepository.getComments(postId, userId, pagingParams);
   }
 
@@ -105,11 +98,9 @@ export class PostsController {
   async createComment(
     @Body() body: CreateCommentInputDto,
     @Param('postId') postId: string,
-    @Req() req: RequestWithUserId,
+    @UserId() userId: string,
   ): Promise<CommentViewType> {
     const content = body.content;
-    const userId = req.userId;
-
     return await this.commentsService.createComment({ postId, content, userId });
   }
 
@@ -119,11 +110,9 @@ export class PostsController {
   async setLikeStatus(
     @Body() body: SetLikeStatusDto,
     @Param('postId') postId: string,
-    @Req() req: RequestWithUserId,
+    @UserId() userId: string,
   ) {
     const likeStatus = body.likeStatus;
-    const userId = req.userId;
-
     await this.postLikesService.setLikeStatus({ postId, userId, likeStatus });
   }
 }

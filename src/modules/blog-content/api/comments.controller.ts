@@ -7,7 +7,7 @@ import { CommentLikesService } from '../application/comment-likes.service.js';
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { Public } from '../../../common/decorators/public.js';
-import { RequestWithOptionalUserId, RequestWithUserId } from '../../../common/types/requests.type.js';
+import { UserId } from '../../../common/decorators/userId.js';
 
 @Controller('comments')
 @UseGuards(AccessTokenGuard)
@@ -20,12 +20,7 @@ export class CommentsController {
 
   @Get(':id')
   @Public()
-  async findComment(
-    @Param('id') id: string,
-    @Req() req: RequestWithOptionalUserId,
-  ): Promise<CommentViewType> {
-    const userId = req.userId;
-
+  async findComment(@Param('id') id: string, @UserId() userId: string): Promise<CommentViewType> {
     return await this.commentsQueryRepository.findComment(id, userId);
   }
 
@@ -34,19 +29,15 @@ export class CommentsController {
   async updateComment(
     @Body() body: UpdateCommentInputDto,
     @Param('commentId') commentId: string,
-    @Req() req: RequestWithUserId,
+    @UserId() userId: string,
   ): Promise<void> {
     const content = body.content;
-    const userId = req.userId;
-
     await this.commentsService.updateComment({ commentId, content, userId });
   }
 
   @Delete(':commentId')
   @HttpCode(204)
-  async deleteComment(@Param('commentId') commentId: string, @Req() req: RequestWithUserId) {
-    const userId = req.userId;
-
+  async deleteComment(@Param('commentId') commentId: string, @UserId() userId: string) {
     await this.commentsService.deleteComment({ commentId, userId });
   }
 
@@ -55,11 +46,9 @@ export class CommentsController {
   async setLikeStatus(
     @Body() body: SetLikeStatusDto,
     @Param('commentId') commentId: string,
-    @Req() req: RequestWithUserId,
+    @UserId() userId: string,
   ) {
     const likeStatus = body.likeStatus;
-    const userId = req.userId;
-
     await this.commentLikesService.setLikeStatus({ commentId, userId, likeStatus });
   }
 }
