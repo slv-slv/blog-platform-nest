@@ -37,7 +37,6 @@ export class RefreshTokenGuard implements CanActivate {
 
     req.userId = sub;
     req.deviceId = deviceId;
-    req.jti = jti;
     return true;
   }
 }
