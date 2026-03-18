@@ -1,8 +1,8 @@
-import { Controller, Delete, Get, HttpCode, Inject, Param, Res, UseGuards } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Delete, Get, HttpCode, Inject, Param, Req, UseGuards } from '@nestjs/common';
 import { SessionsService } from '../application/sessions.service.js';
 import { SessionsQueryRepository } from '../infrastructure/sql/sessions.query-repository.js';
 import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
+import { RequestWithSession } from '../../../common/types/requests.type.js';
 
 @Controller('security/devices')
 @UseGuards(RefreshTokenGuard)
@@ -13,22 +13,22 @@ export class SessionsController {
   ) {}
 
   @Get()
-  async getDevices(@Res({ passthrough: true }) res: Response) {
-    const userId = res.locals.userId;
+  async getDevices(@Req() req: RequestWithSession) {
+    const userId = req.userId;
     return await this.sessionsQueryRepository.getActiveDevices(userId);
   }
 
   @Delete()
   @HttpCode(204)
-  async deleteOtherDevices(@Res({ passthrough: true }) res: Response) {
-    const deviceId = res.locals.deviceId;
+  async deleteOtherDevices(@Req() req: RequestWithSession) {
+    const deviceId = req.deviceId;
     await this.sessionsService.deleteOtherDevices(deviceId);
   }
 
   @Delete(':deviceId')
   @HttpCode(204)
-  async deleteDevice(@Res({ passthrough: true }) res: Response, @Param('deviceId') deviceId: string) {
-    const userId = res.locals.userId;
+  async deleteDevice(@Req() req: RequestWithSession, @Param('deviceId') deviceId: string) {
+    const userId = req.userId;
     await this.sessionsService.deleteDevice(userId, deviceId);
   }
 }
