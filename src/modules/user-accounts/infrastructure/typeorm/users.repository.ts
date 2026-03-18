@@ -14,11 +14,11 @@ import { Like, Repository } from 'typeorm';
 
 @Injectable()
 export class UsersRepository {
-  constructor(@InjectRepository(User) private readonly userEntityRepo: Repository<User>) {}
+  constructor(@InjectRepository(User) private readonly userEntityRepository: Repository<User>) {}
 
   async findUser(loginOrEmail: string): Promise<UserType | null> {
     const likeTerm = `%${loginOrEmail}%`;
-    const user = await this.userEntityRepo.findOne({
+    const user = await this.userEntityRepository.findOne({
       relations: { confirmation: true, passwordRecovery: true },
       where: [{ login: Like(likeTerm) }, { email: Like(likeTerm) }],
     });
@@ -29,7 +29,7 @@ export class UsersRepository {
   }
 
   async getLogin(id: string): Promise<string | null> {
-    const user = await this.userEntityRepo.findOne({
+    const user = await this.userEntityRepository.findOne({
       select: { login: true },
       where: { id: Number.parseInt(id) },
     });
@@ -39,7 +39,7 @@ export class UsersRepository {
   }
 
   async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {
-    const user = await this.userEntityRepo.findOne({
+    const user = await this.userEntityRepository.findOne({
       select: { confirmation: true },
       where: { confirmation: { code } },
     });
@@ -50,7 +50,7 @@ export class UsersRepository {
   }
 
   async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {
-    const user = await this.userEntityRepo.findOne({
+    const user = await this.userEntityRepository.findOne({
       select: { passwordRecovery: true },
       where: { passwordRecovery: { code } },
     });
@@ -71,7 +71,7 @@ export class UsersRepository {
     passwordRecoveryEntity.code = passwordRecovery.code!;
     passwordRecoveryEntity.expiration = passwordRecovery.expiration!;
 
-    const user = this.userEntityRepo.create({
+    const user = this.userEntityRepository.create({
       login,
       email,
       hash,
@@ -80,13 +80,13 @@ export class UsersRepository {
       passwordRecovery: passwordRecoveryEntity,
     });
 
-    const savedUser = await this.userEntityRepo.save(user);
+    const savedUser = await this.userEntityRepository.save(user);
     return savedUser.toViewType();
   }
 
   async updateConfirmationCode(params: UpdateConfirmationCodeParams): Promise<void> {
     const { email, code, expiration } = params;
-    await this.userEntityRepo.update(
+    await this.userEntityRepository.update(
       { email },
       {
         confirmation: {
@@ -99,7 +99,7 @@ export class UsersRepository {
 
   async updateRecoveryCode(params: UpdateRecoveryCodeParams): Promise<boolean> {
     const { email, code, expiration } = params;
-    const updateResult = await this.userEntityRepo.update(
+    const updateResult = await this.userEntityRepository.update(
       { email },
       {
         passwordRecovery: {
@@ -113,11 +113,11 @@ export class UsersRepository {
   }
 
   async updatePassword(recoveryCode: string, hash: string): Promise<void> {
-    await this.userEntityRepo.update({ passwordRecovery: { code: recoveryCode } }, { hash });
+    await this.userEntityRepository.update({ passwordRecovery: { code: recoveryCode } }, { hash });
   }
 
   async confirmUser(code: string): Promise<void> {
-    await this.userEntityRepo.update(
+    await this.userEntityRepository.update(
       {
         confirmation: {
           code,
@@ -128,7 +128,7 @@ export class UsersRepository {
   }
 
   async deleteUser(id: string): Promise<boolean> {
-    const deleteResult = await this.userEntityRepo.softDelete({ id: Number.parseInt(id) });
+    const deleteResult = await this.userEntityRepository.softDelete({ id: Number.parseInt(id) });
     return deleteResult.affected! > 0;
   }
 }

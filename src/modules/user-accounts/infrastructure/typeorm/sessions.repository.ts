@@ -6,23 +6,23 @@ import { Not, Repository } from 'typeorm';
 
 @Injectable()
 export class SessionsRepository {
-  constructor(@InjectRepository(Device) private readonly sessionEntityRepo: Repository<Device>) {}
+  constructor(@InjectRepository(Device) private readonly sessionEntityRepository: Repository<Device>) {}
 
   async findDevice(deviceId: string): Promise<DeviceViewType | null> {
-    const device = await this.sessionEntityRepo.findOneBy({ id: deviceId });
+    const device = await this.sessionEntityRepository.findOneBy({ id: deviceId });
     if (!device) return null;
     return device.toViewType();
   }
 
   async getDeviceOwner(deviceId: string): Promise<string | null> {
-    const device = await this.sessionEntityRepo.findOneBy({ id: deviceId });
+    const device = await this.sessionEntityRepository.findOneBy({ id: deviceId });
     if (!device) return null;
     return device.userId.toString();
   }
 
   async createSession(params: CreateSessionParams): Promise<void> {
     const { userId, deviceId, deviceName, ip, iat, exp } = params;
-    const device = this.sessionEntityRepo.create({
+    const device = this.sessionEntityRepository.create({
       id: deviceId,
       userId: parseInt(userId),
       name: deviceName,
@@ -31,15 +31,15 @@ export class SessionsRepository {
       exp,
     });
 
-    await this.sessionEntityRepo.save(device);
+    await this.sessionEntityRepository.save(device);
   }
 
   async deleteDevice(deviceId: string): Promise<void> {
-    await this.sessionEntityRepo.delete({ id: deviceId });
+    await this.sessionEntityRepository.delete({ id: deviceId });
   }
 
   async deleteOtherDevices(deviceId: string): Promise<void> {
-    const device = await this.sessionEntityRepo.findOne({
+    const device = await this.sessionEntityRepository.findOne({
       select: { userId: true },
       where: { id: deviceId },
     });
@@ -47,6 +47,6 @@ export class SessionsRepository {
     if (!device) return;
     const { userId } = device;
 
-    await this.sessionEntityRepo.delete({ id: Not(deviceId), userId });
+    await this.sessionEntityRepository.delete({ id: Not(deviceId), userId });
   }
 }
