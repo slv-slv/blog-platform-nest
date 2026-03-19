@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { BlogsController } from './api/blogs.controller.js';
-import { BlogsService } from './application/blogs.service.js';
 import { BlogsRepository } from './infrastructure/sql/blogs.repository.js';
 import { BlogsQueryRepository } from './infrastructure/sql/blogs.query-repository.js';
 import { PostsController } from './api/posts.controller.js';
@@ -27,7 +26,6 @@ import { DeleteBlogUseCase } from './application/usecases/delete-blog.usecase.js
   imports: [UserAccountsModule],
   controllers: [BlogsController, BlogsSuperadminController, PostsController, CommentsController],
   providers: [
-    BlogsService,
     BlogsRepository,
     BlogsQueryRepository,
     PostsService,

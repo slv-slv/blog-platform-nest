@@ -8,7 +8,6 @@ import {
   GetBlogsQueryParams,
   UpdateBlogInputDto,
 } from '../types/blogs.types.js';
-import { BlogsService } from '../application/blogs.service.js';
 import {
   CreatePostInputDto,
   GetPostsQueryParams,
@@ -28,7 +27,6 @@ import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase.j
 @UseGuards(BasicAuthGuard)
 export class BlogsSuperadminController {
   constructor(
-    private readonly blogsService: BlogsService,
     private readonly blogsRepository: BlogsRepository,
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly postsService: PostsService,
