@@ -22,6 +22,7 @@ import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/usecases/create-blog.usecase.js';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase.js';
+import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -64,7 +65,7 @@ export class BlogsSuperadminController {
   @Delete(':id')
   @HttpCode(204)
   async deleteBlog(@Param('id') id: string): Promise<void> {
-    await this.blogsService.deleteBlog(id);
+    await this.commandBus.execute(new DeleteBlogCommand(id));
   }
 
   @Get(':blogId/posts')

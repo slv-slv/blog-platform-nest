@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { CqrsModule } from '@nestjs/cqrs';
 import { BlogsController } from './api/blogs.controller.js';
 import { BlogsService } from './application/blogs.service.js';
 import { BlogsRepository } from './infrastructure/sql/blogs.repository.js';
@@ -22,6 +21,7 @@ import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
 import { BlogsSuperadminController } from './api/blogs.superadmin.controller.js';
 import { CreateBlogUseCase } from './application/usecases/create-blog.usecase.js';
 import { UpdateBlogUseCase } from './application/usecases/update-blog.usecase.js';
+import { DeleteBlogUseCase } from './application/usecases/delete-blog.usecase.js';
 
 @Module({
   imports: [UserAccountsModule],
@@ -44,6 +44,7 @@ import { UpdateBlogUseCase } from './application/usecases/update-blog.usecase.js
     CommentLikesQueryRepository,
     CreateBlogUseCase,
     UpdateBlogUseCase,
+    DeleteBlogUseCase,
   ],
   exports: [],
 })
