@@ -19,22 +19,6 @@ export class PostsService {
     private readonly blogsRepository: BlogsRepository,
   ) {}
 
-  async createPost(params: CreatePostParams): Promise<PostViewType> {
-    const { title, shortDescription, content, blogId } = params;
-    const blog = await this.blogsRepository.findBlog(blogId);
-    const blogName = blog.name;
-
-    const createdAt = new Date().toISOString();
-    const repoParams: CreatePostRepoParams = { title, shortDescription, content, blogId, blogName, createdAt };
-    const newPost = await this.postsRepository.createPost(repoParams);
-
-    // const postId = newPost.id;
-    // await this.postLikesService.createEmptyLikesInfo(postId);
-    const extendedLikesInfo = this.postLikesService.getDefaultLikesInfo();
-
-    return { ...newPost, extendedLikesInfo };
-  }
-
   async updatePost(params: UpdatePostParams): Promise<void> {
     const { postId, title, shortDescription, content, blogId } = params;
     await this.blogsRepository.findBlog(blogId);

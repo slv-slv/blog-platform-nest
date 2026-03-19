@@ -23,6 +23,8 @@ import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { Public } from '../../../common/decorators/public.js';
 import { UserId } from '../../../common/decorators/userId.js';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
 
 @Controller('posts')
 export class PostsController {
@@ -33,6 +35,7 @@ export class PostsController {
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly commentsService: CommentsService,
     private readonly commentsQueryRepository: CommentsQueryRepository,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @Get()
@@ -60,7 +63,7 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   async createPost(@Body() body: CreatePostForBlogInputDto): Promise<PostViewType> {
     const { title, shortDescription, content, blogId } = body;
-    return await this.postsService.createPost({ title, shortDescription, content, blogId });
+    return await this.commandBus.execute(new CreatePostCommand({ title, shortDescription, content, blogId }));
   }
 
   @Put(':id')

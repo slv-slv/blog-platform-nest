@@ -21,6 +21,7 @@ import { BlogsSuperadminController } from './api/blogs.superadmin.controller.js'
 import { CreateBlogUseCase } from './application/usecases/create-blog.usecase.js';
 import { UpdateBlogUseCase } from './application/usecases/update-blog.usecase.js';
 import { DeleteBlogUseCase } from './application/usecases/delete-blog.usecase.js';
+import { CreatePostUseCase } from './application/usecases/create-post.usecase.js';
 
 @Module({
   imports: [UserAccountsModule],
@@ -43,6 +44,7 @@ import { DeleteBlogUseCase } from './application/usecases/delete-blog.usecase.js
     CreateBlogUseCase,
     UpdateBlogUseCase,
     DeleteBlogUseCase,
+    CreatePostUseCase,
   ],
   exports: [],
 })

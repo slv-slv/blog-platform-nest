@@ -22,6 +22,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/usecases/create-blog.usecase.js';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase.js';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase.js';
+import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -82,7 +83,7 @@ export class BlogsSuperadminController {
   @HttpCode(201)
   async createPost(@Param('blogId') blogId: string, @Body() body: CreatePostInputDto): Promise<PostViewType> {
     const { title, shortDescription, content } = body;
-    return await this.postsService.createPost({ title, shortDescription, content, blogId });
+    return await this.commandBus.execute(new CreatePostCommand({ title, shortDescription, content, blogId }));
   }
 
   @Put(':blogId/posts/:postId')
