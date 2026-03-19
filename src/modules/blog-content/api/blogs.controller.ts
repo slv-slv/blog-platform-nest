@@ -26,7 +26,7 @@ export class BlogsController {
   @Get(':blogId/posts')
   @Public()
   @UseGuards(AccessTokenGuard)
-  async getPostsByBlogId(
+  async getPostsForBlog(
     @Param('blogId') blogId: string,
     @Query() query: GetPostsQueryParams,
     @UserId() userId: string,
