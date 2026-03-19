@@ -20,7 +20,8 @@ import { PostsQueryRepository } from '../infrastructure/sql/posts.query-reposito
 import { PostsService } from '../application/posts.service.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateBlogCommand } from '../application/commands/create-blog.usecase.js';
+import { CreateBlogCommand } from '../application/usecases/create-blog.usecase.js';
+import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -57,7 +58,7 @@ export class BlogsSuperadminController {
   @HttpCode(204)
   async updateBlog(@Param('id') id: string, @Body() body: UpdateBlogInputDto): Promise<void> {
     const { name, description, websiteUrl } = body;
-    await this.blogsService.updateBlog({ id, name, description, websiteUrl });
+    await this.commandBus.execute(new UpdateBlogCommand({ id, name, description, websiteUrl }));
   }
 
   @Delete(':id')

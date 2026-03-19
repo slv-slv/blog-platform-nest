@@ -20,7 +20,8 @@ import { CommentLikesRepository } from './infrastructure/sql/comment-likes.repos
 import { CommentLikesQueryRepository } from './infrastructure/sql/comment-likes.query-repository.js';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
 import { BlogsSuperadminController } from './api/blogs.superadmin.controller.js';
-import { CreateBlogUseCase } from './application/commands/create-blog.usecase.js';
+import { CreateBlogUseCase } from './application/usecases/create-blog.usecase.js';
+import { UpdateBlogUseCase } from './application/usecases/update-blog.usecase.js';
 
 @Module({
   imports: [UserAccountsModule],
@@ -42,6 +43,7 @@ import { CreateBlogUseCase } from './application/commands/create-blog.usecase.js
     CommentLikesRepository,
     CommentLikesQueryRepository,
     CreateBlogUseCase,
+    UpdateBlogUseCase,
   ],
   exports: [],
 })

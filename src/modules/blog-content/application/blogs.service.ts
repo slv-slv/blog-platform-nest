@@ -6,10 +6,6 @@ import { BlogType, CreateBlogParams, CreateBlogRepoParams, UpdateBlogParams } fr
 export class BlogsService {
   constructor(private readonly blogsRepository: BlogsRepository) {}
 
-  async updateBlog(params: UpdateBlogParams): Promise<void> {
-    await this.blogsRepository.updateBlog(params);
-  }
-
   async deleteBlog(id: string): Promise<void> {
     await this.blogsRepository.deleteBlog(id);
   }
