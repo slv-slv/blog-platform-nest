@@ -52,14 +52,14 @@ export class BlogsSuperadminController {
 
   @Put(':id')
   @HttpCode(204)
-  async updateBlog(@Param('id') id: string, @Body() body: UpdateBlogInputDto) {
+  async updateBlog(@Param('id') id: string, @Body() body: UpdateBlogInputDto): Promise<void> {
     const { name, description, websiteUrl } = body;
     await this.blogsService.updateBlog({ id, name, description, websiteUrl });
   }
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteBlog(@Param('id') id: string) {
+  async deleteBlog(@Param('id') id: string): Promise<void> {
     await this.blogsService.deleteBlog(id);
   }
 
