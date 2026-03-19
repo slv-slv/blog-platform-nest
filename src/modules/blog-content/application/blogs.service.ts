@@ -6,15 +6,6 @@ import { BlogType, CreateBlogParams, CreateBlogRepoParams, UpdateBlogParams } fr
 export class BlogsService {
   constructor(private readonly blogsRepository: BlogsRepository) {}
 
-  async createBlog(params: CreateBlogParams): Promise<BlogType> {
-    const { name, description, websiteUrl } = params;
-    const createdAt = new Date().toISOString();
-    const isMembership = false;
-
-    const repoParams: CreateBlogRepoParams = { name, description, websiteUrl, createdAt, isMembership };
-    return await this.blogsRepository.createBlog(repoParams);
-  }
-
   async updateBlog(params: UpdateBlogParams): Promise<void> {
     await this.blogsRepository.updateBlog(params);
   }

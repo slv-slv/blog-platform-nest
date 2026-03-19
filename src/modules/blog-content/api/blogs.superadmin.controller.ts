@@ -19,6 +19,8 @@ import {
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { PostsService } from '../application/posts.service.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateBlogCommand } from '../application/commands/create-blog.usecase.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -29,6 +31,7 @@ export class BlogsSuperadminController {
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsQueryRepository,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @Get()
@@ -47,7 +50,7 @@ export class BlogsSuperadminController {
   @HttpCode(201)
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogType> {
     const { name, description, websiteUrl } = body;
-    return await this.blogsService.createBlog({ name, description, websiteUrl });
+    return await this.commandBus.execute(new CreateBlogCommand({ name, description, websiteUrl }));
   }
 
   @Put(':id')

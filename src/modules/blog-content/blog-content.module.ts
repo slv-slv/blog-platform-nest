@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { BlogsController } from './api/blogs.controller.js';
 import { BlogsService } from './application/blogs.service.js';
 import { BlogsRepository } from './infrastructure/sql/blogs.repository.js';
@@ -19,6 +20,7 @@ import { CommentLikesRepository } from './infrastructure/sql/comment-likes.repos
 import { CommentLikesQueryRepository } from './infrastructure/sql/comment-likes.query-repository.js';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
 import { BlogsSuperadminController } from './api/blogs.superadmin.controller.js';
+import { CreateBlogUseCase } from './application/commands/create-blog.usecase.js';
 
 @Module({
   imports: [UserAccountsModule],
@@ -39,6 +41,7 @@ import { BlogsSuperadminController } from './api/blogs.superadmin.controller.js'
     CommentLikesService,
     CommentLikesRepository,
     CommentLikesQueryRepository,
+    CreateBlogUseCase,
   ],
   exports: [],
 })
