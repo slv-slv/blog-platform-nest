@@ -9,11 +9,13 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER } from '@nestjs/core';
 import { DomainExceptionFilter } from './common/exception-filters/domain-exception-filter.js';
 import { CoreModule } from './core/core.module.js';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Global()
 @Module({
   imports: [
     CoreModule,
+    CqrsModule.forRoot(),
     ThrottlerModule.forRoot({ throttlers: [{ ttl: 10000, limit: 5 }] }),
     BlogContentModule,
     UserAccountsModule,
