@@ -21,23 +21,23 @@ export class CommentsService {
     private readonly usersRepository: UsersRepository,
   ) {}
 
-  async createComment(params: CreateCommentParams): Promise<CommentViewType> {
-    const { postId, content, userId } = params;
-    await this.postsRepository.checkPostExists(postId);
+  // async createComment(params: CreateCommentParams): Promise<CommentViewType> {
+  //   const { postId, content, userId } = params;
+  //   await this.postsRepository.checkPostExists(postId);
 
-    const userLogin = await this.usersRepository.getLogin(userId);
+  //   const userLogin = await this.usersRepository.getLogin(userId);
 
-    const commentatorInfo = { userId, userLogin };
-    const createdAt = new Date().toISOString();
+  //   const commentatorInfo = { userId, userLogin };
+  //   const createdAt = new Date().toISOString();
 
-    const repoParams: CreateCommentRepoParams = { postId, content, createdAt, commentatorInfo };
-    const newComment = await this.commentsRepository.createComment(repoParams);
+  //   const repoParams: CreateCommentRepoParams = { postId, content, createdAt, commentatorInfo };
+  //   const newComment = await this.commentsRepository.createComment(repoParams);
 
-    // const commentId = newComment.id;
-    // await this.commentLikesService.createEmptyLikesInfo(commentId);
-    const likesInfo = createDefaultCommentLikesInfo();
-    return { ...newComment, likesInfo };
-  }
+  //   // const commentId = newComment.id;
+  //   // await this.commentLikesService.createEmptyLikesInfo(commentId);
+  //   const likesInfo = createDefaultCommentLikesInfo();
+  //   return { ...newComment, likesInfo };
+  // }
 
   async updateComment(params: UpdateCommentParams): Promise<void> {
     const { commentId, content, userId } = params;

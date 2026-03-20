@@ -8,6 +8,8 @@ import { SetLikeStatusDto } from '../types/likes.types.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { Public } from '../../../common/decorators/public.js';
 import { UserId } from '../../../common/decorators/userId.js';
+import { CommandBus } from '@nestjs/cqrs';
+import { UpdateCommentCommand } from '../application/usecases/update-comment.command.js';
 
 @Controller('comments')
 @UseGuards(AccessTokenGuard)
@@ -16,6 +18,7 @@ export class CommentsController {
     private readonly commentsService: CommentsService,
     private readonly commentLikesService: CommentLikesService,
     private readonly commentsQueryRepository: CommentsQueryRepository,
+    private readonly commandBus: CommandBus,
   ) {}
 
   @Get(':id')
@@ -32,7 +35,7 @@ export class CommentsController {
     @UserId() userId: string,
   ): Promise<void> {
     const content = body.content;
-    await this.commentsService.updateComment({ commentId, content, userId });
+    await this.commandBus.execute(new UpdateCommentCommand({ commentId, content, userId }));
   }
 
   @Delete(':commentId')
