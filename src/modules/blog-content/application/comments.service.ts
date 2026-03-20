@@ -12,6 +12,7 @@ import { CommentsRepository } from '../infrastructure/sql/comments.repository.js
 import { UsersRepository } from '../../user-accounts/infrastructure/sql/users.repository.js';
 import { CommentLikesService } from './comment-likes.service.js';
 import { AccessDeniedDomainException } from '../../../common/exceptions/domain-exceptions.js';
+import { createDefaultCommentLikesInfo } from '../helpers/create-default-comment-likes-info.js';
 
 @Injectable()
 export class CommentsService {
@@ -36,7 +37,7 @@ export class CommentsService {
 
     // const commentId = newComment.id;
     // await this.commentLikesService.createEmptyLikesInfo(commentId);
-    const likesInfo = this.commentLikesService.getDefaultLikesInfo();
+    const likesInfo = createDefaultCommentLikesInfo();
     return { ...newComment, likesInfo };
   }
 

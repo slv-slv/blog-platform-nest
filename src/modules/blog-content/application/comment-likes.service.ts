@@ -41,12 +41,3 @@ export class CommentLikesService {
   // async deleteLikesInfo(commentId: string): Promise<void> {
   //   await this.commentLikesRepository.deleteLikesInfo(commentId);
   // }
-
-  getDefaultLikesInfo(): LikesInfoViewType {
-    return {
-      likesCount: 0,
-      dislikesCount: 0,
-      myStatus: LikeStatus.None,
-    };
-  }
-}
