@@ -1,5 +1,4 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { PostsService } from '../application/posts.service.js';
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { PostsRepository } from '../infrastructure/sql/posts.repository.js';
 import {
@@ -15,7 +14,6 @@ import {
   CreateCommentInputDto,
   GetCommentsQueryParams,
 } from '../types/comments.types.js';
-import { PostLikesService } from '../application/post-likes.service.js';
 import { CommentsQueryRepository } from '../infrastructure/sql/comments.query-repository.js';
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
@@ -26,12 +24,11 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
 import { UpdatePostCommand } from '../application/usecases/update-post.usecase.js';
 import { CreateCommentCommand } from '../application/usecases/create-comment.command.js';
+import { SetPostLikeStatusCommand } from '../application/usecases/set-post-like-status.command.js';
 
 @Controller('posts')
 export class PostsController {
   constructor(
-    private readonly postsService: PostsService,
-    private readonly postLikesService: PostLikesService,
     private readonly postsRepository: PostsRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly commentsQueryRepository: CommentsQueryRepository,
@@ -111,6 +108,6 @@ export class PostsController {
     @UserId() userId: string,
   ) {
     const likeStatus = body.likeStatus;
-    await this.postLikesService.setLikeStatus({ postId, userId, likeStatus });
+    await this.commandBus.execute(new SetPostLikeStatusCommand({ postId, userId, likeStatus }));
   }
 }
