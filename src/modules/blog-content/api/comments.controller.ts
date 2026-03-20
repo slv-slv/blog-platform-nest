@@ -6,9 +6,9 @@ import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { Public } from '../../../common/decorators/public.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { CommandBus } from '@nestjs/cqrs';
-import { UpdateCommentCommand } from '../application/usecases/update-comment.command.js';
-import { DeleteCommentCommand } from '../application/usecases/delete-comment.command.js';
-import { SetCommentLikeStatusCommand } from '../application/usecases/set-comment-like-status.command.js';
+import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase.js';
+import { DeleteCommentCommand } from '../application/usecases/delete-comment.usecase.js';
+import { SetCommentLikeStatusCommand } from '../application/usecases/set-comment-like-status.usecase.js';
 
 @Controller('comments')
 @UseGuards(AccessTokenGuard)

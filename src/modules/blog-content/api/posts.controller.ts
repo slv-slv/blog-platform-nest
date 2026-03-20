@@ -23,8 +23,8 @@ import { UserId } from '../../../common/decorators/userId.js';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
 import { UpdatePostCommand } from '../application/usecases/update-post.usecase.js';
-import { CreateCommentCommand } from '../application/usecases/create-comment.command.js';
-import { SetPostLikeStatusCommand } from '../application/usecases/set-post-like-status.command.js';
+import { CreateCommentCommand } from '../application/usecases/create-comment.usecase.js';
+import { SetPostLikeStatusCommand } from '../application/usecases/set-post-like-status.usecase.js';
 
 @Controller('posts')
 export class PostsController {

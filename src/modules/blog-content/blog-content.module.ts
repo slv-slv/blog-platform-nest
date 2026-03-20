@@ -19,12 +19,12 @@ import { UpdateBlogUseCase } from './application/usecases/update-blog.usecase.js
 import { DeleteBlogUseCase } from './application/usecases/delete-blog.usecase.js';
 import { CreatePostUseCase } from './application/usecases/create-post.usecase.js';
 import { UpdatePostUseCase } from './application/usecases/update-post.usecase.js';
-import { DeletePostUseCase } from './application/usecases/delete-post.command.js';
-import { CreateCommentUseCase } from './application/usecases/create-comment.command.js';
-import { UpdateCommentUseCase } from './application/usecases/update-comment.command.js';
-import { DeleteCommentUseCase } from './application/usecases/delete-comment.command.js';
-import { SetPostLikeStatusUseCase } from './application/usecases/set-post-like-status.command.js';
-import { SetCommentLikeStatusUseCase } from './application/usecases/set-comment-like-status.command.js';
+import { DeletePostUseCase } from './application/usecases/delete-post.usecase.js';
+import { CreateCommentUseCase } from './application/usecases/create-comment.usecase.js';
+import { UpdateCommentUseCase } from './application/usecases/update-comment.usecase.js';
+import { DeleteCommentUseCase } from './application/usecases/delete-comment.usecase.js';
+import { SetPostLikeStatusUseCase } from './application/usecases/set-post-like-status.usecase.js';
+import { SetCommentLikeStatusUseCase } from './application/usecases/set-comment-like-status.usecase.js';
 
 @Module({
   imports: [UserAccountsModule],

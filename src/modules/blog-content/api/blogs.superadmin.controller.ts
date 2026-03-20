@@ -23,7 +23,7 @@ import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase.j
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase.js';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
 import { UpdatePostCommand } from '../application/usecases/update-post.usecase.js';
-import { DeletePostCommand } from '../application/usecases/delete-post.command.js';
+import { DeletePostCommand } from '../application/usecases/delete-post.usecase.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
