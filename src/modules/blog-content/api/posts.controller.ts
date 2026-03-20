@@ -77,13 +77,6 @@ export class PostsController {
     );
   }
 
-  // @Delete(':id')
-  // @HttpCode(204)
-  // @UseGuards(BasicAuthGuard)
-  // async deletePost(@Param('id') id: string): Promise<void> {
-  //   await this.postsService.deletePost(id);
-  // }
-
   @Get(':postId/comments')
   @Public()
   @UseGuards(AccessTokenGuard)

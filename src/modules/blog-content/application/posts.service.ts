@@ -19,13 +19,13 @@ export class PostsService {
     private readonly blogsRepository: BlogsRepository,
   ) {}
 
-  async updatePost(params: UpdatePostParams): Promise<void> {
-    const { postId, title, shortDescription, content, blogId } = params;
-    await this.blogsRepository.checkBlogExists(blogId);
+  // async updatePost(params: UpdatePostParams): Promise<void> {
+  //   const { postId, title, shortDescription, content, blogId } = params;
+  //   await this.blogsRepository.checkBlogExists(blogId);
 
-    const repoParams: UpdatePostRepoParams = { id: postId, title, shortDescription, content };
-    await this.postsRepository.updatePost(repoParams);
-  }
+  //   const repoParams: UpdatePostRepoParams = { id: postId, title, shortDescription, content };
+  //   await this.postsRepository.updatePost(repoParams);
+  // }
 
   async deletePost(params: DeletePostParams): Promise<void> {
     const { blogId, postId } = params;

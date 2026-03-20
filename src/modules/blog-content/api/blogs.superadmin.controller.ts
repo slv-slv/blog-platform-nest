@@ -24,6 +24,7 @@ import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase.j
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase.js';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
 import { UpdatePostCommand } from '../application/usecases/update-post.usecase.js';
+import { DeletePostCommand } from '../application/usecases/delete-post.command.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -103,6 +104,6 @@ export class BlogsSuperadminController {
   @Delete(':blogId/posts/:postId')
   @HttpCode(204)
   async deletePost(@Param('blogId') blogId: string, @Param('postId') postId: string): Promise<void> {
-    await this.postsService.deletePost({ blogId, postId });
+    await this.commandBus.execute(new DeletePostCommand({ blogId, postId }));
   }
 }
