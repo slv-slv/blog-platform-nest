@@ -16,7 +16,6 @@ import {
   GetCommentsQueryParams,
 } from '../types/comments.types.js';
 import { PostLikesService } from '../application/post-likes.service.js';
-import { CommentsService } from '../application/comments.service.js';
 import { CommentsQueryRepository } from '../infrastructure/sql/comments.query-repository.js';
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
@@ -26,6 +25,7 @@ import { UserId } from '../../../common/decorators/userId.js';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
 import { UpdatePostCommand } from '../application/usecases/update-post.usecase.js';
+import { CreateCommentCommand } from '../application/usecases/create-comment.command.js';
 
 @Controller('posts')
 export class PostsController {
@@ -34,7 +34,6 @@ export class PostsController {
     private readonly postLikesService: PostLikesService,
     private readonly postsRepository: PostsRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
-    private readonly commentsService: CommentsService,
     private readonly commentsQueryRepository: CommentsQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}
@@ -100,7 +99,7 @@ export class PostsController {
     @UserId() userId: string,
   ): Promise<CommentViewType> {
     const content = body.content;
-    return await this.commentsService.createComment({ postId, content, userId });
+    return await this.commandBus.execute(new CreateCommentCommand({ postId, content, userId }));
   }
 
   @Put(':postId/like-status')

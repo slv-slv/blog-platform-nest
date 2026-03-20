@@ -24,6 +24,7 @@ import { DeleteBlogUseCase } from './application/usecases/delete-blog.usecase.js
 import { CreatePostUseCase } from './application/usecases/create-post.usecase.js';
 import { UpdatePostUseCase } from './application/usecases/update-post.usecase.js';
 import { DeletePostUseCase } from './application/usecases/delete-post.command.js';
+import { CreateCommentUseCase } from './application/usecases/create-comment.command.js';
 
 @Module({
   imports: [UserAccountsModule],
@@ -49,6 +50,7 @@ import { DeletePostUseCase } from './application/usecases/delete-post.command.js
     CreatePostUseCase,
     UpdatePostUseCase,
     DeletePostUseCase,
+    CreateCommentUseCase,
   ],
   exports: [],
 })

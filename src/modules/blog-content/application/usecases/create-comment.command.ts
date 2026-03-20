@@ -31,8 +31,6 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
     const repoParams: CreateCommentRepoParams = { postId, content, createdAt, commentatorInfo };
     const newComment = await this.commentsRepository.createComment(repoParams);
 
-    // const commentId = newComment.id;
-    // await this.commentLikesService.createEmptyLikesInfo(commentId);
     const likesInfo = createDefaultCommentLikesInfo();
     return { ...newComment, likesInfo };
   }
