@@ -23,6 +23,7 @@ import { CreateBlogCommand } from '../application/usecases/create-blog.usecase.j
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase.js';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase.js';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
+import { UpdatePostCommand } from '../application/usecases/update-post.usecase.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -94,7 +95,9 @@ export class BlogsSuperadminController {
     @Body() body: UpdatePostInputDto,
   ): Promise<void> {
     const { title, shortDescription, content } = body;
-    await this.postsService.updatePost({ postId, title, shortDescription, content, blogId });
+    await this.commandBus.execute(
+      new UpdatePostCommand({ postId, title, shortDescription, content, blogId }),
+    );
   }
 
   @Delete(':blogId/posts/:postId')

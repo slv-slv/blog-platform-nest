@@ -25,6 +25,7 @@ import { Public } from '../../../common/decorators/public.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
+import { UpdatePostCommand } from '../application/usecases/update-post.usecase.js';
 
 @Controller('posts')
 export class PostsController {
@@ -69,9 +70,11 @@ export class PostsController {
   @Put(':id')
   @HttpCode(204)
   @UseGuards(BasicAuthGuard)
-  async updatePost(@Param('id') id: string, @Body() body: UpdatePostForBlogInputDto): Promise<void> {
+  async updatePost(@Param('id') postId: string, @Body() body: UpdatePostForBlogInputDto): Promise<void> {
     const { title, shortDescription, content, blogId } = body;
-    await this.postsService.updatePost({ postId: id, title, shortDescription, content, blogId });
+    await this.commandBus.execute(
+      new UpdatePostCommand({ postId, title, shortDescription, content, blogId }),
+    );
   }
 
   // @Delete(':id')
