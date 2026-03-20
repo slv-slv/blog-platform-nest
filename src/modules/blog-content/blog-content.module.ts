@@ -9,7 +9,6 @@ import { PostsQueryRepository } from './infrastructure/sql/posts.query-repositor
 import { CommentsController } from './api/comments.controller.js';
 import { CommentsRepository } from './infrastructure/sql/comments.repository.js';
 import { CommentsQueryRepository } from './infrastructure/sql/comments.query-repository.js';
-import { PostLikesService } from './application/post-likes.service.js';
 import { PostLikesRepository } from './infrastructure/sql/post-likes.repository.js';
 import { PostLikesQueryRepository } from './infrastructure/sql/post-likes.query-repository.js';
 import { CommentLikesService } from './application/comment-likes.service.js';
@@ -27,6 +26,7 @@ import { CreateCommentUseCase } from './application/usecases/create-comment.comm
 import { UpdateCommentUseCase } from './application/usecases/update-comment.command.js';
 import { DeleteCommentUseCase } from './application/usecases/delete-comment.command.js';
 import { SetPostLikeStatusUseCase } from './application/usecases/set-post-like-status.command.js';
+import { SetCommentLikeStatusUseCase } from './application/usecases/set-comment-like-status.command.js';
 
 @Module({
   imports: [UserAccountsModule],
@@ -39,7 +39,6 @@ import { SetPostLikeStatusUseCase } from './application/usecases/set-post-like-s
     PostsQueryRepository,
     CommentsRepository,
     CommentsQueryRepository,
-    PostLikesService,
     PostLikesRepository,
     PostLikesQueryRepository,
     CommentLikesService,
@@ -55,6 +54,7 @@ import { SetPostLikeStatusUseCase } from './application/usecases/set-post-like-s
     UpdateCommentUseCase,
     DeleteCommentUseCase,
     SetPostLikeStatusUseCase,
+    SetCommentLikeStatusUseCase,
   ],
   exports: [],
 })

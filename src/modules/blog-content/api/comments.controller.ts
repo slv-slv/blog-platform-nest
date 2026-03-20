@@ -1,8 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Put, UseGuards } from '@nestjs/common';
 import { CommentsQueryRepository } from '../infrastructure/sql/comments.query-repository.js';
 import { CommentViewType, UpdateCommentInputDto } from '../types/comments.types.js';
-import { CommentLikesService } from '../application/comment-likes.service.js';
-
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { Public } from '../../../common/decorators/public.js';
@@ -10,12 +8,12 @@ import { UserId } from '../../../common/decorators/userId.js';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.command.js';
 import { DeleteCommentCommand } from '../application/usecases/delete-comment.command.js';
+import { SetCommentLikeStatusCommand } from '../application/usecases/set-comment-like-status.command.js';
 
 @Controller('comments')
 @UseGuards(AccessTokenGuard)
 export class CommentsController {
   constructor(
-    private readonly commentLikesService: CommentLikesService,
     private readonly commentsQueryRepository: CommentsQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}
@@ -51,6 +49,6 @@ export class CommentsController {
     @UserId() userId: string,
   ) {
     const likeStatus = body.likeStatus;
-    await this.commentLikesService.setLikeStatus({ commentId, userId, likeStatus });
+    await this.commandBus.execute(new SetCommentLikeStatusCommand({ commentId, userId, likeStatus }));
   }
 }
