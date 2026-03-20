@@ -11,7 +11,6 @@ import { CommentsRepository } from './infrastructure/sql/comments.repository.js'
 import { CommentsQueryRepository } from './infrastructure/sql/comments.query-repository.js';
 import { PostLikesRepository } from './infrastructure/sql/post-likes.repository.js';
 import { PostLikesQueryRepository } from './infrastructure/sql/post-likes.query-repository.js';
-import { CommentLikesService } from './application/comment-likes.service.js';
 import { CommentLikesRepository } from './infrastructure/sql/comment-likes.repository.js';
 import { CommentLikesQueryRepository } from './infrastructure/sql/comment-likes.query-repository.js';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
@@ -41,7 +40,6 @@ import { SetCommentLikeStatusUseCase } from './application/usecases/set-comment-
     CommentsQueryRepository,
     PostLikesRepository,
     PostLikesQueryRepository,
-    CommentLikesService,
     CommentLikesRepository,
     CommentLikesQueryRepository,
     CreateBlogUseCase,
