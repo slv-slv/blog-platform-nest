@@ -3,7 +3,6 @@ import { BlogsController } from './api/blogs.controller.js';
 import { BlogsRepository } from './infrastructure/sql/blogs.repository.js';
 import { BlogsQueryRepository } from './infrastructure/sql/blogs.query-repository.js';
 import { PostsController } from './api/posts.controller.js';
-import { PostsService } from './application/posts.service.js';
 import { PostsRepository } from './infrastructure/sql/posts.repository.js';
 import { PostsQueryRepository } from './infrastructure/sql/posts.query-repository.js';
 import { CommentsController } from './api/comments.controller.js';
@@ -33,7 +32,6 @@ import { SetCommentLikeStatusUseCase } from './application/usecases/set-comment-
   providers: [
     BlogsRepository,
     BlogsQueryRepository,
-    PostsService,
     PostsRepository,
     PostsQueryRepository,
     CommentsRepository,

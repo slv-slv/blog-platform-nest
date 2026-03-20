@@ -16,7 +16,6 @@ import {
   UpdatePostInputDto,
 } from '../types/posts.types.js';
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
-import { PostsService } from '../application/posts.service.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/usecases/create-blog.usecase.js';
@@ -32,7 +31,6 @@ export class BlogsSuperadminController {
   constructor(
     private readonly blogsRepository: BlogsRepository,
     private readonly blogsQueryRepository: BlogsQueryRepository,
-    private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}
