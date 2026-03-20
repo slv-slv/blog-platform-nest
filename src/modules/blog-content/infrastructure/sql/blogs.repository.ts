@@ -34,6 +34,19 @@ export class BlogsRepository {
     };
   }
 
+  async checkBlogExists(id: string): Promise<void> {
+    const result = await this.pool.query(
+      `
+        SELECT EXISTS(SELECT 1 FROM blogs WHERE id = $1::int) AS exists
+      `,
+      [id],
+    );
+
+    if (result.rows[0].exists === false) {
+      throw new BlogNotFoundDomainException();
+    }
+  }
+
   async createBlog(params: CreateBlogRepoParams): Promise<BlogType> {
     const { name, description, websiteUrl, createdAt, isMembership } = params;
     const newBlog = { name, description, websiteUrl, createdAt, isMembership };

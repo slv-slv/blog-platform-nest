@@ -21,7 +21,7 @@ export class PostsService {
 
   async updatePost(params: UpdatePostParams): Promise<void> {
     const { postId, title, shortDescription, content, blogId } = params;
-    await this.blogsRepository.findBlog(blogId);
+    await this.blogsRepository.checkBlogExists(blogId);
 
     const repoParams: UpdatePostRepoParams = { id: postId, title, shortDescription, content };
     await this.postsRepository.updatePost(repoParams);
@@ -29,10 +29,7 @@ export class PostsService {
 
   async deletePost(params: DeletePostParams): Promise<void> {
     const { blogId, postId } = params;
-    await this.blogsRepository.findBlog(blogId);
-
+    await this.blogsRepository.checkBlogExists(blogId);
     await this.postsRepository.deletePost(postId);
-
-    // await this.postLikesService.deleteLikesInfo(postId);
   }
 }

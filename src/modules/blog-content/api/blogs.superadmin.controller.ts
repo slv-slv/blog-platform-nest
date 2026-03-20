@@ -75,7 +75,7 @@ export class BlogsSuperadminController {
     const userId = null;
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
-    await this.blogsRepository.findBlog(blogId);
+    await this.blogsRepository.checkBlogExists(blogId);
     return await this.postsQueryRepository.getPosts(pagingParams, userId, blogId);
   }
 
