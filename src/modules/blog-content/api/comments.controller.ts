@@ -1,5 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Put, Req, UseGuards } from '@nestjs/common';
-import { CommentsService } from '../application/comments.service.js';
+import { Body, Controller, Delete, Get, HttpCode, Param, Put, UseGuards } from '@nestjs/common';
 import { CommentsQueryRepository } from '../infrastructure/sql/comments.query-repository.js';
 import { CommentViewType, UpdateCommentInputDto } from '../types/comments.types.js';
 import { CommentLikesService } from '../application/comment-likes.service.js';
@@ -10,12 +9,12 @@ import { Public } from '../../../common/decorators/public.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.command.js';
+import { DeleteCommentCommand } from '../application/usecases/delete-comment.command.js';
 
 @Controller('comments')
 @UseGuards(AccessTokenGuard)
 export class CommentsController {
   constructor(
-    private readonly commentsService: CommentsService,
     private readonly commentLikesService: CommentLikesService,
     private readonly commentsQueryRepository: CommentsQueryRepository,
     private readonly commandBus: CommandBus,
@@ -41,7 +40,7 @@ export class CommentsController {
   @Delete(':commentId')
   @HttpCode(204)
   async deleteComment(@Param('commentId') commentId: string, @UserId() userId: string) {
-    await this.commentsService.deleteComment({ commentId, userId });
+    await this.commandBus.execute(new DeleteCommentCommand({ commentId, userId }));
   }
 
   @Put(':commentId/like-status')

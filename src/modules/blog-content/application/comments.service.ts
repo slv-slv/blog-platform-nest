@@ -39,25 +39,25 @@ export class CommentsService {
   //   return { ...newComment, likesInfo };
   // }
 
-  async updateComment(params: UpdateCommentParams): Promise<void> {
-    const { commentId, content, userId } = params;
-    const comment = await this.commentsRepository.findComment(commentId);
+  // async updateComment(params: UpdateCommentParams): Promise<void> {
+  //   const { commentId, content, userId } = params;
+  //   const comment = await this.commentsRepository.findComment(commentId);
 
-    const ownerId = comment.commentatorInfo.userId;
-    if (userId !== ownerId) throw new AccessDeniedDomainException();
+  //   const ownerId = comment.commentatorInfo.userId;
+  //   if (userId !== ownerId) throw new AccessDeniedDomainException();
 
-    const repoParams: UpdateCommentRepoParams = { id: commentId, content };
-    await this.commentsRepository.updateComment(repoParams);
-  }
+  //   const repoParams: UpdateCommentRepoParams = { id: commentId, content };
+  //   await this.commentsRepository.updateComment(repoParams);
+  // }
 
-  async deleteComment(params: DeleteCommentParams): Promise<void> {
-    const { commentId, userId } = params;
-    const comment = await this.commentsRepository.findComment(commentId);
+  // async deleteComment(params: DeleteCommentParams): Promise<void> {
+  //   const { commentId, userId } = params;
+  //   const comment = await this.commentsRepository.findComment(commentId);
 
-    const ownerId = comment.commentatorInfo.userId;
-    if (userId !== ownerId) throw new AccessDeniedDomainException();
+  //   const ownerId = comment.commentatorInfo.userId;
+  //   if (userId !== ownerId) throw new AccessDeniedDomainException();
 
-    // await this.commentLikesService.deleteLikesInfo(commentId);
-    await this.commentsRepository.deleteComment(commentId);
-  }
+  //   // await this.commentLikesService.deleteLikesInfo(commentId);
+  //   await this.commentsRepository.deleteComment(commentId);
+  // }
 }
