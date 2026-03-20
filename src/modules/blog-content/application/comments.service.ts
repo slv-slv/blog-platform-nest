@@ -10,7 +10,6 @@ import {
 import { PostsRepository } from '../infrastructure/sql/posts.repository.js';
 import { CommentsRepository } from '../infrastructure/sql/comments.repository.js';
 import { UsersRepository } from '../../user-accounts/infrastructure/sql/users.repository.js';
-import { CommentLikesService } from './comment-likes.service.js';
 import { AccessDeniedDomainException } from '../../../common/exceptions/domain-exceptions.js';
 import { createDefaultCommentLikesInfo } from '../helpers/create-default-comment-likes-info.js';
 
@@ -20,12 +19,11 @@ export class CommentsService {
     private readonly commentsRepository: CommentsRepository,
     private readonly postsRepository: PostsRepository,
     private readonly usersRepository: UsersRepository,
-    private readonly commentLikesService: CommentLikesService,
   ) {}
 
   async createComment(params: CreateCommentParams): Promise<CommentViewType> {
     const { postId, content, userId } = params;
-    await this.postsRepository.findPost(postId);
+    await this.postsRepository.checkPostExists(postId);
 
     const userLogin = await this.usersRepository.getLogin(userId);
 

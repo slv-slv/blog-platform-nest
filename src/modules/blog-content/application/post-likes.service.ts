@@ -12,7 +12,7 @@ export class PostLikesService {
 
   async setLikeStatus(params: SetPostLikeStatusParams): Promise<void> {
     const { postId, userId, likeStatus } = params;
-    await this.postsRepository.findPost(postId);
+    await this.postsRepository.checkPostExists(postId);
 
     const currentLikeStatus = (await this.postLikesRepository.getLikeStatus([parseInt(postId)], userId))[0]
       .myStatus;

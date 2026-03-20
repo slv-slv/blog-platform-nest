@@ -8,6 +8,19 @@ import { PostNotFoundDomainException } from '../../../../common/exceptions/domai
 export class PostsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
+  async checkPostExists(id: string): Promise<void> {
+    const result = await this.pool.query(
+      `
+        SELECT EXISTS(SELECT 1 FROM posts WHERE id = $1::int) AS exists
+      `,
+      [id],
+    );
+
+    if (result.rows[0].exists === false) {
+      throw new PostNotFoundDomainException();
+    }
+  }
+
   async findPost(id: string): Promise<PostDtoType> {
     const result = await this.pool.query(
       `

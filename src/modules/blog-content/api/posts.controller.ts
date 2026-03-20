@@ -85,7 +85,7 @@ export class PostsController {
     @Query() query: GetCommentsQueryParams,
     @UserId() userId: string,
   ): Promise<CommentsPaginatedType> {
-    await this.postsRepository.findPost(postId);
+    await this.postsRepository.checkPostExists(postId);
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
     return await this.commentsQueryRepository.getComments(postId, userId, pagingParams);
