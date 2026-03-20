@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PostsRepository } from '../infrastructure/sql/posts.repository.js';
 import { PostLikesRepository } from '../infrastructure/sql/post-likes.repository.js';
-import { ExtendedLikesInfoViewType, LikeStatus, SetPostLikeStatusParams } from '../types/likes.types.js';
+import { LikeStatus, SetPostLikeStatusParams } from '../types/likes.types.js';
 
 @Injectable()
 export class PostLikesService {
@@ -40,13 +40,4 @@ export class PostLikesService {
   // async deleteLikesInfo(postId: string): Promise<void> {
   //   await this.postLikesRepository.deleteLikesInfo(postId);
   // }
-
-  getDefaultLikesInfo(): ExtendedLikesInfoViewType {
-    return {
-      likesCount: 0,
-      dislikesCount: 0,
-      myStatus: LikeStatus.None,
-      newestLikes: [],
-    };
-  }
 }

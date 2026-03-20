@@ -2,7 +2,7 @@ import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreatePostParams, CreatePostRepoParams, PostViewType } from '../../types/posts.types.js';
 import { PostsRepository } from '../../infrastructure/sql/posts.repository.js';
 import { BlogsRepository } from '../../infrastructure/sql/blogs.repository.js';
-import { PostLikesService } from '../post-likes.service.js';
+import { createDefaultPostLikesInfo } from '../../helpers/create-default-post-likes-info.js';
 
 export class CreatePostCommand extends Command<PostViewType> {
   constructor(public readonly params: CreatePostParams) {
@@ -15,7 +15,6 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
   constructor(
     private readonly blogsRepository: BlogsRepository,
     private readonly postsRepository: PostsRepository,
-    private readonly postLikesService: PostLikesService,
   ) {}
   async execute(command: CreatePostCommand): Promise<PostViewType> {
     const { params } = command;
@@ -33,7 +32,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
       createdAt,
     };
     const newPost = await this.postsRepository.createPost(repoParams);
-    const extendedLikesInfo = this.postLikesService.getDefaultLikesInfo();
+    const extendedLikesInfo = createDefaultPostLikesInfo();
 
     return { ...newPost, extendedLikesInfo };
   }
