@@ -19,7 +19,7 @@ export class SetCommentLikeStatusUseCase implements ICommandHandler<SetCommentLi
   async execute(command: SetCommentLikeStatusCommand): Promise<void> {
     const { params } = command;
     const { commentId, userId, likeStatus } = params;
-    await this.commentsRepository.findComment(commentId);
+    await this.commentsRepository.checkCommentExists(commentId);
 
     const currentLikeStatus = (
       await this.commentLikesRepository.getLikeStatus([parseInt(commentId)], userId)

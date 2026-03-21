@@ -12,6 +12,19 @@ import { CommentNotFoundDomainException } from '../../../../common/exceptions/do
 export class CommentsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
+  async checkCommentExists(id: string): Promise<void> {
+    const result = await this.pool.query(
+      `
+        SELECT EXISTS(SELECT 1 FROM comments WHERE id = $1::int) AS exists
+      `,
+      [id],
+    );
+
+    if (result.rows[0].exists === false) {
+      throw new CommentNotFoundDomainException();
+    }
+  }
+
   async findComment(id: string): Promise<CommentDtoType> {
     const result = await this.pool.query(
       `
