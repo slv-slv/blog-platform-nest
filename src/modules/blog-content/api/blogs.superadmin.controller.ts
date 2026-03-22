@@ -17,29 +17,30 @@ import {
 } from '../types/posts.types.js';
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/usecases/create-blog.use-case.js';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.use-case.js';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.use-case.js';
 import { CreatePostCommand } from '../application/usecases/create-post.use-case.js';
 import { UpdatePostCommand } from '../application/usecases/update-post.use-case.js';
 import { DeletePostCommand } from '../application/usecases/delete-post.use-case.js';
+import { GetBlogsQuery } from '../application/usecases/get-blogs.use-case.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
 export class BlogsSuperadminController {
   constructor(
     private readonly blogsRepository: BlogsRepository,
-    private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Get()
   async getBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedType> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-    return await this.blogsQueryRepository.getBlogs({ searchNameTerm, pagingParams });
+    return await this.queryBus.execute(new GetBlogsQuery({ searchNameTerm, pagingParams }));
   }
 
   @Get(':id')
