@@ -10,7 +10,7 @@ export class DeleteBlogCommand extends Command<void> {
 @CommandHandler(DeleteBlogCommand)
 export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
   constructor(private readonly blogsRepository: BlogsRepository) {}
-  async execute(command: DeleteBlogCommand): Promise<void> {
+  async execute(command: DeleteBlogCommand) {
     const { id } = command;
     await this.blogsRepository.deleteBlog(id);
   }

@@ -16,7 +16,7 @@ export class SetCommentLikeStatusUseCase implements ICommandHandler<SetCommentLi
     private readonly commentLikesRepository: CommentLikesRepository,
   ) {}
 
-  async execute(command: SetCommentLikeStatusCommand): Promise<void> {
+  async execute(command: SetCommentLikeStatusCommand) {
     const { params } = command;
     const { commentId, userId, likeStatus } = params;
     await this.commentsRepository.checkCommentExists(commentId);

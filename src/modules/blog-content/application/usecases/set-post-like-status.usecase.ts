@@ -16,7 +16,7 @@ export class SetPostLikeStatusUseCase implements ICommandHandler<SetPostLikeStat
     private readonly postLikesRepository: PostLikesRepository,
   ) {}
 
-  async execute(command: SetPostLikeStatusCommand): Promise<void> {
+  async execute(command: SetPostLikeStatusCommand) {
     const { params } = command;
     const { postId, userId, likeStatus } = params;
     await this.postsRepository.checkPostExists(postId);

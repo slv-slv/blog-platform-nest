@@ -11,7 +11,7 @@ export class UpdateBlogCommand extends Command<void> {
 @CommandHandler(UpdateBlogCommand)
 export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
   constructor(private readonly blogsRepository: BlogsRepository) {}
-  async execute(command: UpdateBlogCommand): Promise<void> {
+  async execute(command: UpdateBlogCommand) {
     const { params } = command;
     await this.blogsRepository.updateBlog(params);
   }

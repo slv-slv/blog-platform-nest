@@ -16,7 +16,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     private readonly blogsRepository: BlogsRepository,
     private readonly postsRepository: PostsRepository,
   ) {}
-  async execute(command: CreatePostCommand): Promise<PostViewType> {
+  async execute(command: CreatePostCommand) {
     const { params } = command;
     const { title, shortDescription, content, blogId } = params;
     const blog = await this.blogsRepository.findBlog(blogId);

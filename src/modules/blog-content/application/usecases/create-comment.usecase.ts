@@ -18,7 +18,7 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
     private readonly postsRepository: PostsRepository,
     private readonly usersRepository: UsersRepository,
   ) {}
-  async execute(command: CreateCommentCommand): Promise<CommentViewType> {
+  async execute(command: CreateCommentCommand) {
     const { params } = command;
     const { postId, content, userId } = params;
     await this.postsRepository.checkPostExists(postId);

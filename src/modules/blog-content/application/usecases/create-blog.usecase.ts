@@ -11,7 +11,7 @@ export class CreateBlogCommand extends Command<BlogType> {
 @CommandHandler(CreateBlogCommand)
 export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
   constructor(private readonly blogsRepository: BlogsRepository) {}
-  async execute(command: CreateBlogCommand): Promise<BlogType> {
+  async execute(command: CreateBlogCommand) {
     const { params } = command;
     const { name, description, websiteUrl } = params;
     const createdAt = new Date().toISOString();

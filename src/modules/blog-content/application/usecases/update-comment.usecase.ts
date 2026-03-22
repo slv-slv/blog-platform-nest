@@ -12,7 +12,7 @@ export class UpdateCommentCommand extends Command<void> {
 @CommandHandler(UpdateCommentCommand)
 export class UpdateCommentUseCase implements ICommandHandler<UpdateCommentCommand> {
   constructor(private readonly commentsRepository: CommentsRepository) {}
-  async execute(command: UpdateCommentCommand): Promise<void> {
+  async execute(command: UpdateCommentCommand) {
     const { params } = command;
     const { commentId, content, userId } = params;
     const comment = await this.commentsRepository.findComment(commentId);

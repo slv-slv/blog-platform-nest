@@ -15,7 +15,7 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
     private readonly blogsRepository: BlogsRepository,
     private readonly postsRepository: PostsRepository,
   ) {}
-  async execute(command: UpdatePostCommand): Promise<void> {
+  async execute(command: UpdatePostCommand) {
     const { params } = command;
     const { postId, title, shortDescription, content, blogId } = params;
     await this.blogsRepository.checkBlogExists(blogId);

@@ -15,7 +15,7 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
     private readonly postsRepository: PostsRepository,
     private readonly blogsRepository: BlogsRepository,
   ) {}
-  async execute(command: DeletePostCommand): Promise<void> {
+  async execute(command: DeletePostCommand) {
     const { params } = command;
     const { blogId, postId } = params;
     await this.blogsRepository.checkBlogExists(blogId);
