@@ -38,10 +38,7 @@ export class PostsController {
   @Get()
   @Public()
   @UseGuards(AccessTokenGuard)
-  async getAllPosts(
-    @Query() query: GetPostsQueryParams,
-    @UserId() userId: string,
-  ): Promise<PostsPaginatedType> {
+  async getPosts(@Query() query: GetPostsQueryParams, @UserId() userId: string): Promise<PostsPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
