@@ -18,12 +18,12 @@ import {
 import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateBlogCommand } from '../application/usecases/create-blog.usecase.js';
-import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase.js';
-import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase.js';
-import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
-import { UpdatePostCommand } from '../application/usecases/update-post.usecase.js';
-import { DeletePostCommand } from '../application/usecases/delete-post.usecase.js';
+import { CreateBlogCommand } from '../application/usecases/create-blog.use-case.js';
+import { UpdateBlogCommand } from '../application/usecases/update-blog.use-case.js';
+import { DeleteBlogCommand } from '../application/usecases/delete-blog.use-case.js';
+import { CreatePostCommand } from '../application/usecases/create-post.use-case.js';
+import { UpdatePostCommand } from '../application/usecases/update-post.use-case.js';
+import { DeletePostCommand } from '../application/usecases/delete-post.use-case.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)

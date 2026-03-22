@@ -21,10 +21,10 @@ import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { Public } from '../../../common/decorators/public.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreatePostCommand } from '../application/usecases/create-post.usecase.js';
-import { UpdatePostCommand } from '../application/usecases/update-post.usecase.js';
-import { CreateCommentCommand } from '../application/usecases/create-comment.usecase.js';
-import { SetPostLikeStatusCommand } from '../application/usecases/set-post-like-status.usecase.js';
+import { CreatePostCommand } from '../application/usecases/create-post.use-case.js';
+import { UpdatePostCommand } from '../application/usecases/update-post.use-case.js';
+import { CreateCommentCommand } from '../application/usecases/create-comment.use-case.js';
+import { SetPostLikeStatusCommand } from '../application/usecases/set-post-like-status.use-case.js';
 
 @Controller('posts')
 export class PostsController {

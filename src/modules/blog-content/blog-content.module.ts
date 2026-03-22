@@ -14,17 +14,17 @@ import { CommentLikesRepository } from './infrastructure/sql/comment-likes.repos
 import { CommentLikesQueryRepository } from './infrastructure/sql/comment-likes.query-repository.js';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
 import { BlogsSuperadminController } from './api/blogs.superadmin.controller.js';
-import { CreateBlogUseCase } from './application/usecases/create-blog.usecase.js';
-import { UpdateBlogUseCase } from './application/usecases/update-blog.usecase.js';
-import { DeleteBlogUseCase } from './application/usecases/delete-blog.usecase.js';
-import { CreatePostUseCase } from './application/usecases/create-post.usecase.js';
-import { UpdatePostUseCase } from './application/usecases/update-post.usecase.js';
-import { DeletePostUseCase } from './application/usecases/delete-post.usecase.js';
-import { CreateCommentUseCase } from './application/usecases/create-comment.usecase.js';
-import { UpdateCommentUseCase } from './application/usecases/update-comment.usecase.js';
-import { DeleteCommentUseCase } from './application/usecases/delete-comment.usecase.js';
-import { SetPostLikeStatusUseCase } from './application/usecases/set-post-like-status.usecase.js';
-import { SetCommentLikeStatusUseCase } from './application/usecases/set-comment-like-status.usecase.js';
+import { CreateBlogUseCase } from './application/usecases/create-blog.use-case.js';
+import { UpdateBlogUseCase } from './application/usecases/update-blog.use-case.js';
+import { DeleteBlogUseCase } from './application/usecases/delete-blog.use-case.js';
+import { CreatePostUseCase } from './application/usecases/create-post.use-case.js';
+import { UpdatePostUseCase } from './application/usecases/update-post.use-case.js';
+import { DeletePostUseCase } from './application/usecases/delete-post.use-case.js';
+import { CreateCommentUseCase } from './application/usecases/create-comment.use-case.js';
+import { UpdateCommentUseCase } from './application/usecases/update-comment.use-case.js';
+import { DeleteCommentUseCase } from './application/usecases/delete-comment.use-case.js';
+import { SetPostLikeStatusUseCase } from './application/usecases/set-post-like-status.use-case.js';
+import { SetCommentLikeStatusUseCase } from './application/usecases/set-comment-like-status.use-case.js';
 
 @Module({
   imports: [UserAccountsModule],
