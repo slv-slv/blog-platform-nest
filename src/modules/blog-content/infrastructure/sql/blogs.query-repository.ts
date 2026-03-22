@@ -8,10 +8,7 @@ import { PagingParamsType } from '../../../../common/types/paging-params.types.j
 export class BlogsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getAllBlogs(
-    searchNameTerm: string | null,
-    pagingParams: PagingParamsType,
-  ): Promise<BlogsPaginatedType> {
+  async getBlogs(searchNameTerm: string | null, pagingParams: PagingParamsType): Promise<BlogsPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     let orderBy: string;
