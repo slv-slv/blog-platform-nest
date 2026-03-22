@@ -36,7 +36,7 @@ export class BlogsSuperadminController {
   ) {}
 
   @Get()
-  async getAllBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedType> {
+  async getBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedType> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
     return await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
