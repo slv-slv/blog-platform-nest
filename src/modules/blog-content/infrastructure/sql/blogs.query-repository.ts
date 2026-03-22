@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BlogsPaginatedType } from '../../types/blogs.types.js';
+import { BlogsPaginatedType, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
-import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getBlogs(searchNameTerm: string | null, pagingParams: PagingParamsType): Promise<BlogsPaginatedType> {
+  async getBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedType> {
+    const { searchNameTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     let orderBy: string;

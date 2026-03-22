@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PostLikesRepository } from './post-likes.repository.js';
-import { ExtendedLikesInfoViewType, LikeStatus } from '../../types/likes.types.js';
+import { ExtendedLikesInfoViewType, GetPostLikesInfoParams, LikeStatus } from '../../types/likes.types.js';
 import { UsersQueryRepository } from '../../../user-accounts/infrastructure/mongoose/users.query-repository.js';
 
 @Injectable()
@@ -10,7 +10,9 @@ export class PostLikesQueryRepository {
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
 
-  async getLikesInfo(postIdArr: string[], userId: string | null): Promise<Map<string, ExtendedLikesInfoViewType>> {
+  async getLikesInfo(params: GetPostLikesInfoParams<string>): Promise<Map<string, ExtendedLikesInfoViewType>> {
+    const { postIds: postIdArr } = params;
+    const userId = params.userId ?? null;
     const likesCountArr = await this.postLikesRepository.getLikesCount(postIdArr);
     const likesCountMap = new Map(likesCountArr.map(({ postId, likesCount }) => [postId, likesCount]));
 

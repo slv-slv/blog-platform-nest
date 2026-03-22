@@ -45,7 +45,7 @@ export class Comment {
     };
   }
 
-  async toViewType(userId: string | null): Promise<CommentViewType> {
+  async toViewType(userId?: string): Promise<CommentViewType> {
     const idStr = this.id.toString();
     return {
       id: idStr,
@@ -55,7 +55,7 @@ export class Comment {
         userLogin: this.user.login,
       },
       createdAt: this.createdAt.toISOString(),
-      likesInfo: await this.commentLikesQueryRepository.getLikesInfo(idStr, userId),
+      likesInfo: await this.commentLikesQueryRepository.getLikesInfo({ commentId: idStr, userId }),
     };
   }
 }

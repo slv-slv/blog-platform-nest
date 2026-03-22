@@ -2,7 +2,7 @@ import { WithId } from 'mongodb';
 import { IsEnum, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 import { LikesInfoViewType } from './likes.types.js';
 import { Trim } from '../../../common/decorators/trim.js';
-import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
+import { BasicPagingParams, PagingParamsType } from '../../../common/types/paging-params.types.js';
 
 export type CommentDtoType = {
   id: string;
@@ -65,6 +65,17 @@ export type UpdateCommentParams = {
 export type DeleteCommentParams = {
   commentId: string;
   userId: string;
+};
+
+export type FindCommentRepoQueryParams = {
+  commentId: string;
+  userId?: string;
+};
+
+export type GetCommentsRepoQueryParams = {
+  postId: string;
+  userId?: string;
+  pagingParams: PagingParamsType;
 };
 
 export type CreateCommentRepoParams = {

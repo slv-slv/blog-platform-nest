@@ -3,9 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
 import { Comment } from './comments.schemas.js';
-import { CommentsPaginatedType, CommentViewType } from '../../types/comments.types.js';
+import {
+  CommentsPaginatedType,
+  CommentViewType,
+  FindCommentRepoQueryParams,
+  GetCommentsRepoQueryParams,
+} from '../../types/comments.types.js';
 import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
-import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class CommentsQueryRepository {
@@ -14,7 +18,8 @@ export class CommentsQueryRepository {
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
-  async findComment(id: string, userId: string | null): Promise<CommentViewType | null> {
+  async findComment(params: FindCommentRepoQueryParams): Promise<CommentViewType | null> {
+    const { commentId: id, userId } = params;
     if (!ObjectId.isValid(id)) {
       return null;
     }
@@ -24,16 +29,13 @@ export class CommentsQueryRepository {
       return null;
     }
 
-    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo([id], userId);
+    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({ commentIds: [id], userId });
 
     return { id, ...comment, likesInfo: likesInfoMap.get(id)! };
   }
 
-  async getComments(
-    postId: string,
-    userId: string | null,
-    pagingParams: PagingParamsType,
-  ): Promise<CommentsPaginatedType> {
+  async getComments(params: GetCommentsRepoQueryParams): Promise<CommentsPaginatedType> {
+    const { postId, userId, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     const totalCount = await this.model.countDocuments({ postId });
@@ -47,7 +49,7 @@ export class CommentsQueryRepository {
       .lean();
 
     const commentIds = commentsWithObjectId.map((comment) => comment._id.toString());
-    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo(commentIds, userId);
+    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({ commentIds, userId });
 
     const comments = commentsWithObjectId.map((comment) => {
       const commentId = comment._id.toString();

@@ -42,14 +42,14 @@ export class PostsController {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
 
-    return await this.postsQueryRepository.getPosts(pagingParams, userId);
+    return await this.postsQueryRepository.getPosts({ pagingParams, userId });
   }
 
   @Get(':id')
   @Public()
   @UseGuards(AccessTokenGuard)
   async findPost(@Param('id') id: string, @UserId() userId: string): Promise<PostViewType> {
-    return await this.postsQueryRepository.findPost(id, userId);
+    return await this.postsQueryRepository.findPost({ postId: id, userId });
   }
 
   @Post()
@@ -81,7 +81,7 @@ export class PostsController {
     await this.postsRepository.checkPostExists(postId);
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-    return await this.commentsQueryRepository.getComments(postId, userId, pagingParams);
+    return await this.commentsQueryRepository.getComments({ postId, userId, pagingParams });
   }
 
   @Post(':postId/comments')

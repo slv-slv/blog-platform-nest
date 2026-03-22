@@ -1,7 +1,7 @@
 import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
 import { WithId } from 'mongodb';
 import { Trim } from '../../../common/decorators/trim.js';
-import { BasicPagingParams } from '../../../common/types/paging-params.types.js';
+import { BasicPagingParams, PagingParamsType } from '../../../common/types/paging-params.types.js';
 
 export type BlogType = {
   id: string;
@@ -52,12 +52,17 @@ export class GetBlogsQueryParams extends BasicPagingParams {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  searchNameTerm: string | null = null;
+  searchNameTerm?: string;
 
   @IsOptional()
   @IsEnum(BlogsSortBy)
   sortBy: BlogsSortBy = BlogsSortBy.createdAt;
 }
+
+export type GetBlogsRepoQueryParams = {
+  searchNameTerm?: string;
+  pagingParams: PagingParamsType;
+};
 
 export type CreateBlogParams = {
   name: string;

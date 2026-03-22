@@ -64,7 +64,7 @@ export class Post {
     };
   }
 
-  async toViewType(userId: string | null): Promise<PostViewType> {
+  async toViewType(userId?: string): Promise<PostViewType> {
     const idStr = this.id.toString();
     return {
       id: idStr,
@@ -74,7 +74,7 @@ export class Post {
       blogId: this.blogId.toString(),
       blogName: this.blog.name,
       createdAt: this.createdAt.toISOString(),
-      extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo(idStr, userId),
+      extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo({ postId: idStr, userId }),
     };
   }
 }

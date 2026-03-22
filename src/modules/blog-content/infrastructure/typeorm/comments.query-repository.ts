@@ -1,6 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CommentsPaginatedType, CommentViewType } from '../../types/comments.types.js';
-import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
+import {
+  CommentsPaginatedType,
+  CommentViewType,
+  FindCommentRepoQueryParams,
+  GetCommentsRepoQueryParams,
+} from '../../types/comments.types.js';
 import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
 import { Comment } from './comments.entities.js';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,7 +17,8 @@ export class CommentsQueryRepository {
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
-  async findComment(id: string, userId: string | null): Promise<CommentViewType | null> {
+  async findComment(params: FindCommentRepoQueryParams): Promise<CommentViewType | null> {
+    const { commentId: id, userId } = params;
     const idNum = parseInt(id);
     if (isNaN(idNum)) return null;
 
@@ -26,11 +31,8 @@ export class CommentsQueryRepository {
     return comment.toViewType(userId);
   }
 
-  async getComments(
-    postId: string,
-    userId: string | null,
-    pagingParams: PagingParamsType,
-  ): Promise<CommentsPaginatedType> {
+  async getComments(params: GetCommentsRepoQueryParams): Promise<CommentsPaginatedType> {
+    const { postId, userId, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     const direction = sortDirection === 'asc' ? 'ASC' : 'DESC';

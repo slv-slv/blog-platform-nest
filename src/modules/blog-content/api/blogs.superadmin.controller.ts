@@ -39,7 +39,7 @@ export class BlogsSuperadminController {
   async getBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedType> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-    return await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
+    return await this.blogsQueryRepository.getBlogs({ searchNameTerm, pagingParams });
   }
 
   @Get(':id')
@@ -72,11 +72,10 @@ export class BlogsSuperadminController {
     @Param('blogId') blogId: string,
     @Query() query: GetPostsQueryParams,
   ): Promise<PostsPaginatedType> {
-    const userId = null;
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
     await this.blogsRepository.checkBlogExists(blogId);
-    return await this.postsQueryRepository.getPosts(pagingParams, userId, blogId);
+    return await this.postsQueryRepository.getPosts({ pagingParams, blogId });
   }
 
   @Post(':blogId/posts')

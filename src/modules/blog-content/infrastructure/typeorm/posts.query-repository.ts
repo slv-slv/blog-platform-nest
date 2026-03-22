@@ -1,6 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PostsPaginatedType, PostViewType } from '../../types/posts.types.js';
-import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
+import {
+  FindPostRepoQueryParams,
+  GetPostsRepoQueryParams,
+  PostsPaginatedType,
+  PostViewType,
+} from '../../types/posts.types.js';
 import { PostLikesQueryRepository } from './post-likes.query-repository.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './posts.entities.js';
@@ -13,7 +17,8 @@ export class PostsQueryRepository {
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 
-  async findPost(id: string, userId: string | null): Promise<PostViewType | null> {
+  async findPost(params: FindPostRepoQueryParams): Promise<PostViewType | null> {
+    const { postId: id, userId } = params;
     const idNum = parseInt(id);
     if (isNaN(idNum)) return null;
 
@@ -23,11 +28,8 @@ export class PostsQueryRepository {
     return post.toViewType(userId);
   }
 
-  async getPosts(
-    userId: string | null,
-    pagingParams: PagingParamsType,
-    blogId?: string,
-  ): Promise<PostsPaginatedType> {
+  async getPosts(params: GetPostsRepoQueryParams): Promise<PostsPaginatedType> {
+    const { userId, pagingParams, blogId } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     const qb = this.postEntityRepository.createQueryBuilder('post');

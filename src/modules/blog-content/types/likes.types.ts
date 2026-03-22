@@ -24,6 +24,28 @@ export type ExtendedLikesInfoViewType = {
   }[];
 };
 
+export type GetPostLikesInfoParams<TPostId> = {
+  postIds: TPostId[];
+  userId?: string;
+};
+
+// mongoose only
+export type GetSinglePostLikesInfoParams = {
+  postId: string;
+  userId?: string;
+};
+
+export type GetCommentLikesInfoParams<TCommentId> = {
+  commentIds: TCommentId[];
+  userId?: string;
+};
+
+// mongoose only
+export type GetSingleCommentLikesInfoParams = {
+  commentId: string;
+  userId?: string;
+};
+
 export class SetLikeStatusDto {
   @IsEnum(LikeStatus)
   declare likeStatus: LikeStatus;

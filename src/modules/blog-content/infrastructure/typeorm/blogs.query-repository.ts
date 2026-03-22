@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BlogsPaginatedType } from '../../types/blogs.types.js';
-import { PagingParamsType, SortDirection } from '../../../../common/types/paging-params.types.js';
+import { BlogsPaginatedType, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
+import { SortDirection } from '../../../../common/types/paging-params.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './blogs.entities.js';
 import { Repository } from 'typeorm';
@@ -9,10 +9,8 @@ import { Repository } from 'typeorm';
 export class BlogsQueryRepository {
   constructor(@InjectRepository(Blog) private readonly blogEntityRepository: Repository<Blog>) {}
 
-  async getAllBlogs(
-    searchNameTerm: string | null,
-    pagingParams: PagingParamsType,
-  ): Promise<BlogsPaginatedType> {
+  async getAllBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedType> {
+    const { searchNameTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     const qb = this.blogEntityRepository.createQueryBuilder('blog');

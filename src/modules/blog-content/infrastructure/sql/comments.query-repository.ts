@@ -1,9 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CommentsPaginatedType, CommentViewType } from '../../types/comments.types.js';
+import {
+  CommentsPaginatedType,
+  CommentViewType,
+  FindCommentRepoQueryParams,
+  GetCommentsRepoQueryParams,
+} from '../../types/comments.types.js';
 import { Pool } from 'pg';
 import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
 import { PG_POOL } from '../../../../common/constants.js';
-import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
 import { CommentNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
@@ -13,7 +17,8 @@ export class CommentsQueryRepository {
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
-  async findComment(id: string, userId: string | null): Promise<CommentViewType> {
+  async findComment(params: FindCommentRepoQueryParams): Promise<CommentViewType> {
+    const { commentId: id, userId } = params;
     const result = await this.pool.query(
       `
         SELECT
@@ -34,7 +39,10 @@ export class CommentsQueryRepository {
     }
 
     const { id: commentId, content, created_at, commentator_id, commentator_login } = result.rows[0];
-    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo([commentId], userId);
+    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({
+      commentIds: [commentId],
+      userId,
+    });
 
     return {
       id,
@@ -47,11 +55,8 @@ export class CommentsQueryRepository {
       likesInfo: likesInfoMap.get(commentId)!,
     };
   }
-  async getComments(
-    postId: string,
-    userId: string | null,
-    pagingParams: PagingParamsType,
-  ): Promise<CommentsPaginatedType> {
+  async getComments(params: GetCommentsRepoQueryParams): Promise<CommentsPaginatedType> {
+    const { postId, userId, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     let orderBy: string;
@@ -99,7 +104,10 @@ export class CommentsQueryRepository {
 
     const rawComments = commentsResult.rows;
     const commentIdArr = rawComments.map((comment) => comment.id);
-    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo(commentIdArr, userId);
+    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({
+      commentIds: commentIdArr,
+      userId,
+    });
 
     const comments = rawComments.map((comment) => ({
       id: comment.id.toString(),

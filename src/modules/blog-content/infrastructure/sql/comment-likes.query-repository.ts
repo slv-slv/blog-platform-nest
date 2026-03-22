@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { CommentLikesRepository } from './comment-likes.repository.js';
-import { LikeStatus, LikesInfoViewType } from '../../types/likes.types.js';
+import { GetCommentLikesInfoParams, LikeStatus, LikesInfoViewType } from '../../types/likes.types.js';
 
 @Injectable()
 export class CommentLikesQueryRepository {
   constructor(private readonly commentLikesRepository: CommentLikesRepository) {}
 
-  async getLikesInfo(commentIdArr: number[], userId: string | null): Promise<Map<number, LikesInfoViewType>> {
+  async getLikesInfo(params: GetCommentLikesInfoParams<number>): Promise<Map<number, LikesInfoViewType>> {
+    const { commentIds: commentIdArr } = params;
+    const userId = params.userId ?? null;
     const likesCountArr = await this.commentLikesRepository.getLikesCount(commentIdArr);
     const likesCountMap = new Map(
       likesCountArr.map(({ commentId, likesCount }) => [commentId, likesCount]),

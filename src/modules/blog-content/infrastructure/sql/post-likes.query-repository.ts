@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { ExtendedLikesInfoViewType, LikeStatus } from '../../types/likes.types.js';
+import { ExtendedLikesInfoViewType, GetPostLikesInfoParams, LikeStatus } from '../../types/likes.types.js';
 import { PostLikesRepository } from './post-likes.repository.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
@@ -14,10 +14,9 @@ export class PostLikesQueryRepository {
     private readonly postLikesRepository: PostLikesRepository,
   ) {}
 
-  async getLikesInfo(
-    postIdArr: number[],
-    userId: string | null,
-  ): Promise<Map<number, ExtendedLikesInfoViewType>> {
+  async getLikesInfo(params: GetPostLikesInfoParams<number>): Promise<Map<number, ExtendedLikesInfoViewType>> {
+    const { postIds: postIdArr } = params;
+    const userId = params.userId ?? null;
     const likesCountArr = await this.postLikesRepository.getLikesCount(postIdArr);
     const likesCountMap = new Map(likesCountArr.map(({ postId, likesCount }) => [postId, likesCount]));
 

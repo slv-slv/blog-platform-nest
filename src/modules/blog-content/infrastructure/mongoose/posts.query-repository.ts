@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Post } from './posts.schemas.js';
-import { PostsPaginatedType, PostViewType } from '../../types/posts.types.js';
+import {
+  FindPostRepoQueryParams,
+  GetPostsRepoQueryParams,
+  PostsPaginatedType,
+  PostViewType,
+} from '../../types/posts.types.js';
 import { ObjectId } from 'mongodb';
 import { PostLikesQueryRepository } from './post-likes.query-repository.js';
-import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -14,7 +18,8 @@ export class PostsQueryRepository {
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 
-  async findPost(id: string, userId: string | null): Promise<PostViewType | null> {
+  async findPost(params: FindPostRepoQueryParams): Promise<PostViewType | null> {
+    const { postId: id, userId } = params;
     if (!ObjectId.isValid(id)) {
       return null;
     }
@@ -24,16 +29,13 @@ export class PostsQueryRepository {
       return null;
     }
 
-    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo([id], userId);
+    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds: [id], userId });
 
     return { id, ...post, extendedLikesInfo: likesInfoMap.get(id)! };
   }
 
-  async getPosts(
-    userId: string | null,
-    pagingParams: PagingParamsType,
-    blogId?: string,
-  ): Promise<PostsPaginatedType> {
+  async getPosts(params: GetPostsRepoQueryParams): Promise<PostsPaginatedType> {
+    const { userId, pagingParams, blogId } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     const filter = blogId ? { blogId } : {};
@@ -49,7 +51,7 @@ export class PostsQueryRepository {
       .lean();
 
     const postIds = postsWithObjectId.map((post) => post._id.toString());
-    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo(postIds, userId);
+    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds, userId });
 
     const posts = postsWithObjectId.map((post) => {
       const postId = post._id.toString();

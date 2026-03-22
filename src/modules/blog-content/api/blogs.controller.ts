@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { BlogsQueryRepository } from '../infrastructure/sql/blogs.query-repository.js';
 import { BlogsRepository } from '../infrastructure/sql/blogs.repository.js';
 import { BlogsPaginatedType, BlogType, GetBlogsQueryParams } from '../types/blogs.types.js';
@@ -20,7 +20,7 @@ export class BlogsController {
   async getBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedType> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-    return await this.blogsQueryRepository.getAllBlogs(searchNameTerm, pagingParams);
+    return await this.blogsQueryRepository.getBlogs({ searchNameTerm, pagingParams });
   }
 
   @Get(':blogId/posts')
@@ -34,7 +34,7 @@ export class BlogsController {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
     await this.blogsRepository.checkBlogExists(blogId);
-    return await this.postsQueryRepository.getPosts(pagingParams, userId, blogId);
+    return await this.postsQueryRepository.getPosts({ pagingParams, userId, blogId });
   }
 
   @Get(':id')
