@@ -19,7 +19,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
   async execute(command: CreatePostCommand) {
     const { params } = command;
     const { title, shortDescription, content, blogId } = params;
-    const blog = await this.blogsRepository.findBlog(blogId);
+    const blog = await this.blogsRepository.getBlog(blogId);
     const blogName = blog.name;
 
     const createdAt = new Date().toISOString();

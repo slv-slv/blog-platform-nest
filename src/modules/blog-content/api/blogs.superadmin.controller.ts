@@ -44,8 +44,8 @@ export class BlogsSuperadminController {
   }
 
   @Get(':id')
-  async findBlog(@Param('id') id: string): Promise<BlogType> {
-    return await this.blogsRepository.findBlog(id);
+  async getBlog(@Param('id') id: string): Promise<BlogType> {
+    return await this.blogsRepository.getBlog(id);
   }
 
   @Post()

@@ -8,7 +8,7 @@ import { BlogNotFoundDomainException } from '../../../../common/exceptions/domai
 export class BlogsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async findBlog(id: string): Promise<BlogType> {
+  async getBlog(id: string): Promise<BlogType> {
     const result = await this.pool.query(
       `
         SELECT *
