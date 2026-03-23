@@ -21,7 +21,7 @@ export class PostsRepository {
     }
   }
 
-  async findPost(id: string): Promise<PostDtoType> {
+  async getPost(id: string): Promise<PostDtoType> {
     const result = await this.pool.query(
       `
         SELECT

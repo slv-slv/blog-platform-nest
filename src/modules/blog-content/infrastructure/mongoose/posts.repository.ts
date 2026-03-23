@@ -13,7 +13,7 @@ export class PostsRepository {
     private readonly blogsRepository: BlogsRepository,
   ) {}
 
-  async findPost(id: string): Promise<PostDtoType | null> {
+  async getPost(id: string): Promise<PostDtoType | null> {
     if (!ObjectId.isValid(id)) {
       return null;
     }

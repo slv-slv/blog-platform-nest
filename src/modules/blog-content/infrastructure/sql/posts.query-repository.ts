@@ -17,7 +17,7 @@ export class PostsQueryRepository {
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 
-  async findPost(params: FindPostRepoQueryParams): Promise<PostViewType> {
+  async getPost(params: FindPostRepoQueryParams): Promise<PostViewType> {
     const { postId, userId } = params;
     const result = await this.pool.query(
       `

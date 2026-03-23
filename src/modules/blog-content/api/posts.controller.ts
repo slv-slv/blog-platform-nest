@@ -48,8 +48,8 @@ export class PostsController {
   @Get(':id')
   @Public()
   @UseGuards(AccessTokenGuard)
-  async findPost(@Param('id') id: string, @UserId() userId: string): Promise<PostViewType> {
-    return await this.postsQueryRepository.findPost({ postId: id, userId });
+  async getPost(@Param('id') id: string, @UserId() userId: string): Promise<PostViewType> {
+    return await this.postsQueryRepository.getPost({ postId: id, userId });
   }
 
   @Post()

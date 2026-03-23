@@ -18,7 +18,7 @@ export class PostsQueryRepository {
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 
-  async findPost(params: FindPostRepoQueryParams): Promise<PostViewType | null> {
+  async getPost(params: FindPostRepoQueryParams): Promise<PostViewType | null> {
     const { postId: id, userId } = params;
     if (!ObjectId.isValid(id)) {
       return null;

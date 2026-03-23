@@ -12,7 +12,7 @@ export class PostsRepository {
     @InjectRepository(Post) private readonly postEntityRepository: Repository<Post>,
   ) {}
 
-  async findPost(id: string): Promise<PostDtoType | null> {
+  async getPost(id: string): Promise<PostDtoType | null> {
     const idNum = parseInt(id);
     if (isNaN(idNum)) return null;
 
