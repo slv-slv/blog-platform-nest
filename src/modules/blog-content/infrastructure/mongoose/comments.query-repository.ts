@@ -18,7 +18,7 @@ export class CommentsQueryRepository {
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
-  async findComment(params: FindCommentRepoQueryParams): Promise<CommentViewType | null> {
+  async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewType | null> {
     const { commentId: id, userId } = params;
     if (!ObjectId.isValid(id)) {
       return null;

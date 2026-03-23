@@ -17,7 +17,7 @@ export class CommentsQueryRepository {
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
-  async findComment(params: FindCommentRepoQueryParams): Promise<CommentViewType> {
+  async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewType> {
     const { commentId: id, userId } = params;
     const result = await this.pool.query(
       `

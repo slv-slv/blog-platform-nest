@@ -25,7 +25,7 @@ export class CommentsRepository {
     }
   }
 
-  async findComment(id: string): Promise<CommentDtoType> {
+  async getComment(id: string): Promise<CommentDtoType> {
     const result = await this.pool.query(
       `
         SELECT

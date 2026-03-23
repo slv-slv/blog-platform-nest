@@ -15,7 +15,7 @@ export class UpdateCommentUseCase implements ICommandHandler<UpdateCommentComman
   async execute(command: UpdateCommentCommand) {
     const { params } = command;
     const { commentId, content, userId } = params;
-    const comment = await this.commentsRepository.findComment(commentId);
+    const comment = await this.commentsRepository.getComment(commentId);
 
     const ownerId = comment.commentatorInfo.userId;
     if (userId !== ownerId) throw new AccessDeniedDomainException();

@@ -20,8 +20,8 @@ export class CommentsController {
 
   @Get(':id')
   @Public()
-  async findComment(@Param('id') id: string, @UserId() userId: string): Promise<CommentViewType> {
-    return await this.commentsQueryRepository.findComment({ commentId: id, userId });
+  async getComment(@Param('id') id: string, @UserId() userId: string): Promise<CommentViewType> {
+    return await this.commentsQueryRepository.getComment({ commentId: id, userId });
   }
 
   @Put(':commentId')

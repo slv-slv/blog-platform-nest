@@ -13,7 +13,7 @@ import { ObjectId } from 'mongodb';
 export class CommentsRepository {
   constructor(@InjectModel(Comment.name) private readonly model: Model<Comment>) {}
 
-  async findComment(id: string): Promise<CommentDtoType | null> {
+  async getComment(id: string): Promise<CommentDtoType | null> {
     if (!ObjectId.isValid(id)) {
       return null;
     }

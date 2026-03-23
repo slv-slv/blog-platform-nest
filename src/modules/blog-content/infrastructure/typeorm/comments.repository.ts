@@ -12,7 +12,7 @@ import { Repository } from 'typeorm';
 export class CommentsRepository {
   constructor(@InjectRepository(Comment) private readonly commentEntityRepository: Repository<Comment>) {}
 
-  async findComment(id: string): Promise<CommentDtoType | null> {
+  async getComment(id: string): Promise<CommentDtoType | null> {
     const idNum = parseInt(id);
     if (isNaN(idNum)) return null;
 
