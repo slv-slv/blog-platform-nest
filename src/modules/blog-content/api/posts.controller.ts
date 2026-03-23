@@ -1,5 +1,4 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { PostsRepository } from '../infrastructure/sql/posts.repository.js';
 import {
   CreatePostForBlogInputDto,
   GetPostsQueryParams,
@@ -13,7 +12,6 @@ import {
   CreateCommentInputDto,
   GetCommentsQueryParams,
 } from '../types/comments.types.js';
-import { CommentsQueryRepository } from '../infrastructure/sql/comments.query-repository.js';
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
@@ -26,12 +24,11 @@ import { CreateCommentCommand } from '../application/use-cases/create-comment.us
 import { SetPostLikeStatusCommand } from '../application/use-cases/set-post-like-status.use-case.js';
 import { GetPostQuery } from '../application/use-cases/get-post.use-case.js';
 import { GetPostsQuery } from '../application/use-cases/get-posts.use-case.js';
+import { GetCommentsQuery } from '../application/use-cases/get-comments.use-case.js';
 
 @Controller('posts')
 export class PostsController {
   constructor(
-    private readonly postsRepository: PostsRepository,
-    private readonly commentsQueryRepository: CommentsQueryRepository,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
@@ -78,10 +75,9 @@ export class PostsController {
     @Query() query: GetCommentsQueryParams,
     @UserId() userId: string,
   ): Promise<CommentsPaginatedType> {
-    await this.postsRepository.checkPostExists(postId);
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-    return await this.commentsQueryRepository.getComments({ postId, userId, pagingParams });
+    return await this.queryBus.execute(new GetCommentsQuery({ postId, userId, pagingParams }));
   }
 
   @Post(':postId/comments')
