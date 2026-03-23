@@ -29,6 +29,7 @@ import { GetBlogsUseCase } from './application/use-cases/get-blogs.use-case.js';
 import { GetBlogUseCase } from './application/use-cases/get-blog.use-case.js';
 import { GetPostUseCase } from './application/use-cases/get-post.use-case.js';
 import { GetPostsUseCase } from './application/use-cases/get-posts.use-case.js';
+import { GetCommentUseCase } from './application/use-cases/get-comment.use-case.js';
 
 @Module({
   imports: [UserAccountsModule],
@@ -54,6 +55,7 @@ import { GetPostsUseCase } from './application/use-cases/get-posts.use-case.js';
     CreatePostUseCase,
     UpdatePostUseCase,
     DeletePostUseCase,
+    GetCommentUseCase,
     CreateCommentUseCase,
     UpdateCommentUseCase,
     DeleteCommentUseCase,
