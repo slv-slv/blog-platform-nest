@@ -20,12 +20,12 @@ import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { Public } from '../../../common/decorators/public.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreatePostCommand } from '../application/usecases/create-post.use-case.js';
-import { UpdatePostCommand } from '../application/usecases/update-post.use-case.js';
-import { CreateCommentCommand } from '../application/usecases/create-comment.use-case.js';
-import { SetPostLikeStatusCommand } from '../application/usecases/set-post-like-status.use-case.js';
-import { GetPostQuery } from '../application/usecases/get-post.use-case.js';
-import { GetPostsQuery } from '../application/usecases/get-posts.use-case.js';
+import { CreatePostCommand } from '../application/use-cases/create-post.use-case.js';
+import { UpdatePostCommand } from '../application/use-cases/update-post.use-case.js';
+import { CreateCommentCommand } from '../application/use-cases/create-comment.use-case.js';
+import { SetPostLikeStatusCommand } from '../application/use-cases/set-post-like-status.use-case.js';
+import { GetPostQuery } from '../application/use-cases/get-post.use-case.js';
+import { GetPostsQuery } from '../application/use-cases/get-posts.use-case.js';
 
 @Controller('posts')
 export class PostsController {

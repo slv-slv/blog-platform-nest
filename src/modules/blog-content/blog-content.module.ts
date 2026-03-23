@@ -14,21 +14,21 @@ import { CommentLikesRepository } from './infrastructure/sql/comment-likes.repos
 import { CommentLikesQueryRepository } from './infrastructure/sql/comment-likes.query-repository.js';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
 import { BlogsSuperadminController } from './api/blogs.superadmin.controller.js';
-import { CreateBlogUseCase } from './application/usecases/create-blog.use-case.js';
-import { UpdateBlogUseCase } from './application/usecases/update-blog.use-case.js';
-import { DeleteBlogUseCase } from './application/usecases/delete-blog.use-case.js';
-import { CreatePostUseCase } from './application/usecases/create-post.use-case.js';
-import { UpdatePostUseCase } from './application/usecases/update-post.use-case.js';
-import { DeletePostUseCase } from './application/usecases/delete-post.use-case.js';
-import { CreateCommentUseCase } from './application/usecases/create-comment.use-case.js';
-import { UpdateCommentUseCase } from './application/usecases/update-comment.use-case.js';
-import { DeleteCommentUseCase } from './application/usecases/delete-comment.use-case.js';
-import { SetPostLikeStatusUseCase } from './application/usecases/set-post-like-status.use-case.js';
-import { SetCommentLikeStatusUseCase } from './application/usecases/set-comment-like-status.use-case.js';
-import { GetBlogsUseCase } from './application/usecases/get-blogs.use-case.js';
-import { GetBlogUseCase } from './application/usecases/get-blog.use-case.js';
-import { GetPostUseCase } from './application/usecases/get-post.use-case.js';
-import { GetPostsUseCase } from './application/usecases/get-posts.use-case.js';
+import { CreateBlogUseCase } from './application/use-cases/create-blog.use-case.js';
+import { UpdateBlogUseCase } from './application/use-cases/update-blog.use-case.js';
+import { DeleteBlogUseCase } from './application/use-cases/delete-blog.use-case.js';
+import { CreatePostUseCase } from './application/use-cases/create-post.use-case.js';
+import { UpdatePostUseCase } from './application/use-cases/update-post.use-case.js';
+import { DeletePostUseCase } from './application/use-cases/delete-post.use-case.js';
+import { CreateCommentUseCase } from './application/use-cases/create-comment.use-case.js';
+import { UpdateCommentUseCase } from './application/use-cases/update-comment.use-case.js';
+import { DeleteCommentUseCase } from './application/use-cases/delete-comment.use-case.js';
+import { SetPostLikeStatusUseCase } from './application/use-cases/set-post-like-status.use-case.js';
+import { SetCommentLikeStatusUseCase } from './application/use-cases/set-comment-like-status.use-case.js';
+import { GetBlogsUseCase } from './application/use-cases/get-blogs.use-case.js';
+import { GetBlogUseCase } from './application/use-cases/get-blog.use-case.js';
+import { GetPostUseCase } from './application/use-cases/get-post.use-case.js';
+import { GetPostsUseCase } from './application/use-cases/get-posts.use-case.js';
 
 @Module({
   imports: [UserAccountsModule],

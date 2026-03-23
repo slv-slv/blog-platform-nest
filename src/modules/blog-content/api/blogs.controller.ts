@@ -5,9 +5,9 @@ import { Public } from '../../../common/decorators/public.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { QueryBus } from '@nestjs/cqrs';
-import { GetBlogsQuery } from '../application/usecases/get-blogs.use-case.js';
-import { GetBlogQuery } from '../application/usecases/get-blog.use-case.js';
-import { GetPostsQuery } from '../application/usecases/get-posts.use-case.js';
+import { GetBlogsQuery } from '../application/use-cases/get-blogs.use-case.js';
+import { GetBlogQuery } from '../application/use-cases/get-blog.use-case.js';
+import { GetPostsQuery } from '../application/use-cases/get-posts.use-case.js';
 
 @Controller('blogs')
 export class BlogsController {

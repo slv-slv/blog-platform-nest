@@ -15,15 +15,15 @@ import {
 } from '../types/posts.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateBlogCommand } from '../application/usecases/create-blog.use-case.js';
-import { UpdateBlogCommand } from '../application/usecases/update-blog.use-case.js';
-import { DeleteBlogCommand } from '../application/usecases/delete-blog.use-case.js';
-import { CreatePostCommand } from '../application/usecases/create-post.use-case.js';
-import { UpdatePostCommand } from '../application/usecases/update-post.use-case.js';
-import { DeletePostCommand } from '../application/usecases/delete-post.use-case.js';
-import { GetBlogsQuery } from '../application/usecases/get-blogs.use-case.js';
-import { GetBlogQuery } from '../application/usecases/get-blog.use-case.js';
-import { GetPostsQuery } from '../application/usecases/get-posts.use-case.js';
+import { CreateBlogCommand } from '../application/use-cases/create-blog.use-case.js';
+import { UpdateBlogCommand } from '../application/use-cases/update-blog.use-case.js';
+import { DeleteBlogCommand } from '../application/use-cases/delete-blog.use-case.js';
+import { CreatePostCommand } from '../application/use-cases/create-post.use-case.js';
+import { UpdatePostCommand } from '../application/use-cases/update-post.use-case.js';
+import { DeletePostCommand } from '../application/use-cases/delete-post.use-case.js';
+import { GetBlogsQuery } from '../application/use-cases/get-blogs.use-case.js';
+import { GetBlogQuery } from '../application/use-cases/get-blog.use-case.js';
+import { GetPostsQuery } from '../application/use-cases/get-posts.use-case.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
