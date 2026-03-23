@@ -8,6 +8,7 @@ import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetBlogsQuery } from '../application/usecases/get-blogs.use-case.js';
+import { GetBlogQuery } from '../application/usecases/get-blog.use-case.js';
 
 @Controller('blogs')
 export class BlogsController {
@@ -40,6 +41,6 @@ export class BlogsController {
 
   @Get(':id')
   async getBlog(@Param('id') id: string): Promise<BlogType> {
-    return await this.blogsRepository.getBlog(id);
+    return await this.queryBus.execute(new GetBlogQuery(id));
   }
 }

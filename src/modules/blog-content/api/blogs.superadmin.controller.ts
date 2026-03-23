@@ -25,6 +25,7 @@ import { CreatePostCommand } from '../application/usecases/create-post.use-case.
 import { UpdatePostCommand } from '../application/usecases/update-post.use-case.js';
 import { DeletePostCommand } from '../application/usecases/delete-post.use-case.js';
 import { GetBlogsQuery } from '../application/usecases/get-blogs.use-case.js';
+import { GetBlogQuery } from '../application/usecases/get-blog.use-case.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -45,7 +46,7 @@ export class BlogsSuperadminController {
 
   @Get(':id')
   async getBlog(@Param('id') id: string): Promise<BlogType> {
-    return await this.blogsRepository.getBlog(id);
+    return await this.queryBus.execute(new GetBlogQuery(id));
   }
 
   @Post()
