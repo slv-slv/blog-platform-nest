@@ -1,5 +1,4 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { PostsRepository } from '../infrastructure/sql/posts.repository.js';
 import {
   CreatePostForBlogInputDto,
@@ -26,12 +25,12 @@ import { UpdatePostCommand } from '../application/usecases/update-post.use-case.
 import { CreateCommentCommand } from '../application/usecases/create-comment.use-case.js';
 import { SetPostLikeStatusCommand } from '../application/usecases/set-post-like-status.use-case.js';
 import { GetPostQuery } from '../application/usecases/get-post.use-case.js';
+import { GetPostsQuery } from '../application/usecases/get-posts.use-case.js';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly postsRepository: PostsRepository,
-    private readonly postsQueryRepository: PostsQueryRepository,
     private readonly commentsQueryRepository: CommentsQueryRepository,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
@@ -43,8 +42,7 @@ export class PostsController {
   async getPosts(@Query() query: GetPostsQueryParams, @UserId() userId: string): Promise<PostsPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
-
-    return await this.postsQueryRepository.getPosts({ pagingParams, userId });
+    return await this.queryBus.execute(new GetPostsQuery({ pagingParams, userId }));
   }
 
   @Get(':id')

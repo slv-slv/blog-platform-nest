@@ -1,6 +1,4 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { BlogsQueryRepository } from '../infrastructure/sql/blogs.query-repository.js';
-import { BlogsRepository } from '../infrastructure/sql/blogs.repository.js';
 import {
   BlogsPaginatedType,
   BlogType,
@@ -15,7 +13,6 @@ import {
   PostViewType,
   UpdatePostInputDto,
 } from '../types/posts.types.js';
-import { PostsQueryRepository } from '../infrastructure/sql/posts.query-repository.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/usecases/create-blog.use-case.js';
@@ -26,13 +23,12 @@ import { UpdatePostCommand } from '../application/usecases/update-post.use-case.
 import { DeletePostCommand } from '../application/usecases/delete-post.use-case.js';
 import { GetBlogsQuery } from '../application/usecases/get-blogs.use-case.js';
 import { GetBlogQuery } from '../application/usecases/get-blog.use-case.js';
+import { GetPostsQuery } from '../application/usecases/get-posts.use-case.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
 export class BlogsSuperadminController {
   constructor(
-    private readonly blogsRepository: BlogsRepository,
-    private readonly postsQueryRepository: PostsQueryRepository,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
@@ -76,8 +72,7 @@ export class BlogsSuperadminController {
   ): Promise<PostsPaginatedType> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
-    await this.blogsRepository.checkBlogExists(blogId);
-    return await this.postsQueryRepository.getPosts({ pagingParams, blogId });
+    return await this.queryBus.execute(new GetPostsQuery({ pagingParams, blogId }));
   }
 
   @Post(':blogId/posts')

@@ -28,6 +28,7 @@ import { SetCommentLikeStatusUseCase } from './application/usecases/set-comment-
 import { GetBlogsUseCase } from './application/usecases/get-blogs.use-case.js';
 import { GetBlogUseCase } from './application/usecases/get-blog.use-case.js';
 import { GetPostUseCase } from './application/usecases/get-post.use-case.js';
+import { GetPostsUseCase } from './application/usecases/get-posts.use-case.js';
 
 @Module({
   imports: [UserAccountsModule],
@@ -49,6 +50,7 @@ import { GetPostUseCase } from './application/usecases/get-post.use-case.js';
     UpdateBlogUseCase,
     DeleteBlogUseCase,
     GetPostUseCase,
+    GetPostsUseCase,
     CreatePostUseCase,
     UpdatePostUseCase,
     DeletePostUseCase,
