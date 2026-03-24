@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import bcrypt from 'bcryptjs';
-import { UsersQueryRepository } from '../infrastructure/sql/users.query-repository.js';
+import { UsersRepository } from '../infrastructure/sql/users.repository.js';
 import { JwtService } from '@nestjs/jwt';
 import { authConfig } from '../../../config/auth.config.js';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersQueryRepository: UsersQueryRepository,
+    private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
     @Inject(authConfig.KEY) private readonly auth: ConfigType<typeof authConfig>,
   ) {}
@@ -19,7 +19,7 @@ export class AuthService {
   }
 
   async checkCredentials(loginOrEmail: string, password: string): Promise<boolean> {
-    const hash = await this.usersQueryRepository.getPasswordHash(loginOrEmail);
+    const hash = await this.usersRepository.getPasswordHash(loginOrEmail);
     if (!hash) {
       return false;
     }

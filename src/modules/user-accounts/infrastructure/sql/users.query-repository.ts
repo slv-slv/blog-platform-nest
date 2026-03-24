@@ -5,7 +5,6 @@ import {
   UsersPaginatedType,
   UserViewType,
 } from '../../types/users.types.js';
-import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 
@@ -110,56 +109,5 @@ export class UsersQueryRepository {
     const { login, email } = result.rows[0];
 
     return { login, email, userId };
-  }
-  async isConfirmed(loginOrEmail: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        SELECT is_confirmed
-        FROM users
-        WHERE login = $1 OR email = $1
-      `,
-      [loginOrEmail],
-    );
-
-    const { is_confirmed } = result.rows[0]; // Проверка существования пользователя выполняется в сервисе или middleware
-    return is_confirmed;
-  }
-  async isLoginExists(login: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        SELECT id from users
-        WHERE login = $1
-      `,
-      [login],
-    );
-
-    return result.rowCount! > 0;
-  }
-  async isEmailExists(email: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        SELECT id from users
-        WHERE email = $1
-      `,
-      [email],
-    );
-
-    return result.rowCount! > 0;
-  }
-  async getPasswordHash(loginOrEmail: string): Promise<string | null> {
-    const result = await this.pool.query(
-      `
-        SELECT hash from users
-        WHERE login = $1 OR email = $1
-      `,
-      [loginOrEmail],
-    );
-
-    if (result.rowCount === 0) {
-      return null;
-    }
-
-    const { hash } = result.rows[0];
-    return hash;
   }
 }

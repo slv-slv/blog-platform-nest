@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { UsersRepository } from '../infrastructure/sql/users.repository.js';
-import { UsersQueryRepository } from '../infrastructure/sql/users.query-repository.js';
 import { AuthService } from './auth.service.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
 import {
@@ -24,7 +23,6 @@ import {
 export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly usersQueryRepository: UsersQueryRepository,
     private readonly authService: AuthService,
     private readonly emailService: EmailService,
     @Inject(authConfig.KEY) private readonly auth: ConfigType<typeof authConfig>,
@@ -151,14 +149,14 @@ export class UsersService {
   }
 
   async isLoginExists(login: string): Promise<boolean> {
-    return await this.usersQueryRepository.isLoginExists(login);
+    return await this.usersRepository.isLoginExists(login);
   }
 
   async isEmailExists(email: string): Promise<boolean> {
-    return await this.usersQueryRepository.isEmailExists(email);
+    return await this.usersRepository.isEmailExists(email);
   }
 
   async isConfirmed(email: string): Promise<boolean> {
-    return await this.usersQueryRepository.isConfirmed(email);
+    return await this.usersRepository.isConfirmed(email);
   }
 }

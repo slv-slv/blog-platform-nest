@@ -6,19 +6,6 @@ import { Pool } from 'pg';
 @Injectable()
 export class SessionsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
-
-  async isSessionActive(jti: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        SELECT *
-        FROM devices
-        WHERE jti = $1
-      `,
-      [jti],
-    );
-
-    return result.rowCount! > 0;
-  }
   async getActiveDevices(userId: string): Promise<DeviceViewType[]> {
     const result = await this.pool.query(
       `

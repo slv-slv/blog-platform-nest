@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { SessionsRepository } from '../infrastructure/sql/sessions.repository.js';
-import { SessionsQueryRepository } from '../infrastructure/sql/sessions.query-repository.js';
 import { validate as isUuid } from 'uuid';
 import {
   AccessDeniedDomainException,
@@ -12,7 +11,6 @@ import { CreateSessionParams } from '../types/sessions.types.js';
 export class SessionsService {
   constructor(
     @Inject(SessionsRepository) private sessionsRepository: SessionsRepository,
-    @Inject(SessionsQueryRepository) private sessionsQueryRepository: SessionsQueryRepository,
   ) {}
   async createSession(params: CreateSessionParams): Promise<void> {
     const { deviceId } = params;
@@ -21,7 +19,7 @@ export class SessionsService {
   }
 
   async checkSession(jti: string): Promise<boolean> {
-    return await this.sessionsQueryRepository.isSessionActive(jti);
+    return await this.sessionsRepository.isSessionActive(jti);
   }
 
   async deleteDevice(userId: string, deviceId: string): Promise<void> {

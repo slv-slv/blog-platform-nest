@@ -1,15 +1,57 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BlogsPaginatedType, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
+import { BlogType, BlogsPaginatedType, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
+import { BlogNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
+  async getBlog(id: string): Promise<BlogType> {
+    const result = await this.pool.query(
+      `
+        SELECT *
+        FROM blogs
+        WHERE id = $1::int
+      `,
+      [id],
+    );
+
+    if (result.rowCount === 0) {
+      throw new BlogNotFoundDomainException();
+    }
+
+    const blog = result.rows[0];
+
+    return {
+      id: blog.id.toString(),
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.website_url,
+      createdAt: blog.created_at,
+      isMembership: blog.is_membership,
+    };
+  }
+
+  async checkBlogExists(id: string): Promise<void> {
+    const result = await this.pool.query(
+      `
+        SELECT EXISTS(SELECT 1 FROM blogs WHERE id = $1::int) AS exists
+      `,
+      [id],
+    );
+
+    if (result.rows[0].exists === false) {
+      throw new BlogNotFoundDomainException();
+    }
+  }
+
   async getBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedType> {
     const { searchNameTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
+    const conditions: string[] = [];
+    const values: unknown[] = [];
 
     let orderBy: string;
 
@@ -27,7 +69,12 @@ export class BlogsQueryRepository {
         orderBy = sortBy;
     }
 
-    const whereClause = searchNameTerm ? `WHERE name ILIKE '%${searchNameTerm}%'` : ``;
+    if (searchNameTerm) {
+      values.push(`%${searchNameTerm}%`);
+      conditions.push(`name ILIKE $${values.length}`);
+    }
+
+    const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const countResult = await this.pool.query(
       `
@@ -35,11 +82,13 @@ export class BlogsQueryRepository {
         FROM blogs
         ${whereClause}
       `,
+      values,
     );
 
     const totalCount = countResult.rows[0].count;
     const pagesCount = Math.ceil(totalCount / pageSize);
     const skipCount = (pageNumber - 1) * pageSize;
+    const blogsQueryValues = [...values, pageSize, skipCount];
 
     const blogsResult = await this.pool.query(
       `
@@ -47,10 +96,10 @@ export class BlogsQueryRepository {
         FROM blogs
         ${whereClause}
         ORDER BY ${orderBy} ${sortDirection}
-        LIMIT $1
-        OFFSET $2
+        LIMIT $${values.length + 1}
+        OFFSET $${values.length + 2}
       `,
-      [pageSize, skipCount],
+      blogsQueryValues,
     );
 
     const rawBlogs = blogsResult.rows;

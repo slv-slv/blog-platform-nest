@@ -3,15 +3,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './users.schemas.js';
 import { Model } from 'mongoose';
 import {
-  ConfirmationInfoType,
   CurrentUserType,
   GetAllUsersParams,
-  PasswordRecoveryInfoType,
   UsersPaginatedType,
   UserViewType,
 } from '../../types/users.types.js';
 import { ObjectId } from 'mongodb';
-import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -92,33 +89,5 @@ export class UsersQueryRepository {
     const users = await this.model.find({ _id: { $in: objectIds } }, { login: 1 }).lean();
 
     return new Map(users.map((user) => [user._id.toString(), user.login]));
-  }
-
-  async isConfirmed(loginOrEmail: string): Promise<boolean> {
-    const filter = loginOrEmail.includes('@') ? { email: loginOrEmail } : { login: loginOrEmail };
-    const user = await this.model.findOne(filter, { _id: 0, 'confirmation.isConfirmed': 1 }).lean();
-    if (!user) {
-      return false;
-    }
-    return user.confirmation.isConfirmed;
-  }
-
-  async isLoginExists(login: string): Promise<boolean> {
-    const loginCount = await this.model.countDocuments({ login });
-    return loginCount > 0;
-  }
-
-  async isEmailExists(email: string): Promise<boolean> {
-    const emailCount = await this.model.countDocuments({ email });
-    return emailCount > 0;
-  }
-
-  async getPasswordHash(loginOrEmail: string): Promise<string | null> {
-    const filter = loginOrEmail.includes('@') ? { email: loginOrEmail } : { login: loginOrEmail };
-    const user = await this.model.findOne(filter, { _id: 0, hash: 1 }).lean();
-    if (!user) {
-      return null;
-    }
-    return user.hash;
   }
 }

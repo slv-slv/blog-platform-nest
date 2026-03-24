@@ -17,6 +17,19 @@ export class PostsQueryRepository {
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 
+  async checkPostExists(id: string): Promise<void> {
+    const result = await this.pool.query(
+      `
+        SELECT EXISTS(SELECT 1 FROM posts WHERE id = $1::int) AS exists
+      `,
+      [id],
+    );
+
+    if (result.rows[0].exists === false) {
+      throw new PostNotFoundDomainException();
+    }
+  }
+
   async getPost(params: FindPostRepoQueryParams): Promise<PostViewType> {
     const { postId, userId } = params;
     const result = await this.pool.query(

@@ -1,10 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PagingParamsType } from '../../../../common/types/paging-params.types.js';
 import {
-  ConfirmationInfoType,
   CurrentUserType,
   GetAllUsersParams,
-  PasswordRecoveryInfoType,
   UsersPaginatedType,
   UserViewType,
 } from '../../types/users.types.js';
@@ -69,32 +66,5 @@ export class UsersQueryRepository {
     if (!user) return null;
 
     return user.toCurrentUserType();
-  }
-
-  async isConfirmed(loginOrEmail: string): Promise<boolean> {
-    // Проверка существования пользователя выполняется в сервисе или middleware
-    return await this.userEntityRepository.existsBy([
-      { confirmation: { isConfirmed: true }, login: loginOrEmail },
-      { confirmation: { isConfirmed: true }, email: loginOrEmail },
-    ]);
-  }
-
-  async isLoginExists(login: string): Promise<boolean> {
-    return await this.userEntityRepository.existsBy({ login });
-  }
-
-  async isEmailExists(email: string): Promise<boolean> {
-    return await this.userEntityRepository.existsBy({ email });
-  }
-
-  async getPasswordHash(loginOrEmail: string): Promise<string | null> {
-    const user = await this.userEntityRepository.findOne({
-      select: { hash: true },
-      where: [{ login: loginOrEmail }, { email: loginOrEmail }],
-    });
-
-    if (!user) return null;
-
-    return user.hash;
   }
 }

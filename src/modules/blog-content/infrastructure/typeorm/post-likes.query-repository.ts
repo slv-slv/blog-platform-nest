@@ -1,27 +1,24 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { ExtendedLikesInfoViewType, GetSinglePostLikesInfoParams } from '../../types/likes.types.js';
-import { PostLikesRepository } from './post-likes.repository.js';
-import { UsersQueryRepository } from '../../../user-accounts/infrastructure/sql/users.query-repository.js';
+import { ExtendedLikesInfoViewType, GetSinglePostLikesInfoParams, LikeStatus } from '../../types/likes.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 import { coreConfig } from '../../../../config/core.config.js';
+import { PostLikeStatusRepoParams } from '../../types/post-likes.types.js';
 
 @Injectable()
 export class PostLikesQueryRepository {
   constructor(
     @Inject(PG_POOL) private readonly pool: Pool,
-    private readonly postLikesRepository: PostLikesRepository,
-    private readonly usersQueryRepository: UsersQueryRepository,
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}
 
   async getLikesInfo(params: GetSinglePostLikesInfoParams): Promise<ExtendedLikesInfoViewType> {
     const { postId } = params;
     const userId = params.userId ?? null;
-    const likesCount = await this.postLikesRepository.getLikesCount(postId);
-    const dislikesCount = await this.postLikesRepository.getDislikesCount(postId);
-    const myStatus = await this.postLikesRepository.getLikeStatus({ postId, userId });
+    const likesCount = await this.getLikesCount(postId);
+    const dislikesCount = await this.getDislikesCount(postId);
+    const myStatus = await this.getLikeStatus({ postId, userId });
 
     const newestLikesNumber = this.core.newestLikesNumber;
 
@@ -47,5 +44,60 @@ export class PostLikesQueryRepository {
     }));
 
     return { likesCount, dislikesCount, myStatus, newestLikes };
+  }
+
+  private async getLikesCount(postId: string): Promise<number> {
+    const result = await this.pool.query(
+      `
+        SELECT COUNT(*)::int
+        FROM post_likes
+        WHERE post_id = $1::int
+      `,
+      [postId],
+    );
+
+    return result.rows[0].count;
+  }
+
+  private async getDislikesCount(postId: string): Promise<number> {
+    const result = await this.pool.query(
+      `
+        SELECT COUNT(*)::int
+        FROM post_dislikes
+        WHERE post_id = $1::int
+      `,
+      [postId],
+    );
+
+    return result.rows[0].count;
+  }
+
+  private async getLikeStatus(params: PostLikeStatusRepoParams): Promise<LikeStatus> {
+    const { postId, userId } = params;
+    if (userId === null) return LikeStatus.None;
+
+    const likeResult = await this.pool.query(
+      `
+        SELECT COUNT(*)::int
+        FROM post_likes
+        WHERE post_id = $1::int AND user_id = $2::int
+      `,
+      [postId, userId],
+    );
+
+    if (likeResult.rows[0].count > 0) return LikeStatus.Like;
+
+    const dislikeResult = await this.pool.query(
+      `
+        SELECT COUNT(*)::int
+        FROM post_dislikes
+        WHERE post_id = $1::int AND user_id = $2::int
+      `,
+      [postId, userId],
+    );
+
+    if (dislikeResult.rows[0].count > 0) return LikeStatus.Dislike;
+
+    return LikeStatus.None;
   }
 }
