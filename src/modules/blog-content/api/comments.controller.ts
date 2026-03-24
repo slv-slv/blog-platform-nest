@@ -37,7 +37,7 @@ export class CommentsController {
 
   @Delete(':commentId')
   @HttpCode(204)
-  async deleteComment(@Param('commentId') commentId: string, @UserId() userId: string) {
+  async deleteComment(@Param('commentId') commentId: string, @UserId() userId: string): Promise<void> {
     await this.commandBus.execute(new DeleteCommentCommand({ commentId, userId }));
   }
 
@@ -47,7 +47,7 @@ export class CommentsController {
     @Body() body: SetLikeStatusDto,
     @Param('commentId') commentId: string,
     @UserId() userId: string,
-  ) {
+  ): Promise<void> {
     const likeStatus = body.likeStatus;
     await this.commandBus.execute(new SetCommentLikeStatusCommand({ commentId, userId, likeStatus }));
   }

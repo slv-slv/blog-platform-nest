@@ -4,7 +4,13 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { JwtService } from '@nestjs/jwt';
 import { UsersQueryRepository } from '../infrastructure/sql/users.query-repository.js';
 import { UsersService } from '../application/users.service.js';
-import { CreateUserInputDto, EmailInputDto, NewPasswordInputDto, UserType } from '../types/users.types.js';
+import {
+  CreateUserInputDto,
+  CurrentUserType,
+  EmailInputDto,
+  NewPasswordInputDto,
+  UserType,
+} from '../types/users.types.js';
 import { AuthService } from '../application/auth.service.js';
 import { SessionsService } from '../application/sessions.service.js';
 import { CredentialsGuard } from '../../../common/guards/credentials.guard.js';
@@ -36,7 +42,7 @@ export class AuthController {
     @Headers('User-Agent') userAgent: string,
     @User() user: UserType,
     @Ip() ip: string,
-  ) {
+  ): Promise<{ accessToken: string }> {
     const userId = user.id;
     const deviceName = userAgent ?? 'unknown';
 
@@ -69,7 +75,7 @@ export class AuthController {
     @UserId() userId: string,
     @DeviceId() deviceId: string,
     @Ip() ip: string,
-  ) {
+  ): Promise<{ accessToken: string }> {
     const deviceName = userAgent ?? 'unknown';
 
     const accessToken = await this.authService.generateAcessToken(userId);
@@ -99,14 +105,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @UserId() userId: string,
     @DeviceId() deviceId: string,
-  ) {
+  ): Promise<void> {
     await this.sessionsService.deleteDevice(userId, deviceId);
     res.clearCookie('refreshToken');
   }
 
   @Get('me')
   @UseGuards(AccessTokenGuard)
-  async me(@UserId() userId: string) {
+  async me(@UserId() userId: string): Promise<CurrentUserType> {
     const user = await this.usersQueryRepository.getCurrentUser(userId);
     if (!user) {
       throw new UnauthorizedDomainException('User not found');
@@ -116,34 +122,34 @@ export class AuthController {
 
   @Post('registration')
   @HttpCode(204)
-  async registration(@Body() body: CreateUserInputDto) {
+  async registration(@Body() body: CreateUserInputDto): Promise<void> {
     const { login, email, password } = body;
     await this.usersService.registerUser({ login, email, password });
   }
 
   @Post('registration-email-resending')
   @HttpCode(204)
-  async registrationEmailResending(@Body() body: EmailInputDto) {
+  async registrationEmailResending(@Body() body: EmailInputDto): Promise<void> {
     const { email } = body;
     await this.usersService.resendConfirmationCode(email);
   }
 
   @Post('registration-confirmation')
   @HttpCode(204)
-  async registrationConfirmation(@Body('code') code: string) {
+  async registrationConfirmation(@Body('code') code: string): Promise<void> {
     await this.usersService.confirmUser(code);
   }
 
   @Post('password-recovery')
   @HttpCode(204)
-  async passwordRecovery(@Body() body: EmailInputDto) {
+  async passwordRecovery(@Body() body: EmailInputDto): Promise<void> {
     const { email } = body;
     await this.usersService.sendRecoveryCode(email);
   }
 
   @Post('new-password')
   @HttpCode(204)
-  async newPassword(@Body() body: NewPasswordInputDto) {
+  async newPassword(@Body() body: NewPasswordInputDto): Promise<void> {
     const { newPassword, recoveryCode } = body;
     await this.usersService.updatePassword(recoveryCode, newPassword);
   }

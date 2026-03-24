@@ -99,7 +99,7 @@ export class PostsController {
     @Body() body: SetLikeStatusDto,
     @Param('postId') postId: string,
     @UserId() userId: string,
-  ) {
+  ): Promise<void> {
     const likeStatus = body.likeStatus;
     await this.commandBus.execute(new SetPostLikeStatusCommand({ postId, userId, likeStatus }));
   }
