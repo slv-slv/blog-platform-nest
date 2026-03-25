@@ -20,6 +20,9 @@ export class Device {
   declare ip: string;
 
   @Column()
+  declare jti: string;
+
+  @Column()
   declare iat: number;
 
   @Column()

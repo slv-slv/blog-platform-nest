@@ -9,6 +9,7 @@ export type DeviceType = {
   id: string;
   name: string;
   ip: string;
+  jti: string;
   iat: number;
   exp: number;
 };

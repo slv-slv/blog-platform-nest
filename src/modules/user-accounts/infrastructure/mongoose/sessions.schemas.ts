@@ -4,6 +4,7 @@ export type DeviceType = {
   id: string;
   name: string;
   ip: string;
+  jti: string;
   iat: number;
   exp: number;
 };
@@ -18,6 +19,9 @@ export class Device {
 
   @Prop({ required: true })
   declare ip: string;
+
+  @Prop({ required: true })
+  declare jti: string;
 
   @Prop({ required: true })
   declare iat: number;
