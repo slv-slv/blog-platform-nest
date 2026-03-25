@@ -7,14 +7,16 @@ import {
   UserViewType,
 } from '../types/users.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
-import { QueryBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetUsersQuery } from '../application/use-cases/get-users.use-case.js';
+import { CreateUserCommand } from '../application/use-cases/create-user.use-case.js';
 
 @Controller('sa/users')
 @UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
+    private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
 
@@ -35,8 +37,7 @@ export class UsersController {
   @HttpCode(201)
   async createUser(@Body() body: CreateUserInputDto): Promise<UserViewType> {
     const { login, password, email } = body;
-    const newUser = await this.usersService.createUser({ login, email, password });
-    return newUser;
+    return await this.commandBus.execute(new CreateUserCommand({ login, email, password }));
   }
 
   @Delete(':id')
