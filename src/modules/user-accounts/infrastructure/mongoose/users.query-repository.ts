@@ -9,6 +9,10 @@ import {
   UserViewType,
 } from '../../types/users.types.js';
 import { ObjectId } from 'mongodb';
+import {
+  UnauthorizedDomainException,
+  UserNotFoundDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -58,22 +62,26 @@ export class UsersQueryRepository {
     };
   }
 
-  async findUser(loginOrEmail: string): Promise<UserViewType | null> {
+  async findUser(loginOrEmail: string): Promise<UserViewType> {
     const filter = loginOrEmail.includes('@') ? { email: loginOrEmail } : { login: loginOrEmail };
     const user = await this.model.findOne(filter, { hash: 0 }).lean();
     if (!user) {
-      return null;
+      throw new UserNotFoundDomainException();
     }
     const { _id, login, email, createdAt } = user;
     const id = _id.toString();
     return { id, login, email, createdAt: createdAt.toISOString() };
   }
 
-  async getCurrentUser(userId: string): Promise<CurrentUserType | null> {
+  async getCurrentUser(userId: string): Promise<CurrentUserType> {
+    if (!ObjectId.isValid(userId)) {
+      throw new UnauthorizedDomainException('User not found');
+    }
+
     const _id = new ObjectId(userId);
     const user = await this.model.findOne({ _id }, { email: 1, login: 1 }).lean();
     if (!user) {
-      return null;
+      throw new UnauthorizedDomainException('User not found');
     }
     const { email, login } = user;
     return { email, login, userId };

@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { UsersRepository } from '../infrastructure/sql/users.repository.js';
 import { JwtService } from '@nestjs/jwt';
 import { authConfig } from '../../../config/auth.config.js';
+import { CredentialsIncorrectDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class AuthService {
@@ -19,11 +20,16 @@ export class AuthService {
   }
 
   async checkCredentials(loginOrEmail: string, password: string): Promise<boolean> {
-    const hash = await this.usersRepository.getPasswordHash(loginOrEmail);
-    if (!hash) {
-      return false;
+    try {
+      const hash = await this.usersRepository.getPasswordHash(loginOrEmail);
+      return await bcrypt.compare(password, hash);
+    } catch (error) {
+      if (error instanceof CredentialsIncorrectDomainException) {
+        return false;
+      }
+
+      throw error;
     }
-    return await bcrypt.compare(password, hash);
   }
 
   async generateAcessToken(userId: string): Promise<string> {

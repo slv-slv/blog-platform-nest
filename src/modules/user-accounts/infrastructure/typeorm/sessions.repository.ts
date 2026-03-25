@@ -3,20 +3,27 @@ import { CreateSessionParams, DeviceViewType } from '../../types/sessions.types.
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from './sessions.entities.js';
 import { Not, Repository } from 'typeorm';
+import { DeviceNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class SessionsRepository {
   constructor(@InjectRepository(Device) private readonly sessionEntityRepository: Repository<Device>) {}
 
-  async findDevice(deviceId: string): Promise<DeviceViewType | null> {
+  async findDevice(deviceId: string): Promise<DeviceViewType> {
     const device = await this.sessionEntityRepository.findOneBy({ id: deviceId });
-    if (!device) return null;
+    if (!device) {
+      throw new DeviceNotFoundDomainException();
+    }
+
     return device.toViewType();
   }
 
-  async getDeviceOwner(deviceId: string): Promise<string | null> {
+  async getDeviceOwner(deviceId: string): Promise<string> {
     const device = await this.sessionEntityRepository.findOneBy({ id: deviceId });
-    if (!device) return null;
+    if (!device) {
+      throw new DeviceNotFoundDomainException();
+    }
+
     return device.userId.toString();
   }
 

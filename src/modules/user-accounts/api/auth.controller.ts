@@ -18,7 +18,6 @@ import { EmailConfirmationGuard } from '../../../common/guards/email-confirmatio
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
 import { NoActiveSessionGuard } from '../../../common/guards/no-active-session.guard.js';
-import { UnauthorizedDomainException } from '../../../common/exceptions/domain-exceptions.js';
 import { User } from '../../../common/decorators/user.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { DeviceId } from '../../../common/decorators/deviceId.js';
@@ -113,11 +112,7 @@ export class AuthController {
   @Get('me')
   @UseGuards(AccessTokenGuard)
   async me(@UserId() userId: string): Promise<CurrentUserType> {
-    const user = await this.usersQueryRepository.getCurrentUser(userId);
-    if (!user) {
-      throw new UnauthorizedDomainException('User not found');
-    }
-    return user;
+    return await this.usersQueryRepository.getCurrentUser(userId);
   }
 
   @Post('registration')

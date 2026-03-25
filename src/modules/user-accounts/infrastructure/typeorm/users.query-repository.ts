@@ -8,6 +8,10 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './users.entities.js';
 import { ILike, Like, Repository } from 'typeorm';
+import {
+  UnauthorizedDomainException,
+  UserNotFoundDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -44,7 +48,7 @@ export class UsersQueryRepository {
     };
   }
 
-  async findUser(loginOrEmail: string): Promise<UserViewType | null> {
+  async findUser(loginOrEmail: string): Promise<UserViewType> {
     const likeTerm = `%${loginOrEmail}%`;
 
     const user = await this.userEntityRepository.findOne({
@@ -52,18 +56,22 @@ export class UsersQueryRepository {
       where: [{ login: Like(likeTerm) }, { email: Like(likeTerm) }],
     });
 
-    if (!user) return null;
+    if (!user) {
+      throw new UserNotFoundDomainException();
+    }
 
     return user.toViewType();
   }
 
-  async getCurrentUser(userId: string): Promise<CurrentUserType | null> {
+  async getCurrentUser(userId: string): Promise<CurrentUserType> {
     const user = await this.userEntityRepository.findOne({
       select: ['id', 'login', 'email'],
       where: { id: Number.parseInt(userId) },
     });
 
-    if (!user) return null;
+    if (!user) {
+      throw new UnauthorizedDomainException('User not found');
+    }
 
     return user.toCurrentUserType();
   }

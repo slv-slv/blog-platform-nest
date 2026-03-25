@@ -45,7 +45,7 @@ export class SessionsRepository {
     };
   }
 
-  async getDeviceOwner(deviceId: string): Promise<string | null> {
+  async getDeviceOwner(deviceId: string): Promise<string> {
     const result = await this.pool.query(
       `
         SELECT user_id
@@ -56,7 +56,7 @@ export class SessionsRepository {
     );
 
     if (result.rowCount === 0) {
-      return null;
+      throw new DeviceNotFoundDomainException();
     }
 
     const { user_id } = result.rows[0];

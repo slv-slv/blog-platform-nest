@@ -12,6 +12,7 @@ import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 import {
   ConfirmationCodeInvalidDomainException,
+  CredentialsIncorrectDomainException,
   IncorrectEmailDomainException,
   RecoveryCodeInvalidDomainException,
   UnauthorizedDomainException,
@@ -122,7 +123,7 @@ export class UsersRepository {
     return result.rowCount! > 0;
   }
 
-  async getPasswordHash(loginOrEmail: string): Promise<string | null> {
+  async getPasswordHash(loginOrEmail: string): Promise<string> {
     const result = await this.pool.query(
       `
         SELECT hash
@@ -133,7 +134,7 @@ export class UsersRepository {
     );
 
     if (result.rowCount === 0) {
-      return null;
+      throw new CredentialsIncorrectDomainException();
     }
 
     const { hash } = result.rows[0];

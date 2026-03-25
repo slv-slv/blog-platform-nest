@@ -7,6 +7,10 @@ import {
 } from '../../types/users.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
+import {
+  UnauthorizedDomainException,
+  UserNotFoundDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -73,7 +77,7 @@ export class UsersQueryRepository {
       items: users,
     };
   }
-  async findUser(loginOrEmail: string): Promise<UserViewType | null> {
+  async findUser(loginOrEmail: string): Promise<UserViewType> {
     const likeTerm = `%${loginOrEmail}%`;
     const result = await this.pool.query(
       `
@@ -85,14 +89,14 @@ export class UsersQueryRepository {
     );
 
     if (result.rowCount === 0) {
-      return null;
+      throw new UserNotFoundDomainException();
     }
 
     const { id, login, email, created_at } = result.rows[0];
 
     return { id: id.toString(), login, email, createdAt: created_at };
   }
-  async getCurrentUser(userId: string): Promise<CurrentUserType | null> {
+  async getCurrentUser(userId: string): Promise<CurrentUserType> {
     const result = await this.pool.query(
       `
         SELECT login, email
@@ -103,7 +107,7 @@ export class UsersQueryRepository {
     );
 
     if (result.rowCount === 0) {
-      return null;
+      throw new UnauthorizedDomainException('User not found');
     }
 
     const { login, email } = result.rows[0];

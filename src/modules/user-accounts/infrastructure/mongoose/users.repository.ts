@@ -12,41 +12,54 @@ import {
   UserViewType,
 } from '../../types/users.types.js';
 import { ObjectId } from 'mongodb';
+import {
+  ConfirmationCodeInvalidDomainException,
+  IncorrectEmailDomainException,
+  RecoveryCodeInvalidDomainException,
+  UnauthorizedDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class UsersRepository {
   constructor(@InjectModel(User.name) private readonly model: Model<User>) {}
 
-  async findUser(loginOrEmail: string): Promise<UserType | null> {
+  async findUser(loginOrEmail: string): Promise<UserType> {
     const filter = loginOrEmail.includes('@') ? { email: loginOrEmail } : { login: loginOrEmail };
     const user = await this.model.findOne(filter).lean();
     if (!user) {
-      return null;
+      throw new IncorrectEmailDomainException();
     }
     const { _id, login, email, hash, createdAt, confirmation, passwordRecovery } = user;
     const id = _id.toString();
     return { id, login, email, hash, createdAt, confirmation, passwordRecovery };
   }
 
-  async getLogin(id: string): Promise<string | null> {
+  async getLogin(id: string): Promise<string> {
+    if (!ObjectId.isValid(id)) {
+      throw new UnauthorizedDomainException();
+    }
+
     const _id = new ObjectId(id);
     const user = await this.model.findById(_id, { login: 1 }).lean();
-    if (!user) return null;
+    if (!user) {
+      throw new UnauthorizedDomainException();
+    }
+
     return user.login;
   }
 
-  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {
+  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType> {
     const user = await this.model.findOne({ 'confirmation.code': code }, { confirmation: 1 }).lean();
     if (!user) {
-      return null;
+      throw new ConfirmationCodeInvalidDomainException();
     }
     return user.confirmation;
   }
 
-  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {
+  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType> {
     const user = await this.model.findOne({ 'passwordRecovery.code': code }, { passwordRecovery: 1 }).lean();
     if (!user) {
-      return null;
+      throw new RecoveryCodeInvalidDomainException();
     }
     return user.passwordRecovery;
   }

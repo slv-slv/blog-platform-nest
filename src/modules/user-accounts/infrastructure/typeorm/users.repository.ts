@@ -11,51 +11,66 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfirmationInfo, PasswordRecoveryInfo, User } from './users.entities.js';
 import { Like, Repository } from 'typeorm';
+import {
+  ConfirmationCodeInvalidDomainException,
+  IncorrectEmailDomainException,
+  RecoveryCodeInvalidDomainException,
+  UnauthorizedDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class UsersRepository {
   constructor(@InjectRepository(User) private readonly userEntityRepository: Repository<User>) {}
 
-  async findUser(loginOrEmail: string): Promise<UserType | null> {
+  async findUser(loginOrEmail: string): Promise<UserType> {
     const likeTerm = `%${loginOrEmail}%`;
     const user = await this.userEntityRepository.findOne({
       relations: { confirmation: true, passwordRecovery: true },
       where: [{ login: Like(likeTerm) }, { email: Like(likeTerm) }],
     });
 
-    if (!user) return null;
+    if (!user) {
+      throw new IncorrectEmailDomainException();
+    }
 
     return user.toDto();
   }
 
-  async getLogin(id: string): Promise<string | null> {
+  async getLogin(id: string): Promise<string> {
     const user = await this.userEntityRepository.findOne({
       select: { login: true },
       where: { id: Number.parseInt(id) },
     });
 
-    if (!user) return null;
+    if (!user) {
+      throw new UnauthorizedDomainException();
+    }
+
     return user.login;
   }
 
-  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType | null> {
+  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType> {
     const user = await this.userEntityRepository.findOne({
       select: { confirmation: true },
       where: { confirmation: { code } },
     });
 
-    if (!user) return null;
+    if (!user) {
+      throw new ConfirmationCodeInvalidDomainException();
+    }
 
     return user.confirmation;
   }
 
-  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType | null> {
+  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType> {
     const user = await this.userEntityRepository.findOne({
       select: { passwordRecovery: true },
       where: { passwordRecovery: { code } },
     });
 
-    if (!user) return null;
+    if (!user) {
+      throw new RecoveryCodeInvalidDomainException();
+    }
 
     return user.passwordRecovery;
   }
