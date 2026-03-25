@@ -49,7 +49,7 @@ export class PostsQueryRepository {
       [postId],
     );
 
-    if (!result.rowCount) {
+    if (result.rowCount === 0) {
       throw new PostNotFoundDomainException();
     }
 

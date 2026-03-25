@@ -264,7 +264,7 @@ export class UsersRepository {
       [id],
     );
 
-    if (!deleteResult.rowCount) {
+    if (deleteResult.rowCount === 0) {
       throw new UserNotFoundDomainException();
     }
   }

@@ -75,7 +75,7 @@ export class BlogsRepository {
       [id, name, description, websiteUrl],
     );
 
-    if (!result.rowCount) {
+    if (result.rowCount === 0) {
       throw new BlogNotFoundDomainException();
     }
   }
@@ -89,7 +89,7 @@ export class BlogsRepository {
       [id],
     );
 
-    if (!result.rowCount) {
+    if (result.rowCount === 0) {
       throw new BlogNotFoundDomainException();
     }
   }

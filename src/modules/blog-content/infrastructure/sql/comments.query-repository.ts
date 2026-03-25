@@ -34,7 +34,7 @@ export class CommentsQueryRepository {
       [id],
     );
 
-    if (!result.rowCount) {
+    if (result.rowCount === 0) {
       throw new CommentNotFoundDomainException();
     }
 

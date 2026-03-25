@@ -90,7 +90,7 @@ export class PostsRepository {
       [id, title, shortDescription, content],
     );
 
-    if (!result.rowCount) {
+    if (result.rowCount === 0) {
       throw new PostNotFoundDomainException();
     }
   }
@@ -104,7 +104,7 @@ export class PostsRepository {
       [id],
     );
 
-    if (!result.rowCount) {
+    if (result.rowCount === 0) {
       throw new PostNotFoundDomainException();
     }
   }
