@@ -9,6 +9,11 @@ import { DeviceNotFoundDomainException } from '../../../../common/exceptions/dom
 export class SessionsRepository {
   constructor(@InjectRepository(Device) private readonly sessionEntityRepository: Repository<Device>) {}
 
+  async isSessionActive(jti: string, deviceId: string): Promise<boolean> {
+    const device = await this.sessionEntityRepository.findOneBy({ jti, id: deviceId });
+    return !!device;
+  }
+
   async findDevice(deviceId: string): Promise<DeviceViewType> {
     const device = await this.sessionEntityRepository.findOneBy({ id: deviceId });
     if (!device) {
@@ -28,12 +33,13 @@ export class SessionsRepository {
   }
 
   async createSession(params: CreateSessionParams): Promise<void> {
-    const { userId, deviceId, deviceName, ip, iat, exp } = params;
+    const { userId, deviceId, deviceName, ip, jti, iat, exp } = params;
     const device = this.sessionEntityRepository.create({
       id: deviceId,
       userId: parseInt(userId),
       name: deviceName,
       ip,
+      jti,
       iat,
       exp,
     });

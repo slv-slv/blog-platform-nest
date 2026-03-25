@@ -18,16 +18,14 @@ export class SessionsService {
     await this.sessionsRepository.createSession(params);
   }
 
-  async checkSession(jti: string): Promise<boolean> {
-    return await this.sessionsRepository.isSessionActive(jti);
+  async checkSession(jti: string, deviceId: string): Promise<boolean> {
+    return await this.sessionsRepository.isSessionActive(jti, deviceId);
   }
 
   async deleteDevice(userId: string, deviceId: string): Promise<void> {
     if (!isUuid(deviceId)) {
       throw new DeviceNotFoundDomainException();
     }
-
-    await this.sessionsRepository.findDevice(deviceId);
 
     const deviceOwner = await this.sessionsRepository.getDeviceOwner(deviceId);
     if (deviceOwner !== userId) {

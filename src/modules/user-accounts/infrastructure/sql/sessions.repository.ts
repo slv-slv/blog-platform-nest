@@ -8,14 +8,14 @@ import { DeviceNotFoundDomainException } from '../../../../common/exceptions/dom
 export class SessionsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async isSessionActive(jti: string): Promise<boolean> {
+  async isSessionActive(jti: string, deviceId: string): Promise<boolean> {
     const result = await this.pool.query(
       `
         SELECT *
         FROM devices
-        WHERE jti = $1
+        WHERE jti = $1 AND id = $2
       `,
-      [jti],
+      [jti, deviceId],
     );
 
     return result.rowCount! > 0;
