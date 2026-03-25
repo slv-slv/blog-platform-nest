@@ -18,7 +18,7 @@ import {
 export class UsersQueryRepository {
   constructor(@InjectModel(User.name) private readonly model: Model<User>) {}
 
-  async getAllUsers(params: GetAllUsersParams): Promise<UsersPaginatedType> {
+  async getUsers(params: GetAllUsersParams): Promise<UsersPaginatedType> {
     const { searchLoginTerm, searchEmailTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 

@@ -18,11 +18,11 @@ export class UsersController {
   ) {}
 
   @Get()
-  async getAllUsers(@Query() query: GetUsersQueryParams): Promise<UsersPaginatedType> {
+  async getUsers(@Query() query: GetUsersQueryParams): Promise<UsersPaginatedType> {
     const { searchLoginTerm, searchEmailTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
 
-    const users = await this.usersQueryRepository.getAllUsers({
+    const users = await this.usersQueryRepository.getUsers({
       searchLoginTerm,
       searchEmailTerm,
       pagingParams,
