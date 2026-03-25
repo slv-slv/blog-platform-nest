@@ -36,10 +36,6 @@ export class CredentialsGuard implements CanActivate {
     }
 
     const user = await this.usersQueryRepository.findUser(loginOrEmail);
-    if (!user) {
-      throw new UnauthorizedException('Incorrect login/password');
-    }
-
     req.user = user;
 
     return true;
