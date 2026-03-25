@@ -14,6 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigType } from '@nestjs/config';
 import { authConfig } from '../../config/auth.config.js';
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case.js';
+import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case.js';
 import { GetUsersUseCase } from './application/use-cases/get-users.use-case.js';
 
 @Module({
@@ -37,6 +38,7 @@ import { GetUsersUseCase } from './application/use-cases/get-users.use-case.js';
     SessionsRepository,
     SessionsQueryRepository,
     CreateUserUseCase,
+    DeleteUserUseCase,
     GetUsersUseCase,
   ],
   exports: [UsersQueryRepository, UsersRepository],
