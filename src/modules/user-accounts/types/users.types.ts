@@ -123,7 +123,7 @@ export class NewPasswordInputDto {
   declare recoveryCode: string;
 }
 
-export type GetAllUsersParams = {
+export type GetUsersParams = {
   searchLoginTerm: string | null;
   searchEmailTerm: string | null;
   pagingParams: PagingParamsType;

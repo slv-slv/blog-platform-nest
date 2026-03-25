@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from '../application/users.service.js';
-import { UsersQueryRepository } from '../infrastructure/sql/users.query-repository.js';
 import {
   CreateUserInputDto,
   GetUsersQueryParams,
@@ -8,26 +7,28 @@ import {
   UserViewType,
 } from '../types/users.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
+import { QueryBus } from '@nestjs/cqrs';
+import { GetUsersQuery } from '../application/use-cases/get-users.use-case.js';
 
 @Controller('sa/users')
 @UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly usersQueryRepository: UsersQueryRepository,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Get()
   async getUsers(@Query() query: GetUsersQueryParams): Promise<UsersPaginatedType> {
     const { searchLoginTerm, searchEmailTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-
-    const users = await this.usersQueryRepository.getUsers({
-      searchLoginTerm,
-      searchEmailTerm,
-      pagingParams,
-    });
-    return users;
+    return await this.queryBus.execute(
+      new GetUsersQuery({
+        searchLoginTerm,
+        searchEmailTerm,
+        pagingParams,
+      }),
+    );
   }
 
   @Post()

@@ -13,6 +13,7 @@ import { SessionsQueryRepository } from './infrastructure/sql/sessions.query-rep
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigType } from '@nestjs/config';
 import { authConfig } from '../../config/auth.config.js';
+import { GetUsersUseCase } from './application/use-cases/get-users.use-case.js';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { authConfig } from '../../config/auth.config.js';
     SessionsService,
     SessionsRepository,
     SessionsQueryRepository,
+    GetUsersUseCase,
   ],
   exports: [UsersQueryRepository, UsersRepository],
 })

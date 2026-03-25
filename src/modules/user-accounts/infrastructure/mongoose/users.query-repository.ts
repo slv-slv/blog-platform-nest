@@ -4,7 +4,7 @@ import { User } from './users.schemas.js';
 import { Model } from 'mongoose';
 import {
   CurrentUserType,
-  GetAllUsersParams,
+  GetUsersParams,
   UsersPaginatedType,
   UserViewType,
 } from '../../types/users.types.js';
@@ -18,7 +18,7 @@ import {
 export class UsersQueryRepository {
   constructor(@InjectModel(User.name) private readonly model: Model<User>) {}
 
-  async getUsers(params: GetAllUsersParams): Promise<UsersPaginatedType> {
+  async getUsers(params: GetUsersParams): Promise<UsersPaginatedType> {
     const { searchLoginTerm, searchEmailTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   CurrentUserType,
-  GetAllUsersParams,
+  GetUsersParams,
   UsersPaginatedType,
   UserViewType,
 } from '../../types/users.types.js';
@@ -16,7 +16,7 @@ import {
 export class UsersQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getUsers(params: GetAllUsersParams): Promise<UsersPaginatedType> {
+  async getUsers(params: GetUsersParams): Promise<UsersPaginatedType> {
     const { searchLoginTerm, searchEmailTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
