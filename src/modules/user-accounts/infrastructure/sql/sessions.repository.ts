@@ -2,7 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateSessionParams, DeviceViewType } from '../../types/sessions.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
-import { DeviceNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import {
+  DeviceNotFoundDomainException,
+  UnauthorizedDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class SessionsRepository {
@@ -64,6 +68,11 @@ export class SessionsRepository {
   }
   async createSession(params: CreateSessionParams): Promise<void> {
     const { userId, deviceId, deviceName, ip, jti, iat, exp } = params;
+
+    if (!isPositiveIntegerString(userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
     await this.pool.query(
       `
         INSERT INTO devices

@@ -6,6 +6,7 @@ import {
   SetCommentLikeRepoParams,
   SetCommentNoneRepoParams,
 } from '../../types/comment-likes.types.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class CommentLikesRepository {
@@ -47,7 +48,7 @@ export class CommentLikesRepository {
     commentIdArr: number[],
     userId: string | null,
   ): Promise<{ commentId: number; myStatus: LikeStatus }[]> {
-    if (userId === null) {
+    if (userId === null || !isPositiveIntegerString(userId)) {
       return commentIdArr.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
     }
 
@@ -75,6 +76,10 @@ export class CommentLikesRepository {
   }
 
   async deleteLikesInfo(commentId: string): Promise<void> {
+    if (!isPositiveIntegerString(commentId)) {
+      return;
+    }
+
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
@@ -91,6 +96,10 @@ export class CommentLikesRepository {
 
   async setLike(params: SetCommentLikeRepoParams): Promise<void> {
     const { commentId, userId, createdAt } = params;
+
+    if (!isPositiveIntegerString(commentId) || !isPositiveIntegerString(userId)) {
+      return;
+    }
 
     const client = await this.pool.connect();
     try {
@@ -123,6 +132,10 @@ export class CommentLikesRepository {
   async setDislike(params: SetCommentLikeRepoParams): Promise<void> {
     const { commentId, userId, createdAt } = params;
 
+    if (!isPositiveIntegerString(commentId) || !isPositiveIntegerString(userId)) {
+      return;
+    }
+
     const client = await this.pool.connect();
     try {
       await client.query(`BEGIN`);
@@ -153,6 +166,10 @@ export class CommentLikesRepository {
 
   async setNone(params: SetCommentNoneRepoParams): Promise<void> {
     const { commentId, userId } = params;
+
+    if (!isPositiveIntegerString(commentId) || !isPositiveIntegerString(userId)) {
+      return;
+    }
 
     const client = await this.pool.connect();
     try {

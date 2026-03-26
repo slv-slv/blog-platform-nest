@@ -2,13 +2,21 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreatePostRepoParams, PostDtoType, UpdatePostRepoParams } from '../../types/posts.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
-import { PostNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import {
+  BlogNotFoundDomainException,
+  PostNotFoundDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class PostsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async checkPostExists(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new PostNotFoundDomainException();
+    }
+
     const result = await this.pool.query(
       `
         SELECT EXISTS(SELECT 1 FROM posts WHERE id = $1::int) AS exists
@@ -22,6 +30,10 @@ export class PostsRepository {
   }
 
   async getPost(id: string): Promise<PostDtoType> {
+    if (!isPositiveIntegerString(id)) {
+      throw new PostNotFoundDomainException();
+    }
+
     const result = await this.pool.query(
       `
         SELECT
@@ -58,6 +70,10 @@ export class PostsRepository {
   async createPost(params: CreatePostRepoParams): Promise<PostDtoType> {
     const { title, shortDescription, content, blogId, blogName, createdAt } = params;
 
+    if (!isPositiveIntegerString(blogId)) {
+      throw new BlogNotFoundDomainException();
+    }
+
     const result = await this.pool.query(
       `
         INSERT INTO posts (blog_id, title, short_description, content, created_at)
@@ -81,6 +97,11 @@ export class PostsRepository {
   }
   async updatePost(params: UpdatePostRepoParams): Promise<void> {
     const { id, title, shortDescription, content } = params;
+
+    if (!isPositiveIntegerString(id)) {
+      throw new PostNotFoundDomainException();
+    }
+
     const result = await this.pool.query(
       `
         UPDATE posts
@@ -96,6 +117,10 @@ export class PostsRepository {
   }
 
   async deletePost(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new PostNotFoundDomainException();
+    }
+
     const result = await this.pool.query(
       `
         DELETE FROM posts

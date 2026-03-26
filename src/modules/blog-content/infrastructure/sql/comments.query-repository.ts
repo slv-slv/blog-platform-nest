@@ -9,6 +9,7 @@ import { Pool } from 'pg';
 import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { CommentNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class CommentsQueryRepository {
@@ -19,6 +20,11 @@ export class CommentsQueryRepository {
 
   async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewType> {
     const { commentId: id, userId } = params;
+
+    if (!isPositiveIntegerString(id)) {
+      throw new CommentNotFoundDomainException();
+    }
+
     const result = await this.pool.query(
       `
         SELECT
@@ -58,6 +64,16 @@ export class CommentsQueryRepository {
   async getComments(params: GetCommentsRepoQueryParams): Promise<CommentsPaginatedType> {
     const { postId, userId, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
+
+    if (!isPositiveIntegerString(postId)) {
+      return {
+        pagesCount: 0,
+        page: pageNumber,
+        pageSize,
+        totalCount: 0,
+        items: [],
+      };
+    }
 
     let orderBy: string;
     switch (sortBy) {

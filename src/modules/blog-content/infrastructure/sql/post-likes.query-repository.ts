@@ -4,6 +4,7 @@ import { ExtendedLikesInfoViewType, GetPostLikesInfoParams, LikeStatus } from '.
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
 import { coreConfig } from '../../../../config/core.config.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class PostLikesQueryRepository {
@@ -83,7 +84,7 @@ export class PostLikesQueryRepository {
     postIdArr: number[],
     userId: string | null,
   ): Promise<{ postId: number; myStatus: LikeStatus }[]> {
-    if (userId === null) {
+    if (userId === null || !isPositiveIntegerString(userId)) {
       return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
     }
 

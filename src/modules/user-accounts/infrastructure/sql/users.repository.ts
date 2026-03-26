@@ -18,6 +18,7 @@ import {
   UnauthorizedDomainException,
   UserNotFoundDomainException,
 } from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class UsersRepository {
@@ -66,6 +67,10 @@ export class UsersRepository {
   }
 
   async getLogin(id: string): Promise<string> {
+    if (!isPositiveIntegerString(id)) {
+      throw new UnauthorizedDomainException();
+    }
+
     const result = await this.pool.query(
       `
         SELECT login
@@ -256,6 +261,10 @@ export class UsersRepository {
     );
   }
   async deleteUser(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new UserNotFoundDomainException();
+    }
+
     const deleteResult = await this.pool.query(
       `
           DELETE FROM users

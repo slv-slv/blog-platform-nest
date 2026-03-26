@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { GetCommentLikesInfoParams, LikeStatus, LikesInfoViewType } from '../../types/likes.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class CommentLikesQueryRepository {
@@ -73,7 +74,7 @@ export class CommentLikesQueryRepository {
     commentIdArr: number[],
     userId: string | null,
   ): Promise<{ commentId: number; myStatus: LikeStatus }[]> {
-    if (userId === null) {
+    if (userId === null || !isPositiveIntegerString(userId)) {
       return commentIdArr.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
     }
 

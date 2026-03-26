@@ -3,12 +3,17 @@ import { BlogType, BlogsPaginatedType, GetBlogsRepoQueryParams } from '../../typ
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
 import { BlogNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getBlog(id: string): Promise<BlogType> {
+    if (!isPositiveIntegerString(id)) {
+      throw new BlogNotFoundDomainException();
+    }
+
     const result = await this.pool.query(
       `
         SELECT *
@@ -35,6 +40,10 @@ export class BlogsQueryRepository {
   }
 
   async checkBlogExists(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new BlogNotFoundDomainException();
+    }
+
     const result = await this.pool.query(
       `
         SELECT EXISTS(SELECT 1 FROM blogs WHERE id = $1::int) AS exists

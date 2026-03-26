@@ -5,6 +5,7 @@ import { PG_POOL } from '../../../../common/constants.js';
 import { SetPostLikeRepoParams, SetPostNoneRepoParams } from '../../types/post-likes.types.js';
 import { coreConfig } from '../../../../config/core.config.js';
 import { ConfigType } from '@nestjs/config';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class PostLikesRepository {
@@ -49,7 +50,7 @@ export class PostLikesRepository {
     postIdArr: number[],
     userId: string | null,
   ): Promise<{ postId: number; myStatus: LikeStatus }[]> {
-    if (userId === null) {
+    if (userId === null || !isPositiveIntegerString(userId)) {
       return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
     }
 
@@ -125,6 +126,10 @@ export class PostLikesRepository {
   async setLike(params: SetPostLikeRepoParams): Promise<void> {
     const { postId, userId, createdAt } = params;
 
+    if (!isPositiveIntegerString(postId) || !isPositiveIntegerString(userId)) {
+      return;
+    }
+
     const client = await this.pool.connect();
     try {
       await client.query(`BEGIN`);
@@ -156,6 +161,10 @@ export class PostLikesRepository {
   async setDislike(params: SetPostLikeRepoParams): Promise<void> {
     const { postId, userId, createdAt } = params;
 
+    if (!isPositiveIntegerString(postId) || !isPositiveIntegerString(userId)) {
+      return;
+    }
+
     const client = await this.pool.connect();
     try {
       await client.query(`BEGIN`);
@@ -186,6 +195,10 @@ export class PostLikesRepository {
 
   async setNone(params: SetPostNoneRepoParams): Promise<void> {
     const { postId, userId } = params;
+
+    if (!isPositiveIntegerString(postId) || !isPositiveIntegerString(userId)) {
+      return;
+    }
 
     const client = await this.pool.connect();
     try {
