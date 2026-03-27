@@ -3,10 +3,26 @@ import { BlogViewModel, BlogsPaginatedViewModel, GetBlogsRepoQueryParams } from 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './blogs.entities.js';
 import { Repository } from 'typeorm';
+import { BlogNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(@InjectRepository(Blog) private readonly blogEntityRepository: Repository<Blog>) {}
+
+  async getBlog(id: string): Promise<BlogViewModel> {
+    if (!isPositiveIntegerString(id)) {
+      throw new BlogNotFoundDomainException();
+    }
+
+    const blog = await this.blogEntityRepository.findOneBy({ id: +id });
+
+    if (!blog) {
+      throw new BlogNotFoundDomainException();
+    }
+
+    return this.mapToBlogViewModel(blog);
+  }
 
   async getAllBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedViewModel> {
     const { searchNameTerm, pagingParams } = params;
