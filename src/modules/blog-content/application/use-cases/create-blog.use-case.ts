@@ -17,7 +17,8 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
     const createdAt = new Date();
     const isMembership = false;
     const repoParams: CreateBlogRepoParams = { name, description, websiteUrl, createdAt, isMembership };
+    const newBlog = await this.blogsRepository.createBlog(repoParams);
 
-    return await this.blogsRepository.createBlog(repoParams);
+    return { ...newBlog, createdAt: newBlog.createdAt.toISOString() };
   }
 }

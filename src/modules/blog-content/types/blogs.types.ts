@@ -8,11 +8,13 @@ export type BlogModel = {
   name: string;
   description: string;
   websiteUrl: string;
-  createdAt: string;
+  createdAt: Date;
   isMembership: boolean;
 };
 
-export type BlogViewModel = BlogModel;
+export type BlogViewModel = Omit<BlogModel, 'createdAt'> & {
+  createdAt: string;
+};
 
 export type BlogsPaginatedViewModel = {
   pagesCount: number;

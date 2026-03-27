@@ -41,7 +41,7 @@ export class BlogsRepository {
       name,
       description,
       websiteUrl,
-      createdAt: createdAt.toISOString(),
+      createdAt,
       isMembership,
     };
   }
@@ -78,7 +78,7 @@ export class BlogsRepository {
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.websiteUrl,
-      createdAt: blog.createdAt.toISOString(),
+      createdAt: blog.createdAt,
       isMembership: blog.isMembership,
     };
   }

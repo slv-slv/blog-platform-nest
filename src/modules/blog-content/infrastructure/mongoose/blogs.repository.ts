@@ -18,7 +18,7 @@ export class BlogsRepository {
     if (!blog) {
       return null;
     }
-    return { id, ...blog };
+    return { id, ...blog, createdAt: new Date(blog.createdAt) };
   }
 
   async createBlog(params: CreateBlogRepoParams): Promise<BlogModel> {
@@ -27,7 +27,7 @@ export class BlogsRepository {
     const newBlog = { name, description, websiteUrl, createdAt: createdAtIso, isMembership };
     const insertedBlog = await this.model.create(newBlog);
     const id = insertedBlog._id.toString();
-    return { id, ...newBlog };
+    return { id, name, description, websiteUrl, createdAt, isMembership };
   }
 
   async updateBlog(params: UpdateBlogRepoParams): Promise<boolean> {

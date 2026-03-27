@@ -34,7 +34,7 @@ export class BlogsRepository {
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.website_url,
-      createdAt: blog.created_at.toISOString(),
+      createdAt: blog.created_at,
       isMembership: blog.is_membership,
     };
   }
@@ -75,7 +75,7 @@ export class BlogsRepository {
       name,
       description,
       websiteUrl,
-      createdAt: createdAt.toISOString(),
+      createdAt,
       isMembership,
     };
   }
