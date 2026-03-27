@@ -3,7 +3,7 @@ import { WithId } from 'mongodb';
 import { Trim } from '../../../common/decorators/trim.js';
 import { BasicPagingParams, PagingParamsType } from '../../../common/types/paging-params.types.js';
 
-export type BlogType = {
+export type BlogViewType = {
   id: string;
   name: string;
   description: string;
@@ -17,7 +17,7 @@ export type BlogsPaginatedType = {
   page: number;
   pageSize: number;
   totalCount: number;
-  items: BlogType[];
+  items: BlogViewType[];
 };
 
 export enum BlogsSortBy {
@@ -75,7 +75,7 @@ export type UpdateBlogParams = CreateBlogParams & {
 };
 
 export type CreateBlogRepoParams = CreateBlogParams & {
-  createdAt: string;
+  createdAt: Date;
   isMembership: boolean;
 };
 

@@ -1,6 +1,5 @@
 import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { Post } from './posts.entities.js';
-import { BlogType } from '../../types/blogs.types.js';
 
 @Entity({ name: 'blogs' })
 export class Blog {
@@ -27,15 +26,4 @@ export class Blog {
 
   @OneToMany(() => Post, (post) => post.blog)
   declare posts: Relation<Post[]>;
-
-  toDto(): BlogType {
-    return {
-      id: this.id.toString(),
-      name: this.name,
-      description: this.description,
-      websiteUrl: this.websiteUrl,
-      createdAt: this.createdAt.toISOString(),
-      isMembership: this.isMembership,
-    };
-  }
 }

@@ -81,7 +81,7 @@ export type GetCommentsRepoQueryParams = {
 export type CreateCommentRepoParams = {
   postId: string;
   content: string;
-  createdAt: string;
+  createdAt: Date;
   commentatorInfo: CommentatorInfoType;
 };
 

@@ -1,8 +1,8 @@
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
-import { BlogType } from '../../types/blogs.types.js';
+import { BlogViewType } from '../../types/blogs.types.js';
 import { BlogsQueryRepository } from '../../infrastructure/sql/blogs.query-repository.js';
 
-export class GetBlogQuery extends Query<BlogType> {
+export class GetBlogQuery extends Query<BlogViewType> {
   constructor(public readonly id: string) {
     super();
   }

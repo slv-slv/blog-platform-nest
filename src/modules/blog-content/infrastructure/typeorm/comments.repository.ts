@@ -44,7 +44,7 @@ export class CommentsRepository {
       id,
       content,
       commentatorInfo,
-      createdAt,
+      createdAt: createdAt.toISOString(),
     };
   }
 

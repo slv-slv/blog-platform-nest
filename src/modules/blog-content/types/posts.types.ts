@@ -101,7 +101,7 @@ export type GetPostsRepoQueryParams = {
 
 export type CreatePostRepoParams = CreatePostParams & {
   blogName: string;
-  createdAt: string;
+  createdAt: Date;
 };
 
 export type UpdatePostRepoParams = {

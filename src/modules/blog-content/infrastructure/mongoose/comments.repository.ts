@@ -27,15 +27,16 @@ export class CommentsRepository {
 
   async createComment(params: CreateCommentRepoParams): Promise<CommentDtoType> {
     const { postId, content, createdAt, commentatorInfo } = params;
+    const createdAtIso = createdAt.toISOString();
     const createdComment = await this.model.create({
       postId,
       content,
       commentatorInfo,
-      createdAt,
+      createdAt: createdAtIso,
     });
 
     const id = createdComment._id.toString();
-    return { id, content, commentatorInfo, createdAt };
+    return { id, content, commentatorInfo, createdAt: createdAtIso };
   }
 
   async updateComment(params: UpdateCommentRepoParams): Promise<boolean> {

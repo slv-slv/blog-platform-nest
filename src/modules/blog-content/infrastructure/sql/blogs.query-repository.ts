@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BlogType, BlogsPaginatedType, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
+import { BlogViewType, BlogsPaginatedType, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
 import { BlogNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
@@ -9,7 +9,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class BlogsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getBlog(id: string): Promise<BlogType> {
+  async getBlog(id: string): Promise<BlogViewType> {
     if (!isPositiveIntegerString(id)) {
       throw new BlogNotFoundDomainException();
     }
@@ -34,7 +34,7 @@ export class BlogsQueryRepository {
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.website_url,
-      createdAt: blog.created_at,
+      createdAt: blog.created_at.toISOString(),
       isMembership: blog.is_membership,
     };
   }
@@ -118,7 +118,7 @@ export class BlogsQueryRepository {
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.website_url,
-      createdAt: blog.created_at,
+      createdAt: blog.created_at.toISOString(),
       isMembership: blog.is_membership,
     }));
 

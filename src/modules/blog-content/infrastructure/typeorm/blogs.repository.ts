@@ -1,27 +1,33 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BlogType, CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
+import { BlogViewType, CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './blogs.entities.js';
 import { Repository } from 'typeorm';
+import { BlogNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class BlogsRepository {
   constructor(@InjectRepository(Blog) private readonly blogEntityRepository: Repository<Blog>) {}
 
-  async findBlog(id: string): Promise<BlogType | null> {
-    const idNum = parseInt(id);
-    if (isNaN(idNum)) return null;
+  async getBlog(id: string): Promise<BlogViewType> {
+    if (!isPositiveIntegerString(id)) {
+      throw new BlogNotFoundDomainException();
+    }
 
     const blog = await this.blogEntityRepository
       .createQueryBuilder('blog')
-      .where('blog.id = :id', { id: idNum })
+      .where('blog.id = :id', { id: +id })
       .getOne();
 
-    if (!blog) return null;
-    return blog.toDto();
+    if (!blog) {
+      throw new BlogNotFoundDomainException();
+    }
+
+    return this.mapToBlogViewType(blog);
   }
 
-  async createBlog(params: CreateBlogRepoParams): Promise<BlogType> {
+  async createBlog(params: CreateBlogRepoParams): Promise<BlogViewType> {
     const { name, description, websiteUrl, createdAt, isMembership } = params;
     // const newBlog = { name, description, websiteUrl, createdAt, isMembership };
 
@@ -33,7 +39,7 @@ export class BlogsRepository {
       .execute();
 
     const id = result.identifiers[0].id.toString();
-    return { id, name, description, websiteUrl, createdAt, isMembership };
+    return { id, name, description, websiteUrl, createdAt: createdAt.toISOString(), isMembership };
   }
 
   async updateBlog(params: UpdateBlogRepoParams): Promise<boolean> {
@@ -63,5 +69,16 @@ export class BlogsRepository {
       .execute();
 
     return result.affected! > 0;
+  }
+
+  private mapToBlogViewType(blog: Blog): BlogViewType {
+    return {
+      id: blog.id.toString(),
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt.toISOString(),
+      isMembership: blog.isMembership,
+    };
   }
 }

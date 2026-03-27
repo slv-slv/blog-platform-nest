@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BlogType, CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
+import { BlogViewType, CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
 import { BlogNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
@@ -9,7 +9,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class BlogsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getBlog(id: string): Promise<BlogType> {
+  async getBlog(id: string): Promise<BlogViewType> {
     if (!isPositiveIntegerString(id)) {
       throw new BlogNotFoundDomainException();
     }
@@ -34,7 +34,7 @@ export class BlogsRepository {
       name: blog.name,
       description: blog.description,
       websiteUrl: blog.website_url,
-      createdAt: blog.created_at,
+      createdAt: blog.created_at.toISOString(),
       isMembership: blog.is_membership,
     };
   }
@@ -56,7 +56,7 @@ export class BlogsRepository {
     }
   }
 
-  async createBlog(params: CreateBlogRepoParams): Promise<BlogType> {
+  async createBlog(params: CreateBlogRepoParams): Promise<BlogViewType> {
     const { name, description, websiteUrl, createdAt, isMembership } = params;
     const newBlog = { name, description, websiteUrl, createdAt, isMembership };
 
@@ -71,7 +71,14 @@ export class BlogsRepository {
 
     const id = result.rows[0].id.toString();
 
-    return { id, ...newBlog };
+    return {
+      id,
+      name,
+      description,
+      websiteUrl,
+      createdAt: createdAt.toISOString(),
+      isMembership,
+    };
   }
   async updateBlog(params: UpdateBlogRepoParams): Promise<void> {
     const { id, name, description, websiteUrl } = params;

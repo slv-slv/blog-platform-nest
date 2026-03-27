@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BlogsPaginatedType, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
-import { SortDirection } from '../../../../common/types/paging-params.types.js';
+import { BlogViewType, BlogsPaginatedType, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './blogs.entities.js';
 import { Repository } from 'typeorm';
@@ -15,26 +14,6 @@ export class BlogsQueryRepository {
 
     const qb = this.blogEntityRepository.createQueryBuilder('blog');
 
-    // qb.select(
-    //   `
-    //     blog.id::varchar,
-    //     blog."name",
-    //     blog."description",
-    //     blog."websiteUrl",
-    //     blog."createdAt",
-    //     blog."isMembership"
-    //   `,
-    // );
-
-    qb.select([
-      'blog.id::varchar',
-      'blog."name"',
-      'blog."description"',
-      'blog."websiteUrl"',
-      'blog."createdAt"',
-      'blog."isMembership"',
-    ]);
-
     if (searchNameTerm) {
       qb.where('blog.name ILIKE :search', { search: `%${searchNameTerm}%` });
     }
@@ -44,11 +23,7 @@ export class BlogsQueryRepository {
 
     qb.orderBy(`blog.${sortBy}`, direction).take(pageSize).skip(skipCount);
 
-    // const [blogEntities, totalCount] = await qb.getManyAndCount();
-    // const blogs = blogEntities.map((blog) => blog.toDto());
-
-    const totalCount = await qb.getCount();
-    const blogs = await qb.getRawMany();
+    const [blogs, totalCount] = await qb.getManyAndCount();
 
     const pagesCount = Math.ceil(totalCount / pageSize);
 
@@ -57,7 +32,18 @@ export class BlogsQueryRepository {
       page: pageNumber,
       pageSize,
       totalCount,
-      items: blogs,
+      items: blogs.map((blog) => this.mapToBlogViewType(blog)),
+    };
+  }
+
+  private mapToBlogViewType(blog: Blog): BlogViewType {
+    return {
+      id: blog.id.toString(),
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt.toISOString(),
+      isMembership: blog.isMembership,
     };
   }
 }

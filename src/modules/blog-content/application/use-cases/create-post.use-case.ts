@@ -22,7 +22,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     const blog = await this.blogsRepository.getBlog(blogId);
     const blogName = blog.name;
 
-    const createdAt = new Date().toISOString();
+    const createdAt = new Date();
     const repoParams: CreatePostRepoParams = {
       title,
       shortDescription,

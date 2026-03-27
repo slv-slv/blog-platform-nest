@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import {
   BlogsPaginatedType,
-  BlogType,
+  BlogViewType,
   CreateBlogInputDto,
   GetBlogsQueryParams,
   UpdateBlogInputDto,
@@ -41,13 +41,13 @@ export class BlogsSuperadminController {
   }
 
   @Get(':id')
-  async getBlog(@Param('id') id: string): Promise<BlogType> {
+  async getBlog(@Param('id') id: string): Promise<BlogViewType> {
     return await this.queryBus.execute(new GetBlogQuery(id));
   }
 
   @Post()
   @HttpCode(201)
-  async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogType> {
+  async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewType> {
     const { name, description, websiteUrl } = body;
     return await this.commandBus.execute(new CreateBlogCommand({ name, description, websiteUrl }));
   }

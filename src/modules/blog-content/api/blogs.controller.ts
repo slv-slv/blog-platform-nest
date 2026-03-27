@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { BlogsPaginatedType, BlogType, GetBlogsQueryParams } from '../types/blogs.types.js';
+import { BlogsPaginatedType, BlogViewType, GetBlogsQueryParams } from '../types/blogs.types.js';
 import { GetPostsQueryParams, PostsPaginatedType } from '../types/posts.types.js';
 import { Public } from '../../../common/decorators/public.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
@@ -34,7 +34,7 @@ export class BlogsController {
   }
 
   @Get(':id')
-  async getBlog(@Param('id') id: string): Promise<BlogType> {
+  async getBlog(@Param('id') id: string): Promise<BlogViewType> {
     return await this.queryBus.execute(new GetBlogQuery(id));
   }
 }

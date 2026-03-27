@@ -26,7 +26,7 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
     const userLogin = await this.usersRepository.getLogin(userId);
 
     const commentatorInfo = { userId, userLogin };
-    const createdAt = new Date().toISOString();
+    const createdAt = new Date();
 
     const repoParams: CreateCommentRepoParams = { postId, content, createdAt, commentatorInfo };
     const newComment = await this.commentsRepository.createComment(repoParams);

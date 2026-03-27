@@ -59,7 +59,7 @@ export class PostsRepository {
       content,
       blogId,
       blogName,
-      createdAt,
+      createdAt: createdAt.toISOString(),
     };
   }
 

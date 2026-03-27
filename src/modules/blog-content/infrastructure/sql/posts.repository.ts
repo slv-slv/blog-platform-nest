@@ -63,7 +63,7 @@ export class PostsRepository {
       content: rawPost.content,
       blogId: rawPost.blog_id.toString(),
       blogName: rawPost.blog_name,
-      createdAt: rawPost.created_at,
+      createdAt: rawPost.created_at.toISOString(),
     };
   }
 
@@ -92,7 +92,7 @@ export class PostsRepository {
       content,
       blogId,
       blogName,
-      createdAt,
+      createdAt: createdAt.toISOString(),
     };
   }
   async updatePost(params: UpdatePostRepoParams): Promise<void> {

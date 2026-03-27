@@ -67,7 +67,7 @@ export class UsersQueryRepository {
       id: user.id.toString(),
       login: user.login,
       email: user.email,
-      createdAt: user.created_at,
+      createdAt: user.created_at.toISOString(),
     }));
 
     return {
@@ -95,7 +95,7 @@ export class UsersQueryRepository {
 
     const { id, login, email, created_at } = result.rows[0];
 
-    return { id: id.toString(), login, email, createdAt: created_at };
+    return { id: id.toString(), login, email, createdAt: created_at.toISOString() };
   }
   async getCurrentUser(userId: string): Promise<CurrentUserType> {
     if (!isPositiveIntegerString(userId)) {

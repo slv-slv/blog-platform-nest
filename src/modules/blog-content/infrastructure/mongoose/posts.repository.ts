@@ -27,7 +27,8 @@ export class PostsRepository {
 
   async createPost(params: CreatePostRepoParams): Promise<PostDtoType> {
     const { title, shortDescription, content, blogId, blogName, createdAt } = params;
-    const newPost = { title, shortDescription, content, blogId, blogName, createdAt };
+    const createdAtIso = createdAt.toISOString();
+    const newPost = { title, shortDescription, content, blogId, blogName, createdAt: createdAtIso };
     const insertedPost = await this.model.create(newPost);
     const id = insertedPost._id.toString();
     return { id, ...newPost };

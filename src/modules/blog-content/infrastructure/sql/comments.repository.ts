@@ -66,7 +66,7 @@ export class CommentsRepository {
         userId: commentator_id.toString(),
         userLogin: commentator_login,
       },
-      createdAt: created_at,
+      createdAt: created_at.toISOString(),
     };
   }
 
@@ -92,7 +92,7 @@ export class CommentsRepository {
 
     const id = result.rows[0].id.toString();
 
-    return { id, content, commentatorInfo, createdAt };
+    return { id, content, commentatorInfo, createdAt: createdAt.toISOString() };
   }
   async updateComment(params: UpdateCommentRepoParams): Promise<boolean> {
     const { id, content } = params;
