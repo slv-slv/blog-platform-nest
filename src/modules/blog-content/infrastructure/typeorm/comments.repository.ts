@@ -13,7 +13,7 @@ export class CommentsRepository {
   constructor(@InjectRepository(Comment) private readonly commentEntityRepository: Repository<Comment>) {}
 
   async getComment(id: string): Promise<CommentModel | null> {
-    const idNum = parseInt(id);
+    const idNum = +id;
     if (isNaN(idNum)) return null;
 
     const comment = await this.commentEntityRepository.findOne({
@@ -27,8 +27,8 @@ export class CommentsRepository {
 
   async createComment(params: CreateCommentRepoParams): Promise<CommentModel> {
     const { postId, content, createdAt, commentatorInfo } = params;
-    const postIdNum = parseInt(postId);
-    const userIdNum = parseInt(commentatorInfo.userId);
+    const postIdNum = +postId;
+    const userIdNum = +commentatorInfo.userId;
 
     const comment = this.commentEntityRepository.create({
       post: { id: postIdNum },
@@ -50,7 +50,7 @@ export class CommentsRepository {
 
   async updateComment(params: UpdateCommentRepoParams): Promise<boolean> {
     const { id, content } = params;
-    const idNum = parseInt(id);
+    const idNum = +id;
     if (isNaN(idNum)) return false;
 
     const result = await this.commentEntityRepository.update({ id: idNum }, { content });
@@ -58,7 +58,7 @@ export class CommentsRepository {
   }
 
   async deleteComment(id: string): Promise<boolean> {
-    const idNum = parseInt(id);
+    const idNum = +id;
     if (isNaN(idNum)) return false;
 
     const result = await this.commentEntityRepository.softDelete({ id: idNum });

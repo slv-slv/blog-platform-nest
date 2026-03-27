@@ -54,6 +54,8 @@ export class PostLikesRepository {
       return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
     }
 
+    const userIdNum = +userId;
+
     const myStatusResult = await this.pool.query(
       `
         SELECT
@@ -66,12 +68,12 @@ export class PostLikesRepository {
         FROM unnest($1::int[]) AS p(post_id)
         LEFT JOIN post_likes AS pl
           ON p.post_id = pl.post_id
-          AND pl.user_id = $2::int
+          AND pl.user_id = $2
         LEFT JOIN post_dislikes AS pd
           ON p.post_id = pd.post_id
-          AND pd.user_id = $2::int
+          AND pd.user_id = $2
       `,
-      [postIdArr, userId],
+      [postIdArr, userIdNum],
     );
 
     return myStatusResult.rows;
@@ -130,24 +132,27 @@ export class PostLikesRepository {
       return;
     }
 
+    const postIdNum = +postId;
+    const userIdNum = +userId;
+
     const client = await this.pool.connect();
     try {
       await client.query(`BEGIN`);
       await client.query(
         `
           DELETE FROM post_dislikes
-          WHERE post_id = $1::int AND user_id = $2::int
+          WHERE post_id = $1 AND user_id = $2
         `,
-        [postId, userId],
+        [postIdNum, userIdNum],
       );
       await client.query(
         `
           INSERT INTO post_likes (post_id, user_id, created_at)
-          VALUES ($1::int, $2::int, $3)
+          VALUES ($1, $2, $3)
           ON CONFLICT (post_id, user_id) DO UPDATE
           SET created_at = EXCLUDED.created_at
         `,
-        [postId, userId, createdAt],
+        [postIdNum, userIdNum, createdAt],
       );
       await client.query(`COMMIT`);
     } catch (e) {
@@ -165,24 +170,27 @@ export class PostLikesRepository {
       return;
     }
 
+    const postIdNum = +postId;
+    const userIdNum = +userId;
+
     const client = await this.pool.connect();
     try {
       await client.query(`BEGIN`);
       await client.query(
         `
           DELETE FROM post_likes
-          WHERE post_id = $1::int AND user_id = $2::int
+          WHERE post_id = $1 AND user_id = $2
         `,
-        [postId, userId],
+        [postIdNum, userIdNum],
       );
       await client.query(
         `
           INSERT INTO post_dislikes (post_id, user_id, created_at)
-          VALUES ($1::int, $2::int, $3)
+          VALUES ($1, $2, $3)
           ON CONFLICT (post_id, user_id) DO UPDATE
           SET created_at = EXCLUDED.created_at
         `,
-        [postId, userId, createdAt],
+        [postIdNum, userIdNum, createdAt],
       );
       await client.query(`COMMIT`);
     } catch (e) {
@@ -200,22 +208,25 @@ export class PostLikesRepository {
       return;
     }
 
+    const postIdNum = +postId;
+    const userIdNum = +userId;
+
     const client = await this.pool.connect();
     try {
       await client.query(`BEGIN`);
       await client.query(
         `
           DELETE FROM post_likes
-          WHERE post_id = $1::int AND user_id = $2::int
+          WHERE post_id = $1 AND user_id = $2
         `,
-        [postId, userId],
+        [postIdNum, userIdNum],
       );
       await client.query(
         `
           DELETE FROM post_dislikes
-          WHERE post_id = $1::int AND user_id = $2::int
+          WHERE post_id = $1 AND user_id = $2
         `,
-        [postId, userId],
+        [postIdNum, userIdNum],
       );
       await client.query(`COMMIT`);
     } catch (e) {

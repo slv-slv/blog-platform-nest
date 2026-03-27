@@ -9,7 +9,7 @@ export class SessionsQueryRepository {
   constructor(@InjectRepository(Device) private readonly sessionEntityRepository: Repository<Device>) {}
 
   async getActiveDevices(userId: string): Promise<DeviceViewModel[]> {
-    const devices = await this.sessionEntityRepository.findBy({ userId: parseInt(userId) });
+    const devices = await this.sessionEntityRepository.findBy({ userId: +userId });
 
     return devices.map((device) => device.toViewModel());
   }

@@ -17,6 +17,8 @@ export class PostsRepository {
       throw new PostNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
         SELECT
@@ -28,9 +30,9 @@ export class PostsRepository {
           posts.created_at
         FROM posts JOIN blogs
           ON posts.blog_id = blogs.id
-        WHERE posts.id = $1::int
+        WHERE posts.id = $1
       `,
-      [id],
+      [idNum],
     );
 
     if (result.rowCount === 0) {
@@ -55,11 +57,13 @@ export class PostsRepository {
       throw new PostNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
-        SELECT EXISTS(SELECT 1 FROM posts WHERE id = $1::int) AS exists
+        SELECT EXISTS(SELECT 1 FROM posts WHERE id = $1) AS exists
       `,
-      [id],
+      [idNum],
     );
 
     if (result.rows[0].exists === false) {
@@ -74,13 +78,15 @@ export class PostsRepository {
       throw new BlogNotFoundDomainException();
     }
 
+    const blogIdNum = +blogId;
+
     const result = await this.pool.query(
       `
         INSERT INTO posts (blog_id, title, short_description, content, created_at)
-        VALUES ($1::int, $2, $3, $4, $5)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING id
       `,
-      [blogId, title, shortDescription, content, createdAt],
+      [blogIdNum, title, shortDescription, content, createdAt],
     );
 
     const id = result.rows[0].id.toString();
@@ -102,13 +108,15 @@ export class PostsRepository {
       throw new PostNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
         UPDATE posts
         SET title = $2, short_description = $3, content = $4
-        WHERE id = $1::int
+        WHERE id = $1
       `,
-      [id, title, shortDescription, content],
+      [idNum, title, shortDescription, content],
     );
 
     if (result.rowCount === 0) {
@@ -121,12 +129,14 @@ export class PostsRepository {
       throw new PostNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
         DELETE FROM posts
-        WHERE id = $1::int
+        WHERE id = $1
       `,
-      [id],
+      [idNum],
     );
 
     if (result.rowCount === 0) {

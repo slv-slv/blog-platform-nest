@@ -14,13 +14,15 @@ export class BlogsRepository {
       throw new BlogNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
         SELECT *
         FROM blogs
-        WHERE id = $1::int
+        WHERE id = $1
       `,
-      [id],
+      [idNum],
     );
 
     if (result.rowCount === 0) {
@@ -44,11 +46,13 @@ export class BlogsRepository {
       throw new BlogNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
-        SELECT EXISTS(SELECT 1 FROM blogs WHERE id = $1::int) AS exists
+        SELECT EXISTS(SELECT 1 FROM blogs WHERE id = $1) AS exists
       `,
-      [id],
+      [idNum],
     );
 
     if (result.rows[0].exists === false) {
@@ -86,13 +90,15 @@ export class BlogsRepository {
       throw new BlogNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
         UPDATE blogs
         SET name = $2, description = $3, website_url = $4
-        WHERE id = $1::int
+        WHERE id = $1
       `,
-      [id, name, description, websiteUrl],
+      [idNum, name, description, websiteUrl],
     );
 
     if (result.rowCount === 0) {
@@ -105,12 +111,14 @@ export class BlogsRepository {
       throw new BlogNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
         DELETE FROM blogs
-        WHERE id = $1::int
+        WHERE id = $1
       `,
-      [id],
+      [idNum],
     );
 
     if (result.rowCount === 0) {

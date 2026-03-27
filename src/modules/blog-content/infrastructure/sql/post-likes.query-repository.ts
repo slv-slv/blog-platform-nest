@@ -88,6 +88,8 @@ export class PostLikesQueryRepository {
       return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
     }
 
+    const userIdNum = +userId;
+
     const result = await this.pool.query(
       `
         SELECT
@@ -100,12 +102,12 @@ export class PostLikesQueryRepository {
         FROM unnest($1::int[]) AS p(post_id)
         LEFT JOIN post_likes AS pl
           ON p.post_id = pl.post_id
-          AND pl.user_id = $2::int
+          AND pl.user_id = $2
         LEFT JOIN post_dislikes AS pd
           ON p.post_id = pd.post_id
-          AND pd.user_id = $2::int
+          AND pd.user_id = $2
       `,
-      [postIdArr, userId],
+      [postIdArr, userIdNum],
     );
 
     return result.rows;

@@ -66,7 +66,7 @@ export class UsersQueryRepository {
   async getCurrentUser(userId: string): Promise<CurrentUserViewModel> {
     const user = await this.userEntityRepository.findOne({
       select: ['id', 'login', 'email'],
-      where: { id: Number.parseInt(userId) },
+      where: { id: +userId },
     });
 
     if (!user) {

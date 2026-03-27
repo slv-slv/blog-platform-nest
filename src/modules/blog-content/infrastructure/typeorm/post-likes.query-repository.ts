@@ -16,6 +16,7 @@ export class PostLikesQueryRepository {
   async getLikesInfo(params: GetSinglePostLikesInfoParams): Promise<ExtendedLikesInfoViewModel> {
     const { postId } = params;
     const userId = params.userId ?? null;
+    const postIdNum = +postId;
     const likesCount = await this.getLikesCount(postId);
     const dislikesCount = await this.getDislikesCount(postId);
     const myStatus = await this.getLikeStatus({ postId, userId });
@@ -30,11 +31,11 @@ export class PostLikesQueryRepository {
           users.login
         FROM post_likes JOIN users
           ON post_likes.user_id = users.id
-        WHERE post_likes.post_id = $1::int
+        WHERE post_likes.post_id = $1
         ORDER BY post_likes.created_at DESC
         LIMIT $2
       `,
-      [postId, newestLikesNumber],
+      [postIdNum, newestLikesNumber],
     );
 
     const newestLikes = result.rows.map((like) => ({
@@ -47,26 +48,28 @@ export class PostLikesQueryRepository {
   }
 
   private async getLikesCount(postId: string): Promise<number> {
+    const postIdNum = +postId;
     const result = await this.pool.query(
       `
         SELECT COUNT(*)::int
         FROM post_likes
-        WHERE post_id = $1::int
+        WHERE post_id = $1
       `,
-      [postId],
+      [postIdNum],
     );
 
     return result.rows[0].count;
   }
 
   private async getDislikesCount(postId: string): Promise<number> {
+    const postIdNum = +postId;
     const result = await this.pool.query(
       `
         SELECT COUNT(*)::int
         FROM post_dislikes
-        WHERE post_id = $1::int
+        WHERE post_id = $1
       `,
-      [postId],
+      [postIdNum],
     );
 
     return result.rows[0].count;
@@ -76,13 +79,16 @@ export class PostLikesQueryRepository {
     const { postId, userId } = params;
     if (userId === null) return LikeStatus.None;
 
+    const postIdNum = +postId;
+    const userIdNum = +userId;
+
     const likeResult = await this.pool.query(
       `
         SELECT COUNT(*)::int
         FROM post_likes
-        WHERE post_id = $1::int AND user_id = $2::int
+        WHERE post_id = $1 AND user_id = $2
       `,
-      [postId, userId],
+      [postIdNum, userIdNum],
     );
 
     if (likeResult.rows[0].count > 0) return LikeStatus.Like;
@@ -91,9 +97,9 @@ export class PostLikesQueryRepository {
       `
         SELECT COUNT(*)::int
         FROM post_dislikes
-        WHERE post_id = $1::int AND user_id = $2::int
+        WHERE post_id = $1 AND user_id = $2
       `,
-      [postId, userId],
+      [postIdNum, userIdNum],
     );
 
     if (dislikeResult.rows[0].count > 0) return LikeStatus.Dislike;

@@ -14,13 +14,15 @@ export class BlogsQueryRepository {
       throw new BlogNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
         SELECT *
         FROM blogs
-        WHERE id = $1::int
+        WHERE id = $1
       `,
-      [id],
+      [idNum],
     );
 
     if (result.rowCount === 0) {
@@ -44,11 +46,13 @@ export class BlogsQueryRepository {
       throw new BlogNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
-        SELECT EXISTS(SELECT 1 FROM blogs WHERE id = $1::int) AS exists
+        SELECT EXISTS(SELECT 1 FROM blogs WHERE id = $1) AS exists
       `,
-      [id],
+      [idNum],
     );
 
     if (result.rows[0].exists === false) {

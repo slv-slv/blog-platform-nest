@@ -43,7 +43,7 @@ export class CommentLikesQueryRepository {
           comment_id AS "commentId",
           COUNT(user_id)::int AS "likesCount"
         FROM comment_likes
-        WHERE comment_id = ANY($1::int[])
+        WHERE comment_id = ANY($1)
         GROUP BY comment_id
       `,
       [commentIdArr],
@@ -61,7 +61,7 @@ export class CommentLikesQueryRepository {
           comment_id AS "commentId",
           COUNT(user_id)::int AS "dislikesCount"
         FROM comment_dislikes
-        WHERE comment_id = ANY($1::int[])
+        WHERE comment_id = ANY($1)
         GROUP BY comment_id
       `,
       [commentIdArr],
@@ -78,6 +78,8 @@ export class CommentLikesQueryRepository {
       return commentIdArr.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
     }
 
+    const userIdNum = +userId;
+
     const result = await this.pool.query(
       `
         SELECT
@@ -90,12 +92,12 @@ export class CommentLikesQueryRepository {
         FROM unnest($1::int[]) AS c(comment_id)
         LEFT JOIN comment_likes AS cl
           ON c.comment_id = cl.comment_id
-          AND cl.user_id = $2::int
+          AND cl.user_id = $2
         LEFT JOIN comment_dislikes AS cd
           ON c.comment_id = cd.comment_id
-          AND cd.user_id = $2::int
+          AND cd.user_id = $2
       `,
-      [commentIdArr, userId],
+      [commentIdArr, userIdNum],
     );
 
     return result.rows;

@@ -13,26 +13,28 @@ export class CommentLikesRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getLikesCount(commentId: string): Promise<number> {
+    const commentIdNum = +commentId;
     const result = await this.pool.query(
       `
         SELECT COUNT(*)::int
         FROM comment_likes
-        WHERE comment_id = $1::int
+        WHERE comment_id = $1
       `,
-      [commentId],
+      [commentIdNum],
     );
 
     return result.rows[0].count;
   }
 
   async getDislikesCount(commentId: string): Promise<number> {
+    const commentIdNum = +commentId;
     const result = await this.pool.query(
       `
         SELECT COUNT(*)::int
         FROM comment_dislikes
-        WHERE comment_id = $1::int
+        WHERE comment_id = $1
       `,
-      [commentId],
+      [commentIdNum],
     );
 
     return result.rows[0].count;
@@ -42,13 +44,16 @@ export class CommentLikesRepository {
     const { commentId, userId } = params;
     if (userId === null) return LikeStatus.None;
 
+    const commentIdNum = +commentId;
+    const userIdNum = +userId;
+
     const likeResult = await this.pool.query(
       `
         SELECT COUNT(*)::int
         FROM comment_likes
-        WHERE comment_id = $1::int AND user_id = $2::int
+        WHERE comment_id = $1 AND user_id = $2
       `,
-      [commentId, userId],
+      [commentIdNum, userIdNum],
     );
 
     if (likeResult.rows[0].count > 0) return LikeStatus.Like;
@@ -57,9 +62,9 @@ export class CommentLikesRepository {
       `
         SELECT COUNT(*)::int
         FROM comment_dislikes
-        WHERE comment_id = $1::int AND user_id = $2::int
+        WHERE comment_id = $1 AND user_id = $2
       `,
-      [commentId, userId],
+      [commentIdNum, userIdNum],
     );
 
     if (dislikeResult.rows[0].count > 0) return LikeStatus.Dislike;
@@ -68,11 +73,12 @@ export class CommentLikesRepository {
   }
 
   async deleteLikesInfo(commentId: string): Promise<void> {
+    const commentIdNum = +commentId;
     const client = await this.pool.connect();
     try {
       await client.query('BEGIN');
-      await client.query('DELETE FROM comment_likes WHERE comment_id = $1::int', [commentId]);
-      await client.query('DELETE FROM comment_dislikes WHERE comment_id = $1::int', [commentId]);
+      await client.query('DELETE FROM comment_likes WHERE comment_id = $1', [commentIdNum]);
+      await client.query('DELETE FROM comment_dislikes WHERE comment_id = $1', [commentIdNum]);
       await client.query('COMMIT');
     } catch (e) {
       await client.query('ROLLBACK');
@@ -84,6 +90,8 @@ export class CommentLikesRepository {
 
   async setLike(params: SetCommentLikeRepoParams): Promise<void> {
     const { commentId, userId, createdAt } = params;
+    const commentIdNum = +commentId;
+    const userIdNum = +userId;
 
     const client = await this.pool.connect();
     try {
@@ -91,18 +99,18 @@ export class CommentLikesRepository {
       await client.query(
         `
           DELETE FROM comment_dislikes
-          WHERE comment_id = $1::int AND user_id = $2::int
+          WHERE comment_id = $1 AND user_id = $2
         `,
-        [commentId, userId],
+        [commentIdNum, userIdNum],
       );
       await client.query(
         `
           INSERT INTO comment_likes (comment_id, user_id, created_at)
-          VALUES ($1::int, $2::int, $3)
+          VALUES ($1, $2, $3)
           ON CONFLICT (comment_id, user_id) DO UPDATE
           SET created_at = EXCLUDED.created_at
         `,
-        [commentId, userId, createdAt],
+        [commentIdNum, userIdNum, createdAt],
       );
       await client.query(`COMMIT`);
     } catch (e) {
@@ -115,6 +123,8 @@ export class CommentLikesRepository {
 
   async setDislike(params: SetCommentLikeRepoParams): Promise<void> {
     const { commentId, userId, createdAt } = params;
+    const commentIdNum = +commentId;
+    const userIdNum = +userId;
 
     const client = await this.pool.connect();
     try {
@@ -122,18 +132,18 @@ export class CommentLikesRepository {
       await client.query(
         `
           DELETE FROM comment_likes
-          WHERE comment_id = $1::int AND user_id = $2::int
+          WHERE comment_id = $1 AND user_id = $2
         `,
-        [commentId, userId],
+        [commentIdNum, userIdNum],
       );
       await client.query(
         `
           INSERT INTO comment_dislikes (comment_id, user_id, created_at)
-          VALUES ($1::int, $2::int, $3)
+          VALUES ($1, $2, $3)
           ON CONFLICT (comment_id, user_id) DO UPDATE
           SET created_at = EXCLUDED.created_at
         `,
-        [commentId, userId, createdAt],
+        [commentIdNum, userIdNum, createdAt],
       );
       await client.query(`COMMIT`);
     } catch (e) {
@@ -146,6 +156,8 @@ export class CommentLikesRepository {
 
   async setNone(params: SetCommentNoneRepoParams): Promise<void> {
     const { commentId, userId } = params;
+    const commentIdNum = +commentId;
+    const userIdNum = +userId;
 
     const client = await this.pool.connect();
     try {
@@ -153,16 +165,16 @@ export class CommentLikesRepository {
       await client.query(
         `
           DELETE FROM comment_likes
-          WHERE comment_id = $1::int AND user_id = $2::int
+          WHERE comment_id = $1 AND user_id = $2
         `,
-        [commentId, userId],
+        [commentIdNum, userIdNum],
       );
       await client.query(
         `
           DELETE FROM comment_dislikes
-          WHERE comment_id = $1::int AND user_id = $2::int
+          WHERE comment_id = $1 AND user_id = $2
         `,
-        [commentId, userId],
+        [commentIdNum, userIdNum],
       );
       await client.query(`COMMIT`);
     } catch (e) {

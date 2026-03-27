@@ -23,11 +23,13 @@ export class PostsQueryRepository {
       throw new PostNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
-        SELECT EXISTS(SELECT 1 FROM posts WHERE id = $1::int) AS exists
+        SELECT EXISTS(SELECT 1 FROM posts WHERE id = $1) AS exists
       `,
-      [id],
+      [idNum],
     );
 
     if (result.rows[0].exists === false) {
@@ -42,6 +44,8 @@ export class PostsQueryRepository {
       throw new PostNotFoundDomainException();
     }
 
+    const postIdNum = +postId;
+
     const result = await this.pool.query(
       `
         SELECT
@@ -54,9 +58,9 @@ export class PostsQueryRepository {
           posts.created_at
         FROM posts JOIN blogs
           ON posts.blog_id = blogs.id
-        WHERE posts.id = $1::int
+        WHERE posts.id = $1
       `,
-      [postId],
+      [postIdNum],
     );
 
     if (result.rowCount === 0) {
@@ -113,13 +117,15 @@ export class PostsQueryRepository {
         orderBy = sortBy;
     }
 
+    const blogIdNum = blogId ? +blogId : null;
+
     const countResult = await this.pool.query(
       `
         SELECT COUNT(posts.id)::int
         FROM posts
-        WHERE ($1::int IS NULL OR posts.blog_id = $1::int)
+        WHERE ($1 IS NULL OR posts.blog_id = $1)
       `,
-      [blogId ?? null],
+      [blogIdNum],
     );
 
     const totalCount = countResult.rows[0].count;
@@ -137,12 +143,12 @@ export class PostsQueryRepository {
           blogs.name AS blog_name,
           posts.created_at
         FROM posts JOIN blogs ON posts.blog_id = blogs.id
-        WHERE ($1::int IS NULL OR posts.blog_id = $1::int)
+        WHERE ($1 IS NULL OR posts.blog_id = $1)
         ORDER BY ${orderBy} ${sortDirection}
         LIMIT $2
         OFFSET $3
       `,
-      [blogId ?? null, pageSize, skipCount],
+      [blogIdNum, pageSize, skipCount],
     );
 
     const rawPosts = postsResult.rows;

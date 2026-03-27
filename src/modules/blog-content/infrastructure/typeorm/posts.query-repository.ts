@@ -19,7 +19,7 @@ export class PostsQueryRepository {
 
   async getPost(params: FindPostRepoQueryParams): Promise<PostViewModel | null> {
     const { postId: id, userId } = params;
-    const idNum = parseInt(id);
+    const idNum = +id;
     if (isNaN(idNum)) return null;
 
     const post = await this.postEntityRepository.findOne({
@@ -37,7 +37,7 @@ export class PostsQueryRepository {
 
     const qb = this.postEntityRepository.createQueryBuilder('post').innerJoinAndSelect('post.blog', 'blog');
     if (blogId) {
-      qb.where('blog.id = :blogId', { blogId: parseInt(blogId) });
+      qb.where('blog.id = :blogId', { blogId: +blogId });
     }
 
     const direction = sortDirection === 'asc' ? 'ASC' : 'DESC';

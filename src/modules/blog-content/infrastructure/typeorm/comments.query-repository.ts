@@ -19,7 +19,7 @@ export class CommentsQueryRepository {
 
   async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewModel | null> {
     const { commentId: id, userId } = params;
-    const idNum = parseInt(id);
+    const idNum = +id;
     if (isNaN(idNum)) return null;
 
     const comment = await this.commentEntityRepository.findOne({
@@ -42,7 +42,7 @@ export class CommentsQueryRepository {
       .createQueryBuilder('comment')
       .innerJoinAndSelect('comment.user', 'user')
       .innerJoinAndSelect('comment.post', 'post')
-      .where('post.id = :postId', { postId })
+      .where('post.id = :postId', { postId: +postId })
       .orderBy(sortBy, direction)
       .take(pageSize)
       .skip(skipCount);

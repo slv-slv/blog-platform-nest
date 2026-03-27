@@ -102,13 +102,15 @@ export class UsersQueryRepository {
       throw new UnauthorizedDomainException('User not found');
     }
 
+    const userIdNum = +userId;
+
     const result = await this.pool.query(
       `
         SELECT login, email
         FROM users
-        WHERE id = $1::int
+        WHERE id = $1
       `,
-      [userId],
+      [userIdNum],
     );
 
     if (result.rowCount === 0) {

@@ -36,7 +36,7 @@ export class SessionsRepository {
     const { userId, deviceId, deviceName, ip, jti, iat, exp } = params;
     const device = this.sessionEntityRepository.create({
       id: deviceId,
-      userId: parseInt(userId),
+      userId: +userId,
       name: deviceName,
       ip,
       jti,

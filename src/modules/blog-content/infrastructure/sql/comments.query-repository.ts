@@ -25,6 +25,8 @@ export class CommentsQueryRepository {
       throw new CommentNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
         SELECT
@@ -35,9 +37,9 @@ export class CommentsQueryRepository {
           users.login AS commentator_login
         FROM comments JOIN users
           ON comments.user_id = users.id
-        WHERE comments.id = $1::int
+        WHERE comments.id = $1
       `,
-      [id],
+      [idNum],
     );
 
     if (result.rowCount === 0) {
@@ -75,6 +77,8 @@ export class CommentsQueryRepository {
       };
     }
 
+    const postIdNum = +postId;
+
     let orderBy: string;
     switch (sortBy) {
       case 'commentatorInfo':
@@ -91,9 +95,9 @@ export class CommentsQueryRepository {
       `
         SELECT COUNT(id)::int
         FROM comments
-        WHERE post_id = $1::int
+        WHERE post_id = $1
       `,
-      [postId],
+      [postIdNum],
     );
 
     const totalCount = countResult.rows[0].count;
@@ -110,12 +114,12 @@ export class CommentsQueryRepository {
           users.login AS commentator_login
         FROM comments JOIN users
           ON comments.user_id = users.id
-        WHERE comments.post_id = $1::int
+        WHERE comments.post_id = $1
         ORDER BY ${orderBy} ${sortDirection}
         LIMIT $2
         OFFSET $3
       `,
-      [postId, pageSize, skipCount],
+      [postIdNum, pageSize, skipCount],
     );
 
     const rawComments = commentsResult.rows;

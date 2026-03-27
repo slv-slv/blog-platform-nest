@@ -22,11 +22,13 @@ export class CommentsRepository {
       throw new CommentNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
-        SELECT EXISTS(SELECT 1 FROM comments WHERE id = $1::int) AS exists
+        SELECT EXISTS(SELECT 1 FROM comments WHERE id = $1) AS exists
       `,
-      [id],
+      [idNum],
     );
 
     if (result.rows[0].exists === false) {
@@ -39,6 +41,8 @@ export class CommentsRepository {
       throw new CommentNotFoundDomainException();
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
         SELECT
@@ -48,9 +52,9 @@ export class CommentsRepository {
           users.login AS commentator_login
         FROM comments JOIN users
           ON comments.user_id = users.id
-        WHERE comments.id = $1::int
+        WHERE comments.id = $1
       `,
-      [id],
+      [idNum],
     );
 
     if (result.rowCount === 0) {
@@ -81,13 +85,16 @@ export class CommentsRepository {
       throw new UnauthorizedDomainException();
     }
 
+    const postIdNum = +postId;
+    const userIdNum = +commentatorInfo.userId;
+
     const result = await this.pool.query(
       `
         INSERT INTO comments (post_id, user_id, content, created_at)
-        VALUES ($1::int, $2::int, $3, $4)
+        VALUES ($1, $2, $3, $4)
         RETURNING id
       `,
-      [postId, commentatorInfo.userId, content, createdAt],
+      [postIdNum, userIdNum, content, createdAt],
     );
 
     const id = result.rows[0].id.toString();
@@ -101,13 +108,15 @@ export class CommentsRepository {
       return false;
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
         UPDATE comments
         SET content = $2
-        WHERE id = $1::int
+        WHERE id = $1
       `,
-      [id, content],
+      [idNum, content],
     );
 
     return result.rowCount! > 0;
@@ -117,12 +126,14 @@ export class CommentsRepository {
       return false;
     }
 
+    const idNum = +id;
+
     const result = await this.pool.query(
       `
         DELETE FROM comments
-        WHERE id = $1::int
+        WHERE id = $1
       `,
-      [id],
+      [idNum],
     );
 
     return result.rowCount! > 0;

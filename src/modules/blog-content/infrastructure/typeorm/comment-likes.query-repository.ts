@@ -18,26 +18,28 @@ export class CommentLikesQueryRepository {
   }
 
   private async getLikesCount(commentId: string): Promise<number> {
+    const commentIdNum = +commentId;
     const result = await this.pool.query(
       `
         SELECT COUNT(*)::int
         FROM comment_likes
-        WHERE comment_id = $1::int
+        WHERE comment_id = $1
       `,
-      [commentId],
+      [commentIdNum],
     );
 
     return result.rows[0].count;
   }
 
   private async getDislikesCount(commentId: string): Promise<number> {
+    const commentIdNum = +commentId;
     const result = await this.pool.query(
       `
         SELECT COUNT(*)::int
         FROM comment_dislikes
-        WHERE comment_id = $1::int
+        WHERE comment_id = $1
       `,
-      [commentId],
+      [commentIdNum],
     );
 
     return result.rows[0].count;
@@ -47,13 +49,16 @@ export class CommentLikesQueryRepository {
     const { commentId, userId } = params;
     if (userId === null) return LikeStatus.None;
 
+    const commentIdNum = +commentId;
+    const userIdNum = +userId;
+
     const likeResult = await this.pool.query(
       `
         SELECT COUNT(*)::int
         FROM comment_likes
-        WHERE comment_id = $1::int AND user_id = $2::int
+        WHERE comment_id = $1 AND user_id = $2
       `,
-      [commentId, userId],
+      [commentIdNum, userIdNum],
     );
 
     if (likeResult.rows[0].count > 0) return LikeStatus.Like;
@@ -62,9 +67,9 @@ export class CommentLikesQueryRepository {
       `
         SELECT COUNT(*)::int
         FROM comment_dislikes
-        WHERE comment_id = $1::int AND user_id = $2::int
+        WHERE comment_id = $1 AND user_id = $2
       `,
-      [commentId, userId],
+      [commentIdNum, userIdNum],
     );
 
     if (dislikeResult.rows[0].count > 0) return LikeStatus.Dislike;

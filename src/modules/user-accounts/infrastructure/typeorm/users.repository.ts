@@ -39,7 +39,7 @@ export class UsersRepository {
   async getLogin(id: string): Promise<string> {
     const user = await this.userEntityRepository.findOne({
       select: { login: true },
-      where: { id: Number.parseInt(id) },
+      where: { id: +id },
     });
 
     if (!user) {
@@ -143,7 +143,7 @@ export class UsersRepository {
   }
 
   async deleteUser(id: string): Promise<boolean> {
-    const deleteResult = await this.userEntityRepository.softDelete({ id: Number.parseInt(id) });
+    const deleteResult = await this.userEntityRepository.softDelete({ id: +id });
     return deleteResult.affected! > 0;
   }
 }
