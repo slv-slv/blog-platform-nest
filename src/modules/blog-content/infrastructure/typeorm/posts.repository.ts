@@ -3,7 +3,10 @@ import { CreatePostRepoParams, PostModel, UpdatePostRepoParams } from '../../typ
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './posts.entities.js';
 import { Repository } from 'typeorm';
-import { PostNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import {
+  BlogNotFoundDomainException,
+  PostNotFoundDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
@@ -41,30 +44,18 @@ export class PostsRepository {
 
   async createPost(params: CreatePostRepoParams): Promise<PostModel> {
     const { title, shortDescription, content, blogId, blogName, createdAt } = params;
-    const blogIdNum = parseInt(blogId);
+    if (!isPositiveIntegerString(blogId)) {
+      throw new BlogNotFoundDomainException();
+    }
 
-    // const result = await this.postEntityRepository
-    //   .createQueryBuilder('post')
-    //   .insert()
-    //   .into(Post)
-    //   .values({ title, shortDescription, content, blog: { id: blogIdNum }, createdAt })
-    //   .execute();
-
-    // const id = result.identifiers[0].toString();
-
-    const post = this.postEntityRepository.create({
+    const result = await this.postEntityRepository.insert({
+      blogId: +blogId,
       title,
       shortDescription,
       content,
-      blog: { id: blogIdNum },
       createdAt,
     });
-
-    const savedPost = await this.postEntityRepository.save(post);
-    const id = savedPost.id.toString();
-
-    // так будет blogName запрашиваться в БД лишний раз
-    // return savedPost.toModel();
+    const id = result.identifiers[0].id.toString();
 
     return {
       id,
