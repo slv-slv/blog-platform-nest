@@ -24,7 +24,7 @@ export class BlogsQueryRepository {
     return this.mapToBlogViewModel(blog);
   }
 
-  async getAllBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedViewModel> {
+  async getBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedViewModel> {
     const { searchNameTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
