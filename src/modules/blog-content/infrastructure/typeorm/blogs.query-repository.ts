@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BlogViewModel, BlogsPaginatedViewModel, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './blogs.entities.js';
@@ -22,6 +22,18 @@ export class BlogsQueryRepository {
     }
 
     return this.mapToBlogViewModel(blog);
+  }
+
+  async checkBlogExists(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new BlogNotFoundDomainException();
+    }
+
+    const exists = await this.blogEntityRepository.existsBy({ id: +id });
+
+    if (!exists) {
+      throw new BlogNotFoundDomainException();
+    }
   }
 
   async getBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedViewModel> {
