@@ -24,6 +24,18 @@ export class BlogsRepository {
     return this.mapToBlogModel(blog);
   }
 
+  async checkBlogExists(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new BlogNotFoundDomainException();
+    }
+
+    const exists = await this.blogEntityRepository.existsBy({ id: +id });
+
+    if (!exists) {
+      throw new BlogNotFoundDomainException();
+    }
+  }
+
   async createBlog(params: CreateBlogRepoParams): Promise<BlogModel> {
     const { name, description, websiteUrl, createdAt, isMembership } = params;
     const result = await this.blogEntityRepository.insert({
