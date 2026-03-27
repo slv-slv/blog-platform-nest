@@ -1,17 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { LikeStatus } from '../../types/likes.types.js';
-import {
-  PostLikeStatusRepoParams,
-  SetPostLikeRepoParams,
-  SetPostNoneRepoParams,
-} from '../../types/post-likes.types.js';
+import { SetPostLikeRepoParams, SetPostNoneRepoParams } from '../../types/post-likes.types.js';
 import { PostDislike, PostLike } from './post-likes.entities.js';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
+import { coreConfig } from '../../../../config/core.config.js';
 
 @Injectable()
 export class PostLikesRepository {
   constructor(
+    @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
+    @InjectDataSource() private readonly dataSource: DataSource,
     @InjectRepository(PostLike) private readonly postLikesEntityRepository: Repository<PostLike>,
     @InjectRepository(PostDislike) private readonly postDislikesEntityRepository: Repository<PostDislike>,
   ) {}
@@ -40,138 +41,160 @@ export class PostLikesRepository {
     return result;
   }
 
-  async getLikeStatus(params: PostLikeStatusRepoParams): Promise<LikeStatus> {
-    const { postId, userId } = params;
-    if (userId === null) return LikeStatus.None;
+  async getLikeStatus(
+    postIdArr: number[],
+    userId: string | null,
+  ): Promise<{ postId: number; myStatus: LikeStatus }[]> {
+    if (userId === null || !isPositiveIntegerString(userId)) {
+      return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
+    }
 
-    const likeResult = await this.pool.query(
-      `
-        SELECT COUNT(*)::int
-        FROM post_likes
-        WHERE post_id = $1::int AND user_id = $2::int
-      `,
-      [postId, userId],
-    );
+    const userIdNum = +userId;
 
-    if (likeResult.rows[0].count > 0) return LikeStatus.Like;
+    const result = await this.dataSource
+      .createQueryBuilder()
+      .select('p."postId"', 'postId')
+      .addSelect(
+        `
+          CASE
+            WHEN postLike.userId IS NOT NULL THEN 'Like'
+            WHEN postDislike.userId IS NOT NULL THEN 'Dislike'
+            ELSE 'None'
+          END
+        `,
+        'myStatus',
+      )
+      .from('unnest(:postIdArr::int[])', 'p(postId)')
+      .leftJoin(PostLike, 'postLike', 'p."postId" = postLike.postId AND postLike.userId = :userId')
+      .leftJoin(
+        PostDislike,
+        'postDislike',
+        'p."postId" = postDislike.postId AND postDislike.userId = :userId',
+      )
+      .setParameters({ postIdArr, userIdNum })
+      .getRawMany<{ postId: number; myStatus: LikeStatus }>();
 
-    const dislikeResult = await this.pool.query(
-      `
-        SELECT COUNT(*)::int
-        FROM post_dislikes
-        WHERE post_id = $1::int AND user_id = $2::int
-      `,
-      [postId, userId],
-    );
-
-    if (dislikeResult.rows[0].count > 0) return LikeStatus.Dislike;
-
-    return LikeStatus.None;
+    return result;
   }
 
-  // async deleteLikesInfo(postId: string): Promise<void> {
-  //   const client = await this.pool.connect();
-  //   try {
-  //     await client.query('BEGIN');
-  //     await client.query('DELETE FROM post_likes WHERE post_id = $1', [parseInt(postId)]);
-  //     await client.query('DELETE FROM post_dislikes WHERE post_id = $1', [parseInt(postId)]);
-  //     await client.query('COMMIT');
-  //   } catch (e) {
-  //     await client.query('ROLLBACK');
-  //     throw e;
-  //   } finally {
-  //     client.release();
-  //   }
-  // }
+  async getNewestLikes(
+    postIdArr: number[],
+  ): Promise<{ postId: number; addedAt: Date; userId: number; login: string }[]> {
+    const newestLikesNumber = this.core.newestLikesNumber;
+
+    const result = await this.dataSource.query<
+      { postId: number; addedAt: Date; userId: number; login: string }[]
+    >(
+      `
+        WITH like_row_numbers AS
+        (SELECT
+          post_id,
+          created_at,
+          user_id,
+          ROW_NUMBER() OVER (PARTITION BY post_id ORDER BY created_at DESC) AS rn
+        FROM post_likes
+        WHERE post_id = ANY($1))
+        SELECT
+          post_id AS "postId",
+          lrn.created_at AS "addedAt",
+          user_id AS "userId",
+          u.login
+        FROM like_row_numbers AS lrn JOIN users AS u
+          ON lrn.user_id = u.id
+        WHERE lrn.rn <= $2
+        ORDER BY post_id, lrn.created_at DESC
+      `,
+      [postIdArr, newestLikesNumber],
+    );
+
+    return result;
+  }
 
   async setLike(params: SetPostLikeRepoParams): Promise<void> {
     const { postId, userId, createdAt } = params;
 
-    const client = await this.pool.connect();
-    try {
-      await client.query(`BEGIN`);
-      await client.query(
+    if (!isPositiveIntegerString(postId) || !isPositiveIntegerString(userId)) {
+      return;
+    }
+
+    const postIdNum = +postId;
+    const userIdNum = +userId;
+
+    await this.dataSource.transaction(async (manager) => {
+      await manager.query(
         `
           DELETE FROM post_dislikes
-          WHERE post_id = $1::int AND user_id = $2::int
+          WHERE post_id = $1 AND user_id = $2
         `,
-        [postId, userId],
+        [postIdNum, userIdNum],
       );
-      await client.query(
+      await manager.query(
         `
           INSERT INTO post_likes (post_id, user_id, created_at)
-          VALUES ($1::int, $2::int, $3)
+          VALUES ($1, $2, $3)
           ON CONFLICT (post_id, user_id) DO UPDATE
           SET created_at = EXCLUDED.created_at
         `,
-        [postId, userId, createdAt],
+        [postIdNum, userIdNum, createdAt],
       );
-      await client.query(`COMMIT`);
-    } catch (e) {
-      await client.query(`ROLLBACK`);
-      throw e;
-    } finally {
-      client.release();
-    }
+    });
   }
 
   async setDislike(params: SetPostLikeRepoParams): Promise<void> {
     const { postId, userId, createdAt } = params;
 
-    const client = await this.pool.connect();
-    try {
-      await client.query(`BEGIN`);
-      await client.query(
+    if (!isPositiveIntegerString(postId) || !isPositiveIntegerString(userId)) {
+      return;
+    }
+
+    const postIdNum = +postId;
+    const userIdNum = +userId;
+
+    await this.dataSource.transaction(async (manager) => {
+      await manager.query(
         `
           DELETE FROM post_likes
-          WHERE post_id = $1::int AND user_id = $2::int
+          WHERE post_id = $1 AND user_id = $2
         `,
-        [postId, userId],
+        [postIdNum, userIdNum],
       );
-      await client.query(
+      await manager.query(
         `
           INSERT INTO post_dislikes (post_id, user_id, created_at)
-          VALUES ($1::int, $2::int, $3)
+          VALUES ($1, $2, $3)
           ON CONFLICT (post_id, user_id) DO UPDATE
           SET created_at = EXCLUDED.created_at
         `,
-        [postId, userId, createdAt],
+        [postIdNum, userIdNum, createdAt],
       );
-      await client.query(`COMMIT`);
-    } catch (e) {
-      await client.query(`ROLLBACK`);
-      throw e;
-    } finally {
-      client.release();
-    }
+    });
   }
 
   async setNone(params: SetPostNoneRepoParams): Promise<void> {
     const { postId, userId } = params;
 
-    const client = await this.pool.connect();
-    try {
-      await client.query(`BEGIN`);
-      await client.query(
+    if (!isPositiveIntegerString(postId) || !isPositiveIntegerString(userId)) {
+      return;
+    }
+
+    const postIdNum = +postId;
+    const userIdNum = +userId;
+
+    await this.dataSource.transaction(async (manager) => {
+      await manager.query(
         `
           DELETE FROM post_likes
-          WHERE post_id = $1::int AND user_id = $2::int
+          WHERE post_id = $1 AND user_id = $2
         `,
-        [postId, userId],
+        [postIdNum, userIdNum],
       );
-      await client.query(
+      await manager.query(
         `
           DELETE FROM post_dislikes
-          WHERE post_id = $1::int AND user_id = $2::int
+          WHERE post_id = $1 AND user_id = $2
         `,
-        [postId, userId],
+        [postIdNum, userIdNum],
       );
-      await client.query(`COMMIT`);
-    } catch (e) {
-      await client.query(`ROLLBACK`);
-      throw e;
-    } finally {
-      client.release();
-    }
+    });
   }
 }
