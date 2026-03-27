@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BlogModel, CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './blogs.entities.js';
@@ -46,19 +46,18 @@ export class BlogsRepository {
     };
   }
 
-  async updateBlog(params: UpdateBlogRepoParams): Promise<boolean> {
+  async updateBlog(params: UpdateBlogRepoParams): Promise<void> {
     const { id, name, description, websiteUrl } = params;
-    const idNum = parseInt(id);
-    if (isNaN(idNum)) return false;
 
-    const result = await this.blogEntityRepository
-      .createQueryBuilder()
-      .update(Blog)
-      .set({ name, description, websiteUrl })
-      .where('id = :id', { id: idNum })
-      .execute();
+    if (!isPositiveIntegerString(id)) {
+      throw new BlogNotFoundDomainException();
+    }
 
-    return result.affected! > 0;
+    const result = await this.blogEntityRepository.update({ id: +id }, { name, description, websiteUrl });
+
+    if (result.affected === 0) {
+      throw new BlogNotFoundDomainException();
+    }
   }
 
   async deleteBlog(id: string): Promise<boolean> {
