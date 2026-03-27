@@ -60,18 +60,16 @@ export class BlogsRepository {
     }
   }
 
-  async deleteBlog(id: string): Promise<boolean> {
-    const idNum = parseInt(id);
-    if (isNaN(idNum)) return false;
+  async deleteBlog(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new BlogNotFoundDomainException();
+    }
 
-    const result = await this.blogEntityRepository
-      .createQueryBuilder()
-      .softDelete()
-      .from(Blog)
-      .where('id = :id', { id: idNum })
-      .execute();
+    const result = await this.blogEntityRepository.softDelete({ id: +id });
 
-    return result.affected! > 0;
+    if (result.affected === 0) {
+      throw new BlogNotFoundDomainException();
+    }
   }
 
   private mapToBlogModel(blog: Blog): BlogModel {
