@@ -1,28 +1,30 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreatePostRepoParams, PostModel, UpdatePostRepoParams } from '../../types/posts.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './posts.entities.js';
 import { Repository } from 'typeorm';
-import { Blog } from './blogs.entities.js';
+import { PostNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class PostsRepository {
-  constructor(
-    @InjectRepository(Blog) private readonly blogEntityRepository: Repository<Blog>,
-    @InjectRepository(Post) private readonly postEntityRepository: Repository<Post>,
-  ) {}
+  constructor(@InjectRepository(Post) private readonly postEntityRepository: Repository<Post>) {}
 
-  async getPost(id: string): Promise<PostModel | null> {
-    const idNum = parseInt(id);
-    if (isNaN(idNum)) return null;
+  async getPost(id: string): Promise<PostModel> {
+    if (!isPositiveIntegerString(id)) {
+      throw new PostNotFoundDomainException();
+    }
 
-    const post = await this.postEntityRepository
-      .createQueryBuilder('post')
-      .where('post.id = :id', { id: idNum })
-      .getOne();
+    const post = await this.postEntityRepository.findOne({
+      where: { id: +id },
+      relations: { blog: true },
+    });
 
-    if (!post) return null;
-    return post.toModel();
+    if (!post) {
+      throw new PostNotFoundDomainException();
+    }
+
+    return this.mapToPostModel(post);
   }
 
   async createPost(params: CreatePostRepoParams): Promise<PostModel> {
@@ -59,7 +61,7 @@ export class PostsRepository {
       content,
       blogId,
       blogName,
-      createdAt: createdAt.toISOString(),
+      createdAt,
     };
   }
 
@@ -90,5 +92,17 @@ export class PostsRepository {
       .execute();
 
     return result.affected! > 0;
+  }
+
+  private mapToPostModel(post: Post): PostModel {
+    return {
+      id: post.id.toString(),
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      blogId: post.blogId.toString(),
+      blogName: post.blog.name,
+      createdAt: post.createdAt,
+    };
   }
 }
