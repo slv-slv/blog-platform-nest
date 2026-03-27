@@ -68,19 +68,18 @@ export class PostsRepository {
     };
   }
 
-  async updatePost(params: UpdatePostRepoParams): Promise<boolean> {
+  async updatePost(params: UpdatePostRepoParams): Promise<void> {
     const { id, title, shortDescription, content } = params;
-    const idNum = parseInt(id);
-    if (isNaN(idNum)) return false;
 
-    const result = await this.postEntityRepository
-      .createQueryBuilder()
-      .update(Post)
-      .set({ title, shortDescription, content })
-      .where('id = :id', { id: idNum })
-      .execute();
+    if (!isPositiveIntegerString(id)) {
+      throw new PostNotFoundDomainException();
+    }
 
-    return result.affected! > 0;
+    const result = await this.postEntityRepository.update({ id: +id }, { title, shortDescription, content });
+
+    if (result.affected === 0) {
+      throw new PostNotFoundDomainException();
+    }
   }
 
   async deletePost(id: string): Promise<boolean> {
