@@ -5,13 +5,16 @@ import {
   SetPostLikeRepoParams,
   SetPostNoneRepoParams,
 } from '../../types/post-likes.types.js';
-import { PostLike } from './post-likes.entities.js';
+import { PostDislike, PostLike } from './post-likes.entities.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class PostLikesRepository {
-  constructor(@InjectRepository(PostLike) private readonly postLikesEntityRepository: Repository<PostLike>) {}
+  constructor(
+    @InjectRepository(PostLike) private readonly postLikesEntityRepository: Repository<PostLike>,
+    @InjectRepository(PostDislike) private readonly postDislikesEntityRepository: Repository<PostDislike>,
+  ) {}
 
   async getLikesCount(postIdArr: number[]): Promise<{ postId: number; likesCount: number }[]> {
     const result = await this.postLikesEntityRepository
@@ -25,17 +28,16 @@ export class PostLikesRepository {
     return result;
   }
 
-  async getDislikesCount(postId: string): Promise<number> {
-    const result = await this.pool.query(
-      `
-        SELECT COUNT(*)::int
-        FROM post_dislikes
-        WHERE post_id = $1::int
-      `,
-      [postId],
-    );
+  async getDislikesCount(postIdArr: number[]): Promise<{ postId: number; dislikesCount: number }[]> {
+    const result = await this.postDislikesEntityRepository
+      .createQueryBuilder('postDislike')
+      .select('postDislike.postId', 'postId')
+      .addSelect('COUNT(postDislike.userId)::int', 'dislikesCount')
+      .where('postDislike.postId = ANY(:postIdArr)', { postIdArr })
+      .groupBy('postDislike.postId')
+      .getRawMany();
 
-    return result.rows[0].count;
+    return result;
   }
 
   async getLikeStatus(params: PostLikeStatusRepoParams): Promise<LikeStatus> {
