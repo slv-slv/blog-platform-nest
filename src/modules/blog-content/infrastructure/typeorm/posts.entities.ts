@@ -12,7 +12,6 @@ import { Blog } from './blogs.entities.js';
 import { Comment } from './comments.entities.js';
 import { PostDislike, PostLike } from './post-likes.entities.js';
 import { PostLikesQueryRepository } from './post-likes.query-repository.js';
-import { PostModel, PostViewModel } from '../../types/posts.types.js';
 
 @Entity({ name: 'posts' })
 export class Post {
@@ -51,30 +50,4 @@ export class Post {
 
   @OneToMany(() => PostDislike, (postDislike) => postDislike.post)
   declare dislikes: Relation<PostDislike[]>;
-
-  toModel(): PostModel {
-    return {
-      id: this.id.toString(),
-      title: this.title,
-      shortDescription: this.shortDescription,
-      content: this.content,
-      blogId: this.blog.id.toString(),
-      blogName: this.blog.name,
-      createdAt: this.createdAt.toISOString(),
-    };
-  }
-
-  async toViewModel(userId?: string): Promise<PostViewModel> {
-    const idStr = this.id.toString();
-    return {
-      id: idStr,
-      title: this.title,
-      shortDescription: this.shortDescription,
-      content: this.content,
-      blogId: this.blogId.toString(),
-      blogName: this.blog.name,
-      createdAt: this.createdAt.toISOString(),
-      extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo({ postId: idStr, userId }),
-    };
-  }
 }
