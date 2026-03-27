@@ -26,15 +26,24 @@ export class BlogsRepository {
 
   async createBlog(params: CreateBlogRepoParams): Promise<BlogModel> {
     const { name, description, websiteUrl, createdAt, isMembership } = params;
-    const blog = this.blogEntityRepository.create({
+    const result = await this.blogEntityRepository.insert({
       name,
       description,
       websiteUrl,
       createdAt,
       isMembership,
     });
-    const insertedBlog = await this.blogEntityRepository.save(blog);
-    return this.mapToBlogModel(insertedBlog);
+
+    const id = result.identifiers[0].id.toString();
+
+    return {
+      id,
+      name,
+      description,
+      websiteUrl,
+      createdAt: createdAt.toISOString(),
+      isMembership,
+    };
   }
 
   async updateBlog(params: UpdateBlogRepoParams): Promise<boolean> {
