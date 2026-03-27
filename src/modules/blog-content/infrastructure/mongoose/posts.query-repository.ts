@@ -5,8 +5,8 @@ import { Post } from './posts.schemas.js';
 import {
   FindPostRepoQueryParams,
   GetPostsRepoQueryParams,
-  PostsPaginatedType,
-  PostViewType,
+  PostsPaginatedViewModel,
+  PostViewModel,
 } from '../../types/posts.types.js';
 import { ObjectId } from 'mongodb';
 import { PostLikesQueryRepository } from './post-likes.query-repository.js';
@@ -18,7 +18,7 @@ export class PostsQueryRepository {
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 
-  async getPost(params: FindPostRepoQueryParams): Promise<PostViewType | null> {
+  async getPost(params: FindPostRepoQueryParams): Promise<PostViewModel | null> {
     const { postId: id, userId } = params;
     if (!ObjectId.isValid(id)) {
       return null;
@@ -34,7 +34,7 @@ export class PostsQueryRepository {
     return { id, ...post, extendedLikesInfo: likesInfoMap.get(id)! };
   }
 
-  async getPosts(params: GetPostsRepoQueryParams): Promise<PostsPaginatedType> {
+  async getPosts(params: GetPostsRepoQueryParams): Promise<PostsPaginatedViewModel> {
     const { userId, pagingParams, blogId } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 

@@ -12,7 +12,7 @@ import { Blog } from './blogs.entities.js';
 import { Comment } from './comments.entities.js';
 import { PostDislike, PostLike } from './post-likes.entities.js';
 import { PostLikesQueryRepository } from './post-likes.query-repository.js';
-import { PostDtoType, PostViewType } from '../../types/posts.types.js';
+import { PostModel, PostViewModel } from '../../types/posts.types.js';
 
 @Entity({ name: 'posts' })
 export class Post {
@@ -52,7 +52,7 @@ export class Post {
   @OneToMany(() => PostDislike, (postDislike) => postDislike.post)
   declare dislikes: Relation<PostDislike[]>;
 
-  toDto(): PostDtoType {
+  toModel(): PostModel {
     return {
       id: this.id.toString(),
       title: this.title,
@@ -64,7 +64,7 @@ export class Post {
     };
   }
 
-  async toViewType(userId?: string): Promise<PostViewType> {
+  async toViewModel(userId?: string): Promise<PostViewModel> {
     const idStr = this.id.toString();
     return {
       id: idStr,

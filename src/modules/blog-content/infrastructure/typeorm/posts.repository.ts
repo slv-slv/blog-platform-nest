@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreatePostRepoParams, PostDtoType, UpdatePostRepoParams } from '../../types/posts.types.js';
+import { CreatePostRepoParams, PostModel, UpdatePostRepoParams } from '../../types/posts.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './posts.entities.js';
 import { Repository } from 'typeorm';
@@ -12,7 +12,7 @@ export class PostsRepository {
     @InjectRepository(Post) private readonly postEntityRepository: Repository<Post>,
   ) {}
 
-  async getPost(id: string): Promise<PostDtoType | null> {
+  async getPost(id: string): Promise<PostModel | null> {
     const idNum = parseInt(id);
     if (isNaN(idNum)) return null;
 
@@ -22,10 +22,10 @@ export class PostsRepository {
       .getOne();
 
     if (!post) return null;
-    return post.toDto();
+    return post.toModel();
   }
 
-  async createPost(params: CreatePostRepoParams): Promise<PostDtoType> {
+  async createPost(params: CreatePostRepoParams): Promise<PostModel> {
     const { title, shortDescription, content, blogId, blogName, createdAt } = params;
     const blogIdNum = parseInt(blogId);
 
@@ -50,7 +50,7 @@ export class PostsRepository {
     const id = savedPost.id.toString();
 
     // так будет blogName запрашиваться в БД лишний раз
-    // return savedPost.toDto();
+    // return savedPost.toModel();
 
     return {
       id,

@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  ConfirmationInfoType,
+  ConfirmationInfoModel,
   CreateUserRepoParams,
-  PasswordRecoveryInfoType,
+  PasswordRecoveryInfoModel,
   UpdateConfirmationCodeParams,
   UpdateRecoveryCodeParams,
-  UserType,
-  UserViewType,
+  UserModel,
+  UserViewModel,
 } from '../../types/users.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
@@ -24,7 +24,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class UsersRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async findUser(loginOrEmail: string): Promise<UserType> {
+  async findUser(loginOrEmail: string): Promise<UserModel> {
     const likeTerm = `%${loginOrEmail}%`;
     const usersResult = await this.pool.query(
       `
@@ -146,7 +146,7 @@ export class UsersRepository {
     return hash;
   }
 
-  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType> {
+  async getConfirmationInfo(code: string): Promise<ConfirmationInfoModel> {
     const result = await this.pool.query(
       `
         SELECT is_confirmed, confirmation_expiration
@@ -164,7 +164,7 @@ export class UsersRepository {
     return { isConfirmed, code, expiration };
   }
 
-  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType> {
+  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoModel> {
     const result = await this.pool.query(
       `
         SELECT recovery_expiration FROM users
@@ -181,7 +181,7 @@ export class UsersRepository {
     return { code, expiration };
   }
 
-  async createUser(params: CreateUserRepoParams): Promise<UserViewType> {
+  async createUser(params: CreateUserRepoParams): Promise<UserViewModel> {
     const { login, email, hash, createdAt, confirmation, passwordRecovery } = params;
     let id: number;
     const result = await this.pool.query(

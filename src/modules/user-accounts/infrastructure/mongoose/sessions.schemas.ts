@@ -1,6 +1,6 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 
-export type DeviceType = {
+export type DeviceModel = {
   id: string;
   name: string;
   ip: string;
@@ -38,7 +38,7 @@ export class Session {
   declare userId: string;
 
   @Prop({ type: [DeviceSchema], required: true })
-  declare devices: DeviceType[];
+  declare devices: DeviceModel[];
 }
 
 export const SessionSchema = SchemaFactory.createForClass(Session);

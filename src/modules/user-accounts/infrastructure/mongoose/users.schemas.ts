@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ConfirmationInfoType } from '../../types/users.types.js';
+import { ConfirmationInfoModel } from '../../types/users.types.js';
 
 @Schema({ _id: false })
 class ConfirmationInfo {
@@ -41,7 +41,7 @@ export class User {
   declare createdAt: Date;
 
   @Prop({ type: ConfirmationInfoSchema, required: true })
-  declare confirmation: ConfirmationInfoType;
+  declare confirmation: ConfirmationInfoModel;
 
   @Prop({ type: PasswordRecoveryInfoSchema, required: true })
   declare passwordRecovery: PasswordRecoveryInfo;

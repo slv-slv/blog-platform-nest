@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { DeviceType, Session } from './sessions.schemas.js';
+import { DeviceModel, Session } from './sessions.schemas.js';
 import { Model } from 'mongoose';
-import { CreateSessionParams, DeviceViewType } from '../../types/sessions.types.js';
+import { CreateSessionParams, DeviceViewModel } from '../../types/sessions.types.js';
 import { DeviceNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
@@ -17,13 +17,13 @@ export class SessionsRepository {
     return !!session;
   }
 
-  async findDevice(deviceId: string): Promise<DeviceViewType> {
+  async findDevice(deviceId: string): Promise<DeviceViewModel> {
     const session = await this.model.findOne({ 'devices.id': deviceId }).lean();
 
     if (!session) {
       throw new DeviceNotFoundDomainException();
     }
-    const device = session.devices.find((device: DeviceType) => device.id === deviceId)!;
+    const device = session.devices.find((device: DeviceModel) => device.id === deviceId)!;
 
     return {
       ip: device.ip,
@@ -45,7 +45,7 @@ export class SessionsRepository {
 
   async createSession(params: CreateSessionParams): Promise<void> {
     const { userId, deviceId, deviceName, ip, jti, iat, exp } = params;
-    const newDevice: DeviceType = {
+    const newDevice: DeviceModel = {
       id: deviceId,
       name: deviceName,
       ip,

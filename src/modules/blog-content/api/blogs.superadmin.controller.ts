@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import {
-  BlogsPaginatedType,
-  BlogViewType,
+  BlogsPaginatedViewModel,
+  BlogViewModel,
   CreateBlogInputDto,
   GetBlogsQueryParams,
   UpdateBlogInputDto,
@@ -9,8 +9,8 @@ import {
 import {
   CreatePostInputDto,
   GetPostsQueryParams,
-  PostsPaginatedType,
-  PostViewType,
+  PostsPaginatedViewModel,
+  PostViewModel,
   UpdatePostInputDto,
 } from '../types/posts.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
@@ -34,20 +34,20 @@ export class BlogsSuperadminController {
   ) {}
 
   @Get()
-  async getBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedType> {
+  async getBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedViewModel> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
     return await this.queryBus.execute(new GetBlogsQuery({ searchNameTerm, pagingParams }));
   }
 
   @Get(':id')
-  async getBlog(@Param('id') id: string): Promise<BlogViewType> {
+  async getBlog(@Param('id') id: string): Promise<BlogViewModel> {
     return await this.queryBus.execute(new GetBlogQuery(id));
   }
 
   @Post()
   @HttpCode(201)
-  async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewType> {
+  async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewModel> {
     const { name, description, websiteUrl } = body;
     return await this.commandBus.execute(new CreateBlogCommand({ name, description, websiteUrl }));
   }
@@ -69,7 +69,7 @@ export class BlogsSuperadminController {
   async getPostsForBlog(
     @Param('blogId') blogId: string,
     @Query() query: GetPostsQueryParams,
-  ): Promise<PostsPaginatedType> {
+  ): Promise<PostsPaginatedViewModel> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
     return await this.queryBus.execute(new GetPostsQuery({ pagingParams, blogId }));
@@ -77,7 +77,7 @@ export class BlogsSuperadminController {
 
   @Post(':blogId/posts')
   @HttpCode(201)
-  async createPost(@Param('blogId') blogId: string, @Body() body: CreatePostInputDto): Promise<PostViewType> {
+  async createPost(@Param('blogId') blogId: string, @Body() body: CreatePostInputDto): Promise<PostViewModel> {
     const { title, shortDescription, content } = body;
     return await this.commandBus.execute(new CreatePostCommand({ title, shortDescription, content, blogId }));
   }

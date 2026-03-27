@@ -6,7 +6,7 @@ import {
   CommentLike,
 } from '../../../blog-content/infrastructure/typeorm/comment-likes.entities.js';
 import { PostDislike, PostLike } from '../../../blog-content/infrastructure/typeorm/post-likes.entities.js';
-import { CurrentUserType, UserType, UserViewType } from '../../types/users.types.js';
+import { CurrentUserViewModel, UserModel, UserViewModel } from '../../types/users.types.js';
 
 export class ConfirmationInfo {
   @Column()
@@ -71,7 +71,7 @@ export class User {
   @OneToMany(() => PostDislike, (postDislike) => postDislike.user)
   declare postDislikes: Relation<PostDislike[]>;
 
-  toDto(): UserType {
+  toModel(): UserModel {
     return {
       id: this.id.toString(),
       login: this.login,
@@ -83,7 +83,7 @@ export class User {
     };
   }
 
-  toViewType(): UserViewType {
+  toViewModel(): UserViewModel {
     return {
       id: this.id.toString(),
       login: this.login,
@@ -92,7 +92,7 @@ export class User {
     };
   }
 
-  toCurrentUserType(): CurrentUserType {
+  toCurrentUserViewModel(): CurrentUserViewModel {
     return {
       email: this.email,
       login: this.login,

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  CommentDtoType,
+  CommentModel,
   CreateCommentRepoParams,
   UpdateCommentRepoParams,
 } from '../../types/comments.types.js';
@@ -34,7 +34,7 @@ export class CommentsRepository {
     }
   }
 
-  async getComment(id: string): Promise<CommentDtoType> {
+  async getComment(id: string): Promise<CommentModel> {
     if (!isPositiveIntegerString(id)) {
       throw new CommentNotFoundDomainException();
     }
@@ -70,7 +70,7 @@ export class CommentsRepository {
     };
   }
 
-  async createComment(params: CreateCommentRepoParams): Promise<CommentDtoType> {
+  async createComment(params: CreateCommentRepoParams): Promise<CommentModel> {
     const { postId, content, createdAt, commentatorInfo } = params;
 
     if (!isPositiveIntegerString(postId)) {

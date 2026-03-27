@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  CommentsPaginatedType,
-  CommentViewType,
+  CommentsPaginatedViewModel,
+  CommentViewModel,
   FindCommentRepoQueryParams,
   GetCommentsRepoQueryParams,
 } from '../../types/comments.types.js';
@@ -17,7 +17,7 @@ export class CommentsQueryRepository {
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
-  async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewType | null> {
+  async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewModel | null> {
     const { commentId: id, userId } = params;
     const idNum = parseInt(id);
     if (isNaN(idNum)) return null;
@@ -28,10 +28,10 @@ export class CommentsQueryRepository {
     });
     if (!comment) return null;
 
-    return comment.toViewType(userId);
+    return comment.toViewModel(userId);
   }
 
-  async getComments(params: GetCommentsRepoQueryParams): Promise<CommentsPaginatedType> {
+  async getComments(params: GetCommentsRepoQueryParams): Promise<CommentsPaginatedViewModel> {
     const { postId, userId, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
@@ -52,7 +52,7 @@ export class CommentsQueryRepository {
 
     const commentsEntities = await qb.getMany();
     const comments = await Promise.all(
-      commentsEntities.map(async (commentEntity) => await commentEntity.toViewType(userId)),
+      commentsEntities.map(async (commentEntity) => await commentEntity.toViewModel(userId)),
     );
 
     return {

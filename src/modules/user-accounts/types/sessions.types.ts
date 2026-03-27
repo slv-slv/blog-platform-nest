@@ -2,10 +2,10 @@ import { WithId } from 'mongodb';
 
 export type SessionDbType = WithId<{
   userId: string;
-  devices: DeviceType[];
+  devices: DeviceModel[];
 }>;
 
-export type DeviceType = {
+export type DeviceModel = {
   id: string;
   name: string;
   ip: string;
@@ -14,7 +14,7 @@ export type DeviceType = {
   exp: number;
 };
 
-export type DeviceViewType = {
+export type DeviceViewModel = {
   ip: string;
   title: string;
   lastActiveDate: string;

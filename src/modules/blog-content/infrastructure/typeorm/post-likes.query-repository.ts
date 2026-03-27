@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { ExtendedLikesInfoViewType, GetSinglePostLikesInfoParams, LikeStatus } from '../../types/likes.types.js';
+import { ExtendedLikesInfoViewModel, GetSinglePostLikesInfoParams, LikeStatus } from '../../types/likes.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 import { coreConfig } from '../../../../config/core.config.js';
@@ -13,7 +13,7 @@ export class PostLikesQueryRepository {
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}
 
-  async getLikesInfo(params: GetSinglePostLikesInfoParams): Promise<ExtendedLikesInfoViewType> {
+  async getLikesInfo(params: GetSinglePostLikesInfoParams): Promise<ExtendedLikesInfoViewModel> {
     const { postId } = params;
     const userId = params.userId ?? null;
     const likesCount = await this.getLikesCount(postId);

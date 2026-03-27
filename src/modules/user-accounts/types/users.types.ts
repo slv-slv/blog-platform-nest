@@ -3,17 +3,17 @@ import { WithId } from 'mongodb';
 import { Trim } from '../../../common/decorators/trim.js';
 import { BasicPagingParams, PagingParamsType } from '../../../common/types/paging-params.types.js';
 
-export type UserType = {
+export type UserModel = {
   id: string;
   login: string;
   email: string;
   hash: string;
   createdAt: Date;
-  confirmation: ConfirmationInfoType;
-  passwordRecovery: PasswordRecoveryInfoType;
+  confirmation: ConfirmationInfoModel;
+  passwordRecovery: PasswordRecoveryInfoModel;
 };
 
-export type UserViewType = {
+export type UserViewModel = {
   id: string;
   login: string;
   email: string;
@@ -24,12 +24,12 @@ export type UserDbType = WithId<{
   login: string;
   email: string;
   hash: string;
-  createdAt: string;
-  confirmation: ConfirmationInfoType;
-  passwordRecovery: PasswordRecoveryInfoType;
+  createdAt: Date;
+  confirmation: ConfirmationInfoModel;
+  passwordRecovery: PasswordRecoveryInfoModel;
 }>;
 
-export type CurrentUserType = {
+export type CurrentUserViewModel = {
   email: string;
   login: string;
   userId: string;
@@ -41,21 +41,21 @@ export enum UsersSortBy {
   createdAt = 'createdAt',
 }
 
-export type UsersPaginatedType = {
+export type UsersPaginatedViewModel = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: UserViewType[];
+  items: UserViewModel[];
 };
 
-export type ConfirmationInfoType = {
+export type ConfirmationInfoModel = {
   isConfirmed: boolean;
   code: string | null;
   expiration: Date | null;
 };
 
-export type PasswordRecoveryInfoType = {
+export type PasswordRecoveryInfoModel = {
   code: string | null;
   expiration: Date | null;
 };
@@ -133,8 +133,8 @@ export type CreateUserParams = {
   login: string;
   email: string;
   password: string;
-  confirmation?: ConfirmationInfoType;
-  passwordRecovery?: PasswordRecoveryInfoType;
+  confirmation?: ConfirmationInfoModel;
+  passwordRecovery?: PasswordRecoveryInfoModel;
 };
 
 export type RegisterUserParams = {
@@ -148,8 +148,8 @@ export type CreateUserRepoParams = {
   email: string;
   hash: string;
   createdAt: Date;
-  confirmation: ConfirmationInfoType;
-  passwordRecovery: PasswordRecoveryInfoType;
+  confirmation: ConfirmationInfoModel;
+  passwordRecovery: PasswordRecoveryInfoModel;
 };
 
 export type UpdateConfirmationCodeParams = {

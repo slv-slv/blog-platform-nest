@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  CommentDtoType,
+  CommentModel,
   CreateCommentRepoParams,
   UpdateCommentRepoParams,
 } from '../../types/comments.types.js';
@@ -12,7 +12,7 @@ import { Repository } from 'typeorm';
 export class CommentsRepository {
   constructor(@InjectRepository(Comment) private readonly commentEntityRepository: Repository<Comment>) {}
 
-  async getComment(id: string): Promise<CommentDtoType | null> {
+  async getComment(id: string): Promise<CommentModel | null> {
     const idNum = parseInt(id);
     if (isNaN(idNum)) return null;
 
@@ -22,10 +22,10 @@ export class CommentsRepository {
     });
     if (!comment) return null;
 
-    return comment.toDto();
+    return comment.toModel();
   }
 
-  async createComment(params: CreateCommentRepoParams): Promise<CommentDtoType> {
+  async createComment(params: CreateCommentRepoParams): Promise<CommentModel> {
     const { postId, content, createdAt, commentatorInfo } = params;
     const postIdNum = parseInt(postId);
     const userIdNum = parseInt(commentatorInfo.userId);

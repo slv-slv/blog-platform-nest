@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   FindPostRepoQueryParams,
   GetPostsRepoQueryParams,
-  PostsPaginatedType,
-  PostViewType,
+  PostsPaginatedViewModel,
+  PostViewModel,
 } from '../../types/posts.types.js';
 import { PostLikesQueryRepository } from './post-likes.query-repository.js';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,7 +17,7 @@ export class PostsQueryRepository {
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
 
-  async getPost(params: FindPostRepoQueryParams): Promise<PostViewType | null> {
+  async getPost(params: FindPostRepoQueryParams): Promise<PostViewModel | null> {
     const { postId: id, userId } = params;
     const idNum = parseInt(id);
     if (isNaN(idNum)) return null;
@@ -25,10 +25,10 @@ export class PostsQueryRepository {
     const post = await this.postEntityRepository.findOneBy({ id: idNum });
     if (!post) return null;
 
-    return post.toViewType(userId);
+    return post.toViewModel(userId);
   }
 
-  async getPosts(params: GetPostsRepoQueryParams): Promise<PostsPaginatedType> {
+  async getPosts(params: GetPostsRepoQueryParams): Promise<PostsPaginatedViewModel> {
     const { userId, pagingParams, blogId } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
@@ -48,7 +48,7 @@ export class PostsQueryRepository {
     const postsEntities = await qb.printSql().getMany();
     console.log(postsEntities);
     const posts = await Promise.all(
-      postsEntities.map(async (postEntity) => await postEntity.toViewType(userId)),
+      postsEntities.map(async (postEntity) => await postEntity.toViewModel(userId)),
     );
 
     return {

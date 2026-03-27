@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { LikeRecordSchema, LikeRecordType } from './like-record-schema.js';
+import { LikeRecordSchema, LikeRecordModel } from './like-record-schema.js';
 
 @Schema({ versionKey: false })
 export class CommentLikes {
@@ -7,10 +7,10 @@ export class CommentLikes {
   declare commentId: string;
 
   @Prop({ type: [LikeRecordSchema], required: true })
-  declare likes: LikeRecordType[];
+  declare likes: LikeRecordModel[];
 
   @Prop({ type: [LikeRecordSchema], required: true })
-  declare dislikes: LikeRecordType[];
+  declare dislikes: LikeRecordModel[];
 }
 
 export const CommentLikesSchema = SchemaFactory.createForClass(CommentLikes);

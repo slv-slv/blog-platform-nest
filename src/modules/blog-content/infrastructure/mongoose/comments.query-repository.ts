@@ -4,8 +4,8 @@ import { ObjectId } from 'mongodb';
 import { Model } from 'mongoose';
 import { Comment } from './comments.schemas.js';
 import {
-  CommentsPaginatedType,
-  CommentViewType,
+  CommentsPaginatedViewModel,
+  CommentViewModel,
   FindCommentRepoQueryParams,
   GetCommentsRepoQueryParams,
 } from '../../types/comments.types.js';
@@ -18,7 +18,7 @@ export class CommentsQueryRepository {
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
-  async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewType | null> {
+  async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewModel | null> {
     const { commentId: id, userId } = params;
     if (!ObjectId.isValid(id)) {
       return null;
@@ -34,7 +34,7 @@ export class CommentsQueryRepository {
     return { id, ...comment, likesInfo: likesInfoMap.get(id)! };
   }
 
-  async getComments(params: GetCommentsRepoQueryParams): Promise<CommentsPaginatedType> {
+  async getComments(params: GetCommentsRepoQueryParams): Promise<CommentsPaginatedViewModel> {
     const { postId, userId, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 

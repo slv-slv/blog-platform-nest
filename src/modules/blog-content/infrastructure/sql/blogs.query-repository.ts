@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BlogViewType, BlogsPaginatedType, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
+import { BlogViewModel, BlogsPaginatedViewModel, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
 import { BlogNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
@@ -9,7 +9,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class BlogsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getBlog(id: string): Promise<BlogViewType> {
+  async getBlog(id: string): Promise<BlogViewModel> {
     if (!isPositiveIntegerString(id)) {
       throw new BlogNotFoundDomainException();
     }
@@ -56,7 +56,7 @@ export class BlogsQueryRepository {
     }
   }
 
-  async getBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedType> {
+  async getBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedViewModel> {
     const { searchNameTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
     const conditions: string[] = [];

@@ -1,21 +1,21 @@
 import { WithId } from 'mongodb';
 import { IsEnum, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
-import { LikesInfoViewType } from './likes.types.js';
+import { LikesInfoViewModel } from './likes.types.js';
 import { Trim } from '../../../common/decorators/trim.js';
 import { BasicPagingParams, PagingParamsType } from '../../../common/types/paging-params.types.js';
 
-export type CommentDtoType = {
+export type CommentModel = {
   id: string;
   content: string;
-  commentatorInfo: CommentatorInfoType;
+  commentatorInfo: CommentatorInfoModel;
   createdAt: string;
 };
 
-export type CommentViewType = CommentDtoType & {
-  likesInfo: LikesInfoViewType;
+export type CommentViewModel = CommentModel & {
+  likesInfo: LikesInfoViewModel;
 };
 
-export type CommentatorInfoType = {
+export type CommentatorInfoModel = {
   userId: string;
   userLogin: string;
 };
@@ -26,12 +26,12 @@ export enum CommentsSortBy {
   createdAt = 'createdAt',
 }
 
-export type CommentsPaginatedType = {
+export type CommentsPaginatedViewModel = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: CommentViewType[];
+  items: CommentViewModel[];
 };
 
 export class CreateCommentInputDto {
@@ -82,7 +82,7 @@ export type CreateCommentRepoParams = {
   postId: string;
   content: string;
   createdAt: Date;
-  commentatorInfo: CommentatorInfoType;
+  commentatorInfo: CommentatorInfoModel;
 };
 
 export type UpdateCommentRepoParams = {
@@ -94,6 +94,6 @@ export type UpdateCommentRepoParams = {
 export type CommentDbType = WithId<{
   postId: string;
   content: string;
-  commentatorInfo: CommentatorInfoType;
+  commentatorInfo: CommentatorInfoModel;
   createdAt: string;
 }>;

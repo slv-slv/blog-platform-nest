@@ -3,10 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './users.schemas.js';
 import { Model } from 'mongoose';
 import {
-  CurrentUserType,
+  CurrentUserViewModel,
   GetUsersParams,
-  UsersPaginatedType,
-  UserViewType,
+  UsersPaginatedViewModel,
+  UserViewModel,
 } from '../../types/users.types.js';
 import { ObjectId } from 'mongodb';
 import {
@@ -18,7 +18,7 @@ import {
 export class UsersQueryRepository {
   constructor(@InjectModel(User.name) private readonly model: Model<User>) {}
 
-  async getUsers(params: GetUsersParams): Promise<UsersPaginatedType> {
+  async getUsers(params: GetUsersParams): Promise<UsersPaginatedViewModel> {
     const { searchLoginTerm, searchEmailTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
@@ -62,7 +62,7 @@ export class UsersQueryRepository {
     };
   }
 
-  async findUser(loginOrEmail: string): Promise<UserViewType> {
+  async findUser(loginOrEmail: string): Promise<UserViewModel> {
     const filter = loginOrEmail.includes('@') ? { email: loginOrEmail } : { login: loginOrEmail };
     const user = await this.model.findOne(filter, { hash: 0 }).lean();
     if (!user) {
@@ -73,7 +73,7 @@ export class UsersQueryRepository {
     return { id, login, email, createdAt: createdAt.toISOString() };
   }
 
-  async getCurrentUser(userId: string): Promise<CurrentUserType> {
+  async getCurrentUser(userId: string): Promise<CurrentUserViewModel> {
     if (!ObjectId.isValid(userId)) {
       throw new UnauthorizedDomainException('User not found');
     }

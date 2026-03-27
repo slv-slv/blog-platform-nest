@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { ExtendedLikesInfoViewType, GetPostLikesInfoParams, LikeStatus } from '../../types/likes.types.js';
+import { ExtendedLikesInfoViewModel, GetPostLikesInfoParams, LikeStatus } from '../../types/likes.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
 import { coreConfig } from '../../../../config/core.config.js';
@@ -13,7 +13,7 @@ export class PostLikesQueryRepository {
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}
 
-  async getLikesInfo(params: GetPostLikesInfoParams<number>): Promise<Map<number, ExtendedLikesInfoViewType>> {
+  async getLikesInfo(params: GetPostLikesInfoParams<number>): Promise<Map<number, ExtendedLikesInfoViewModel>> {
     const { postIds: postIdArr } = params;
     const userId = params.userId ?? null;
     const likesCountArr = await this.getLikesCount(postIdArr);
@@ -35,7 +35,7 @@ export class PostLikesQueryRepository {
       newestLikesMap.set(row.postId, like);
     }
 
-    const likesInfoMap = new Map<number, ExtendedLikesInfoViewType>();
+    const likesInfoMap = new Map<number, ExtendedLikesInfoViewModel>();
     for (const postId of postIdArr) {
       likesInfoMap.set(postId, {
         likesCount: likesCountMap.get(postId) ?? 0,

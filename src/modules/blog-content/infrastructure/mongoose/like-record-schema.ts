@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-export type LikeRecordType = {
+export type LikeRecordModel = {
   userId: string;
   createdAt: Date;
 };

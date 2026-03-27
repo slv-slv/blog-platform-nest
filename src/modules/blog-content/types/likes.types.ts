@@ -7,13 +7,13 @@ export enum LikeStatus {
   Dislike = 'Dislike',
 }
 
-export type LikesInfoViewType = {
+export type LikesInfoViewModel = {
   likesCount: number;
   dislikesCount: number;
   myStatus: LikeStatus;
 };
 
-export type ExtendedLikesInfoViewType = {
+export type ExtendedLikesInfoViewModel = {
   likesCount: number;
   dislikesCount: number;
   myStatus: LikeStatus;

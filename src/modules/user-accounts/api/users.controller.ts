@@ -2,8 +2,8 @@ import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, UseGuards 
 import {
   CreateUserInputDto,
   GetUsersQueryParams,
-  UsersPaginatedType,
-  UserViewType,
+  UsersPaginatedViewModel,
+  UserViewModel,
 } from '../types/users.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -20,7 +20,7 @@ export class UsersController {
   ) {}
 
   @Get()
-  async getUsers(@Query() query: GetUsersQueryParams): Promise<UsersPaginatedType> {
+  async getUsers(@Query() query: GetUsersQueryParams): Promise<UsersPaginatedViewModel> {
     const { searchLoginTerm, searchEmailTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
     return await this.queryBus.execute(
@@ -34,7 +34,7 @@ export class UsersController {
 
   @Post()
   @HttpCode(201)
-  async createUser(@Body() body: CreateUserInputDto): Promise<UserViewType> {
+  async createUser(@Body() body: CreateUserInputDto): Promise<UserViewModel> {
     const { login, password, email } = body;
     return await this.commandBus.execute(new CreateUserCommand({ login, email, password }));
   }

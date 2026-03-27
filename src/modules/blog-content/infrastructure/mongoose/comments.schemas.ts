@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { CommentatorInfoType } from '../../types/comments.types.js';
+import { CommentatorInfoModel } from '../../types/comments.types.js';
 
 @Schema({ _id: false })
 class CommentatorInfo {
@@ -24,7 +24,7 @@ export class Comment {
     type: CommentatorInfoSchema,
     required: true,
   })
-  declare commentatorInfo: CommentatorInfoType;
+  declare commentatorInfo: CommentatorInfoModel;
 
   @Prop({ required: true })
   declare createdAt: string;

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CommentLikes } from './comment-likes.schemas.js';
 import {
-  CommentLikesType,
+  CommentLikesModel,
   SetCommentLikeRepoParams,
   SetCommentNoneRepoParams,
 } from '../../types/comment-likes.types.js';
@@ -11,7 +11,7 @@ import { LikeStatus } from '../../types/likes.types.js';
 
 @Injectable()
 export class CommentLikesRepository {
-  constructor(@InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesType>) {}
+  constructor(@InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesModel>) {}
 
   async getLikesCount(commentIdArr: string[]): Promise<{ commentId: string; likesCount: number }[]> {
     if (commentIdArr.length === 0) {
@@ -80,7 +80,7 @@ export class CommentLikesRepository {
   }
 
   async createEmptyLikesInfo(commentId: string): Promise<void> {
-    const likesInfo: CommentLikesType = {
+    const likesInfo: CommentLikesModel = {
       commentId,
       likes: [],
       dislikes: [],

@@ -2,8 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   FindPostRepoQueryParams,
   GetPostsRepoQueryParams,
-  PostsPaginatedType,
-  PostViewType,
+  PostsPaginatedViewModel,
+  PostViewModel,
 } from '../../types/posts.types.js';
 import { Pool } from 'pg';
 import { PostLikesQueryRepository } from './post-likes.query-repository.js';
@@ -35,7 +35,7 @@ export class PostsQueryRepository {
     }
   }
 
-  async getPost(params: FindPostRepoQueryParams): Promise<PostViewType> {
+  async getPost(params: FindPostRepoQueryParams): Promise<PostViewModel> {
     const { postId, userId } = params;
 
     if (!isPositiveIntegerString(postId)) {
@@ -80,7 +80,7 @@ export class PostsQueryRepository {
 
     return { ...post, extendedLikesInfo: likesInfoMap.get(postIdInt)! };
   }
-  async getPosts(params: GetPostsRepoQueryParams): Promise<PostsPaginatedType> {
+  async getPosts(params: GetPostsRepoQueryParams): Promise<PostsPaginatedViewModel> {
     const { pagingParams, userId, blogId } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 

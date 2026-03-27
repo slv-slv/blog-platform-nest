@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { GetCommentLikesInfoParams, LikeStatus, LikesInfoViewType } from '../../types/likes.types.js';
+import { GetCommentLikesInfoParams, LikeStatus, LikesInfoViewModel } from '../../types/likes.types.js';
 import { CommentLikes } from './comment-likes.schemas.js';
 import { Model } from 'mongoose';
-import { CommentLikesType } from '../../types/comment-likes.types.js';
+import { CommentLikesModel } from '../../types/comment-likes.types.js';
 
 @Injectable()
 export class CommentLikesQueryRepository {
-  constructor(@InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesType>) {}
+  constructor(@InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesModel>) {}
 
-  async getLikesInfo(params: GetCommentLikesInfoParams<string>): Promise<Map<string, LikesInfoViewType>> {
+  async getLikesInfo(params: GetCommentLikesInfoParams<string>): Promise<Map<string, LikesInfoViewModel>> {
     const { commentIds: commentIdArr } = params;
     const userId = params.userId ?? null;
     const likesCountArr = await this.getLikesCount(commentIdArr);
@@ -25,7 +25,7 @@ export class CommentLikesQueryRepository {
     const myStatusArr = await this.getLikeStatus(commentIdArr, userId);
     const myStatusMap = new Map(myStatusArr.map(({ commentId, myStatus }) => [commentId, myStatus]));
 
-    const likesInfoMap = new Map<string, LikesInfoViewType>();
+    const likesInfoMap = new Map<string, LikesInfoViewModel>();
     for (const commentId of commentIdArr) {
       likesInfoMap.set(commentId, {
         likesCount: likesCountMap.get(commentId) ?? 0,

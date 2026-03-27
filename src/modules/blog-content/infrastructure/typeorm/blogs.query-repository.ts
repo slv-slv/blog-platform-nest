@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BlogViewType, BlogsPaginatedType, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
+import { BlogViewModel, BlogsPaginatedViewModel, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './blogs.entities.js';
 import { Repository } from 'typeorm';
@@ -8,7 +8,7 @@ import { Repository } from 'typeorm';
 export class BlogsQueryRepository {
   constructor(@InjectRepository(Blog) private readonly blogEntityRepository: Repository<Blog>) {}
 
-  async getAllBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedType> {
+  async getAllBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedViewModel> {
     const { searchNameTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
@@ -32,11 +32,11 @@ export class BlogsQueryRepository {
       page: pageNumber,
       pageSize,
       totalCount,
-      items: blogs.map((blog) => this.mapToBlogViewType(blog)),
+      items: blogs.map((blog) => this.mapToBlogViewModel(blog)),
     };
   }
 
-  private mapToBlogViewType(blog: Blog): BlogViewType {
+  private mapToBlogViewModel(blog: Blog): BlogViewModel {
     return {
       id: blog.id.toString(),
       name: blog.name,

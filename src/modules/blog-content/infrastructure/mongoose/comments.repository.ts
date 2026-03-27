@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Comment } from './comments.schemas.js';
 import { Model } from 'mongoose';
 import {
-  CommentDtoType,
+  CommentModel,
   CreateCommentRepoParams,
   UpdateCommentRepoParams,
 } from '../../types/comments.types.js';
@@ -13,7 +13,7 @@ import { ObjectId } from 'mongodb';
 export class CommentsRepository {
   constructor(@InjectModel(Comment.name) private readonly model: Model<Comment>) {}
 
-  async getComment(id: string): Promise<CommentDtoType | null> {
+  async getComment(id: string): Promise<CommentModel | null> {
     if (!ObjectId.isValid(id)) {
       return null;
     }
@@ -25,7 +25,7 @@ export class CommentsRepository {
     return { id, ...comment };
   }
 
-  async createComment(params: CreateCommentRepoParams): Promise<CommentDtoType> {
+  async createComment(params: CreateCommentRepoParams): Promise<CommentModel> {
     const { postId, content, createdAt, commentatorInfo } = params;
     const createdAtIso = createdAt.toISOString();
     const createdComment = await this.model.create({

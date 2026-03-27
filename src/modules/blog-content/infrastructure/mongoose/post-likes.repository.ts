@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PostLikes } from './post-likes.schemas.js';
-import { PostLikesType, SetPostLikeRepoParams, SetPostNoneRepoParams } from '../../types/post-likes.types.js';
+import { PostLikesModel, SetPostLikeRepoParams, SetPostNoneRepoParams } from '../../types/post-likes.types.js';
 import { Model } from 'mongoose';
 import { LikeStatus } from '../../types/likes.types.js';
 import { ConfigType } from '@nestjs/config';
@@ -10,7 +10,7 @@ import { coreConfig } from '../../../../config/core.config.js';
 @Injectable()
 export class PostLikesRepository {
   constructor(
-    @InjectModel(PostLikes.name) private readonly model: Model<PostLikesType>,
+    @InjectModel(PostLikes.name) private readonly model: Model<PostLikesModel>,
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}
 
@@ -115,7 +115,7 @@ export class PostLikesRepository {
   }
 
   async createEmptyLikesInfo(postId: string): Promise<void> {
-    const likesInfo: PostLikesType = {
+    const likesInfo: PostLikesModel = {
       postId,
       likes: [],
       dislikes: [],

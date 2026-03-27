@@ -3,13 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './users.schemas.js';
 import {
-  ConfirmationInfoType,
+  ConfirmationInfoModel,
   CreateUserRepoParams,
-  PasswordRecoveryInfoType,
+  PasswordRecoveryInfoModel,
   UpdateConfirmationCodeParams,
   UpdateRecoveryCodeParams,
-  UserType,
-  UserViewType,
+  UserModel,
+  UserViewModel,
 } from '../../types/users.types.js';
 import { ObjectId } from 'mongodb';
 import {
@@ -23,7 +23,7 @@ import {
 export class UsersRepository {
   constructor(@InjectModel(User.name) private readonly model: Model<User>) {}
 
-  async findUser(loginOrEmail: string): Promise<UserType> {
+  async findUser(loginOrEmail: string): Promise<UserModel> {
     const filter = loginOrEmail.includes('@') ? { email: loginOrEmail } : { login: loginOrEmail };
     const user = await this.model.findOne(filter).lean();
     if (!user) {
@@ -48,7 +48,7 @@ export class UsersRepository {
     return user.login;
   }
 
-  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType> {
+  async getConfirmationInfo(code: string): Promise<ConfirmationInfoModel> {
     const user = await this.model.findOne({ 'confirmation.code': code }, { confirmation: 1 }).lean();
     if (!user) {
       throw new ConfirmationCodeInvalidDomainException();
@@ -56,7 +56,7 @@ export class UsersRepository {
     return user.confirmation;
   }
 
-  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType> {
+  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoModel> {
     const user = await this.model.findOne({ 'passwordRecovery.code': code }, { passwordRecovery: 1 }).lean();
     if (!user) {
       throw new RecoveryCodeInvalidDomainException();
@@ -64,7 +64,7 @@ export class UsersRepository {
     return user.passwordRecovery;
   }
 
-  async createUser(params: CreateUserRepoParams): Promise<UserViewType> {
+  async createUser(params: CreateUserRepoParams): Promise<UserViewModel> {
     const { login, email, hash, createdAt, confirmation, passwordRecovery } = params;
     const newUser = { login, email, hash, createdAt, confirmation, passwordRecovery };
     const insertedUser = await this.model.create(newUser as any);

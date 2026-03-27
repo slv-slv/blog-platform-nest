@@ -3,7 +3,7 @@ import { Post } from './posts.entities.js';
 import { User } from '../../../user-accounts/infrastructure/typeorm/users.entities.js';
 import { CommentDislike, CommentLike } from './comment-likes.entities.js';
 import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
-import { CommentDtoType, CommentViewType } from '../../types/comments.types.js';
+import { CommentModel, CommentViewModel } from '../../types/comments.types.js';
 
 @Entity({ name: 'comments' })
 export class Comment {
@@ -32,7 +32,7 @@ export class Comment {
   @OneToMany(() => CommentDislike, (commentDislike) => commentDislike.comment)
   declare dislikes: Relation<CommentDislike[]>;
 
-  toDto(): CommentDtoType {
+  toModel(): CommentModel {
     const idStr = this.id.toString();
     return {
       id: idStr,
@@ -45,7 +45,7 @@ export class Comment {
     };
   }
 
-  async toViewType(userId?: string): Promise<CommentViewType> {
+  async toViewModel(userId?: string): Promise<CommentViewModel> {
     const idStr = this.id.toString();
     return {
       id: idStr,

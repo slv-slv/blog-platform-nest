@@ -28,7 +28,7 @@ export class Device {
   @Column()
   declare exp: number;
 
-  toViewType() {
+  toViewModel() {
     return {
       ip: this.ip,
       title: this.name,

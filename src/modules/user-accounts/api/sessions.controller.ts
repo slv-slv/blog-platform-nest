@@ -4,7 +4,7 @@ import { SessionsQueryRepository } from '../infrastructure/sql/sessions.query-re
 import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { DeviceId } from '../../../common/decorators/deviceId.js';
-import { DeviceViewType } from '../types/sessions.types.js';
+import { DeviceViewModel } from '../types/sessions.types.js';
 
 @Controller('security/devices')
 @UseGuards(RefreshTokenGuard)
@@ -15,7 +15,7 @@ export class SessionsController {
   ) {}
 
   @Get()
-  async getDevices(@UserId() userId: string): Promise<DeviceViewType[]> {
+  async getDevices(@UserId() userId: string): Promise<DeviceViewModel[]> {
     return await this.sessionsQueryRepository.getActiveDevices(userId);
   }
 

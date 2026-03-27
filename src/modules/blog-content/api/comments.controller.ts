@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Put, UseGuards } from '@nestjs/common';
-import { CommentViewType, UpdateCommentInputDto } from '../types/comments.types.js';
+import { CommentViewModel, UpdateCommentInputDto } from '../types/comments.types.js';
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { Public } from '../../../common/decorators/public.js';
@@ -20,7 +20,7 @@ export class CommentsController {
 
   @Get(':id')
   @Public()
-  async getComment(@Param('id') id: string, @UserId() userId: string): Promise<CommentViewType> {
+  async getComment(@Param('id') id: string, @UserId() userId: string): Promise<CommentViewModel> {
     return await this.queryBus.execute(new GetCommentQuery({ commentId: id, userId }));
   }
 

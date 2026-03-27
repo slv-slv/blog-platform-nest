@@ -1,8 +1,8 @@
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
-import { GetUsersParams, UsersPaginatedType } from '../../types/users.types.js';
+import { GetUsersParams, UsersPaginatedViewModel } from '../../types/users.types.js';
 import { UsersQueryRepository } from '../../infrastructure/sql/users.query-repository.js';
 
-export class GetUsersQuery extends Query<UsersPaginatedType> {
+export class GetUsersQuery extends Query<UsersPaginatedViewModel> {
   constructor(public readonly params: GetUsersParams) {
     super();
   }

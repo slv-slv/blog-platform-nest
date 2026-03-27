@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateSessionParams, DeviceViewType } from '../../types/sessions.types.js';
+import { CreateSessionParams, DeviceViewModel } from '../../types/sessions.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from './sessions.entities.js';
 import { Not, Repository } from 'typeorm';
@@ -14,13 +14,13 @@ export class SessionsRepository {
     return !!device;
   }
 
-  async findDevice(deviceId: string): Promise<DeviceViewType> {
+  async findDevice(deviceId: string): Promise<DeviceViewModel> {
     const device = await this.sessionEntityRepository.findOneBy({ id: deviceId });
     if (!device) {
       throw new DeviceNotFoundDomainException();
     }
 
-    return device.toViewType();
+    return device.toViewModel();
   }
 
   async getDeviceOwner(deviceId: string): Promise<string> {

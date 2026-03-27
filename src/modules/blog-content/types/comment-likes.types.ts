@@ -1,10 +1,10 @@
 import { WithId } from 'mongodb';
-import { LikeRecordType } from '../infrastructure/mongoose/like-record-schema.js';
+import { LikeRecordModel } from '../infrastructure/mongoose/like-record-schema.js';
 
-export type CommentLikesType = {
+export type CommentLikesModel = {
   commentId: string;
-  likes: LikeRecordType[];
-  dislikes: LikeRecordType[];
+  likes: LikeRecordModel[];
+  dislikes: LikeRecordModel[];
 };
 
 export type CommentLikeStatusRepoParams = {
@@ -24,4 +24,4 @@ export type SetCommentNoneRepoParams = {
 };
 
 // mongoose only
-export type CommentLikesDbType = WithId<CommentLikesType>;
+export type CommentLikesDbType = WithId<CommentLikesModel>;

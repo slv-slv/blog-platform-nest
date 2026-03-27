@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateSessionParams, DeviceViewType } from '../../types/sessions.types.js';
+import { CreateSessionParams, DeviceViewModel } from '../../types/sessions.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 import {
@@ -25,7 +25,7 @@ export class SessionsRepository {
     return result.rowCount! > 0;
   }
 
-  async findDevice(deviceId: string): Promise<DeviceViewType> {
+  async findDevice(deviceId: string): Promise<DeviceViewModel> {
     const result = await this.pool.query(
       `
         SELECT id, name, ip, iat

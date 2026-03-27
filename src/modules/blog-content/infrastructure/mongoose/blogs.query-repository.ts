@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { BlogsPaginatedType, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
+import { BlogsPaginatedViewModel, GetBlogsRepoQueryParams } from '../../types/blogs.types.js';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog } from './blogs.schemas.js';
 
@@ -8,7 +8,7 @@ import { Blog } from './blogs.schemas.js';
 export class BlogsQueryRepository {
   constructor(@InjectModel(Blog.name) private readonly model: Model<Blog>) {}
 
-  async getAllBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedType> {
+  async getAllBlogs(params: GetBlogsRepoQueryParams): Promise<BlogsPaginatedViewModel> {
     const { searchNameTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 

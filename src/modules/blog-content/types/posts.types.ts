@@ -1,10 +1,10 @@
 import { WithId } from 'mongodb';
 import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
-import { ExtendedLikesInfoViewType } from './likes.types.js';
+import { ExtendedLikesInfoViewModel } from './likes.types.js';
 import { Trim } from '../../../common/decorators/trim.js';
 import { BasicPagingParams, PagingParamsType } from '../../../common/types/paging-params.types.js';
 
-export type PostDtoType = {
+export type PostModel = {
   id: string;
   title: string;
   shortDescription: string;
@@ -14,8 +14,8 @@ export type PostDtoType = {
   createdAt: string;
 };
 
-export type PostViewType = PostDtoType & {
-  extendedLikesInfo: ExtendedLikesInfoViewType;
+export type PostViewModel = PostModel & {
+  extendedLikesInfo: ExtendedLikesInfoViewModel;
 };
 
 export enum PostsSortBy {
@@ -27,12 +27,12 @@ export enum PostsSortBy {
   createdAt = 'createdAt',
 }
 
-export type PostsPaginatedType = {
+export type PostsPaginatedViewModel = {
   pagesCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
-  items: PostViewType[];
+  items: PostViewModel[];
 };
 
 export class CreatePostInputDto {

@@ -2,13 +2,13 @@ import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, UseGuards } f
 import {
   CreatePostForBlogInputDto,
   GetPostsQueryParams,
-  PostsPaginatedType,
-  PostViewType,
+  PostsPaginatedViewModel,
+  PostViewModel,
   UpdatePostForBlogInputDto,
 } from '../types/posts.types.js';
 import {
-  CommentsPaginatedType,
-  CommentViewType,
+  CommentsPaginatedViewModel,
+  CommentViewModel,
   CreateCommentInputDto,
   GetCommentsQueryParams,
 } from '../types/comments.types.js';
@@ -36,7 +36,7 @@ export class PostsController {
   @Get()
   @Public()
   @UseGuards(AccessTokenGuard)
-  async getPosts(@Query() query: GetPostsQueryParams, @UserId() userId: string): Promise<PostsPaginatedType> {
+  async getPosts(@Query() query: GetPostsQueryParams, @UserId() userId: string): Promise<PostsPaginatedViewModel> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
     return await this.queryBus.execute(new GetPostsQuery({ pagingParams, userId }));
@@ -45,14 +45,14 @@ export class PostsController {
   @Get(':id')
   @Public()
   @UseGuards(AccessTokenGuard)
-  async getPost(@Param('id') id: string, @UserId() userId: string): Promise<PostViewType> {
+  async getPost(@Param('id') id: string, @UserId() userId: string): Promise<PostViewModel> {
     return await this.queryBus.execute(new GetPostQuery({ postId: id, userId }));
   }
 
   @Post()
   @HttpCode(201)
   @UseGuards(BasicAuthGuard)
-  async createPost(@Body() body: CreatePostForBlogInputDto): Promise<PostViewType> {
+  async createPost(@Body() body: CreatePostForBlogInputDto): Promise<PostViewModel> {
     const { title, shortDescription, content, blogId } = body;
     return await this.commandBus.execute(new CreatePostCommand({ title, shortDescription, content, blogId }));
   }
@@ -74,7 +74,7 @@ export class PostsController {
     @Param('postId') postId: string,
     @Query() query: GetCommentsQueryParams,
     @UserId() userId: string,
-  ): Promise<CommentsPaginatedType> {
+  ): Promise<CommentsPaginatedViewModel> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
     return await this.queryBus.execute(new GetCommentsQuery({ postId, userId, pagingParams }));
@@ -87,7 +87,7 @@ export class PostsController {
     @Body() body: CreateCommentInputDto,
     @Param('postId') postId: string,
     @UserId() userId: string,
-  ): Promise<CommentViewType> {
+  ): Promise<CommentViewModel> {
     const content = body.content;
     return await this.commandBus.execute(new CreateCommentCommand({ postId, content, userId }));
   }

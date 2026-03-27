@@ -1,8 +1,8 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CreateUserParams, UserViewType } from '../../types/users.types.js';
+import { CreateUserParams, UserViewModel } from '../../types/users.types.js';
 import { UsersService } from '../users.service.js';
 
-export class CreateUserCommand extends Command<UserViewType> {
+export class CreateUserCommand extends Command<UserViewModel> {
   constructor(public readonly params: CreateUserParams) {
     super();
   }
@@ -12,7 +12,7 @@ export class CreateUserCommand extends Command<UserViewType> {
 export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
   constructor(private readonly usersService: UsersService) {}
 
-  async execute(command: CreateUserCommand): Promise<UserViewType> {
+  async execute(command: CreateUserCommand): Promise<UserViewModel> {
     return await this.usersService.createUser(command.params);
   }
 }

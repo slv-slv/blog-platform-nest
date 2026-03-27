@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  CommentsPaginatedType,
-  CommentViewType,
+  CommentsPaginatedViewModel,
+  CommentViewModel,
   FindCommentRepoQueryParams,
   GetCommentsRepoQueryParams,
 } from '../../types/comments.types.js';
@@ -18,7 +18,7 @@ export class CommentsQueryRepository {
     private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
   ) {}
 
-  async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewType> {
+  async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewModel> {
     const { commentId: id, userId } = params;
 
     if (!isPositiveIntegerString(id)) {
@@ -61,7 +61,7 @@ export class CommentsQueryRepository {
       likesInfo: likesInfoMap.get(commentId)!,
     };
   }
-  async getComments(params: GetCommentsRepoQueryParams): Promise<CommentsPaginatedType> {
+  async getComments(params: GetCommentsRepoQueryParams): Promise<CommentsPaginatedViewModel> {
     const { postId, userId, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 

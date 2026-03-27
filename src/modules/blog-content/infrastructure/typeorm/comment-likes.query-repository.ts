@@ -2,12 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 import { CommentLikeStatusRepoParams } from '../../types/comment-likes.types.js';
-import { GetSingleCommentLikesInfoParams, LikesInfoViewType, LikeStatus } from '../../types/likes.types.js';
+import { GetSingleCommentLikesInfoParams, LikesInfoViewModel, LikeStatus } from '../../types/likes.types.js';
 
 @Injectable()
 export class CommentLikesQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
-  async getLikesInfo(params: GetSingleCommentLikesInfoParams): Promise<LikesInfoViewType> {
+  async getLikesInfo(params: GetSingleCommentLikesInfoParams): Promise<LikesInfoViewModel> {
     const { commentId } = params;
     const userId = params.userId ?? null;
     const likesCount = await this.getLikesCount(commentId);

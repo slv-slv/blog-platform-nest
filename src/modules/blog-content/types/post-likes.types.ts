@@ -1,6 +1,6 @@
 import { WithId } from 'mongodb';
 
-export type PostLikesType = {
+export type PostLikesModel = {
   postId: string;
   likes: { userId: string; createdAt: Date }[];
   dislikes: { userId: string; createdAt: Date }[];
@@ -23,4 +23,4 @@ export type SetPostNoneRepoParams = {
 };
 
 // mongoose only
-export type PostLikesDbType = WithId<PostLikesType>;
+export type PostLikesDbType = WithId<PostLikesModel>;

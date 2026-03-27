@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { BlogsPaginatedType, BlogViewType, GetBlogsQueryParams } from '../types/blogs.types.js';
-import { GetPostsQueryParams, PostsPaginatedType } from '../types/posts.types.js';
+import { BlogsPaginatedViewModel, BlogViewModel, GetBlogsQueryParams } from '../types/blogs.types.js';
+import { GetPostsQueryParams, PostsPaginatedViewModel } from '../types/posts.types.js';
 import { Public } from '../../../common/decorators/public.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { UserId } from '../../../common/decorators/userId.js';
@@ -14,7 +14,7 @@ export class BlogsController {
   constructor(private readonly queryBus: QueryBus) {}
 
   @Get()
-  async getBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedType> {
+  async getBlogs(@Query() query: GetBlogsQueryParams): Promise<BlogsPaginatedViewModel> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
     return await this.queryBus.execute(new GetBlogsQuery({ searchNameTerm, pagingParams }));
@@ -27,14 +27,14 @@ export class BlogsController {
     @Param('blogId') blogId: string,
     @Query() query: GetPostsQueryParams,
     @UserId() userId: string,
-  ): Promise<PostsPaginatedType> {
+  ): Promise<PostsPaginatedViewModel> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
     return await this.queryBus.execute(new GetPostsQuery({ pagingParams, userId, blogId }));
   }
 
   @Get(':id')
-  async getBlog(@Param('id') id: string): Promise<BlogViewType> {
+  async getBlog(@Param('id') id: string): Promise<BlogViewModel> {
     return await this.queryBus.execute(new GetBlogQuery(id));
   }
 }

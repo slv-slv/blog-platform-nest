@@ -6,10 +6,10 @@ import { UsersQueryRepository } from '../infrastructure/sql/users.query-reposito
 import { UsersService } from '../application/users.service.js';
 import {
   CreateUserInputDto,
-  CurrentUserType,
+  CurrentUserViewModel,
   EmailInputDto,
   NewPasswordInputDto,
-  UserType,
+  UserViewModel,
 } from '../types/users.types.js';
 import { AuthService } from '../application/auth.service.js';
 import { SessionsService } from '../application/sessions.service.js';
@@ -39,7 +39,7 @@ export class AuthController {
   async login(
     @Res({ passthrough: true }) res: Response,
     @Headers('User-Agent') userAgent: string,
-    @User() user: UserType,
+    @User() user: UserViewModel,
     @Ip() ip: string,
   ): Promise<{ accessToken: string }> {
     const userId = user.id;
@@ -111,7 +111,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AccessTokenGuard)
-  async me(@UserId() userId: string): Promise<CurrentUserType> {
+  async me(@UserId() userId: string): Promise<CurrentUserViewModel> {
     return await this.usersQueryRepository.getCurrentUser(userId);
   }
 

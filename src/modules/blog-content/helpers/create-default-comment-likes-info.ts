@@ -1,6 +1,6 @@
-import { LikesInfoViewType, LikeStatus } from '../types/likes.types.js';
+import { LikesInfoViewModel, LikeStatus } from '../types/likes.types.js';
 
-export function createDefaultCommentLikesInfo(): LikesInfoViewType {
+export function createDefaultCommentLikesInfo(): LikesInfoViewModel {
   return {
     likesCount: 0,
     dislikesCount: 0,

@@ -4,11 +4,11 @@ import { UsersRepository } from '../infrastructure/sql/users.repository.js';
 import { AuthService } from './auth.service.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
 import {
-  ConfirmationInfoType,
+  ConfirmationInfoModel,
   CreateUserParams,
-  PasswordRecoveryInfoType,
+  PasswordRecoveryInfoModel,
   RegisterUserParams,
-  UserViewType,
+  UserViewModel,
 } from '../types/users.types.js';
 import { authConfig } from '../../../config/auth.config.js';
 import {
@@ -27,7 +27,7 @@ export class UsersService {
     private readonly emailService: EmailService,
     @Inject(authConfig.KEY) private readonly auth: ConfigType<typeof authConfig>,
   ) {}
-  async createUser(params: CreateUserParams): Promise<UserViewType> {
+  async createUser(params: CreateUserParams): Promise<UserViewModel> {
     const {
       login,
       email,
@@ -58,7 +58,7 @@ export class UsersService {
     return newUser;
   }
 
-  async registerUser(params: RegisterUserParams): Promise<UserViewType> {
+  async registerUser(params: RegisterUserParams): Promise<UserViewModel> {
     const { login, email, password } = params;
     const code = crypto.randomUUID();
 
@@ -72,7 +72,7 @@ export class UsersService {
       expiration,
     };
 
-    const passwordRecovery: PasswordRecoveryInfoType = { code: null, expiration: null };
+    const passwordRecovery: PasswordRecoveryInfoModel = { code: null, expiration: null };
 
     await this.emailService.sendConfirmationCode(email, code);
 

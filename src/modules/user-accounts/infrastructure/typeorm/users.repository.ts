@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  ConfirmationInfoType,
+  ConfirmationInfoModel,
   CreateUserRepoParams,
-  PasswordRecoveryInfoType,
+  PasswordRecoveryInfoModel,
   UpdateConfirmationCodeParams,
   UpdateRecoveryCodeParams,
-  UserType,
-  UserViewType,
+  UserModel,
+  UserViewModel,
 } from '../../types/users.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfirmationInfo, PasswordRecoveryInfo, User } from './users.entities.js';
@@ -22,7 +22,7 @@ import {
 export class UsersRepository {
   constructor(@InjectRepository(User) private readonly userEntityRepository: Repository<User>) {}
 
-  async findUser(loginOrEmail: string): Promise<UserType> {
+  async findUser(loginOrEmail: string): Promise<UserModel> {
     const likeTerm = `%${loginOrEmail}%`;
     const user = await this.userEntityRepository.findOne({
       relations: { confirmation: true, passwordRecovery: true },
@@ -33,7 +33,7 @@ export class UsersRepository {
       throw new IncorrectEmailDomainException();
     }
 
-    return user.toDto();
+    return user.toModel();
   }
 
   async getLogin(id: string): Promise<string> {
@@ -49,7 +49,7 @@ export class UsersRepository {
     return user.login;
   }
 
-  async getConfirmationInfo(code: string): Promise<ConfirmationInfoType> {
+  async getConfirmationInfo(code: string): Promise<ConfirmationInfoModel> {
     const user = await this.userEntityRepository.findOne({
       select: { confirmation: true },
       where: { confirmation: { code } },
@@ -62,7 +62,7 @@ export class UsersRepository {
     return user.confirmation;
   }
 
-  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoType> {
+  async getPasswordRecoveryInfo(code: string): Promise<PasswordRecoveryInfoModel> {
     const user = await this.userEntityRepository.findOne({
       select: { passwordRecovery: true },
       where: { passwordRecovery: { code } },
@@ -75,7 +75,7 @@ export class UsersRepository {
     return user.passwordRecovery;
   }
 
-  async createUser(params: CreateUserRepoParams): Promise<UserViewType> {
+  async createUser(params: CreateUserRepoParams): Promise<UserViewModel> {
     const { login, email, hash, createdAt, confirmation, passwordRecovery } = params;
     const confirmationEntity = new ConfirmationInfo();
     confirmationEntity.isConfirmed = confirmation.isConfirmed;
@@ -96,7 +96,7 @@ export class UsersRepository {
     });
 
     const savedUser = await this.userEntityRepository.save(user);
-    return savedUser.toViewType();
+    return savedUser.toViewModel();
   }
 
   async updateConfirmationCode(params: UpdateConfirmationCodeParams): Promise<void> {

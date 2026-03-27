@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { BlogViewType, CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
+import { BlogModel, CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './blogs.entities.js';
 import { Repository } from 'typeorm';
@@ -10,7 +10,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class BlogsRepository {
   constructor(@InjectRepository(Blog) private readonly blogEntityRepository: Repository<Blog>) {}
 
-  async getBlog(id: string): Promise<BlogViewType> {
+  async getBlog(id: string): Promise<BlogModel> {
     if (!isPositiveIntegerString(id)) {
       throw new BlogNotFoundDomainException();
     }
@@ -24,10 +24,10 @@ export class BlogsRepository {
       throw new BlogNotFoundDomainException();
     }
 
-    return this.mapToBlogViewType(blog);
+    return this.mapToBlogModel(blog);
   }
 
-  async createBlog(params: CreateBlogRepoParams): Promise<BlogViewType> {
+  async createBlog(params: CreateBlogRepoParams): Promise<BlogModel> {
     const { name, description, websiteUrl, createdAt, isMembership } = params;
     // const newBlog = { name, description, websiteUrl, createdAt, isMembership };
 
@@ -71,7 +71,7 @@ export class BlogsRepository {
     return result.affected! > 0;
   }
 
-  private mapToBlogViewType(blog: Blog): BlogViewType {
+  private mapToBlogModel(blog: Blog): BlogModel {
     return {
       id: blog.id.toString(),
       name: blog.name,

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { GetCommentLikesInfoParams, LikeStatus, LikesInfoViewType } from '../../types/likes.types.js';
+import { GetCommentLikesInfoParams, LikeStatus, LikesInfoViewModel } from '../../types/likes.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
@@ -8,7 +8,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class CommentLikesQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getLikesInfo(params: GetCommentLikesInfoParams<number>): Promise<Map<number, LikesInfoViewType>> {
+  async getLikesInfo(params: GetCommentLikesInfoParams<number>): Promise<Map<number, LikesInfoViewModel>> {
     const { commentIds: commentIdArr } = params;
     const userId = params.userId ?? null;
     const likesCountArr = await this.getLikesCount(commentIdArr);
@@ -24,7 +24,7 @@ export class CommentLikesQueryRepository {
     const myStatusArr = await this.getLikeStatus(commentIdArr, userId);
     const myStatusMap = new Map(myStatusArr.map(({ commentId, myStatus }) => [commentId, myStatus]));
 
-    const likesInfoMap = new Map<number, LikesInfoViewType>();
+    const likesInfoMap = new Map<number, LikesInfoViewModel>();
     for (const commentId of commentIdArr) {
       likesInfoMap.set(commentId, {
         likesCount: likesCountMap.get(commentId) ?? 0,

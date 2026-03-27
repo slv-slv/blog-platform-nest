@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DeviceViewType } from '../../types/sessions.types.js';
+import { DeviceViewModel } from '../../types/sessions.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
@@ -7,7 +7,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 @Injectable()
 export class SessionsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
-  async getActiveDevices(userId: string): Promise<DeviceViewType[]> {
+  async getActiveDevices(userId: string): Promise<DeviceViewModel[]> {
     if (!isPositiveIntegerString(userId)) {
       return [];
     }

@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  CurrentUserType,
+  CurrentUserViewModel,
   GetUsersParams,
-  UsersPaginatedType,
-  UserViewType,
+  UsersPaginatedViewModel,
+  UserViewModel,
 } from '../../types/users.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
@@ -17,7 +17,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class UsersQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getUsers(params: GetUsersParams): Promise<UsersPaginatedType> {
+  async getUsers(params: GetUsersParams): Promise<UsersPaginatedViewModel> {
     const { searchLoginTerm, searchEmailTerm, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
@@ -78,7 +78,7 @@ export class UsersQueryRepository {
       items: users,
     };
   }
-  async findUser(loginOrEmail: string): Promise<UserViewType> {
+  async findUser(loginOrEmail: string): Promise<UserViewModel> {
     const likeTerm = `%${loginOrEmail}%`;
     const result = await this.pool.query(
       `
@@ -97,7 +97,7 @@ export class UsersQueryRepository {
 
     return { id: id.toString(), login, email, createdAt: created_at.toISOString() };
   }
-  async getCurrentUser(userId: string): Promise<CurrentUserType> {
+  async getCurrentUser(userId: string): Promise<CurrentUserViewModel> {
     if (!isPositiveIntegerString(userId)) {
       throw new UnauthorizedDomainException('User not found');
     }
