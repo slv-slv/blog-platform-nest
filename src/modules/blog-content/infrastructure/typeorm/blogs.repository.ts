@@ -15,10 +15,7 @@ export class BlogsRepository {
       throw new BlogNotFoundDomainException();
     }
 
-    const blog = await this.blogEntityRepository
-      .createQueryBuilder('blog')
-      .where('blog.id = :id', { id: +id })
-      .getOne();
+    const blog = await this.blogEntityRepository.findOneBy({ id: +id });
 
     if (!blog) {
       throw new BlogNotFoundDomainException();
