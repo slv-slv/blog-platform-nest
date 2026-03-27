@@ -22,7 +22,7 @@ export class PostsRepository {
     if (!post) {
       return null;
     }
-    return { id, ...post };
+    return { id, ...post, createdAt: new Date(post.createdAt) };
   }
 
   async createPost(params: CreatePostRepoParams): Promise<PostModel> {
@@ -31,7 +31,7 @@ export class PostsRepository {
     const newPost = { title, shortDescription, content, blogId, blogName, createdAt: createdAtIso };
     const insertedPost = await this.model.create(newPost);
     const id = insertedPost._id.toString();
-    return { id, ...newPost };
+    return { id, title, shortDescription, content, blogId, blogName, createdAt };
   }
 
   async updatePost(params: UpdatePostRepoParams): Promise<boolean> {

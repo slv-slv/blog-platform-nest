@@ -34,6 +34,6 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     const newPost = await this.postsRepository.createPost(repoParams);
     const extendedLikesInfo = createDefaultPostLikesInfo();
 
-    return { ...newPost, extendedLikesInfo };
+    return { ...newPost, createdAt: newPost.createdAt.toISOString(), extendedLikesInfo };
   }
 }

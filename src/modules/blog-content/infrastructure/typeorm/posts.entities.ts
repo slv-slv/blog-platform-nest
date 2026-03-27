@@ -11,12 +11,9 @@ import {
 import { Blog } from './blogs.entities.js';
 import { Comment } from './comments.entities.js';
 import { PostDislike, PostLike } from './post-likes.entities.js';
-import { PostLikesQueryRepository } from './post-likes.query-repository.js';
 
 @Entity({ name: 'posts' })
 export class Post {
-  constructor(private readonly postLikesQueryRepository: PostLikesQueryRepository) {}
-
   @PrimaryGeneratedColumn('identity')
   declare id: number;
 

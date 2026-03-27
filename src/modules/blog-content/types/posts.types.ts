@@ -11,10 +11,11 @@ export type PostModel = {
   content: string;
   blogId: string;
   blogName: string;
-  createdAt: string;
+  createdAt: Date;
 };
 
-export type PostViewModel = PostModel & {
+export type PostViewModel = Omit<PostModel, 'createdAt'> & {
+  createdAt: string;
   extendedLikesInfo: ExtendedLikesInfoViewModel;
 };
 

@@ -12,23 +12,6 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class PostsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async checkPostExists(id: string): Promise<void> {
-    if (!isPositiveIntegerString(id)) {
-      throw new PostNotFoundDomainException();
-    }
-
-    const result = await this.pool.query(
-      `
-        SELECT EXISTS(SELECT 1 FROM posts WHERE id = $1::int) AS exists
-      `,
-      [id],
-    );
-
-    if (result.rows[0].exists === false) {
-      throw new PostNotFoundDomainException();
-    }
-  }
-
   async getPost(id: string): Promise<PostModel> {
     if (!isPositiveIntegerString(id)) {
       throw new PostNotFoundDomainException();
@@ -63,8 +46,25 @@ export class PostsRepository {
       content: rawPost.content,
       blogId: rawPost.blog_id.toString(),
       blogName: rawPost.blog_name,
-      createdAt: rawPost.created_at.toISOString(),
+      createdAt: rawPost.created_at,
     };
+  }
+
+  async checkPostExists(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new PostNotFoundDomainException();
+    }
+
+    const result = await this.pool.query(
+      `
+        SELECT EXISTS(SELECT 1 FROM posts WHERE id = $1::int) AS exists
+      `,
+      [id],
+    );
+
+    if (result.rows[0].exists === false) {
+      throw new PostNotFoundDomainException();
+    }
   }
 
   async createPost(params: CreatePostRepoParams): Promise<PostModel> {
@@ -92,7 +92,7 @@ export class PostsRepository {
       content,
       blogId,
       blogName,
-      createdAt: createdAt.toISOString(),
+      createdAt,
     };
   }
   async updatePost(params: UpdatePostRepoParams): Promise<void> {

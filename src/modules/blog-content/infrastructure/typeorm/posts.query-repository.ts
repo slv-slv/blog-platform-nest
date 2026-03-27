@@ -22,33 +22,37 @@ export class PostsQueryRepository {
     const idNum = parseInt(id);
     if (isNaN(idNum)) return null;
 
-    const post = await this.postEntityRepository.findOneBy({ id: idNum });
+    const post = await this.postEntityRepository.findOne({
+      where: { id: idNum },
+      relations: { blog: true },
+    });
     if (!post) return null;
 
-    return post.toViewModel(userId);
+    return await this.mapToPostViewModel(post, userId);
   }
 
   async getPosts(params: GetPostsRepoQueryParams): Promise<PostsPaginatedViewModel> {
     const { userId, pagingParams, blogId } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
-    const qb = this.postEntityRepository.createQueryBuilder('post');
+    const qb = this.postEntityRepository.createQueryBuilder('post').innerJoinAndSelect('post.blog', 'blog');
     if (blogId) {
-      qb.innerJoinAndSelect('post.blog', 'blog').where('blog.id = :blogId', { blogId: parseInt(blogId) });
+      qb.where('blog.id = :blogId', { blogId: parseInt(blogId) });
     }
 
     const direction = sortDirection === 'asc' ? 'ASC' : 'DESC';
     const skipCount = (pageNumber - 1) * pageSize;
 
-    qb.orderBy(`post.${sortBy}`, direction).take(pageSize).skip(skipCount);
+    const orderBy = sortBy === 'blogName' ? 'blog.name' : `post.${sortBy}`;
 
-    const totalCount = await qb.printSql().getCount();
+    qb.orderBy(orderBy, direction).take(pageSize).skip(skipCount);
+
+    const totalCount = await qb.getCount();
     const pagesCount = Math.ceil(totalCount / pageSize);
 
-    const postsEntities = await qb.printSql().getMany();
-    console.log(postsEntities);
+    const postsEntities = await qb.getMany();
     const posts = await Promise.all(
-      postsEntities.map(async (postEntity) => await postEntity.toViewModel(userId)),
+      postsEntities.map(async (postEntity) => await this.mapToPostViewModel(postEntity, userId)),
     );
 
     return {
@@ -57,6 +61,21 @@ export class PostsQueryRepository {
       pageSize,
       totalCount,
       items: posts,
+    };
+  }
+
+  private async mapToPostViewModel(post: Post, userId?: string): Promise<PostViewModel> {
+    const idStr = post.id.toString();
+
+    return {
+      id: idStr,
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      blogId: post.blogId.toString(),
+      blogName: post.blog.name,
+      createdAt: post.createdAt.toISOString(),
+      extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo({ postId: idStr, userId }),
     };
   }
 }
