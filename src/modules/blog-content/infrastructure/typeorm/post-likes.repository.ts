@@ -1,28 +1,28 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { LikeStatus } from '../../types/likes.types.js';
-import { PG_POOL } from '../../../../common/constants.js';
-import { Pool } from 'pg';
 import {
   PostLikeStatusRepoParams,
   SetPostLikeRepoParams,
   SetPostNoneRepoParams,
 } from '../../types/post-likes.types.js';
+import { PostLike } from './post-likes.entities.js';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PostLikesRepository {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  constructor(@InjectRepository(PostLike) private readonly postLikesEntityRepository: Repository<PostLike>) {}
 
-  async getLikesCount(postId: string): Promise<number> {
-    const result = await this.pool.query(
-      `
-        SELECT COUNT(*)::int
-        FROM post_likes
-        WHERE post_id = $1::int
-      `,
-      [postId],
-    );
+  async getLikesCount(postIdArr: number[]): Promise<{ postId: number; likesCount: number }[]> {
+    const result = await this.postLikesEntityRepository
+      .createQueryBuilder('postLike')
+      .select('postLike.postId', 'postId')
+      .addSelect('COUNT(postLike.userId)::int', 'likesCount')
+      .where('postLike.postId = ANY(:postIdArr)', { postIdArr })
+      .groupBy('postLike.postId')
+      .getRawMany();
 
-    return result.rows[0].count;
+    return result;
   }
 
   async getDislikesCount(postId: string): Promise<number> {
