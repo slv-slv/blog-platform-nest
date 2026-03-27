@@ -82,18 +82,16 @@ export class PostsRepository {
     }
   }
 
-  async deletePost(id: string): Promise<boolean> {
-    const idNum = parseInt(id);
-    if (isNaN(idNum)) return false;
+  async deletePost(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new PostNotFoundDomainException();
+    }
 
-    const result = await this.postEntityRepository
-      .createQueryBuilder()
-      .softDelete()
-      .from(Post)
-      .where('id = :id', { id: idNum })
-      .execute();
+    const result = await this.postEntityRepository.softDelete({ id: +id });
 
-    return result.affected! > 0;
+    if (result.affected === 0) {
+      throw new PostNotFoundDomainException();
+    }
   }
 
   private mapToPostModel(post: Post): PostModel {
