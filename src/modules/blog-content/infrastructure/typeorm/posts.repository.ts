@@ -27,6 +27,18 @@ export class PostsRepository {
     return this.mapToPostModel(post);
   }
 
+  async checkPostExists(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new PostNotFoundDomainException();
+    }
+
+    const exists = await this.postEntityRepository.existsBy({ id: +id });
+
+    if (!exists) {
+      throw new PostNotFoundDomainException();
+    }
+  }
+
   async createPost(params: CreatePostRepoParams): Promise<PostModel> {
     const { title, shortDescription, content, blogId, blogName, createdAt } = params;
     const blogIdNum = parseInt(blogId);
