@@ -58,7 +58,6 @@ export class BlogsRepository {
 
   async createBlog(params: CreateBlogRepoParams): Promise<BlogModel> {
     const { name, description, websiteUrl, createdAt, isMembership } = params;
-    const newBlog = { name, description, websiteUrl, createdAt, isMembership };
 
     const result = await this.pool.query(
       `
