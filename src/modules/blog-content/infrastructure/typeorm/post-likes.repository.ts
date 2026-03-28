@@ -18,27 +18,23 @@ export class PostLikesRepository {
   ) {}
 
   async getLikesCount(postIdArr: number[]): Promise<{ postId: number; likesCount: number }[]> {
-    const result = await this.postLikesEntityRepository
+    return await this.postLikesEntityRepository
       .createQueryBuilder('postLike')
       .select('postLike.postId', 'postId')
       .addSelect('COUNT(postLike.userId)::int', 'likesCount')
       .where('postLike.postId = ANY(:postIdArr)', { postIdArr })
       .groupBy('postLike.postId')
-      .getRawMany();
-
-    return result;
+      .getRawMany<{ postId: number; likesCount: number }>();
   }
 
   async getDislikesCount(postIdArr: number[]): Promise<{ postId: number; dislikesCount: number }[]> {
-    const result = await this.postDislikesEntityRepository
+    return await this.postDislikesEntityRepository
       .createQueryBuilder('postDislike')
       .select('postDislike.postId', 'postId')
       .addSelect('COUNT(postDislike.userId)::int', 'dislikesCount')
       .where('postDislike.postId = ANY(:postIdArr)', { postIdArr })
       .groupBy('postDislike.postId')
-      .getRawMany();
-
-    return result;
+      .getRawMany<{ postId: number; dislikesCount: number }>();
   }
 
   async getLikeStatus(
@@ -51,7 +47,7 @@ export class PostLikesRepository {
 
     const userIdNum = +userId;
 
-    const result = await this.dataSource
+    return await this.dataSource
       .createQueryBuilder()
       .select('p."postId"', 'postId')
       .addSelect(
@@ -73,8 +69,6 @@ export class PostLikesRepository {
       )
       .setParameters({ postIdArr, userIdNum })
       .getRawMany<{ postId: number; myStatus: LikeStatus }>();
-
-    return result;
   }
 
   async getNewestLikes(
@@ -95,9 +89,9 @@ export class PostLikesRepository {
         FROM post_likes
         WHERE post_id = ANY($1))
         SELECT
-          post_id AS "postId",
+          lrn.post_id AS "postId",
           lrn.created_at AS "addedAt",
-          user_id AS "userId",
+          lrn.user_id AS "userId",
           u.login
         FROM like_row_numbers AS lrn JOIN users AS u
           ON lrn.user_id = u.id
