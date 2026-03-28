@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   FindPostRepoQueryParams,
   GetPostsRepoQueryParams,
@@ -9,6 +9,9 @@ import { PostLikesQueryRepository } from './post-likes.query-repository.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './posts.entities.js';
 import { Repository } from 'typeorm';
+import { PostNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
+import { SortDirection } from '../../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -16,6 +19,18 @@ export class PostsQueryRepository {
     @InjectRepository(Post) private readonly postEntityRepository: Repository<Post>,
     private readonly postLikesQueryRepository: PostLikesQueryRepository,
   ) {}
+
+  async checkPostExists(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new PostNotFoundDomainException();
+    }
+
+    const exists = await this.postEntityRepository.existsBy({ id: +id });
+
+    if (!exists) {
+      throw new PostNotFoundDomainException();
+    }
+  }
 
   async getPost(params: FindPostRepoQueryParams): Promise<PostViewModel | null> {
     const { postId: id, userId } = params;
@@ -40,7 +55,7 @@ export class PostsQueryRepository {
       qb.where('blog.id = :blogId', { blogId: +blogId });
     }
 
-    const direction = sortDirection === 'asc' ? 'ASC' : 'DESC';
+    const direction = sortDirection === SortDirection.asc ? 'ASC' : 'DESC';
     const skipCount = (pageNumber - 1) * pageSize;
 
     const orderBy = sortBy === 'blogName' ? 'blog.name' : `post.${sortBy}`;
