@@ -7,6 +7,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import { coreConfig } from '../../../../config/core.config.js';
+import { User } from '../../../user-accounts/infrastructure/typeorm/users.entities.js';
 
 @Injectable()
 export class PostLikesRepository {
@@ -76,32 +77,27 @@ export class PostLikesRepository {
   ): Promise<{ postId: number; addedAt: Date; userId: number; login: string }[]> {
     const newestLikesNumber = this.core.newestLikesNumber;
 
-    const result = await this.dataSource.query<
-      { postId: number; addedAt: Date; userId: number; login: string }[]
-    >(
-      `
-        WITH like_row_numbers AS
-        (SELECT
-          post_id,
-          created_at,
-          user_id,
-          ROW_NUMBER() OVER (PARTITION BY post_id ORDER BY created_at DESC) AS rn
-        FROM post_likes
-        WHERE post_id = ANY($1))
-        SELECT
-          lrn.post_id AS "postId",
-          lrn.created_at AS "addedAt",
-          lrn.user_id AS "userId",
-          u.login
-        FROM like_row_numbers AS lrn JOIN users AS u
-          ON lrn.user_id = u.id
-        WHERE lrn.rn <= $2
-        ORDER BY post_id, lrn.created_at DESC
-      `,
-      [postIdArr, newestLikesNumber],
-    );
+    const likeRowNumbersQuery = this.postLikesEntityRepository
+      .createQueryBuilder('postLike')
+      .select('postLike.postId', 'postId')
+      .addSelect('postLike.createdAt', 'createdAt')
+      .addSelect('postLike.userId', 'userId')
+      .addSelect('ROW_NUMBER() OVER (PARTITION BY postLike.postId ORDER BY postLike.createdAt DESC)', 'rn')
+      .where('postLike.postId = ANY(:postIdArr)', { postIdArr });
 
-    return result;
+    return await this.dataSource
+      .createQueryBuilder()
+      .addCommonTableExpression(likeRowNumbersQuery, 'LikeRowNumbers')
+      .select('lrn."postId"', 'postId')
+      .addSelect('lrn."createdAt"', 'addedAt')
+      .addSelect('lrn."userId"', 'userId')
+      .addSelect('user.login', 'login')
+      .from('LikeRowNumbers', 'lrn')
+      .innerJoin(User, 'user', 'lrn."userId" = user.id')
+      .where('lrn.rn <= :newestLikesNumber', { newestLikesNumber })
+      .orderBy('lrn."postId"', 'ASC')
+      .addOrderBy('lrn."createdAt"', 'DESC')
+      .getRawMany<{ postId: number; addedAt: Date; userId: number; login: string }>();
   }
 
   async setLike(params: SetPostLikeRepoParams): Promise<void> {
