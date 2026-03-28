@@ -1,42 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
+import { Injectable } from '@nestjs/common';
 import { LikeStatus } from '../../types/likes.types.js';
 import { SetPostLikeRepoParams, SetPostNoneRepoParams } from '../../types/post-likes.types.js';
 import { PostDislike, PostLike } from './post-likes.entities.js';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
-import { coreConfig } from '../../../../config/core.config.js';
-import { User } from '../../../user-accounts/infrastructure/typeorm/users.entities.js';
 
 @Injectable()
 export class PostLikesRepository {
-  constructor(
-    @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
-    @InjectDataSource() private readonly dataSource: DataSource,
-    @InjectRepository(PostLike) private readonly postLikesEntityRepository: Repository<PostLike>,
-    @InjectRepository(PostDislike) private readonly postDislikesEntityRepository: Repository<PostDislike>,
-  ) {}
-
-  async getLikesCount(postIdArr: number[]): Promise<{ postId: number; likesCount: number }[]> {
-    return await this.postLikesEntityRepository
-      .createQueryBuilder('postLike')
-      .select('postLike.postId', 'postId')
-      .addSelect('COUNT(postLike.userId)::int', 'likesCount')
-      .where('postLike.postId = ANY(:postIdArr)', { postIdArr })
-      .groupBy('postLike.postId')
-      .getRawMany<{ postId: number; likesCount: number }>();
-  }
-
-  async getDislikesCount(postIdArr: number[]): Promise<{ postId: number; dislikesCount: number }[]> {
-    return await this.postDislikesEntityRepository
-      .createQueryBuilder('postDislike')
-      .select('postDislike.postId', 'postId')
-      .addSelect('COUNT(postDislike.userId)::int', 'dislikesCount')
-      .where('postDislike.postId = ANY(:postIdArr)', { postIdArr })
-      .groupBy('postDislike.postId')
-      .getRawMany<{ postId: number; dislikesCount: number }>();
-  }
+  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async getLikeStatus(
     postIdArr: number[],
@@ -68,38 +40,9 @@ export class PostLikesRepository {
         'postDislike',
         'p."postId" = postDislike.postId AND postDislike.userId = :userId',
       )
-      .setParameters({ postIdArr, userIdNum })
+      .setParameters({ postIdArr, userId: userIdNum })
       .getRawMany<{ postId: number; myStatus: LikeStatus }>();
   }
-
-  async getNewestLikes(
-    postIdArr: number[],
-  ): Promise<{ postId: number; addedAt: Date; userId: number; login: string }[]> {
-    const newestLikesNumber = this.core.newestLikesNumber;
-
-    const likeRowNumbersQuery = this.postLikesEntityRepository
-      .createQueryBuilder('postLike')
-      .select('postLike.postId', 'postId')
-      .addSelect('postLike.createdAt', 'createdAt')
-      .addSelect('postLike.userId', 'userId')
-      .addSelect('ROW_NUMBER() OVER (PARTITION BY postLike.postId ORDER BY postLike.createdAt DESC)', 'rn')
-      .where('postLike.postId = ANY(:postIdArr)', { postIdArr });
-
-    return await this.dataSource
-      .createQueryBuilder()
-      .addCommonTableExpression(likeRowNumbersQuery, 'LikeRowNumbers')
-      .select('lrn."postId"', 'postId')
-      .addSelect('lrn."createdAt"', 'addedAt')
-      .addSelect('lrn."userId"', 'userId')
-      .addSelect('user.login', 'login')
-      .from('LikeRowNumbers', 'lrn')
-      .innerJoin(User, 'user', 'lrn."userId" = user.id')
-      .where('lrn.rn <= :newestLikesNumber', { newestLikesNumber })
-      .orderBy('lrn."postId"', 'ASC')
-      .addOrderBy('lrn."createdAt"', 'DESC')
-      .getRawMany<{ postId: number; addedAt: Date; userId: number; login: string }>();
-  }
-
   async setLike(params: SetPostLikeRepoParams): Promise<void> {
     const { postId, userId, createdAt } = params;
 

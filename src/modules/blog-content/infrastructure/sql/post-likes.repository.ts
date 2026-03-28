@@ -3,48 +3,11 @@ import { LikeStatus } from '../../types/likes.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
 import { SetPostLikeRepoParams, SetPostNoneRepoParams } from '../../types/post-likes.types.js';
-import { coreConfig } from '../../../../config/core.config.js';
-import { ConfigType } from '@nestjs/config';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class PostLikesRepository {
-  constructor(
-    @Inject(PG_POOL) private readonly pool: Pool,
-    @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
-  ) {}
-
-  async getLikesCount(postIdArr: number[]): Promise<{ postId: number; likesCount: number }[]> {
-    const result = await this.pool.query(
-      `
-        SELECT
-          post_id AS "postId",  
-          COUNT(user_id)::int AS "likesCount"
-        FROM post_likes
-        WHERE post_id = ANY($1)
-        GROUP BY post_id
-      `,
-      [postIdArr],
-    );
-
-    return result.rows;
-  }
-
-  async getDislikesCount(postIdArr: number[]): Promise<{ postId: number; dislikesCount: number }[]> {
-    const result = await this.pool.query(
-      `
-        SELECT
-          post_id AS "postId",  
-          COUNT(user_id)::int AS "dislikesCount"
-        FROM post_dislikes
-        WHERE post_id = ANY($1)
-        GROUP BY post_id
-      `,
-      [postIdArr],
-    );
-
-    return result.rows;
-  }
+  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getLikeStatus(
     postIdArr: number[],
@@ -56,7 +19,7 @@ export class PostLikesRepository {
 
     const userIdNum = +userId;
 
-    const myStatusResult = await this.pool.query(
+    const myStatusResult = await this.pool.query<{ postId: number; myStatus: LikeStatus }>(
       `
         SELECT
           p.post_id AS "postId",
@@ -78,38 +41,6 @@ export class PostLikesRepository {
 
     return myStatusResult.rows;
   }
-
-  async getNewestLikes(
-    postIdArr: number[],
-  ): Promise<{ postId: number; addedAt: Date; userId: number; login: string }[]> {
-    const newestLikesNumber = this.core.newestLikesNumber;
-
-    const newestLikesResult = await this.pool.query(
-      `
-        WITH like_row_numbers AS
-        (SELECT
-          post_id,
-          created_at,
-          user_id,
-          ROW_NUMBER() OVER (PARTITION BY post_id ORDER BY created_at DESC) AS rn
-        FROM post_likes
-        WHERE post_id = ANY($1))
-        SELECT
-          lrn.post_id AS "postId",
-          lrn.created_at AS "addedAt",
-          lrn.user_id AS "userId",
-          u.login
-        FROM like_row_numbers AS lrn JOIN users AS u
-          ON lrn.user_id = u.id
-        WHERE lrn.rn <= $2
-        ORDER BY post_id, lrn.created_at DESC
-      `,
-      [postIdArr, newestLikesNumber],
-    );
-
-    return newestLikesResult.rows;
-  }
-
   async setLike(params: SetPostLikeRepoParams): Promise<void> {
     const { postId, userId, createdAt } = params;
 
