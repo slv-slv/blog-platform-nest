@@ -111,22 +111,14 @@ export class PostLikesRepository {
     const userIdNum = +userId;
 
     await this.dataSource.transaction(async (manager) => {
-      await manager.query(
-        `
-          DELETE FROM post_dislikes
-          WHERE post_id = $1 AND user_id = $2
-        `,
-        [postIdNum, userIdNum],
-      );
-      await manager.query(
-        `
-          INSERT INTO post_likes (post_id, user_id, created_at)
-          VALUES ($1, $2, $3)
-          ON CONFLICT (post_id, user_id) DO UPDATE
-          SET created_at = EXCLUDED.created_at
-        `,
-        [postIdNum, userIdNum, createdAt],
-      );
+      const postDislikesRepository = manager.getRepository(PostDislike);
+      const postLikesRepository = manager.getRepository(PostLike);
+
+      await postDislikesRepository.delete({ postId: postIdNum, userId: userIdNum });
+      await postLikesRepository.upsert({ postId: postIdNum, userId: userIdNum, createdAt }, [
+        'postId',
+        'userId',
+      ]);
     });
   }
 
