@@ -32,18 +32,34 @@ export class PostsQueryRepository {
     }
   }
 
-  async getPost(params: FindPostRepoQueryParams): Promise<PostViewModel | null> {
-    const { postId: id, userId } = params;
-    const idNum = +id;
-    if (isNaN(idNum)) return null;
+  async getPost(params: FindPostRepoQueryParams): Promise<PostViewModel> {
+    const { postId, userId } = params;
+
+    if (!isPositiveIntegerString(postId)) {
+      throw new PostNotFoundDomainException();
+    }
 
     const post = await this.postEntityRepository.findOne({
-      where: { id: idNum },
+      where: { id: +postId },
       relations: { blog: true },
     });
-    if (!post) return null;
 
-    return await this.mapToPostViewModel(post, userId);
+    if (!post) {
+      throw new PostNotFoundDomainException();
+    }
+
+    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds: [post.id], userId });
+
+    return {
+      id: post.id.toString(),
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      blogId: post.blogId.toString(),
+      blogName: post.blog.name,
+      createdAt: post.createdAt.toISOString(),
+      extendedLikesInfo: likesInfoMap.get(post.id)!,
+    };
   }
 
   async getPosts(params: GetPostsRepoQueryParams): Promise<PostsPaginatedViewModel> {
@@ -76,21 +92,6 @@ export class PostsQueryRepository {
       pageSize,
       totalCount,
       items: posts,
-    };
-  }
-
-  private async mapToPostViewModel(post: Post, userId?: string): Promise<PostViewModel> {
-    const idStr = post.id.toString();
-
-    return {
-      id: idStr,
-      title: post.title,
-      shortDescription: post.shortDescription,
-      content: post.content,
-      blogId: post.blogId.toString(),
-      blogName: post.blog.name,
-      createdAt: post.createdAt.toISOString(),
-      extendedLikesInfo: await this.postLikesQueryRepository.getLikesInfo({ postId: idStr, userId }),
     };
   }
 }
