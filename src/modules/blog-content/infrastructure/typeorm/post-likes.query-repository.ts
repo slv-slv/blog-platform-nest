@@ -1,109 +1,138 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { ExtendedLikesInfoViewModel, GetSinglePostLikesInfoParams, LikeStatus } from '../../types/likes.types.js';
-import { PG_POOL } from '../../../../common/constants.js';
-import { Pool } from 'pg';
+import { ExtendedLikesInfoViewModel, GetPostLikesInfoParams, LikeStatus } from '../../types/likes.types.js';
 import { coreConfig } from '../../../../config/core.config.js';
-import { PostLikeStatusRepoParams } from '../../types/post-likes.types.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { PostDislike, PostLike } from './post-likes.entities.js';
+import { User } from '../../../user-accounts/infrastructure/typeorm/users.entities.js';
 
 @Injectable()
 export class PostLikesQueryRepository {
   constructor(
-    @Inject(PG_POOL) private readonly pool: Pool,
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(PostLike) private readonly postLikesEntityRepository: Repository<PostLike>,
+    @InjectRepository(PostDislike) private readonly postDislikesEntityRepository: Repository<PostDislike>,
   ) {}
 
-  async getLikesInfo(params: GetSinglePostLikesInfoParams): Promise<ExtendedLikesInfoViewModel> {
-    const { postId } = params;
+  async getLikesInfo(
+    params: GetPostLikesInfoParams<number>,
+  ): Promise<Map<number, ExtendedLikesInfoViewModel>> {
+    const { postIds: postIdArr } = params;
     const userId = params.userId ?? null;
-    const postIdNum = +postId;
-    const likesCount = await this.getLikesCount(postId);
-    const dislikesCount = await this.getDislikesCount(postId);
-    const myStatus = await this.getLikeStatus({ postId, userId });
+    const likesCountArr = await this.getLikesCount(postIdArr);
+    const likesCountMap = new Map(likesCountArr.map(({ postId, likesCount }) => [postId, likesCount]));
 
-    const newestLikesNumber = this.core.newestLikesNumber;
-
-    const result = await this.pool.query(
-      `
-        SELECT
-          post_likes.created_at,
-          post_likes.user_id,
-          users.login
-        FROM post_likes JOIN users
-          ON post_likes.user_id = users.id
-        WHERE post_likes.post_id = $1
-        ORDER BY post_likes.created_at DESC
-        LIMIT $2
-      `,
-      [postIdNum, newestLikesNumber],
+    const dislikesCountArr = await this.getDislikesCount(postIdArr);
+    const dislikesCountMap = new Map(
+      dislikesCountArr.map(({ postId, dislikesCount }) => [postId, dislikesCount]),
     );
 
-    const newestLikes = result.rows.map((like) => ({
-      addedAt: like.created_at,
-      userId: like.user_id.toString(),
-      login: like.login,
-    }));
+    const myStatusArr = await this.getLikeStatus(postIdArr, userId);
+    const myStatusMap = new Map(myStatusArr.map(({ postId, myStatus }) => [postId, myStatus]));
 
-    return { likesCount, dislikesCount, myStatus, newestLikes };
+    const newestLikesArr = await this.getNewestLikes(postIdArr);
+    const newestLikesMap = new Map<number, { addedAt: string; userId: string; login: string }[]>();
+    for (const row of newestLikesArr) {
+      const like = newestLikesMap.get(row.postId) ?? [];
+      like.push({ addedAt: row.addedAt.toISOString(), userId: row.userId.toString(), login: row.login });
+      newestLikesMap.set(row.postId, like);
+    }
+
+    const likesInfoMap = new Map<number, ExtendedLikesInfoViewModel>();
+    for (const postId of postIdArr) {
+      likesInfoMap.set(postId, {
+        likesCount: likesCountMap.get(postId) ?? 0,
+        dislikesCount: dislikesCountMap.get(postId) ?? 0,
+        myStatus: myStatusMap.get(postId) ?? LikeStatus.None,
+        newestLikes: newestLikesMap.get(postId) ?? [],
+      });
+    }
+
+    return likesInfoMap;
   }
 
-  private async getLikesCount(postId: string): Promise<number> {
-    const postIdNum = +postId;
-    const result = await this.pool.query(
-      `
-        SELECT COUNT(*)::int
-        FROM post_likes
-        WHERE post_id = $1
-      `,
-      [postIdNum],
-    );
-
-    return result.rows[0].count;
+  private async getLikesCount(postIdArr: number[]): Promise<{ postId: number; likesCount: number }[]> {
+    return await this.postLikesEntityRepository
+      .createQueryBuilder('postLike')
+      .select('postLike.postId', 'postId')
+      .addSelect('COUNT(postLike.userId)::int', 'likesCount')
+      .where('postLike.postId = ANY(:postIdArr)', { postIdArr })
+      .groupBy('postLike.postId')
+      .getRawMany<{ postId: number; likesCount: number }>();
   }
 
-  private async getDislikesCount(postId: string): Promise<number> {
-    const postIdNum = +postId;
-    const result = await this.pool.query(
-      `
-        SELECT COUNT(*)::int
-        FROM post_dislikes
-        WHERE post_id = $1
-      `,
-      [postIdNum],
-    );
-
-    return result.rows[0].count;
+  private async getDislikesCount(postIdArr: number[]): Promise<{ postId: number; dislikesCount: number }[]> {
+    return await this.postDislikesEntityRepository
+      .createQueryBuilder('postDislike')
+      .select('postDislike.postId', 'postId')
+      .addSelect('COUNT(postDislike.userId)::int', 'dislikesCount')
+      .where('postDislike.postId = ANY(:postIdArr)', { postIdArr })
+      .groupBy('postDislike.postId')
+      .getRawMany<{ postId: number; dislikesCount: number }>();
   }
 
-  private async getLikeStatus(params: PostLikeStatusRepoParams): Promise<LikeStatus> {
-    const { postId, userId } = params;
-    if (userId === null) return LikeStatus.None;
+  private async getLikeStatus(
+    postIdArr: number[],
+    userId: string | null,
+  ): Promise<{ postId: number; myStatus: LikeStatus }[]> {
+    if (userId === null || !isPositiveIntegerString(userId)) {
+      return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
+    }
 
-    const postIdNum = +postId;
     const userIdNum = +userId;
 
-    const likeResult = await this.pool.query(
-      `
-        SELECT COUNT(*)::int
-        FROM post_likes
-        WHERE post_id = $1 AND user_id = $2
-      `,
-      [postIdNum, userIdNum],
-    );
+    return await this.dataSource
+      .createQueryBuilder()
+      .select('p."postId"', 'postId')
+      .addSelect(
+        `
+            CASE
+              WHEN postLike.userId IS NOT NULL THEN 'Like'
+              WHEN postDislike.userId IS NOT NULL THEN 'Dislike'
+              ELSE 'None'
+            END
+          `,
+        'myStatus',
+      )
+      .from('unnest(:postIdArr::int[])', 'p(postId)')
+      .leftJoin(PostLike, 'postLike', 'p."postId" = postLike.postId AND postLike.userId = :userId')
+      .leftJoin(
+        PostDislike,
+        'postDislike',
+        'p."postId" = postDislike.postId AND postDislike.userId = :userId',
+      )
+      .setParameters({ postIdArr, userId: userIdNum })
+      .getRawMany<{ postId: number; myStatus: LikeStatus }>();
+  }
 
-    if (likeResult.rows[0].count > 0) return LikeStatus.Like;
+  private async getNewestLikes(
+    postIdArr: number[],
+  ): Promise<{ postId: number; addedAt: Date; userId: number; login: string }[]> {
+    const newestLikesNumber = this.core.newestLikesNumber;
 
-    const dislikeResult = await this.pool.query(
-      `
-        SELECT COUNT(*)::int
-        FROM post_dislikes
-        WHERE post_id = $1 AND user_id = $2
-      `,
-      [postIdNum, userIdNum],
-    );
+    const likeRowNumbersQuery = this.postLikesEntityRepository
+      .createQueryBuilder('postLike')
+      .select('postLike.postId', 'postId')
+      .addSelect('postLike.createdAt', 'createdAt')
+      .addSelect('postLike.userId', 'userId')
+      .addSelect('ROW_NUMBER() OVER (PARTITION BY postLike.postId ORDER BY postLike.createdAt DESC)', 'rn')
+      .where('postLike.postId = ANY(:postIdArr)', { postIdArr });
 
-    if (dislikeResult.rows[0].count > 0) return LikeStatus.Dislike;
-
-    return LikeStatus.None;
+    return await this.dataSource
+      .createQueryBuilder()
+      .addCommonTableExpression(likeRowNumbersQuery, 'LikeRowNumbers')
+      .select('lrn."postId"', 'postId')
+      .addSelect('lrn."createdAt"', 'addedAt')
+      .addSelect('lrn."userId"', 'userId')
+      .addSelect('user.login', 'login')
+      .from('LikeRowNumbers', 'lrn')
+      .innerJoin(User, 'user', 'lrn."userId" = user.id')
+      .where('lrn.rn <= :newestLikesNumber', { newestLikesNumber })
+      .orderBy('lrn."postId"', 'ASC')
+      .addOrderBy('lrn."createdAt"', 'DESC')
+      .getRawMany<{ postId: number; addedAt: Date; userId: number; login: string }>();
   }
 }
