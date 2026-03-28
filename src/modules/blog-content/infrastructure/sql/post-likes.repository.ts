@@ -110,21 +110,6 @@ export class PostLikesRepository {
     return newestLikesResult.rows;
   }
 
-  // async deleteLikesInfo(postId: string): Promise<void> {
-  //   const client = await this.pool.connect();
-  //   try {
-  //     await client.query('BEGIN');
-  //     await client.query('DELETE FROM post_likes WHERE post_id = $1', [parseInt(postId)]);
-  //     await client.query('DELETE FROM post_dislikes WHERE post_id = $1', [parseInt(postId)]);
-  //     await client.query('COMMIT');
-  //   } catch (e) {
-  //     await client.query('ROLLBACK');
-  //     throw e;
-  //   } finally {
-  //     client.release();
-  //   }
-  // }
-
   async setLike(params: SetPostLikeRepoParams): Promise<void> {
     const { postId, userId, createdAt } = params;
 
