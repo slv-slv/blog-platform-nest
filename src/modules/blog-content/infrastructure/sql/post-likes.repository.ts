@@ -95,9 +95,9 @@ export class PostLikesRepository {
         FROM post_likes
         WHERE post_id = ANY($1))
         SELECT
-          post_id AS "postId",
+          lrn.post_id AS "postId",
           lrn.created_at AS "addedAt",
-          user_id AS "userId",
+          lrn.user_id AS "userId",
           u.login
         FROM like_row_numbers AS lrn JOIN users AS u
           ON lrn.user_id = u.id
