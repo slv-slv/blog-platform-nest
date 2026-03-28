@@ -155,20 +155,11 @@ export class PostLikesRepository {
     const userIdNum = +userId;
 
     await this.dataSource.transaction(async (manager) => {
-      await manager.query(
-        `
-          DELETE FROM post_likes
-          WHERE post_id = $1 AND user_id = $2
-        `,
-        [postIdNum, userIdNum],
-      );
-      await manager.query(
-        `
-          DELETE FROM post_dislikes
-          WHERE post_id = $1 AND user_id = $2
-        `,
-        [postIdNum, userIdNum],
-      );
+      const postLikesRepository = manager.getRepository(PostLike);
+      const postDislikesRepository = manager.getRepository(PostDislike);
+
+      await postLikesRepository.delete({ postId: postIdNum, userId: userIdNum });
+      await postDislikesRepository.delete({ postId: postIdNum, userId: userIdNum });
     });
   }
 }
