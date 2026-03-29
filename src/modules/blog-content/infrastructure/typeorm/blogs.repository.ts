@@ -45,8 +45,8 @@ export class BlogsRepository {
       createdAt,
       isMembership,
     });
-
-    const id = result.identifiers[0].id.toString();
+    const identifier = result.identifiers[0] as { id: number };
+    const id = identifier.id.toString();
 
     return {
       id,

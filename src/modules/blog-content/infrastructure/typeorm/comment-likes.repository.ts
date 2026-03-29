@@ -1,7 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { LikeStatus } from '../../types/likes.types.js';
-import { PG_POOL } from '../../../../common/constants.js';
-import { Pool } from 'pg';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { SetCommentLikeRepoParams, SetCommentNoneRepoParams } from '../../types/comment-likes.types.js';
@@ -10,10 +8,7 @@ import { CommentDislike, CommentLike } from './comment-likes.entities.js';
 
 @Injectable()
 export class CommentLikesRepository {
-  constructor(
-    @Inject(PG_POOL) private readonly pool: Pool,
-    @InjectDataSource() private readonly dataSource: DataSource,
-  ) {}
+  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async getLikeStatus(
     commentIds: number[],

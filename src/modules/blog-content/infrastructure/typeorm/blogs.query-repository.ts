@@ -5,6 +5,7 @@ import { Blog } from './blogs.entities.js';
 import { Repository } from 'typeorm';
 import { BlogNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
+import { SortDirection } from '../../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class BlogsQueryRepository {
@@ -46,7 +47,7 @@ export class BlogsQueryRepository {
       qb.where('blog.name ILIKE :search', { search: `%${searchNameTerm}%` });
     }
 
-    const direction = sortDirection === 'asc' ? 'ASC' : 'DESC';
+    const direction = sortDirection === SortDirection.asc ? 'ASC' : 'DESC';
     const skipCount = (pageNumber - 1) * pageSize;
 
     qb.orderBy(`blog.${sortBy}`, direction).take(pageSize).skip(skipCount);
