@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   CommentModel,
   CreateCommentRepoParams,
@@ -7,10 +7,24 @@ import {
 import { Comment } from './comments.entities.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CommentNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class CommentsRepository {
   constructor(@InjectRepository(Comment) private readonly commentEntityRepository: Repository<Comment>) {}
+
+  async checkCommentExists(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new CommentNotFoundDomainException();
+    }
+
+    const exists = await this.commentEntityRepository.existsBy({ id: +id });
+
+    if (!exists) {
+      throw new CommentNotFoundDomainException();
+    }
+  }
 
   async getComment(id: string): Promise<CommentModel | null> {
     const idNum = +id;
