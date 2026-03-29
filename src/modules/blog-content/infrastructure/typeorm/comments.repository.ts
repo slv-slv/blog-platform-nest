@@ -67,8 +67,8 @@ export class CommentsRepository {
       content,
       createdAt,
     });
-
-    const id = result.identifiers[0].id.toString();
+    const identifier = result.identifiers[0] as { id: number };
+    const id = identifier.id.toString();
 
     return {
       id,
@@ -80,10 +80,12 @@ export class CommentsRepository {
 
   async updateComment(params: UpdateCommentRepoParams): Promise<boolean> {
     const { id, content } = params;
-    const idNum = +id;
-    if (isNaN(idNum)) return false;
 
-    const result = await this.commentEntityRepository.update({ id: idNum }, { content });
+    if (!isPositiveIntegerString(id)) {
+      return false;
+    }
+
+    const result = await this.commentEntityRepository.update({ id: +id }, { content });
     return result.affected! > 0;
   }
 
