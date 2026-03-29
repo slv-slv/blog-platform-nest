@@ -27,7 +27,13 @@ export class CommentsQueryRepository {
 
     const idNum = +id;
 
-    const result = await this.pool.query(
+    const result = await this.pool.query<{
+      id: number;
+      content: string;
+      created_at: Date;
+      commentator_id: number;
+      commentator_login: string;
+    }>(
       `
         SELECT
           comments.id,
@@ -91,7 +97,7 @@ export class CommentsQueryRepository {
         orderBy = sortBy;
     }
 
-    const countResult = await this.pool.query(
+    const countResult = await this.pool.query<{ count: number }>(
       `
         SELECT COUNT(id)::int
         FROM comments
@@ -104,7 +110,13 @@ export class CommentsQueryRepository {
     const pagesCount = Math.ceil(totalCount / pageSize);
     const skipCount = (pageNumber - 1) * pageSize;
 
-    const commentsResult = await this.pool.query(
+    const commentsResult = await this.pool.query<{
+      id: number;
+      content: string;
+      created_at: Date;
+      commentator_id: number;
+      commentator_login: string;
+    }>(
       `
         SELECT
           comments.id,
@@ -123,9 +135,9 @@ export class CommentsQueryRepository {
     );
 
     const rawComments = commentsResult.rows;
-    const commentIdArr = rawComments.map((comment) => comment.id);
+    const commentIds = rawComments.map((comment) => comment.id);
     const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({
-      commentIds: commentIdArr,
+      commentIds,
       userId,
     });
 

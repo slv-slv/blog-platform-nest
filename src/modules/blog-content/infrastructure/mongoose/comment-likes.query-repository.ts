@@ -10,23 +10,21 @@ export class CommentLikesQueryRepository {
   constructor(@InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesModel>) {}
 
   async getLikesInfo(params: GetCommentLikesInfoParams<string>): Promise<Map<string, LikesInfoViewModel>> {
-    const { commentIds: commentIdArr } = params;
+    const { commentIds } = params;
     const userId = params.userId ?? null;
-    const likesCountArr = await this.getLikesCount(commentIdArr);
-    const likesCountMap = new Map(
-      likesCountArr.map(({ commentId, likesCount }) => [commentId, likesCount]),
-    );
+    const likesCountArr = await this.getLikesCount(commentIds);
+    const likesCountMap = new Map(likesCountArr.map(({ commentId, likesCount }) => [commentId, likesCount]));
 
-    const dislikesCountArr = await this.getDislikesCount(commentIdArr);
+    const dislikesCountArr = await this.getDislikesCount(commentIds);
     const dislikesCountMap = new Map(
       dislikesCountArr.map(({ commentId, dislikesCount }) => [commentId, dislikesCount]),
     );
 
-    const myStatusArr = await this.getLikeStatus(commentIdArr, userId);
+    const myStatusArr = await this.getLikeStatus(commentIds, userId);
     const myStatusMap = new Map(myStatusArr.map(({ commentId, myStatus }) => [commentId, myStatus]));
 
     const likesInfoMap = new Map<string, LikesInfoViewModel>();
-    for (const commentId of commentIdArr) {
+    for (const commentId of commentIds) {
       likesInfoMap.set(commentId, {
         likesCount: likesCountMap.get(commentId) ?? 0,
         dislikesCount: dislikesCountMap.get(commentId) ?? 0,
@@ -37,13 +35,13 @@ export class CommentLikesQueryRepository {
     return likesInfoMap;
   }
 
-  private async getLikesCount(commentIdArr: string[]): Promise<{ commentId: string; likesCount: number }[]> {
-    if (commentIdArr.length === 0) {
+  private async getLikesCount(commentIds: string[]): Promise<{ commentId: string; likesCount: number }[]> {
+    if (commentIds.length === 0) {
       return [];
     }
 
     return this.model.aggregate<{ commentId: string; likesCount: number }>([
-      { $match: { commentId: { $in: commentIdArr } } },
+      { $match: { commentId: { $in: commentIds } } },
       {
         $project: {
           _id: 0,
@@ -55,14 +53,14 @@ export class CommentLikesQueryRepository {
   }
 
   private async getDislikesCount(
-    commentIdArr: string[],
+    commentIds: string[],
   ): Promise<{ commentId: string; dislikesCount: number }[]> {
-    if (commentIdArr.length === 0) {
+    if (commentIds.length === 0) {
       return [];
     }
 
     return this.model.aggregate<{ commentId: string; dislikesCount: number }>([
-      { $match: { commentId: { $in: commentIdArr } } },
+      { $match: { commentId: { $in: commentIds } } },
       {
         $project: {
           _id: 0,
@@ -74,19 +72,19 @@ export class CommentLikesQueryRepository {
   }
 
   private async getLikeStatus(
-    commentIdArr: string[],
+    commentIds: string[],
     userId: string | null,
   ): Promise<{ commentId: string; myStatus: LikeStatus }[]> {
-    if (commentIdArr.length === 0) {
+    if (commentIds.length === 0) {
       return [];
     }
 
     if (userId === null) {
-      return commentIdArr.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
+      return commentIds.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
     }
 
     return this.model.aggregate<{ commentId: string; myStatus: LikeStatus }>([
-      { $match: { commentId: { $in: commentIdArr } } },
+      { $match: { commentId: { $in: commentIds } } },
       {
         $project: {
           _id: 0,

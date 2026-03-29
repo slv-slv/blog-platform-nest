@@ -2,18 +2,15 @@ import { Inject, Injectable } from '@nestjs/common';
 import { LikeStatus } from '../../types/likes.types.js';
 import { Pool } from 'pg';
 import { PG_POOL } from '../../../../common/constants.js';
-import {
-  SetCommentLikeRepoParams,
-  SetCommentNoneRepoParams,
-} from '../../types/comment-likes.types.js';
+import { SetCommentLikeRepoParams, SetCommentNoneRepoParams } from '../../types/comment-likes.types.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class CommentLikesRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getLikesCount(commentIdArr: number[]): Promise<{ commentId: number; likesCount: number }[]> {
-    const result = await this.pool.query(
+  async getLikesCount(commentIds: number[]): Promise<{ commentId: number; likesCount: number }[]> {
+    const result = await this.pool.query<{ commentId: number; likesCount: number }>(
       `
         SELECT
           comment_id AS "commentId",
@@ -22,14 +19,14 @@ export class CommentLikesRepository {
         WHERE comment_id = ANY($1)
         GROUP BY comment_id
       `,
-      [commentIdArr],
+      [commentIds],
     );
 
     return result.rows;
   }
 
-  async getDislikesCount(commentIdArr: number[]): Promise<{ commentId: number; dislikesCount: number }[]> {
-    const result = await this.pool.query(
+  async getDislikesCount(commentIds: number[]): Promise<{ commentId: number; dislikesCount: number }[]> {
+    const result = await this.pool.query<{ commentId: number; dislikesCount: number }>(
       `
         SELECT
           comment_id AS "commentId",
@@ -38,23 +35,23 @@ export class CommentLikesRepository {
         WHERE comment_id = ANY($1)
         GROUP BY comment_id
       `,
-      [commentIdArr],
+      [commentIds],
     );
 
     return result.rows;
   }
 
   async getLikeStatus(
-    commentIdArr: number[],
+    commentIds: number[],
     userId: string | null,
   ): Promise<{ commentId: number; myStatus: LikeStatus }[]> {
     if (userId === null || !isPositiveIntegerString(userId)) {
-      return commentIdArr.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
+      return commentIds.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
     }
 
     const userIdNum = +userId;
 
-    const result = await this.pool.query(
+    const result = await this.pool.query<{ commentId: number; myStatus: LikeStatus }>(
       `
         SELECT
           c.comment_id AS "commentId",
@@ -71,7 +68,7 @@ export class CommentLikesRepository {
           ON c.comment_id = cd.comment_id
           AND cd.user_id = $2
       `,
-      [commentIdArr, userIdNum],
+      [commentIds, userIdNum],
     );
 
     return result.rows;

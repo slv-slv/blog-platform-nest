@@ -9,23 +9,21 @@ export class CommentLikesQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getLikesInfo(params: GetCommentLikesInfoParams<number>): Promise<Map<number, LikesInfoViewModel>> {
-    const { commentIds: commentIdArr } = params;
+    const { commentIds } = params;
     const userId = params.userId ?? null;
-    const likesCountArr = await this.getLikesCount(commentIdArr);
-    const likesCountMap = new Map(
-      likesCountArr.map(({ commentId, likesCount }) => [commentId, likesCount]),
-    );
+    const likesCountArr = await this.getLikesCount(commentIds);
+    const likesCountMap = new Map(likesCountArr.map(({ commentId, likesCount }) => [commentId, likesCount]));
 
-    const dislikesCountArr = await this.getDislikesCount(commentIdArr);
+    const dislikesCountArr = await this.getDislikesCount(commentIds);
     const dislikesCountMap = new Map(
       dislikesCountArr.map(({ commentId, dislikesCount }) => [commentId, dislikesCount]),
     );
 
-    const myStatusArr = await this.getLikeStatus(commentIdArr, userId);
+    const myStatusArr = await this.getLikeStatus(commentIds, userId);
     const myStatusMap = new Map(myStatusArr.map(({ commentId, myStatus }) => [commentId, myStatus]));
 
     const likesInfoMap = new Map<number, LikesInfoViewModel>();
-    for (const commentId of commentIdArr) {
+    for (const commentId of commentIds) {
       likesInfoMap.set(commentId, {
         likesCount: likesCountMap.get(commentId) ?? 0,
         dislikesCount: dislikesCountMap.get(commentId) ?? 0,
@@ -36,8 +34,8 @@ export class CommentLikesQueryRepository {
     return likesInfoMap;
   }
 
-  private async getLikesCount(commentIdArr: number[]): Promise<{ commentId: number; likesCount: number }[]> {
-    const result = await this.pool.query(
+  private async getLikesCount(commentIds: number[]): Promise<{ commentId: number; likesCount: number }[]> {
+    const result = await this.pool.query<{ commentId: number; likesCount: number }>(
       `
         SELECT
           comment_id AS "commentId",
@@ -46,16 +44,16 @@ export class CommentLikesQueryRepository {
         WHERE comment_id = ANY($1)
         GROUP BY comment_id
       `,
-      [commentIdArr],
+      [commentIds],
     );
 
     return result.rows;
   }
 
   private async getDislikesCount(
-    commentIdArr: number[],
+    commentIds: number[],
   ): Promise<{ commentId: number; dislikesCount: number }[]> {
-    const result = await this.pool.query(
+    const result = await this.pool.query<{ commentId: number; dislikesCount: number }>(
       `
         SELECT
           comment_id AS "commentId",
@@ -64,23 +62,23 @@ export class CommentLikesQueryRepository {
         WHERE comment_id = ANY($1)
         GROUP BY comment_id
       `,
-      [commentIdArr],
+      [commentIds],
     );
 
     return result.rows;
   }
 
   private async getLikeStatus(
-    commentIdArr: number[],
+    commentIds: number[],
     userId: string | null,
   ): Promise<{ commentId: number; myStatus: LikeStatus }[]> {
     if (userId === null || !isPositiveIntegerString(userId)) {
-      return commentIdArr.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
+      return commentIds.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
     }
 
     const userIdNum = +userId;
 
-    const result = await this.pool.query(
+    const result = await this.pool.query<{ commentId: number; myStatus: LikeStatus }>(
       `
         SELECT
           c.comment_id AS "commentId",
@@ -97,7 +95,7 @@ export class CommentLikesQueryRepository {
           ON c.comment_id = cd.comment_id
           AND cd.user_id = $2
       `,
-      [commentIdArr, userIdNum],
+      [commentIds, userIdNum],
     );
 
     return result.rows;

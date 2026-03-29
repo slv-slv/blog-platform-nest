@@ -13,13 +13,13 @@ import { LikeStatus } from '../../types/likes.types.js';
 export class CommentLikesRepository {
   constructor(@InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesModel>) {}
 
-  async getLikesCount(commentIdArr: string[]): Promise<{ commentId: string; likesCount: number }[]> {
-    if (commentIdArr.length === 0) {
+  async getLikesCount(commentIds: string[]): Promise<{ commentId: string; likesCount: number }[]> {
+    if (commentIds.length === 0) {
       return [];
     }
 
     return this.model.aggregate<{ commentId: string; likesCount: number }>([
-      { $match: { commentId: { $in: commentIdArr } } },
+      { $match: { commentId: { $in: commentIds } } },
       {
         $project: {
           _id: 0,
@@ -30,13 +30,13 @@ export class CommentLikesRepository {
     ]);
   }
 
-  async getDislikesCount(commentIdArr: string[]): Promise<{ commentId: string; dislikesCount: number }[]> {
-    if (commentIdArr.length === 0) {
+  async getDislikesCount(commentIds: string[]): Promise<{ commentId: string; dislikesCount: number }[]> {
+    if (commentIds.length === 0) {
       return [];
     }
 
     return this.model.aggregate<{ commentId: string; dislikesCount: number }>([
-      { $match: { commentId: { $in: commentIdArr } } },
+      { $match: { commentId: { $in: commentIds } } },
       {
         $project: {
           _id: 0,
@@ -48,19 +48,19 @@ export class CommentLikesRepository {
   }
 
   async getLikeStatus(
-    commentIdArr: string[],
+    commentIds: string[],
     userId: string | null,
   ): Promise<{ commentId: string; myStatus: LikeStatus }[]> {
-    if (commentIdArr.length === 0) {
+    if (commentIds.length === 0) {
       return [];
     }
 
     if (userId === null) {
-      return commentIdArr.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
+      return commentIds.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
     }
 
     return this.model.aggregate<{ commentId: string; myStatus: LikeStatus }>([
-      { $match: { commentId: { $in: commentIdArr } } },
+      { $match: { commentId: { $in: commentIds } } },
       {
         $project: {
           _id: 0,

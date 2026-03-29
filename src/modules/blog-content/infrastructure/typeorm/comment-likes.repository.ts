@@ -25,7 +25,7 @@ export class CommentLikesRepository {
       .getRawMany<{ commentId: number; likesCount: number }>();
   }
 
-  async getDislikesCount(commentIdArr: number[]): Promise<{ commentId: number; dislikesCount: number }[]> {
+  async getDislikesCount(commentIds: number[]): Promise<{ commentId: number; dislikesCount: number }[]> {
     const result = await this.pool.query<{ commentId: number; dislikesCount: number }>(
       `
         SELECT
@@ -35,18 +35,18 @@ export class CommentLikesRepository {
         WHERE comment_id = ANY($1)
         GROUP BY comment_id
       `,
-      [commentIdArr],
+      [commentIds],
     );
 
     return result.rows;
   }
 
   async getLikeStatus(
-    commentIdArr: number[],
+    commentIds: number[],
     userId: string | null,
   ): Promise<{ commentId: number; myStatus: LikeStatus }[]> {
     if (userId === null || !isPositiveIntegerString(userId)) {
-      return commentIdArr.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
+      return commentIds.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
     }
 
     const userIdNum = +userId;
@@ -68,7 +68,7 @@ export class CommentLikesRepository {
           ON c.comment_id = cd.comment_id
           AND cd.user_id = $2
       `,
-      [commentIdArr, userIdNum],
+      [commentIds, userIdNum],
     );
 
     return result.rows;
