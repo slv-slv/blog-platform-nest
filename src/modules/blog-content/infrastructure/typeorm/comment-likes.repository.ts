@@ -107,29 +107,12 @@ export class CommentLikesRepository {
     const commentIdNum = +commentId;
     const userIdNum = +userId;
 
-    const client = await this.pool.connect();
-    try {
-      await client.query(`BEGIN`);
-      await client.query(
-        `
-          DELETE FROM comment_likes
-          WHERE comment_id = $1 AND user_id = $2
-        `,
-        [commentIdNum, userIdNum],
-      );
-      await client.query(
-        `
-          DELETE FROM comment_dislikes
-          WHERE comment_id = $1 AND user_id = $2
-        `,
-        [commentIdNum, userIdNum],
-      );
-      await client.query(`COMMIT`);
-    } catch (e) {
-      await client.query(`ROLLBACK`);
-      throw e;
-    } finally {
-      client.release();
-    }
+    await this.dataSource.transaction(async (manager) => {
+      const commentLikesRepository = manager.getRepository(CommentLike);
+      const commentDislikesRepository = manager.getRepository(CommentDislike);
+
+      await commentLikesRepository.delete({ commentId: commentIdNum, userId: userIdNum });
+      await commentDislikesRepository.delete({ commentId: commentIdNum, userId: userIdNum });
+    });
   }
 }
