@@ -7,7 +7,11 @@ import {
 import { Comment } from './comments.entities.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CommentNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import {
+  CommentNotFoundDomainException,
+  PostNotFoundDomainException,
+  UnauthorizedDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
@@ -45,18 +49,26 @@ export class CommentsRepository {
 
   async createComment(params: CreateCommentRepoParams): Promise<CommentModel> {
     const { postId, content, createdAt, commentatorInfo } = params;
+
+    if (!isPositiveIntegerString(postId)) {
+      throw new PostNotFoundDomainException();
+    }
+
+    if (!isPositiveIntegerString(commentatorInfo.userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
     const postIdNum = +postId;
     const userIdNum = +commentatorInfo.userId;
 
-    const comment = this.commentEntityRepository.create({
+    const result = await this.commentEntityRepository.insert({
       post: { id: postIdNum },
       user: { id: userIdNum },
       content,
       createdAt,
     });
 
-    const savedComment = await this.commentEntityRepository.save(comment);
-    const id = savedComment.id.toString();
+    const id = result.identifiers[0].id.toString();
 
     return {
       id,
