@@ -6,13 +6,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SetCommentLikeRepoParams, SetCommentNoneRepoParams } from '../../types/comment-likes.types.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
-import { CommentLike } from './comment-likes.entities.js';
+import { CommentDislike, CommentLike } from './comment-likes.entities.js';
 
 @Injectable()
 export class CommentLikesRepository {
   constructor(
     @Inject(PG_POOL) private readonly pool: Pool,
     @InjectRepository(CommentLike) private readonly commentLikesEntityRepository: Repository<CommentLike>,
+    @InjectRepository(CommentDislike)
+    private readonly commentDislikesEntityRepository: Repository<CommentDislike>,
   ) {}
 
   async getLikesCount(commentIds: number[]): Promise<{ commentId: number; likesCount: number }[]> {
@@ -26,19 +28,13 @@ export class CommentLikesRepository {
   }
 
   async getDislikesCount(commentIds: number[]): Promise<{ commentId: number; dislikesCount: number }[]> {
-    const result = await this.pool.query<{ commentId: number; dislikesCount: number }>(
-      `
-        SELECT
-          comment_id AS "commentId",
-          COUNT(user_id)::int AS "dislikesCount"
-        FROM comment_dislikes
-        WHERE comment_id = ANY($1)
-        GROUP BY comment_id
-      `,
-      [commentIds],
-    );
-
-    return result.rows;
+    return await this.commentDislikesEntityRepository
+      .createQueryBuilder('commentDislike')
+      .select('commentDislike.commentId', 'commentId')
+      .addSelect('COUNT(commentDislike.userId)::int', 'dislikesCount')
+      .where('commentDislike.commentId = ANY(:commentIds)', { commentIds })
+      .groupBy('commentDislike.commentId')
+      .getRawMany<{ commentId: number; dislikesCount: number }>();
   }
 
   async getLikeStatus(
