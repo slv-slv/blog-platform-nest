@@ -10,8 +10,7 @@ export class CommentLikesQueryRepository {
   constructor(@InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesModel>) {}
 
   async getLikesInfo(params: GetCommentLikesInfoParams<string>): Promise<Map<string, LikesInfoViewModel>> {
-    const { commentIds } = params;
-    const userId = params.userId ?? null;
+    const { commentIds, userId = null } = params;
     const likesCountArr = await this.getLikesCount(commentIds);
     const likesCountMap = new Map(likesCountArr.map(({ commentId, likesCount }) => [commentId, likesCount]));
 

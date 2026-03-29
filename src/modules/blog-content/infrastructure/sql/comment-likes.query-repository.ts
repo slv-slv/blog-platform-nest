@@ -9,8 +9,7 @@ export class CommentLikesQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getLikesInfo(params: GetCommentLikesInfoParams<number>): Promise<Map<number, LikesInfoViewModel>> {
-    const { commentIds } = params;
-    const userId = params.userId ?? null;
+    const { commentIds, userId = null } = params;
     const likesCountArr = await this.getLikesCount(commentIds);
     const likesCountMap = new Map(likesCountArr.map(({ commentId, likesCount }) => [commentId, likesCount]));
 
