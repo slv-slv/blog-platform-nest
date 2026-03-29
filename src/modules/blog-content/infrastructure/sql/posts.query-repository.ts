@@ -85,10 +85,10 @@ export class PostsQueryRepository {
     return { ...post, extendedLikesInfo: likesInfoMap.get(postIdInt)! };
   }
   async getPosts(params: GetPostsRepoQueryParams): Promise<PostsPaginatedViewModel> {
-    const { pagingParams, userId, blogId } = params;
+    const { pagingParams, userId, blogId = null } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
-    if (blogId && !isPositiveIntegerString(blogId)) {
+    if (blogId !== null && !isPositiveIntegerString(blogId)) {
       return {
         pagesCount: 0,
         page: pageNumber,
@@ -117,15 +117,13 @@ export class PostsQueryRepository {
         orderBy = sortBy;
     }
 
-    const blogIdNum = blogId ? +blogId : null;
-
     const countResult = await this.pool.query(
       `
         SELECT COUNT(posts.id)::int
         FROM posts
-        WHERE ($1 IS NULL OR posts.blog_id = $1)
+        WHERE ($1::int IS NULL OR posts.blog_id = $1::int)
       `,
-      [blogIdNum],
+      [blogId],
     );
 
     const totalCount = countResult.rows[0].count;
@@ -143,12 +141,12 @@ export class PostsQueryRepository {
           blogs.name AS blog_name,
           posts.created_at
         FROM posts JOIN blogs ON posts.blog_id = blogs.id
-        WHERE ($1 IS NULL OR posts.blog_id = $1)
+        WHERE ($1::int IS NULL OR posts.blog_id = $1::int)
         ORDER BY ${orderBy} ${sortDirection}
         LIMIT $2
         OFFSET $3
       `,
-      [blogIdNum, pageSize, skipCount],
+      [blogId, pageSize, skipCount],
     );
 
     const rawPosts = postsResult.rows;
