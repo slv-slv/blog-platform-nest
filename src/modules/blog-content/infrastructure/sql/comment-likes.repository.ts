@@ -74,27 +74,6 @@ export class CommentLikesRepository {
     return result.rows;
   }
 
-  async deleteLikesInfo(commentId: string): Promise<void> {
-    if (!isPositiveIntegerString(commentId)) {
-      return;
-    }
-
-    const commentIdNum = +commentId;
-
-    const client = await this.pool.connect();
-    try {
-      await client.query('BEGIN');
-      await client.query('DELETE FROM comment_likes WHERE comment_id = $1', [commentIdNum]);
-      await client.query('DELETE FROM comment_dislikes WHERE comment_id = $1', [commentIdNum]);
-      await client.query('COMMIT');
-    } catch (e) {
-      await client.query('ROLLBACK');
-      throw e;
-    } finally {
-      client.release();
-    }
-  }
-
   async setLike(params: SetCommentLikeRepoParams): Promise<void> {
     const { commentId, userId, createdAt } = params;
 
