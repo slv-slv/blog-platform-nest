@@ -20,8 +20,7 @@ export class PostLikesQueryRepository {
   async getLikesInfo(
     params: GetPostLikesInfoParams<number>,
   ): Promise<Map<number, ExtendedLikesInfoViewModel>> {
-    const { postIds: postIdArr } = params;
-    const userId = params.userId ?? null;
+    const { postIds: postIdArr, userId = null } = params;
     const likesCountArr = await this.getLikesCount(postIdArr);
     const likesCountMap = new Map(likesCountArr.map(({ postId, likesCount }) => [postId, likesCount]));
 
