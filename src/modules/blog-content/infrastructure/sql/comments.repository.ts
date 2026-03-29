@@ -24,7 +24,7 @@ export class CommentsRepository {
 
     const idNum = +id;
 
-    const result = await this.pool.query(
+    const result = await this.pool.query<{ exists: boolean }>(
       `
         SELECT EXISTS(SELECT 1 FROM comments WHERE id = $1) AS exists
       `,
@@ -43,7 +43,12 @@ export class CommentsRepository {
 
     const idNum = +id;
 
-    const result = await this.pool.query(
+    const result = await this.pool.query<{
+      content: string;
+      created_at: Date;
+      commentator_id: number;
+      commentator_login: string;
+    }>(
       `
         SELECT
           comments.content,
@@ -88,7 +93,7 @@ export class CommentsRepository {
     const postIdNum = +postId;
     const userIdNum = +commentatorInfo.userId;
 
-    const result = await this.pool.query(
+    const result = await this.pool.query<{ id: number }>(
       `
         INSERT INTO comments (post_id, user_id, content, created_at)
         VALUES ($1, $2, $3, $4)
@@ -101,11 +106,12 @@ export class CommentsRepository {
 
     return { id, content, commentatorInfo, createdAt: createdAt.toISOString() };
   }
-  async updateComment(params: UpdateCommentRepoParams): Promise<boolean> {
+
+  async updateComment(params: UpdateCommentRepoParams): Promise<void> {
     const { id, content } = params;
 
     if (!isPositiveIntegerString(id)) {
-      return false;
+      throw new CommentNotFoundDomainException();
     }
 
     const idNum = +id;
@@ -119,11 +125,14 @@ export class CommentsRepository {
       [idNum, content],
     );
 
-    return result.rowCount! > 0;
+    if (result.rowCount === 0) {
+      throw new CommentNotFoundDomainException();
+    }
   }
-  async deleteComment(id: string): Promise<boolean> {
+
+  async deleteComment(id: string): Promise<void> {
     if (!isPositiveIntegerString(id)) {
-      return false;
+      throw new CommentNotFoundDomainException();
     }
 
     const idNum = +id;
@@ -136,6 +145,8 @@ export class CommentsRepository {
       [idNum],
     );
 
-    return result.rowCount! > 0;
+    if (result.rowCount === 0) {
+      throw new CommentNotFoundDomainException();
+    }
   }
 }
