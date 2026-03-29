@@ -63,12 +63,32 @@ export class PostsQueryRepository {
   }
 
   async getPosts(params: GetPostsRepoQueryParams): Promise<PostsPaginatedViewModel> {
-    const { userId, pagingParams, blogId } = params;
+    const { pagingParams, userId, blogId } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
-    const qb = this.postEntityRepository.createQueryBuilder('post').innerJoinAndSelect('post.blog', 'blog');
+    if (blogId && !isPositiveIntegerString(blogId)) {
+      return {
+        pagesCount: 0,
+        page: pageNumber,
+        pageSize,
+        totalCount: 0,
+        items: [],
+      };
+    }
+
+    const qb = this.postEntityRepository
+      .createQueryBuilder('post')
+      .select('post.id', 'id')
+      .addSelect('post.title', 'title')
+      .addSelect('post.shortDescription', 'shortDescription')
+      .addSelect('post.content', 'content')
+      .addSelect('post.blogId', 'blogId')
+      .addSelect('post.createdAt', 'createdAt')
+      .addSelect('blog.name', 'blogName')
+      .innerJoin('post.blog', 'blog');
+
     if (blogId) {
-      qb.where('blog.id = :blogId', { blogId: +blogId });
+      qb.where('post.blogId = :blogId', { blogId: +blogId });
     }
 
     const direction = sortDirection === SortDirection.asc ? 'ASC' : 'DESC';
@@ -81,10 +101,29 @@ export class PostsQueryRepository {
     const totalCount = await qb.getCount();
     const pagesCount = Math.ceil(totalCount / pageSize);
 
-    const postsEntities = await qb.getMany();
-    const posts = await Promise.all(
-      postsEntities.map(async (postEntity) => await this.mapToPostViewModel(postEntity, userId)),
-    );
+    const rawPosts = await qb.getRawMany<{
+      id: number;
+      title: string;
+      shortDescription: string;
+      content: string;
+      blogId: number;
+      blogName: string;
+      createdAt: Date;
+    }>();
+
+    const postIds = rawPosts.map((post) => post.id);
+    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds, userId });
+
+    const posts = rawPosts.map((post) => ({
+      id: post.id.toString(),
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      blogId: post.blogId.toString(),
+      blogName: post.blogName,
+      createdAt: post.createdAt.toISOString(),
+      extendedLikesInfo: likesInfoMap.get(post.id)!,
+    }));
 
     return {
       pagesCount,
