@@ -9,38 +9,6 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class CommentLikesRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getLikesCount(commentIds: number[]): Promise<{ commentId: number; likesCount: number }[]> {
-    const result = await this.pool.query<{ commentId: number; likesCount: number }>(
-      `
-        SELECT
-          comment_id AS "commentId",
-          COUNT(user_id)::int AS "likesCount"
-        FROM comment_likes
-        WHERE comment_id = ANY($1)
-        GROUP BY comment_id
-      `,
-      [commentIds],
-    );
-
-    return result.rows;
-  }
-
-  async getDislikesCount(commentIds: number[]): Promise<{ commentId: number; dislikesCount: number }[]> {
-    const result = await this.pool.query<{ commentId: number; dislikesCount: number }>(
-      `
-        SELECT
-          comment_id AS "commentId",
-          COUNT(user_id)::int AS "dislikesCount"
-        FROM comment_dislikes
-        WHERE comment_id = ANY($1)
-        GROUP BY comment_id
-      `,
-      [commentIds],
-    );
-
-    return result.rows;
-  }
-
   async getLikeStatus(
     commentIds: number[],
     userId: string | null,

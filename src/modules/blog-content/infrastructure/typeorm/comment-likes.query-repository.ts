@@ -1,79 +1,92 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { PG_POOL } from '../../../../common/constants.js';
-import { Pool } from 'pg';
-import { CommentLikeStatusRepoParams } from '../../types/comment-likes.types.js';
+import { Injectable } from '@nestjs/common';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { GetSingleCommentLikesInfoParams, LikesInfoViewModel, LikeStatus } from '../../types/likes.types.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
+import { CommentDislike, CommentLike } from './comment-likes.entities.js';
 
 @Injectable()
 export class CommentLikesQueryRepository {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(CommentLike) private readonly commentLikesEntityRepository: Repository<CommentLike>,
+    @InjectRepository(CommentDislike)
+    private readonly commentDislikesEntityRepository: Repository<CommentDislike>,
+  ) {}
+
   async getLikesInfo(params: GetSingleCommentLikesInfoParams): Promise<LikesInfoViewModel> {
     const { commentId } = params;
     const userId = params.userId ?? null;
-    const likesCount = await this.getLikesCount(commentId);
-    const dislikesCount = await this.getDislikesCount(commentId);
-    const myStatus = await this.getLikeStatus({ commentId, userId });
+
+    if (!isPositiveIntegerString(commentId)) {
+      return { likesCount: 0, dislikesCount: 0, myStatus: LikeStatus.None };
+    }
+
+    const commentIdNum = +commentId;
+    const likesCount = (await this.getLikesCount([commentIdNum]))[0]?.likesCount ?? 0;
+    const dislikesCount = (await this.getDislikesCount([commentIdNum]))[0]?.dislikesCount ?? 0;
+    const myStatus = (await this.getLikeStatus([commentIdNum], userId))[0]?.myStatus ?? LikeStatus.None;
 
     return { likesCount, dislikesCount, myStatus };
   }
 
-  private async getLikesCount(commentId: string): Promise<number> {
-    const commentIdNum = +commentId;
-    const result = await this.pool.query(
-      `
-        SELECT COUNT(*)::int
-        FROM comment_likes
-        WHERE comment_id = $1
-      `,
-      [commentIdNum],
-    );
-
-    return result.rows[0].count;
+  private async getLikesCount(commentIds: number[]): Promise<{ commentId: number; likesCount: number }[]> {
+    return await this.commentLikesEntityRepository
+      .createQueryBuilder('commentLike')
+      .select('commentLike.commentId', 'commentId')
+      .addSelect('COUNT(commentLike.userId)::int', 'likesCount')
+      .where('commentLike.commentId = ANY(:commentIds)', { commentIds })
+      .groupBy('commentLike.commentId')
+      .getRawMany<{ commentId: number; likesCount: number }>();
   }
 
-  private async getDislikesCount(commentId: string): Promise<number> {
-    const commentIdNum = +commentId;
-    const result = await this.pool.query(
-      `
-        SELECT COUNT(*)::int
-        FROM comment_dislikes
-        WHERE comment_id = $1
-      `,
-      [commentIdNum],
-    );
-
-    return result.rows[0].count;
+  private async getDislikesCount(
+    commentIds: number[],
+  ): Promise<{ commentId: number; dislikesCount: number }[]> {
+    return await this.commentDislikesEntityRepository
+      .createQueryBuilder('commentDislike')
+      .select('commentDislike.commentId', 'commentId')
+      .addSelect('COUNT(commentDislike.userId)::int', 'dislikesCount')
+      .where('commentDislike.commentId = ANY(:commentIds)', { commentIds })
+      .groupBy('commentDislike.commentId')
+      .getRawMany<{ commentId: number; dislikesCount: number }>();
   }
 
-  private async getLikeStatus(params: CommentLikeStatusRepoParams): Promise<LikeStatus> {
-    const { commentId, userId } = params;
-    if (userId === null) return LikeStatus.None;
+  private async getLikeStatus(
+    commentIds: number[],
+    userId: string | null,
+  ): Promise<{ commentId: number; myStatus: LikeStatus }[]> {
+    if (userId === null || !isPositiveIntegerString(userId)) {
+      return commentIds.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
+    }
 
-    const commentIdNum = +commentId;
     const userIdNum = +userId;
 
-    const likeResult = await this.pool.query(
-      `
-        SELECT COUNT(*)::int
-        FROM comment_likes
-        WHERE comment_id = $1 AND user_id = $2
-      `,
-      [commentIdNum, userIdNum],
-    );
-
-    if (likeResult.rows[0].count > 0) return LikeStatus.Like;
-
-    const dislikeResult = await this.pool.query(
-      `
-        SELECT COUNT(*)::int
-        FROM comment_dislikes
-        WHERE comment_id = $1 AND user_id = $2
-      `,
-      [commentIdNum, userIdNum],
-    );
-
-    if (dislikeResult.rows[0].count > 0) return LikeStatus.Dislike;
-
-    return LikeStatus.None;
+    return await this.dataSource
+      .createQueryBuilder()
+      .select('c."commentId"', 'commentId')
+      .addSelect(
+        `
+          CASE
+            WHEN commentLike.userId IS NOT NULL THEN 'Like'
+            WHEN commentDislike.userId IS NOT NULL THEN 'Dislike'
+            ELSE 'None'
+          END
+        `,
+        'myStatus',
+      )
+      .from('unnest(:commentIds::int[])', 'c(commentId)')
+      .leftJoin(
+        CommentLike,
+        'commentLike',
+        'c."commentId" = commentLike.commentId AND commentLike.userId = :userId',
+      )
+      .leftJoin(
+        CommentDislike,
+        'commentDislike',
+        'c."commentId" = commentDislike.commentId AND commentDislike.userId = :userId',
+      )
+      .setParameters({ commentIds, userId: userIdNum })
+      .getRawMany<{ commentId: number; myStatus: LikeStatus }>();
   }
 }
