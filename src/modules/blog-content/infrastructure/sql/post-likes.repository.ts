@@ -10,11 +10,11 @@ export class PostLikesRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getLikeStatus(
-    postIdArr: number[],
+    postIds: number[],
     userId: string | null,
   ): Promise<{ postId: number; myStatus: LikeStatus }[]> {
     if (userId === null || !isPositiveIntegerString(userId)) {
-      return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
+      return postIds.map((postId) => ({ postId, myStatus: LikeStatus.None }));
     }
 
     const userIdNum = +userId;
@@ -36,7 +36,7 @@ export class PostLikesRepository {
           ON p.post_id = pd.post_id
           AND pd.user_id = $2
       `,
-      [postIdArr, userIdNum],
+      [postIds, userIdNum],
     );
 
     return myStatusResult.rows;

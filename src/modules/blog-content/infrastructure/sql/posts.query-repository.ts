@@ -152,8 +152,8 @@ export class PostsQueryRepository {
     );
 
     const rawPosts = postsResult.rows;
-    const postIdArr = rawPosts.map((post) => post.id);
-    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds: postIdArr, userId });
+    const postIds = rawPosts.map((post) => post.id);
+    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds, userId });
 
     const posts = rawPosts.map((post) => ({
       id: post.id.toString(),

@@ -16,21 +16,23 @@ export class PostLikesQueryRepository {
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}
 
-  async getLikesInfo(params: GetPostLikesInfoParams<string>): Promise<Map<string, ExtendedLikesInfoViewModel>> {
-    const { postIds: postIdArr } = params;
+  async getLikesInfo(
+    params: GetPostLikesInfoParams<string>,
+  ): Promise<Map<string, ExtendedLikesInfoViewModel>> {
+    const { postIds } = params;
     const userId = params.userId ?? null;
-    const likesCountArr = await this.getLikesCount(postIdArr);
+    const likesCountArr = await this.getLikesCount(postIds);
     const likesCountMap = new Map(likesCountArr.map(({ postId, likesCount }) => [postId, likesCount]));
 
-    const dislikesCountArr = await this.getDislikesCount(postIdArr);
+    const dislikesCountArr = await this.getDislikesCount(postIds);
     const dislikesCountMap = new Map(
       dislikesCountArr.map(({ postId, dislikesCount }) => [postId, dislikesCount]),
     );
 
-    const myStatusArr = await this.getLikeStatus(postIdArr, userId);
+    const myStatusArr = await this.getLikeStatus(postIds, userId);
     const myStatusMap = new Map(myStatusArr.map(({ postId, myStatus }) => [postId, myStatus]));
 
-    const newestLikesArr = await this.getNewestLikes(postIdArr);
+    const newestLikesArr = await this.getNewestLikes(postIds);
     const userIds = [...new Set(newestLikesArr.map((row) => row.userId))];
     const userLoginMap = await this.usersQueryRepository.getUserLoginsMap(userIds);
 
@@ -48,7 +50,7 @@ export class PostLikesQueryRepository {
     }
 
     const likesInfoMap = new Map<string, ExtendedLikesInfoViewModel>();
-    for (const postId of postIdArr) {
+    for (const postId of postIds) {
       likesInfoMap.set(postId, {
         likesCount: likesCountMap.get(postId) ?? 0,
         dislikesCount: dislikesCountMap.get(postId) ?? 0,
@@ -60,13 +62,13 @@ export class PostLikesQueryRepository {
     return likesInfoMap;
   }
 
-  private async getLikesCount(postIdArr: string[]): Promise<{ postId: string; likesCount: number }[]> {
-    if (postIdArr.length === 0) {
+  private async getLikesCount(postIds: string[]): Promise<{ postId: string; likesCount: number }[]> {
+    if (postIds.length === 0) {
       return [];
     }
 
     return this.model.aggregate<{ postId: string; likesCount: number }>([
-      { $match: { postId: { $in: postIdArr } } },
+      { $match: { postId: { $in: postIds } } },
       {
         $project: {
           _id: 0,
@@ -77,13 +79,13 @@ export class PostLikesQueryRepository {
     ]);
   }
 
-  private async getDislikesCount(postIdArr: string[]): Promise<{ postId: string; dislikesCount: number }[]> {
-    if (postIdArr.length === 0) {
+  private async getDislikesCount(postIds: string[]): Promise<{ postId: string; dislikesCount: number }[]> {
+    if (postIds.length === 0) {
       return [];
     }
 
     return this.model.aggregate<{ postId: string; dislikesCount: number }>([
-      { $match: { postId: { $in: postIdArr } } },
+      { $match: { postId: { $in: postIds } } },
       {
         $project: {
           _id: 0,
@@ -95,19 +97,19 @@ export class PostLikesQueryRepository {
   }
 
   private async getLikeStatus(
-    postIdArr: string[],
+    postIds: string[],
     userId: string | null,
   ): Promise<{ postId: string; myStatus: LikeStatus }[]> {
-    if (postIdArr.length === 0) {
+    if (postIds.length === 0) {
       return [];
     }
 
     if (userId === null) {
-      return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
+      return postIds.map((postId) => ({ postId, myStatus: LikeStatus.None }));
     }
 
     return this.model.aggregate<{ postId: string; myStatus: LikeStatus }>([
-      { $match: { postId: { $in: postIdArr } } },
+      { $match: { postId: { $in: postIds } } },
       {
         $project: {
           _id: 0,
@@ -126,13 +128,15 @@ export class PostLikesQueryRepository {
     ]);
   }
 
-  private async getNewestLikes(postIdArr: string[]): Promise<{ postId: string; addedAt: Date; userId: string }[]> {
-    if (postIdArr.length === 0) {
+  private async getNewestLikes(
+    postIds: string[],
+  ): Promise<{ postId: string; addedAt: Date; userId: string }[]> {
+    if (postIds.length === 0) {
       return [];
     }
 
     return this.model.aggregate<{ postId: string; addedAt: Date; userId: string }>([
-      { $match: { postId: { $in: postIdArr } } },
+      { $match: { postId: { $in: postIds } } },
       { $unwind: '$likes' },
       { $sort: { postId: 1, 'likes.createdAt': -1 } },
       {

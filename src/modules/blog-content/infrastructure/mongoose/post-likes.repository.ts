@@ -1,7 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { PostLikes } from './post-likes.schemas.js';
-import { PostLikesModel, SetPostLikeRepoParams, SetPostNoneRepoParams } from '../../types/post-likes.types.js';
+import {
+  PostLikesModel,
+  SetPostLikeRepoParams,
+  SetPostNoneRepoParams,
+} from '../../types/post-likes.types.js';
 import { Model } from 'mongoose';
 import { LikeStatus } from '../../types/likes.types.js';
 import { ConfigType } from '@nestjs/config';
@@ -14,13 +18,13 @@ export class PostLikesRepository {
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}
 
-  async getLikesCount(postIdArr: string[]): Promise<{ postId: string; likesCount: number }[]> {
-    if (postIdArr.length === 0) {
+  async getLikesCount(postIds: string[]): Promise<{ postId: string; likesCount: number }[]> {
+    if (postIds.length === 0) {
       return [];
     }
 
     return this.model.aggregate<{ postId: string; likesCount: number }>([
-      { $match: { postId: { $in: postIdArr } } },
+      { $match: { postId: { $in: postIds } } },
       {
         $project: {
           _id: 0,
@@ -31,13 +35,13 @@ export class PostLikesRepository {
     ]);
   }
 
-  async getDislikesCount(postIdArr: string[]): Promise<{ postId: string; dislikesCount: number }[]> {
-    if (postIdArr.length === 0) {
+  async getDislikesCount(postIds: string[]): Promise<{ postId: string; dislikesCount: number }[]> {
+    if (postIds.length === 0) {
       return [];
     }
 
     return this.model.aggregate<{ postId: string; dislikesCount: number }>([
-      { $match: { postId: { $in: postIdArr } } },
+      { $match: { postId: { $in: postIds } } },
       {
         $project: {
           _id: 0,
@@ -49,19 +53,19 @@ export class PostLikesRepository {
   }
 
   async getLikeStatus(
-    postIdArr: string[],
+    postIds: string[],
     userId: string | null,
   ): Promise<{ postId: string; myStatus: LikeStatus }[]> {
-    if (postIdArr.length === 0) {
+    if (postIds.length === 0) {
       return [];
     }
 
     if (userId === null) {
-      return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
+      return postIds.map((postId) => ({ postId, myStatus: LikeStatus.None }));
     }
 
     return this.model.aggregate<{ postId: string; myStatus: LikeStatus }>([
-      { $match: { postId: { $in: postIdArr } } },
+      { $match: { postId: { $in: postIds } } },
       {
         $project: {
           _id: 0,
@@ -80,13 +84,13 @@ export class PostLikesRepository {
     ]);
   }
 
-  async getNewestLikes(postIdArr: string[]): Promise<{ postId: string; addedAt: Date; userId: string }[]> {
-    if (postIdArr.length === 0) {
+  async getNewestLikes(postIds: string[]): Promise<{ postId: string; addedAt: Date; userId: string }[]> {
+    if (postIds.length === 0) {
       return [];
     }
 
     return this.model.aggregate<{ postId: string; addedAt: Date; userId: string }>([
-      { $match: { postId: { $in: postIdArr } } },
+      { $match: { postId: { $in: postIds } } },
       { $unwind: '$likes' },
       { $sort: { postId: 1, 'likes.createdAt': -1 } },
       {

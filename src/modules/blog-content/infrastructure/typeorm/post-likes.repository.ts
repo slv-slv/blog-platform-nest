@@ -11,11 +11,11 @@ export class PostLikesRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async getLikeStatus(
-    postIdArr: number[],
+    postIds: number[],
     userId: string | null,
   ): Promise<{ postId: number; myStatus: LikeStatus }[]> {
     if (userId === null || !isPositiveIntegerString(userId)) {
-      return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
+      return postIds.map((postId) => ({ postId, myStatus: LikeStatus.None }));
     }
 
     const userIdNum = +userId;
@@ -33,14 +33,14 @@ export class PostLikesRepository {
         `,
         'myStatus',
       )
-      .from('unnest(:postIdArr::int[])', 'p(postId)')
+      .from('unnest(:postIds::int[])', 'p(postId)')
       .leftJoin(PostLike, 'postLike', 'p."postId" = postLike.postId AND postLike.userId = :userId')
       .leftJoin(
         PostDislike,
         'postDislike',
         'p."postId" = postDislike.postId AND postDislike.userId = :userId',
       )
-      .setParameters({ postIdArr, userId: userIdNum })
+      .setParameters({ postIds, userId: userIdNum })
       .getRawMany<{ postId: number; myStatus: LikeStatus }>();
   }
   async setLike(params: SetPostLikeRepoParams): Promise<void> {

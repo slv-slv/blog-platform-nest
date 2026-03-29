@@ -13,21 +13,23 @@ export class PostLikesQueryRepository {
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}
 
-  async getLikesInfo(params: GetPostLikesInfoParams<number>): Promise<Map<number, ExtendedLikesInfoViewModel>> {
-    const { postIds: postIdArr } = params;
+  async getLikesInfo(
+    params: GetPostLikesInfoParams<number>,
+  ): Promise<Map<number, ExtendedLikesInfoViewModel>> {
+    const { postIds } = params;
     const userId = params.userId ?? null;
-    const likesCountArr = await this.getLikesCount(postIdArr);
+    const likesCountArr = await this.getLikesCount(postIds);
     const likesCountMap = new Map(likesCountArr.map(({ postId, likesCount }) => [postId, likesCount]));
 
-    const dislikesCountArr = await this.getDislikesCount(postIdArr);
+    const dislikesCountArr = await this.getDislikesCount(postIds);
     const dislikesCountMap = new Map(
       dislikesCountArr.map(({ postId, dislikesCount }) => [postId, dislikesCount]),
     );
 
-    const myStatusArr = await this.getLikeStatus(postIdArr, userId);
+    const myStatusArr = await this.getLikeStatus(postIds, userId);
     const myStatusMap = new Map(myStatusArr.map(({ postId, myStatus }) => [postId, myStatus]));
 
-    const newestLikesArr = await this.getNewestLikes(postIdArr);
+    const newestLikesArr = await this.getNewestLikes(postIds);
     const newestLikesMap = new Map<number, { addedAt: string; userId: string; login: string }[]>();
     for (const row of newestLikesArr) {
       const like = newestLikesMap.get(row.postId) ?? [];
@@ -36,7 +38,7 @@ export class PostLikesQueryRepository {
     }
 
     const likesInfoMap = new Map<number, ExtendedLikesInfoViewModel>();
-    for (const postId of postIdArr) {
+    for (const postId of postIds) {
       likesInfoMap.set(postId, {
         likesCount: likesCountMap.get(postId) ?? 0,
         dislikesCount: dislikesCountMap.get(postId) ?? 0,
@@ -48,8 +50,8 @@ export class PostLikesQueryRepository {
     return likesInfoMap;
   }
 
-  private async getLikesCount(postIdArr: number[]): Promise<{ postId: number; likesCount: number }[]> {
-    const result = await this.pool.query(
+  private async getLikesCount(postIds: number[]): Promise<{ postId: number; likesCount: number }[]> {
+    const result = await this.pool.query<{ postId: number; likesCount: number }>(
       `
         SELECT
           post_id AS "postId",
@@ -58,14 +60,14 @@ export class PostLikesQueryRepository {
         WHERE post_id = ANY($1)
         GROUP BY post_id
       `,
-      [postIdArr],
+      [postIds],
     );
 
     return result.rows;
   }
 
-  private async getDislikesCount(postIdArr: number[]): Promise<{ postId: number; dislikesCount: number }[]> {
-    const result = await this.pool.query(
+  private async getDislikesCount(postIds: number[]): Promise<{ postId: number; dislikesCount: number }[]> {
+    const result = await this.pool.query<{ postId: number; dislikesCount: number }>(
       `
         SELECT
           post_id AS "postId",
@@ -74,23 +76,23 @@ export class PostLikesQueryRepository {
         WHERE post_id = ANY($1)
         GROUP BY post_id
       `,
-      [postIdArr],
+      [postIds],
     );
 
     return result.rows;
   }
 
   private async getLikeStatus(
-    postIdArr: number[],
+    postIds: number[],
     userId: string | null,
   ): Promise<{ postId: number; myStatus: LikeStatus }[]> {
     if (userId === null || !isPositiveIntegerString(userId)) {
-      return postIdArr.map((postId) => ({ postId, myStatus: LikeStatus.None }));
+      return postIds.map((postId) => ({ postId, myStatus: LikeStatus.None }));
     }
 
     const userIdNum = +userId;
 
-    const result = await this.pool.query(
+    const result = await this.pool.query<{ postId: number; myStatus: LikeStatus }>(
       `
         SELECT
           p.post_id AS "postId",
@@ -107,18 +109,18 @@ export class PostLikesQueryRepository {
           ON p.post_id = pd.post_id
           AND pd.user_id = $2
       `,
-      [postIdArr, userIdNum],
+      [postIds, userIdNum],
     );
 
     return result.rows;
   }
 
   private async getNewestLikes(
-    postIdArr: number[],
+    postIds: number[],
   ): Promise<{ postId: number; addedAt: Date; userId: number; login: string }[]> {
     const newestLikesNumber = this.core.newestLikesNumber;
 
-    const result = await this.pool.query(
+    const result = await this.pool.query<{ postId: number; addedAt: Date; userId: number; login: string }>(
       `
         WITH like_row_numbers AS
         (SELECT
@@ -138,7 +140,7 @@ export class PostLikesQueryRepository {
         WHERE lrn.rn <= $2
         ORDER BY post_id, lrn.created_at DESC
       `,
-      [postIdArr, newestLikesNumber],
+      [postIds, newestLikesNumber],
     );
 
     return result.rows;
