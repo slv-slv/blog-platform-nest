@@ -26,17 +26,21 @@ export class CommentsRepository {
     }
   }
 
-  async getComment(id: string): Promise<CommentModel | null> {
-    const idNum = +id;
-    if (isNaN(idNum)) return null;
+  async getComment(id: string): Promise<CommentModel> {
+    if (!isPositiveIntegerString(id)) {
+      throw new CommentNotFoundDomainException();
+    }
 
     const comment = await this.commentEntityRepository.findOne({
-      where: { id: idNum },
+      where: { id: +id },
       relations: { user: true },
     });
-    if (!comment) return null;
 
-    return comment.toModel();
+    if (!comment) {
+      throw new CommentNotFoundDomainException();
+    }
+
+    return this.mapToCommentModel(comment);
   }
 
   async createComment(params: CreateCommentRepoParams): Promise<CommentModel> {
@@ -77,5 +81,17 @@ export class CommentsRepository {
 
     const result = await this.commentEntityRepository.softDelete({ id: idNum });
     return result.affected! > 0;
+  }
+
+  private mapToCommentModel(comment: Comment): CommentModel {
+    return {
+      id: comment.id.toString(),
+      content: comment.content,
+      commentatorInfo: {
+        userId: comment.user.id.toString(),
+        userLogin: comment.user.login,
+      },
+      createdAt: comment.createdAt.toISOString(),
+    };
   }
 }
