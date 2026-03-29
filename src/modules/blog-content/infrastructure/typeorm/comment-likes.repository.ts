@@ -85,32 +85,16 @@ export class CommentLikesRepository {
     const commentIdNum = +commentId;
     const userIdNum = +userId;
 
-    const client = await this.pool.connect();
-    try {
-      await client.query(`BEGIN`);
-      await client.query(
-        `
-          DELETE FROM comment_likes
-          WHERE comment_id = $1 AND user_id = $2
-        `,
-        [commentIdNum, userIdNum],
-      );
-      await client.query(
-        `
-          INSERT INTO comment_dislikes (comment_id, user_id, created_at)
-          VALUES ($1, $2, $3)
-          ON CONFLICT (comment_id, user_id) DO UPDATE
-          SET created_at = EXCLUDED.created_at
-        `,
-        [commentIdNum, userIdNum, createdAt],
-      );
-      await client.query(`COMMIT`);
-    } catch (e) {
-      await client.query(`ROLLBACK`);
-      throw e;
-    } finally {
-      client.release();
-    }
+    await this.dataSource.transaction(async (manager) => {
+      const commentLikesRepository = manager.getRepository(CommentLike);
+      const commentDislikesRepository = manager.getRepository(CommentDislike);
+
+      await commentLikesRepository.delete({ commentId: commentIdNum, userId: userIdNum });
+      await commentDislikesRepository.upsert({ commentId: commentIdNum, userId: userIdNum, createdAt }, [
+        'commentId',
+        'userId',
+      ]);
+    });
   }
 
   async setNone(params: SetCommentNoneRepoParams): Promise<void> {
