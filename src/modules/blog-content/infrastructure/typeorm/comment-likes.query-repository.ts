@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { GetSingleCommentLikesInfoParams, LikesInfoViewModel, LikeStatus } from '../../types/likes.types.js';
+import { GetCommentLikesInfoParams, LikesInfoViewModel, LikeStatus } from '../../types/likes.types.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import { CommentDislike, CommentLike } from './comment-likes.entities.js';
 
@@ -14,20 +14,30 @@ export class CommentLikesQueryRepository {
     private readonly commentDislikesEntityRepository: Repository<CommentDislike>,
   ) {}
 
-  async getLikesInfo(params: GetSingleCommentLikesInfoParams): Promise<LikesInfoViewModel> {
-    const { commentId } = params;
+  async getLikesInfo(params: GetCommentLikesInfoParams<number>): Promise<Map<number, LikesInfoViewModel>> {
+    const { commentIds } = params;
     const userId = params.userId ?? null;
+    const likesCountArr = await this.getLikesCount(commentIds);
+    const likesCountMap = new Map(likesCountArr.map(({ commentId, likesCount }) => [commentId, likesCount]));
 
-    if (!isPositiveIntegerString(commentId)) {
-      return { likesCount: 0, dislikesCount: 0, myStatus: LikeStatus.None };
+    const dislikesCountArr = await this.getDislikesCount(commentIds);
+    const dislikesCountMap = new Map(
+      dislikesCountArr.map(({ commentId, dislikesCount }) => [commentId, dislikesCount]),
+    );
+
+    const myStatusArr = await this.getLikeStatus(commentIds, userId);
+    const myStatusMap = new Map(myStatusArr.map(({ commentId, myStatus }) => [commentId, myStatus]));
+
+    const likesInfoMap = new Map<number, LikesInfoViewModel>();
+    for (const commentId of commentIds) {
+      likesInfoMap.set(commentId, {
+        likesCount: likesCountMap.get(commentId) ?? 0,
+        dislikesCount: dislikesCountMap.get(commentId) ?? 0,
+        myStatus: myStatusMap.get(commentId) ?? LikeStatus.None,
+      });
     }
 
-    const commentIdNum = +commentId;
-    const likesCount = (await this.getLikesCount([commentIdNum]))[0]?.likesCount ?? 0;
-    const dislikesCount = (await this.getDislikesCount([commentIdNum]))[0]?.dislikesCount ?? 0;
-    const myStatus = (await this.getLikeStatus([commentIdNum], userId))[0]?.myStatus ?? LikeStatus.None;
-
-    return { likesCount, dislikesCount, myStatus };
+    return likesInfoMap;
   }
 
   private async getLikesCount(commentIds: number[]): Promise<{ commentId: number; likesCount: number }[]> {

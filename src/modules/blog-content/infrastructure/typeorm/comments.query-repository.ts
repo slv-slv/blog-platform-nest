@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   CommentsPaginatedViewModel,
   CommentViewModel,
@@ -9,6 +9,7 @@ import { CommentLikesQueryRepository } from './comment-likes.query-repository.js
 import { Comment } from './comments.entities.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { SortDirection } from '../../../../common/types/paging-params.types.js';
 
 @Injectable()
 export class CommentsQueryRepository {
@@ -28,14 +29,22 @@ export class CommentsQueryRepository {
     });
     if (!comment) return null;
 
-    return comment.toViewModel(userId);
+    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({
+      commentIds: [comment.id],
+      userId,
+    });
+
+    return {
+      ...comment.toModel(),
+      likesInfo: likesInfoMap.get(comment.id)!,
+    };
   }
 
   async getComments(params: GetCommentsRepoQueryParams): Promise<CommentsPaginatedViewModel> {
     const { postId, userId, pagingParams } = params;
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
-    const direction = sortDirection === 'asc' ? 'ASC' : 'DESC';
+    const direction = sortDirection === SortDirection.asc ? 'ASC' : 'DESC';
     const skipCount = (pageNumber - 1) * pageSize;
 
     const qb = this.commentEntityRepository
@@ -51,9 +60,12 @@ export class CommentsQueryRepository {
     const pagesCount = Math.ceil(totalCount / pageSize);
 
     const commentsEntities = await qb.getMany();
-    const comments = await Promise.all(
-      commentsEntities.map(async (commentEntity) => await commentEntity.toViewModel(userId)),
-    );
+    const commentIds = commentsEntities.map((comment) => comment.id);
+    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({ commentIds, userId });
+    const comments = commentsEntities.map((comment) => ({
+      ...comment.toModel(),
+      likesInfo: likesInfoMap.get(comment.id)!,
+    }));
 
     return {
       pagesCount,
