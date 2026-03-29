@@ -78,23 +78,30 @@ export class CommentsRepository {
     };
   }
 
-  async updateComment(params: UpdateCommentRepoParams): Promise<boolean> {
+  async updateComment(params: UpdateCommentRepoParams): Promise<void> {
     const { id, content } = params;
 
     if (!isPositiveIntegerString(id)) {
-      return false;
+      throw new CommentNotFoundDomainException();
     }
 
     const result = await this.commentEntityRepository.update({ id: +id }, { content });
-    return result.affected! > 0;
+
+    if (result.affected === 0) {
+      throw new CommentNotFoundDomainException();
+    }
   }
 
-  async deleteComment(id: string): Promise<boolean> {
-    const idNum = +id;
-    if (isNaN(idNum)) return false;
+  async deleteComment(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new CommentNotFoundDomainException();
+    }
 
-    const result = await this.commentEntityRepository.softDelete({ id: idNum });
-    return result.affected! > 0;
+    const result = await this.commentEntityRepository.delete({ id: +id });
+
+    if (result.affected === 0) {
+      throw new CommentNotFoundDomainException();
+    }
   }
 
   private mapToCommentModel(comment: Comment): CommentModel {
