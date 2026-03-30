@@ -1,4 +1,3 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { IsEnum } from 'class-validator';
 
 export enum LikeStatus {

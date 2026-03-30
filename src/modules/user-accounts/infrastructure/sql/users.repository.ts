@@ -12,8 +12,6 @@ import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
 import {
   ConfirmationCodeInvalidDomainException,
-  CredentialsIncorrectDomainException,
-  IncorrectEmailDomainException,
   RecoveryCodeInvalidDomainException,
   UnauthorizedDomainException,
   UserNotFoundDomainException,

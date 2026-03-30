@@ -4,7 +4,6 @@ import { UsersRepository } from '../infrastructure/sql/users.repository.js';
 import { AuthService } from './auth.service.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
 import {
-  ConfirmationInfoModel,
   CreateUserParams,
   PasswordRecoveryInfoModel,
   RegisterUserParams,

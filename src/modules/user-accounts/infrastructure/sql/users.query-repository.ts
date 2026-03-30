@@ -1,16 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  CurrentUserViewModel,
-  GetUsersParams,
-  UsersPaginatedViewModel,
-  UserViewModel,
-} from '../../types/users.types.js';
+import { CurrentUserViewModel, GetUsersParams, UsersPaginatedViewModel } from '../../types/users.types.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { Pool } from 'pg';
-import {
-  UnauthorizedDomainException,
-  UserNotFoundDomainException,
-} from '../../../../common/exceptions/domain-exceptions.js';
+import { UnauthorizedDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
@@ -22,8 +14,6 @@ export class UsersQueryRepository {
     const { sortBy, sortDirection, pageNumber, pageSize } = pagingParams;
 
     const orderBy = sortBy === 'createdAt' ? 'created_at' : sortBy;
-    // searchLoginTerm ??= '%';
-    // searchEmailTerm ??= '%';
 
     const whereParams = [];
 
