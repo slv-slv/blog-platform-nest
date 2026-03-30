@@ -13,18 +13,18 @@ export class ConfirmationInfo {
   declare isConfirmed: boolean;
 
   @Column({ nullable: true })
-  declare code: string;
+  declare code: string | null;
 
   @Column('timestamptz', { nullable: true })
-  declare expiration: Date;
+  declare expiration: Date | null;
 }
 
 export class PasswordRecoveryInfo {
   @Column({ nullable: true })
-  declare code: string;
+  declare code: string | null;
 
   @Column('timestamptz', { nullable: true })
-  declare expiration: Date;
+  declare expiration: Date | null;
 }
 
 @Entity({ name: 'users' })
