@@ -52,7 +52,7 @@ import { postgresConfig } from '../config/postgres.config.js';
         schema: 'typeorm',
         database: postgres.database,
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
         ssl: true,
       }),
     }),
