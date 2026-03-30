@@ -14,34 +14,46 @@ export class PostLikesRepository {
     postIds: number[],
     userId: string | null,
   ): Promise<{ postId: number; myStatus: LikeStatus }[]> {
+    if (postIds.length === 0) {
+      return [];
+    }
+
     if (userId === null || !isPositiveIntegerString(userId)) {
       return postIds.map((postId) => ({ postId, myStatus: LikeStatus.None }));
     }
 
     const userIdNum = +userId;
+    const postLikesRepository = this.dataSource.getRepository(PostLike);
+    const postDislikesRepository = this.dataSource.getRepository(PostDislike);
 
-    return await this.dataSource
-      .createQueryBuilder()
-      .select('p."postId"', 'postId')
-      .addSelect(
-        `
-          CASE
-            WHEN postLike.userId IS NOT NULL THEN 'Like'
-            WHEN postDislike.userId IS NOT NULL THEN 'Dislike'
-            ELSE 'None'
-          END
-        `,
-        'myStatus',
-      )
-      .from('unnest(:postIds::int[])', 'p(postId)')
-      .leftJoin(PostLike, 'postLike', 'p."postId" = postLike.postId AND postLike.userId = :userId')
-      .leftJoin(
-        PostDislike,
-        'postDislike',
-        'p."postId" = postDislike.postId AND postDislike.userId = :userId',
-      )
-      .setParameters({ postIds, userId: userIdNum })
-      .getRawMany<{ postId: number; myStatus: LikeStatus }>();
+    const dislikes = await postDislikesRepository
+      .createQueryBuilder('postDislike')
+      .select('postDislike.postId', 'postId')
+      .where('postDislike.userId = :userId', { userId: userIdNum })
+      .andWhere('postDislike.postId IN (:...postIds)', { postIds })
+      .getRawMany<{ postId: number }>();
+
+    const likes = await postLikesRepository
+      .createQueryBuilder('postLike')
+      .select('postLike.postId', 'postId')
+      .where('postLike.userId = :userId', { userId: userIdNum })
+      .andWhere('postLike.postId IN (:...postIds)', { postIds })
+      .getRawMany<{ postId: number }>();
+
+    const statusesMap = new Map<number, LikeStatus>(postIds.map((postId) => [postId, LikeStatus.None]));
+
+    for (const { postId } of dislikes) {
+      statusesMap.set(postId, LikeStatus.Dislike);
+    }
+
+    for (const { postId } of likes) {
+      statusesMap.set(postId, LikeStatus.Like);
+    }
+
+    return postIds.map((postId) => ({
+      postId,
+      myStatus: statusesMap.get(postId)!,
+    }));
   }
   async setLike(params: SetPostLikeRepoParams): Promise<void> {
     const { postId, userId, createdAt } = params;

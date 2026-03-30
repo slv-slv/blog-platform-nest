@@ -14,38 +14,46 @@ export class CommentLikesRepository {
     commentIds: number[],
     userId: string | null,
   ): Promise<{ commentId: number; myStatus: LikeStatus }[]> {
+    if (commentIds.length === 0) {
+      return [];
+    }
+
     if (userId === null || !isPositiveIntegerString(userId)) {
       return commentIds.map((commentId) => ({ commentId, myStatus: LikeStatus.None }));
     }
 
     const userIdNum = +userId;
+    const commentLikesRepository = this.dataSource.getRepository(CommentLike);
+    const commentDislikesRepository = this.dataSource.getRepository(CommentDislike);
 
-    return await this.dataSource
-      .createQueryBuilder()
-      .select('c."commentId"', 'commentId')
-      .addSelect(
-        `
-          CASE
-            WHEN commentLike.userId IS NOT NULL THEN 'Like'
-            WHEN commentDislike.userId IS NOT NULL THEN 'Dislike'
-            ELSE 'None'
-          END
-        `,
-        'myStatus',
-      )
-      .from('unnest(:commentIds::int[])', 'c(commentId)')
-      .leftJoin(
-        CommentLike,
-        'commentLike',
-        'c."commentId" = commentLike.commentId AND commentLike.userId = :userId',
-      )
-      .leftJoin(
-        CommentDislike,
-        'commentDislike',
-        'c."commentId" = commentDislike.commentId AND commentDislike.userId = :userId',
-      )
-      .setParameters({ commentIds, userId: userIdNum })
-      .getRawMany<{ commentId: number; myStatus: LikeStatus }>();
+    const dislikes = await commentDislikesRepository
+      .createQueryBuilder('commentDislike')
+      .select('commentDislike.commentId', 'commentId')
+      .where('commentDislike.userId = :userId', { userId: userIdNum })
+      .andWhere('commentDislike.commentId IN (:...commentIds)', { commentIds })
+      .getRawMany<{ commentId: number }>();
+
+    const likes = await commentLikesRepository
+      .createQueryBuilder('commentLike')
+      .select('commentLike.commentId', 'commentId')
+      .where('commentLike.userId = :userId', { userId: userIdNum })
+      .andWhere('commentLike.commentId IN (:...commentIds)', { commentIds })
+      .getRawMany<{ commentId: number }>();
+
+    const statuses = new Map<number, LikeStatus>(commentIds.map((commentId) => [commentId, LikeStatus.None]));
+
+    for (const { commentId } of dislikes) {
+      statuses.set(commentId, LikeStatus.Dislike);
+    }
+
+    for (const { commentId } of likes) {
+      statuses.set(commentId, LikeStatus.Like);
+    }
+
+    return commentIds.map((commentId) => ({
+      commentId,
+      myStatus: statuses.get(commentId)!,
+    }));
   }
 
   async setLike(params: SetCommentLikeRepoParams): Promise<void> {
