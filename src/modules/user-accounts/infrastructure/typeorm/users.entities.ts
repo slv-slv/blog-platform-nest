@@ -12,7 +12,7 @@ export class ConfirmationInfo {
   @Column()
   declare isConfirmed: boolean;
 
-  @Column({ nullable: true })
+  @Column('varchar', { nullable: true })
   declare code: string | null;
 
   @Column('timestamptz', { nullable: true })
@@ -20,7 +20,7 @@ export class ConfirmationInfo {
 }
 
 export class PasswordRecoveryInfo {
-  @Column({ nullable: true })
+  @Column('varchar', { nullable: true })
   declare code: string | null;
 
   @Column('timestamptz', { nullable: true })
