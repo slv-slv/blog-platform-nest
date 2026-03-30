@@ -3,7 +3,11 @@ import { CreateSessionParams, DeviceViewModel } from '../../types/sessions.types
 import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from './sessions.entities.js';
 import { Not, Repository } from 'typeorm';
-import { DeviceNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import {
+  DeviceNotFoundDomainException,
+  UnauthorizedDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class SessionsRepository {
@@ -34,7 +38,12 @@ export class SessionsRepository {
 
   async createSession(params: CreateSessionParams): Promise<void> {
     const { userId, deviceId, deviceName, ip, jti, iat, exp } = params;
-    const device = this.sessionEntityRepository.create({
+
+    if (!isPositiveIntegerString(userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
+    await this.sessionEntityRepository.insert({
       id: deviceId,
       userId: +userId,
       name: deviceName,
@@ -43,8 +52,6 @@ export class SessionsRepository {
       iat,
       exp,
     });
-
-    await this.sessionEntityRepository.save(device);
   }
 
   async deleteDevice(deviceId: string): Promise<void> {
