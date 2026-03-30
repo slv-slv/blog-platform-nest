@@ -129,24 +129,6 @@ export class UsersRepository {
     return result.rowCount! > 0;
   }
 
-  async getPasswordHash(loginOrEmail: string): Promise<string> {
-    const result = await this.pool.query(
-      `
-        SELECT hash
-        FROM users
-        WHERE login = $1 OR email = $1
-      `,
-      [loginOrEmail],
-    );
-
-    if (result.rowCount === 0) {
-      throw new CredentialsIncorrectDomainException();
-    }
-
-    const { hash } = result.rows[0];
-    return hash;
-  }
-
   async getConfirmationInfo(code: string): Promise<ConfirmationInfoModel> {
     const result = await this.pool.query(
       `
