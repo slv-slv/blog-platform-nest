@@ -1,7 +1,7 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdatePostParams, UpdatePostRepoParams } from '../../types/posts.types.js';
-import { BlogsRepository } from '../../infrastructure/sql/blogs.repository.js';
-import { PostsRepository } from '../../infrastructure/sql/posts.repository.js';
+import { BlogsRepository } from '../../infrastructure/typeorm/blogs.repository.js';
+import { PostsRepository } from '../../infrastructure/typeorm/posts.repository.js';
 
 export class UpdatePostCommand extends Command<void> {
   constructor(public readonly params: UpdatePostParams) {

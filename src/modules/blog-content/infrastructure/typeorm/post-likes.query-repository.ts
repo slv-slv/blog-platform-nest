@@ -100,19 +100,19 @@ export class PostLikesQueryRepository {
       .andWhere('postLike.postId IN (:...postIds)', { postIds })
       .getRawMany<{ postId: number }>();
 
-    const statuses = new Map<number, LikeStatus>(postIds.map((postId) => [postId, LikeStatus.None]));
+    const statusesMap = new Map<number, LikeStatus>(postIds.map((postId) => [postId, LikeStatus.None]));
 
     for (const { postId } of dislikes) {
-      statuses.set(postId, LikeStatus.Dislike);
+      statusesMap.set(postId, LikeStatus.Dislike);
     }
 
     for (const { postId } of likes) {
-      statuses.set(postId, LikeStatus.Like);
+      statusesMap.set(postId, LikeStatus.Like);
     }
 
     return postIds.map((postId) => ({
       postId,
-      myStatus: statuses.get(postId)!,
+      myStatus: statusesMap.get(postId)!,
     }));
   }
 

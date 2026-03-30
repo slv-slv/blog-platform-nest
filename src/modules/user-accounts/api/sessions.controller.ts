@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, HttpCode, Inject, Param, UseGuards } from '@nestjs/common';
 import { SessionsService } from '../application/sessions.service.js';
-import { SessionsQueryRepository } from '../infrastructure/sql/sessions.query-repository.js';
+import { SessionsQueryRepository } from '../infrastructure/typeorm/sessions.query-repository.js';
 import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { DeviceId } from '../../../common/decorators/deviceId.js';

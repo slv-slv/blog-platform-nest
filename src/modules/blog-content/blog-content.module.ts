@@ -1,17 +1,18 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogsController } from './api/blogs.controller.js';
-import { BlogsRepository } from './infrastructure/sql/blogs.repository.js';
-import { BlogsQueryRepository } from './infrastructure/sql/blogs.query-repository.js';
+import { BlogsRepository } from './infrastructure/typeorm/blogs.repository.js';
+import { BlogsQueryRepository } from './infrastructure/typeorm/blogs.query-repository.js';
 import { PostsController } from './api/posts.controller.js';
-import { PostsRepository } from './infrastructure/sql/posts.repository.js';
-import { PostsQueryRepository } from './infrastructure/sql/posts.query-repository.js';
+import { PostsRepository } from './infrastructure/typeorm/posts.repository.js';
+import { PostsQueryRepository } from './infrastructure/typeorm/posts.query-repository.js';
 import { CommentsController } from './api/comments.controller.js';
-import { CommentsRepository } from './infrastructure/sql/comments.repository.js';
-import { CommentsQueryRepository } from './infrastructure/sql/comments.query-repository.js';
-import { PostLikesRepository } from './infrastructure/sql/post-likes.repository.js';
-import { PostLikesQueryRepository } from './infrastructure/sql/post-likes.query-repository.js';
-import { CommentLikesRepository } from './infrastructure/sql/comment-likes.repository.js';
-import { CommentLikesQueryRepository } from './infrastructure/sql/comment-likes.query-repository.js';
+import { CommentsRepository } from './infrastructure/typeorm/comments.repository.js';
+import { CommentsQueryRepository } from './infrastructure/typeorm/comments.query-repository.js';
+import { PostLikesRepository } from './infrastructure/typeorm/post-likes.repository.js';
+import { PostLikesQueryRepository } from './infrastructure/typeorm/post-likes.query-repository.js';
+import { CommentLikesRepository } from './infrastructure/typeorm/comment-likes.repository.js';
+import { CommentLikesQueryRepository } from './infrastructure/typeorm/comment-likes.query-repository.js';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
 import { BlogsSuperadminController } from './api/blogs.superadmin.controller.js';
 import { CreateBlogUseCase } from './application/use-cases/create-blog.use-case.js';
@@ -31,9 +32,17 @@ import { GetPostUseCase } from './application/use-cases/get-post.use-case.js';
 import { GetPostsUseCase } from './application/use-cases/get-posts.use-case.js';
 import { GetCommentUseCase } from './application/use-cases/get-comment.use-case.js';
 import { GetCommentsUseCase } from './application/use-cases/get-comments.use-case.js';
+import { Blog } from './infrastructure/typeorm/blogs.entities.js';
+import { CommentDislike, CommentLike } from './infrastructure/typeorm/comment-likes.entities.js';
+import { Comment } from './infrastructure/typeorm/comments.entities.js';
+import { PostDislike, PostLike } from './infrastructure/typeorm/post-likes.entities.js';
+import { Post } from './infrastructure/typeorm/posts.entities.js';
 
 @Module({
-  imports: [UserAccountsModule],
+  imports: [
+    UserAccountsModule,
+    TypeOrmModule.forFeature([Blog, Post, Comment, PostLike, PostDislike, CommentLike, CommentDislike]),
+  ],
   controllers: [BlogsController, BlogsSuperadminController, PostsController, CommentsController],
   providers: [
     BlogsRepository,

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { SessionsRepository } from '../infrastructure/sql/sessions.repository.js';
+import { SessionsRepository } from '../infrastructure/typeorm/sessions.repository.js';
 import { validate as isUuid } from 'uuid';
 import {
   AccessDeniedDomainException,
@@ -9,9 +9,7 @@ import { CreateSessionParams } from '../types/sessions.types.js';
 
 @Injectable()
 export class SessionsService {
-  constructor(
-    @Inject(SessionsRepository) private sessionsRepository: SessionsRepository,
-  ) {}
+  constructor(@Inject(SessionsRepository) private sessionsRepository: SessionsRepository) {}
   async createSession(params: CreateSessionParams): Promise<void> {
     const { deviceId } = params;
     await this.sessionsRepository.deleteDevice(deviceId);

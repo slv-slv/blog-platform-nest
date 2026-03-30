@@ -1,7 +1,7 @@
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { GetPostsRepoQueryParams, PostsPaginatedViewModel } from '../../types/posts.types.js';
-import { PostsQueryRepository } from '../../infrastructure/sql/posts.query-repository.js';
-import { BlogsQueryRepository } from '../../infrastructure/sql/blogs.query-repository.js';
+import { PostsQueryRepository } from '../../infrastructure/typeorm/posts.query-repository.js';
+import { BlogsQueryRepository } from '../../infrastructure/typeorm/blogs.query-repository.js';
 
 export class GetPostsQuery extends Query<PostsPaginatedViewModel> {
   constructor(public readonly params: GetPostsRepoQueryParams) {

@@ -1,8 +1,12 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CommentViewModel, CreateCommentParams, CreateCommentRepoParams } from '../../types/comments.types.js';
-import { CommentsRepository } from '../../infrastructure/sql/comments.repository.js';
-import { UsersRepository } from '../../../user-accounts/infrastructure/sql/users.repository.js';
-import { PostsRepository } from '../../infrastructure/sql/posts.repository.js';
+import {
+  CommentViewModel,
+  CreateCommentParams,
+  CreateCommentRepoParams,
+} from '../../types/comments.types.js';
+import { CommentsRepository } from '../../infrastructure/typeorm/comments.repository.js';
+import { UsersRepository } from '../../../user-accounts/infrastructure/typeorm/users.repository.js';
+import { PostsRepository } from '../../infrastructure/typeorm/posts.repository.js';
 import { createDefaultCommentLikesInfo } from '../../helpers/create-default-comment-likes-info.js';
 
 export class CreateCommentCommand extends Command<CommentViewModel> {

@@ -1,7 +1,7 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { LikeStatus, SetCommentLikeStatusParams } from '../../types/likes.types.js';
-import { CommentsRepository } from '../../infrastructure/sql/comments.repository.js';
-import { CommentLikesRepository } from '../../infrastructure/sql/comment-likes.repository.js';
+import { CommentsRepository } from '../../infrastructure/typeorm/comments.repository.js';
+import { CommentLikesRepository } from '../../infrastructure/typeorm/comment-likes.repository.js';
 
 export class SetCommentLikeStatusCommand extends Command<void> {
   constructor(public readonly params: SetCommentLikeStatusParams) {

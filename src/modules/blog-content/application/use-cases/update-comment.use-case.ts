@@ -1,6 +1,6 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateCommentParams, UpdateCommentRepoParams } from '../../types/comments.types.js';
-import { CommentsRepository } from '../../infrastructure/sql/comments.repository.js';
+import { CommentsRepository } from '../../infrastructure/typeorm/comments.repository.js';
 import { AccessDeniedDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 export class UpdateCommentCommand extends Command<void> {

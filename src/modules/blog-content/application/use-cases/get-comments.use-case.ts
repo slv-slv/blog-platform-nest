@@ -1,7 +1,7 @@
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { CommentsPaginatedViewModel, GetCommentsRepoQueryParams } from '../../types/comments.types.js';
-import { CommentsQueryRepository } from '../../infrastructure/sql/comments.query-repository.js';
-import { PostsQueryRepository } from '../../infrastructure/sql/posts.query-repository.js';
+import { CommentsQueryRepository } from '../../infrastructure/typeorm/comments.query-repository.js';
+import { PostsQueryRepository } from '../../infrastructure/typeorm/posts.query-repository.js';
 
 export class GetCommentsQuery extends Query<CommentsPaginatedViewModel> {
   constructor(public readonly params: GetCommentsRepoQueryParams) {

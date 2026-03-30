@@ -89,19 +89,21 @@ export class CommentLikesQueryRepository {
       .andWhere('commentLike.commentId IN (:...commentIds)', { commentIds })
       .getRawMany<{ commentId: number }>();
 
-    const statuses = new Map<number, LikeStatus>(commentIds.map((commentId) => [commentId, LikeStatus.None]));
+    const statusesMap = new Map<number, LikeStatus>(
+      commentIds.map((commentId) => [commentId, LikeStatus.None]),
+    );
 
     for (const { commentId } of dislikes) {
-      statuses.set(commentId, LikeStatus.Dislike);
+      statusesMap.set(commentId, LikeStatus.Dislike);
     }
 
     for (const { commentId } of likes) {
-      statuses.set(commentId, LikeStatus.Like);
+      statusesMap.set(commentId, LikeStatus.Like);
     }
 
     return commentIds.map((commentId) => ({
       commentId,
-      myStatus: statuses.get(commentId)!,
+      myStatus: statusesMap.get(commentId)!,
     }));
   }
 }

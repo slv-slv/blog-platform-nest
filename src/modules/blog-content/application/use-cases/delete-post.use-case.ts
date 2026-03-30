@@ -1,7 +1,7 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DeletePostParams } from '../../types/posts.types.js';
-import { PostsRepository } from '../../infrastructure/sql/posts.repository.js';
-import { BlogsRepository } from '../../infrastructure/sql/blogs.repository.js';
+import { PostsRepository } from '../../infrastructure/typeorm/posts.repository.js';
+import { BlogsRepository } from '../../infrastructure/typeorm/blogs.repository.js';
 
 export class DeletePostCommand extends Command<void> {
   constructor(public readonly params: DeletePostParams) {

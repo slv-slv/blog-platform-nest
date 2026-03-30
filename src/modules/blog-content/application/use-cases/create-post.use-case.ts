@@ -1,7 +1,7 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreatePostParams, CreatePostRepoParams, PostViewModel } from '../../types/posts.types.js';
-import { PostsRepository } from '../../infrastructure/sql/posts.repository.js';
-import { BlogsRepository } from '../../infrastructure/sql/blogs.repository.js';
+import { PostsRepository } from '../../infrastructure/typeorm/posts.repository.js';
+import { BlogsRepository } from '../../infrastructure/typeorm/blogs.repository.js';
 import { createDefaultPostLikesInfo } from '../../helpers/create-default-post-likes-info.js';
 
 export class CreatePostCommand extends Command<PostViewModel> {

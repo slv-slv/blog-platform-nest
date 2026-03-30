@@ -1,8 +1,7 @@
 import { Response } from 'express';
-import { Body, Controller, Get, Headers, HttpCode, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { Body, Controller, Get, Headers, HttpCode, Ip, Post, Res, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersQueryRepository } from '../infrastructure/sql/users.query-repository.js';
+import { UsersQueryRepository } from '../infrastructure/typeorm/users.query-repository.js';
 import { UsersService } from '../application/users.service.js';
 import {
   CreateUserInputDto,
@@ -23,7 +22,6 @@ import { UserId } from '../../../common/decorators/userId.js';
 import { DeviceId } from '../../../common/decorators/deviceId.js';
 
 @Controller('auth')
-// @UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(
     private readonly usersService: UsersService,

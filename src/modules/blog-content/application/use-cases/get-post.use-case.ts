@@ -1,6 +1,6 @@
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { FindPostRepoQueryParams, PostViewModel } from '../../types/posts.types.js';
-import { PostsQueryRepository } from '../../infrastructure/sql/posts.query-repository.js';
+import { PostsQueryRepository } from '../../infrastructure/typeorm/posts.query-repository.js';
 
 export class GetPostQuery extends Query<PostViewModel> {
   constructor(public readonly params: FindPostRepoQueryParams) {

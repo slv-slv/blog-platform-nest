@@ -1,6 +1,6 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogViewModel, CreateBlogParams, CreateBlogRepoParams } from '../../types/blogs.types.js';
-import { BlogsRepository } from '../../infrastructure/sql/blogs.repository.js';
+import { BlogsRepository } from '../../infrastructure/typeorm/blogs.repository.js';
 
 export class CreateBlogCommand extends Command<BlogViewModel> {
   constructor(public readonly params: CreateBlogParams) {

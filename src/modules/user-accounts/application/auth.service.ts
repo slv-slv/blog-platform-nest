@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import bcrypt from 'bcryptjs';
-import { UsersRepository } from '../infrastructure/sql/users.repository.js';
+import { UsersRepository } from '../infrastructure/typeorm/users.repository.js';
 import { JwtService } from '@nestjs/jwt';
 import { authConfig } from '../../../config/auth.config.js';
 import {
