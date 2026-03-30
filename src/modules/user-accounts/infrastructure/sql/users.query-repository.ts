@@ -78,25 +78,7 @@ export class UsersQueryRepository {
       items: users,
     };
   }
-  async findUser(loginOrEmail: string): Promise<UserViewModel> {
-    const likeTerm = `%${loginOrEmail}%`;
-    const result = await this.pool.query(
-      `
-        SELECT id, login, email, created_at
-        FROM users
-        WHERE login LIKE $1 OR email LIKE $1
-      `,
-      [likeTerm],
-    );
 
-    if (result.rowCount === 0) {
-      throw new UserNotFoundDomainException();
-    }
-
-    const { id, login, email, created_at } = result.rows[0];
-
-    return { id: id.toString(), login, email, createdAt: created_at.toISOString() };
-  }
   async getCurrentUser(userId: string): Promise<CurrentUserViewModel> {
     if (!isPositiveIntegerString(userId)) {
       throw new UnauthorizedDomainException('User not found');
