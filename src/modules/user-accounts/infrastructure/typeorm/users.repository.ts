@@ -10,10 +10,9 @@ import {
 } from '../../types/users.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfirmationInfo, PasswordRecoveryInfo, User } from './users.entities.js';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import {
   ConfirmationCodeInvalidDomainException,
-  IncorrectEmailDomainException,
   RecoveryCodeInvalidDomainException,
   UnauthorizedDomainException,
   UserNotFoundDomainException,
@@ -24,21 +23,24 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class UsersRepository {
   constructor(@InjectRepository(User) private readonly userEntityRepository: Repository<User>) {}
 
-  async findUser(loginOrEmail: string): Promise<UserModel> {
-    const likeTerm = `%${loginOrEmail}%`;
+  async findUser(loginOrEmail: string): Promise<UserModel | null> {
     const user = await this.userEntityRepository.findOne({
       relations: { confirmation: true, passwordRecovery: true },
-      where: [{ login: Like(likeTerm) }, { email: Like(likeTerm) }],
+      where: [{ login: loginOrEmail }, { email: loginOrEmail }],
     });
 
     if (!user) {
-      throw new IncorrectEmailDomainException();
+      return null;
     }
 
     return user.toModel();
   }
 
   async getLogin(id: string): Promise<string> {
+    if (!isPositiveIntegerString(id)) {
+      throw new UnauthorizedDomainException();
+    }
+
     const user = await this.userEntityRepository.findOne({
       select: { login: true },
       where: { id: +id },
@@ -75,6 +77,24 @@ export class UsersRepository {
     }
 
     return user.passwordRecovery;
+  }
+
+  async isLoginExists(login: string): Promise<boolean> {
+    const user = await this.userEntityRepository.findOne({
+      select: { id: true },
+      where: { login },
+    });
+
+    return !!user;
+  }
+
+  async isEmailExists(email: string): Promise<boolean> {
+    const user = await this.userEntityRepository.findOne({
+      select: { id: true },
+      where: { email },
+    });
+
+    return !!user;
   }
 
   async createUser(params: CreateUserRepoParams): Promise<UserViewModel> {
