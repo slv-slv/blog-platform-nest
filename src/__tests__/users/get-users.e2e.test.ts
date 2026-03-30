@@ -8,6 +8,7 @@ import { authConfig } from '../../config/auth.config.js';
 import { appSetup } from '../../setup/app.setup.js';
 import { HTTP_STATUS } from '../utils/http-status.js';
 import { EmailService } from '../../notifications/email/email.service.js';
+import { assertPaginatedResponse } from '../utils/assert-paginated-response.js';
 
 describe('GET ALL USERS', () => {
   let app: INestApplication<App>;
@@ -57,13 +58,7 @@ describe('GET ALL USERS', () => {
       .set('Authorization', adminAuthHeader)
       .expect(HTTP_STATUS.OK_200);
 
-    expect(Object.keys(response.body)).toHaveLength(5);
-    expect(response.body).toHaveProperty('pagesCount');
-    expect(response.body).toHaveProperty('page');
-    expect(response.body).toHaveProperty('pageSize');
-    expect(response.body).toHaveProperty('totalCount');
-    expect(response.body).toHaveProperty('items');
-    expect(response.body.items).toHaveLength(10);
+    assertPaginatedResponse({ body: response.body, pagesCount: 1, totalCount: 10, itemsLength: 10 });
   });
 
   it('should return 401 if credentials are incorrect', async () => {

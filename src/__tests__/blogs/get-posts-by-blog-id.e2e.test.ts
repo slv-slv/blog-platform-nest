@@ -8,6 +8,7 @@ import { authConfig } from '../../config/auth.config.js';
 import { appSetup } from '../../setup/app.setup.js';
 import { HTTP_STATUS } from '../utils/http-status.js';
 import { EmailService } from '../../notifications/email/email.service.js';
+import { assertPaginatedResponse } from '../utils/assert-paginated-response.js';
 
 describe('GET POSTS BY BLOG ID', () => {
   let app: INestApplication<App>;
@@ -74,11 +75,7 @@ describe('GET POSTS BY BLOG ID', () => {
 
     const response = await request(httpServer).get(`/blogs/${blogId}/posts`).expect(HTTP_STATUS.OK_200);
 
-    expect(response.body).toHaveProperty('pagesCount');
-    expect(response.body).toHaveProperty('page');
-    expect(response.body).toHaveProperty('pageSize');
-    expect(response.body).toHaveProperty('totalCount', 2);
-    expect(response.body.items).toHaveLength(2);
+    assertPaginatedResponse({ body: response.body, pagesCount: 1, totalCount: 2, itemsLength: 2 });
     expect(response.body.items[0]).toHaveProperty('blogId', blogId);
     expect(response.body.items[0]).toHaveProperty('blogName', 'BlogName');
     expect(response.body.items[0]).toHaveProperty('extendedLikesInfo');
@@ -89,8 +86,7 @@ describe('GET POSTS BY BLOG ID', () => {
 
     const response = await request(httpServer).get(`/blogs/${blogId}/posts`).expect(HTTP_STATUS.OK_200);
 
-    expect(response.body.totalCount).toBe(0);
-    expect(response.body.items).toHaveLength(0);
+    assertPaginatedResponse({ body: response.body, pagesCount: 0, totalCount: 0, itemsLength: 0 });
   });
 
   it('should return 404 if blog is not found', async () => {

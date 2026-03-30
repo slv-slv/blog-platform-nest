@@ -8,6 +8,7 @@ import { authConfig } from '../../config/auth.config.js';
 import { appSetup } from '../../setup/app.setup.js';
 import { HTTP_STATUS } from '../utils/http-status.js';
 import { EmailService } from '../../notifications/email/email.service.js';
+import { assertPaginatedResponse } from '../utils/assert-paginated-response.js';
 
 describe('GET ALL POSTS', () => {
   let app: INestApplication<App>;
@@ -72,13 +73,7 @@ describe('GET ALL POSTS', () => {
 
     const response = await request(httpServer).get('/posts').expect(HTTP_STATUS.OK_200);
 
-    expect(Object.keys(response.body)).toHaveLength(5);
-    expect(response.body).toHaveProperty('pagesCount');
-    expect(response.body).toHaveProperty('page');
-    expect(response.body).toHaveProperty('pageSize');
-    expect(response.body).toHaveProperty('totalCount', 3);
-    expect(response.body).toHaveProperty('items');
-    expect(response.body.items).toHaveLength(3);
+    assertPaginatedResponse({ body: response.body, pagesCount: 1, totalCount: 3, itemsLength: 3 });
 
     expect(response.body.items[0]).toHaveProperty('id');
     expect(response.body.items[0]).toHaveProperty('title');
@@ -93,7 +88,6 @@ describe('GET ALL POSTS', () => {
   it('should return empty list if there are no posts', async () => {
     const response = await request(httpServer).get('/posts').expect(HTTP_STATUS.OK_200);
 
-    expect(response.body.totalCount).toBe(0);
-    expect(response.body.items).toHaveLength(0);
+    assertPaginatedResponse({ body: response.body, pagesCount: 0, totalCount: 0, itemsLength: 0 });
   });
 });

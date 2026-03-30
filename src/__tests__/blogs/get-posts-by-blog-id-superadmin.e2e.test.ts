@@ -8,6 +8,7 @@ import { authConfig } from '../../config/auth.config.js';
 import { appSetup } from '../../setup/app.setup.js';
 import { HTTP_STATUS } from '../utils/http-status.js';
 import { EmailService } from '../../notifications/email/email.service.js';
+import { assertPaginatedResponse } from '../utils/assert-paginated-response.js';
 
 describe('GET POSTS BY BLOG ID SUPERADMIN', () => {
   let app: INestApplication<App>;
@@ -76,8 +77,7 @@ describe('GET POSTS BY BLOG ID SUPERADMIN', () => {
       .set('Authorization', adminAuthHeader)
       .expect(HTTP_STATUS.OK_200);
 
-    expect(response.body.totalCount).toBe(1);
-    expect(response.body.items).toHaveLength(1);
+    assertPaginatedResponse({ body: response.body, pagesCount: 1, totalCount: 1, itemsLength: 1 });
     expect(response.body.items[0]).toHaveProperty('blogId', blogId);
   });
 

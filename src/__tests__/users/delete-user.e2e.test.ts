@@ -8,6 +8,7 @@ import { authConfig } from '../../config/auth.config.js';
 import { appSetup } from '../../setup/app.setup.js';
 import { HTTP_STATUS } from '../utils/http-status.js';
 import { EmailService } from '../../notifications/email/email.service.js';
+import { assertPaginatedResponse } from '../utils/assert-paginated-response.js';
 
 describe('DELETE USER', () => {
   let app: INestApplication<App>;
@@ -65,7 +66,7 @@ describe('DELETE USER', () => {
       .get('/sa/users')
       .set('Authorization', adminAuthHeader)
       .expect(HTTP_STATUS.OK_200);
-    expect(response.body.items).toHaveLength(2);
+    assertPaginatedResponse({ body: response.body, pagesCount: 1, totalCount: 2, itemsLength: 2 });
 
     await request(httpServer)
       .delete(`/sa/users/${user01.id}`)
@@ -76,7 +77,7 @@ describe('DELETE USER', () => {
       .get('/sa/users')
       .set('Authorization', adminAuthHeader)
       .expect(HTTP_STATUS.OK_200);
-    expect(response.body.items).toHaveLength(1);
+    assertPaginatedResponse({ body: response.body, pagesCount: 1, totalCount: 1, itemsLength: 1 });
   });
 
   it('should return 404 if user does not exist', async () => {

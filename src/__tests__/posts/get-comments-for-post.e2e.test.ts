@@ -8,6 +8,7 @@ import { authConfig } from '../../config/auth.config.js';
 import { appSetup } from '../../setup/app.setup.js';
 import { HTTP_STATUS } from '../utils/http-status.js';
 import { EmailService } from '../../notifications/email/email.service.js';
+import { assertPaginatedResponse } from '../utils/assert-paginated-response.js';
 
 describe('GET COMMENTS FOR POST', () => {
   let app: INestApplication<App>;
@@ -94,8 +95,7 @@ describe('GET COMMENTS FOR POST', () => {
 
     const response = await request(httpServer).get(`/posts/${postId}/comments`).expect(HTTP_STATUS.OK_200);
 
-    expect(response.body.totalCount).toBe(1);
-    expect(response.body.items).toHaveLength(1);
+    assertPaginatedResponse({ body: response.body, pagesCount: 1, totalCount: 1, itemsLength: 1 });
     expect(response.body.items[0]).toHaveProperty('content', 'This comment has enough length');
     expect(response.body.items[0]).toHaveProperty('likesInfo');
   });
@@ -105,8 +105,7 @@ describe('GET COMMENTS FOR POST', () => {
 
     const response = await request(httpServer).get(`/posts/${postId}/comments`).expect(HTTP_STATUS.OK_200);
 
-    expect(response.body.totalCount).toBe(0);
-    expect(response.body.items).toHaveLength(0);
+    assertPaginatedResponse({ body: response.body, pagesCount: 0, totalCount: 0, itemsLength: 0 });
   });
 
   it('should return 404 if post is not found', async () => {
