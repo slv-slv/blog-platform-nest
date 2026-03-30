@@ -15,6 +15,7 @@ import {
   ConfirmationCodeExpiredDomainException,
   EmailAlreadyConfirmedDomainException,
   EmailAlreadyExistsDomainException,
+  IncorrectEmailDomainException,
   LoginAlreadyExistsDomainException,
   RecoveryCodeExpiredDomainException,
 } from '../../../common/exceptions/domain-exceptions.js';
@@ -80,9 +81,12 @@ export class UsersService {
   }
 
   async resendConfirmationCode(email: string): Promise<void> {
-    await this.usersRepository.findUser(email);
+    const user = await this.usersRepository.findUser(email);
+    if (!user) {
+      throw new IncorrectEmailDomainException();
+    }
 
-    if (await this.isConfirmed(email)) {
+    if (user.confirmation.isConfirmed) {
       throw new EmailAlreadyConfirmedDomainException();
     }
 
@@ -154,9 +158,5 @@ export class UsersService {
 
   async isEmailExists(email: string): Promise<boolean> {
     return await this.usersRepository.isEmailExists(email);
-  }
-
-  async isConfirmed(email: string): Promise<boolean> {
-    return await this.usersRepository.isConfirmed(email);
   }
 }
