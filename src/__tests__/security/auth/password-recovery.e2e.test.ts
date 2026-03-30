@@ -3,18 +3,17 @@ import { ConfigType } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
-import { Pool } from 'pg';
 import { AppModule } from '../../../app.module.js';
-import { PG_POOL } from '../../../common/constants.js';
 import { authConfig } from '../../../config/auth.config.js';
 import { appSetup } from '../../../setup/app.setup.js';
 import { HTTP_STATUS } from '../../utils/http-status.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
+import { UsersRepository } from '../../../modules/user-accounts/infrastructure/typeorm/users.repository.js';
 
 describe('PASSWORD RECOVERY REQUEST', () => {
   let app: INestApplication<App>;
   let httpServer: ReturnType<INestApplication<App>['getHttpServer']>;
-  let pool: Pool;
+  let usersRepository: UsersRepository;
   let adminAuthHeader = '';
 
   beforeAll(async () => {
@@ -30,7 +29,7 @@ describe('PASSWORD RECOVERY REQUEST', () => {
     await app.init();
 
     httpServer = app.getHttpServer();
-    pool = app.get<Pool>(PG_POOL);
+    usersRepository = app.get(UsersRepository);
     const auth = app.get<ConfigType<typeof authConfig>>(authConfig.KEY);
     adminAuthHeader = `Basic ${auth.adminCredentialsBase64.replaceAll(`'`, '')}`;
   });
@@ -79,16 +78,9 @@ describe('PASSWORD RECOVERY REQUEST', () => {
       .send({ email: user.email })
       .expect(HTTP_STATUS.NO_CONTENT_204);
 
-    const insertedUserResult = await pool.query(
-      `
-        SELECT recovery_code, recovery_expiration
-        FROM users
-        WHERE email = $1
-      `,
-      [user.email],
-    );
-    const insertedUser = insertedUserResult.rows[0] ?? null;
-    expect(insertedUser?.recovery_code).toBeTruthy();
-    expect(insertedUser?.recovery_expiration).toBeTruthy();
+    const insertedUser = await usersRepository.findUser(user.email);
+    expect(insertedUser).not.toBeNull();
+    expect(insertedUser?.passwordRecovery.code).toBeTruthy();
+    expect(insertedUser?.passwordRecovery.expiration).toBeTruthy();
   });
 });

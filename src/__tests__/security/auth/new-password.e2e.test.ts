@@ -3,18 +3,17 @@ import { ConfigType } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
-import { Pool } from 'pg';
 import { AppModule } from '../../../app.module.js';
-import { PG_POOL } from '../../../common/constants.js';
 import { authConfig } from '../../../config/auth.config.js';
 import { appSetup } from '../../../setup/app.setup.js';
 import { HTTP_STATUS } from '../../utils/http-status.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
+import { UsersRepository } from '../../../modules/user-accounts/infrastructure/typeorm/users.repository.js';
 
 describe('PASSWORD RECOVERY CONFIRMATION', () => {
   let app: INestApplication<App>;
   let httpServer: ReturnType<INestApplication<App>['getHttpServer']>;
-  let pool: Pool;
+  let usersRepository: UsersRepository;
   let adminAuthHeader = '';
 
   beforeAll(async () => {
@@ -30,7 +29,7 @@ describe('PASSWORD RECOVERY CONFIRMATION', () => {
     await app.init();
 
     httpServer = app.getHttpServer();
-    pool = app.get<Pool>(PG_POOL);
+    usersRepository = app.get(UsersRepository);
     const auth = app.get<ConfigType<typeof authConfig>>(authConfig.KEY);
     adminAuthHeader = `Basic ${auth.adminCredentialsBase64.replaceAll(`'`, '')}`;
   });
@@ -56,13 +55,9 @@ describe('PASSWORD RECOVERY CONFIRMATION', () => {
       .expect(HTTP_STATUS.CREATED_201);
 
     const recoveryCode = crypto.randomUUID();
-    const futureDate = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    const futureDate = new Date(Date.now() + 60 * 60 * 1000);
 
-    await pool.query(`UPDATE users SET recovery_code = $1, recovery_expiration = $2 WHERE email = $3`, [
-      recoveryCode,
-      futureDate,
-      user.email,
-    ]);
+    await usersRepository.updateRecoveryCode({ email: user.email, code: recoveryCode, expiration: futureDate });
 
     await request(httpServer)
       .post('/auth/new-password')
@@ -102,13 +97,9 @@ describe('PASSWORD RECOVERY CONFIRMATION', () => {
       .expect(HTTP_STATUS.CREATED_201);
 
     const recoveryCode = crypto.randomUUID();
-    const pastDate = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const pastDate = new Date(Date.now() - 60 * 60 * 1000);
 
-    await pool.query(`UPDATE users SET recovery_code = $1, recovery_expiration = $2 WHERE email = $3`, [
-      recoveryCode,
-      pastDate,
-      user.email,
-    ]);
+    await usersRepository.updateRecoveryCode({ email: user.email, code: recoveryCode, expiration: pastDate });
 
     await request(httpServer)
       .post('/auth/new-password')

@@ -2,17 +2,16 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
-import { Pool } from 'pg';
 import { AppModule } from '../../../app.module.js';
-import { PG_POOL } from '../../../common/constants.js';
 import { appSetup } from '../../../setup/app.setup.js';
 import { HTTP_STATUS } from '../../utils/http-status.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
+import { UsersRepository } from '../../../modules/user-accounts/infrastructure/typeorm/users.repository.js';
 
 describe('CONFIRM USER', () => {
   let app: INestApplication<App>;
   let httpServer: ReturnType<INestApplication<App>['getHttpServer']>;
-  let pool: Pool;
+  let usersRepository: UsersRepository;
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -27,7 +26,7 @@ describe('CONFIRM USER', () => {
     await app.init();
 
     httpServer = app.getHttpServer();
-    pool = app.get<Pool>(PG_POOL);
+    usersRepository = app.get(UsersRepository);
   });
 
   beforeEach(async () => {
@@ -37,6 +36,12 @@ describe('CONFIRM USER', () => {
   afterAll(async () => {
     await app.close();
   });
+
+  async function getUserOrThrow(email: string) {
+    const user = await usersRepository.findUser(email);
+    expect(user).not.toBeNull();
+    return user!;
+  }
 
   it('should not confirm not existing user', async () => {
     await request(httpServer)
@@ -49,21 +54,18 @@ describe('CONFIRM USER', () => {
     const user = { login: 'NewUser', email: 'some.email@gmail.com', password: 'somepassword' };
     await request(httpServer).post('/auth/registration').send(user).expect(HTTP_STATUS.NO_CONTENT_204);
 
-    const insertedUserResult = await pool.query(`SELECT confirmation_code FROM users WHERE email = $1`, [
-      user.email,
-    ]);
-    const insertedUser = insertedUserResult.rows[0] ?? null;
-    expect(insertedUser?.confirmation_code).toBeTruthy();
+    const insertedUser = await getUserOrThrow(user.email);
+    expect(insertedUser.confirmation.code).toBeTruthy();
 
-    const expiredAt = new Date(Date.now() - 60_000).toISOString();
-    await pool.query(`UPDATE users SET confirmation_expiration = $1 WHERE email = $2`, [
-      expiredAt,
-      user.email,
-    ]);
+    await usersRepository.updateConfirmationCode({
+      email: user.email,
+      code: insertedUser.confirmation.code!,
+      expiration: new Date(Date.now() - 60_000),
+    });
 
     await request(httpServer)
       .post('/auth/registration-confirmation')
-      .send({ code: insertedUser!.confirmation_code })
+      .send({ code: insertedUser.confirmation.code })
       .expect(HTTP_STATUS.BAD_REQUEST_400);
   });
 
@@ -71,49 +73,38 @@ describe('CONFIRM USER', () => {
     const user = { login: 'NewUser', email: 'some.email@gmail.com', password: 'somepassword' };
     await request(httpServer).post('/auth/registration').send(user).expect(HTTP_STATUS.NO_CONTENT_204);
 
-    const insertedUserResult = await pool.query(`SELECT confirmation_code FROM users WHERE email = $1`, [
-      user.email,
-    ]);
-    const insertedUser = insertedUserResult.rows[0] ?? null;
-    const validTo = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    const insertedUser = await getUserOrThrow(user.email);
 
-    await pool.query(`UPDATE users SET confirmation_expiration = $1 WHERE email = $2`, [validTo, user.email]);
+    await usersRepository.updateConfirmationCode({
+      email: user.email,
+      code: insertedUser.confirmation.code!,
+      expiration: new Date(Date.now() + 60 * 60 * 1000),
+    });
 
     await request(httpServer)
       .post('/auth/registration-confirmation')
-      .send({ code: insertedUser!.confirmation_code })
+      .send({ code: insertedUser.confirmation.code })
       .expect(HTTP_STATUS.NO_CONTENT_204);
 
-    const confirmedUserResult = await pool.query(
-      `
-        SELECT is_confirmed, confirmation_expiration
-        FROM users
-        WHERE email = $1
-      `,
-      [user.email],
-    );
-    const confirmedUser = confirmedUserResult.rows[0] ?? null;
-    expect(confirmedUser?.is_confirmed).toBeTruthy();
-    expect(confirmedUser?.confirmation_expiration).toBeNull();
+    const confirmedUser = await getUserOrThrow(user.email);
+    expect(confirmedUser.confirmation.isConfirmed).toBeTruthy();
+    expect(confirmedUser.confirmation.expiration).toBeNull();
   });
 
   it('should not confirm already confirmed user', async () => {
     const user = { login: 'NewUser', email: 'some.email@gmail.com', password: 'somepassword' };
     await request(httpServer).post('/auth/registration').send(user).expect(HTTP_STATUS.NO_CONTENT_204);
 
-    const insertedUserResult = await pool.query(`SELECT confirmation_code FROM users WHERE email = $1`, [
-      user.email,
-    ]);
-    const insertedUser = insertedUserResult.rows[0] ?? null;
+    const insertedUser = await getUserOrThrow(user.email);
 
     await request(httpServer)
       .post('/auth/registration-confirmation')
-      .send({ code: insertedUser!.confirmation_code })
+      .send({ code: insertedUser.confirmation.code })
       .expect(HTTP_STATUS.NO_CONTENT_204);
 
     await request(httpServer)
       .post('/auth/registration-confirmation')
-      .send({ code: insertedUser!.confirmation_code })
+      .send({ code: insertedUser.confirmation.code })
       .expect(HTTP_STATUS.BAD_REQUEST_400);
   });
 });
