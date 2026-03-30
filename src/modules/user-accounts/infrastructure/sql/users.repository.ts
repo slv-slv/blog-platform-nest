@@ -24,19 +24,18 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class UsersRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async findUser(loginOrEmail: string): Promise<UserModel> {
-    const likeTerm = `%${loginOrEmail}%`;
+  async findUser(loginOrEmail: string): Promise<UserModel | null> {
     const usersResult = await this.pool.query(
       `
         SELECT *
         FROM users
-        WHERE login LIKE $1 OR email LIKE $1
+        WHERE login = $1 OR email = $1
       `,
-      [likeTerm],
+      [loginOrEmail],
     );
 
     if (usersResult.rowCount === 0) {
-      throw new IncorrectEmailDomainException();
+      return null;
     }
 
     const {
