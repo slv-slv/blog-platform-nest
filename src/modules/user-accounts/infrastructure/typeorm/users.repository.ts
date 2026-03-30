@@ -9,7 +9,7 @@ import {
   UserViewModel,
 } from '../../types/users.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ConfirmationInfo, PasswordRecoveryInfo, User } from './users.entities.js';
+import { User } from './users.entities.js';
 import { Repository } from 'typeorm';
 import {
   ConfirmationCodeInvalidDomainException,
@@ -53,6 +53,24 @@ export class UsersRepository {
     return user.login;
   }
 
+  async isLoginExists(login: string): Promise<boolean> {
+    const user = await this.userEntityRepository.findOne({
+      select: { id: true },
+      where: { login },
+    });
+
+    return !!user;
+  }
+
+  async isEmailExists(email: string): Promise<boolean> {
+    const user = await this.userEntityRepository.findOne({
+      select: { id: true },
+      where: { email },
+    });
+
+    return !!user;
+  }
+
   async getConfirmationInfo(code: string): Promise<ConfirmationInfoModel> {
     const user = await this.userEntityRepository.findOne({
       select: { confirmation: true },
@@ -79,46 +97,20 @@ export class UsersRepository {
     return user.passwordRecovery;
   }
 
-  async isLoginExists(login: string): Promise<boolean> {
-    const user = await this.userEntityRepository.findOne({
-      select: { id: true },
-      where: { login },
-    });
-
-    return !!user;
-  }
-
-  async isEmailExists(email: string): Promise<boolean> {
-    const user = await this.userEntityRepository.findOne({
-      select: { id: true },
-      where: { email },
-    });
-
-    return !!user;
-  }
-
   async createUser(params: CreateUserRepoParams): Promise<UserViewModel> {
     const { login, email, hash, createdAt, confirmation, passwordRecovery } = params;
-    const confirmationEntity = new ConfirmationInfo();
-    confirmationEntity.isConfirmed = confirmation.isConfirmed;
-    confirmationEntity.code = confirmation.code!;
-    confirmationEntity.expiration = confirmation.expiration!;
-
-    const passwordRecoveryEntity = new PasswordRecoveryInfo();
-    passwordRecoveryEntity.code = passwordRecovery.code!;
-    passwordRecoveryEntity.expiration = passwordRecovery.expiration!;
-
-    const user = this.userEntityRepository.create({
+    const result = await this.userEntityRepository.insert({
       login,
       email,
       hash,
       createdAt,
-      confirmation: confirmationEntity,
-      passwordRecovery: passwordRecoveryEntity,
+      confirmation,
+      passwordRecovery,
     });
+    const identifier = result.identifiers[0] as { id: number };
+    const id = identifier.id.toString();
 
-    const savedUser = await this.userEntityRepository.save(user);
-    return savedUser.toViewModel();
+    return { id, login, email, createdAt: createdAt.toISOString() };
   }
 
   async updateConfirmationCode(params: UpdateConfirmationCodeParams): Promise<void> {
@@ -160,7 +152,7 @@ export class UsersRepository {
           code,
         },
       },
-      { confirmation: { isConfirmed: true, expiration: undefined } }, // TypeOrm не разрешает присвоить null nullable полю
+      { confirmation: { isConfirmed: true, expiration: null } },
     );
   }
 
