@@ -87,20 +87,6 @@ export class UsersRepository {
     return login;
   }
 
-  async isConfirmed(loginOrEmail: string): Promise<boolean> {
-    const result = await this.pool.query(
-      `
-        SELECT is_confirmed
-        FROM users
-        WHERE login = $1 OR email = $1
-      `,
-      [loginOrEmail],
-    );
-
-    const { is_confirmed } = result.rows[0];
-    return is_confirmed;
-  }
-
   async isLoginExists(login: string): Promise<boolean> {
     const result = await this.pool.query(
       `
