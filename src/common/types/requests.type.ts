@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { UserViewModel } from '../../modules/user-accounts/types/users.types.js';
+import { UserModel } from '../../modules/user-accounts/types/users.types.js';
 
 export type RequestWithOptionalUserId = Request & {
   userId: string | null;
@@ -10,7 +10,7 @@ export type RequestWithUserId = Request & {
 };
 
 export type RequestWithUser = Request & {
-  user: UserViewModel;
+  user: UserModel;
 };
 
 export type RequestWithSession = Request & {
