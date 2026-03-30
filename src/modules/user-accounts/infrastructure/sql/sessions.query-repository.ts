@@ -12,15 +12,13 @@ export class SessionsQueryRepository {
       return [];
     }
 
-    const userIdNum = +userId;
-
     const result = await this.pool.query(
       `
         SELECT id, name, ip, iat
         FROM devices
         WHERE user_id = $1
       `,
-      [userIdNum],
+      [+userId],
     );
 
     return result.rows.map((device) => ({

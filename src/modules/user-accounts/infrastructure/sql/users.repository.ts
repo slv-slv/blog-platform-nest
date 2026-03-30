@@ -70,15 +70,13 @@ export class UsersRepository {
       throw new UnauthorizedDomainException();
     }
 
-    const idNum = +id;
-
     const result = await this.pool.query(
       `
         SELECT login
         FROM users
         WHERE id = $1
       `,
-      [idNum],
+      [+id],
     );
 
     if (result.rowCount === 0) {
@@ -248,14 +246,12 @@ export class UsersRepository {
       throw new UserNotFoundDomainException();
     }
 
-    const idNum = +id;
-
     const deleteResult = await this.pool.query(
       `
           DELETE FROM users
             WHERE id = $1
         `,
-      [idNum],
+      [+id],
     );
 
     if (deleteResult.rowCount === 0) {
