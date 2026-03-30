@@ -93,24 +93,25 @@ export class PostsQueryRepository {
 
     const direction = sortDirection === SortDirection.asc ? 'ASC' : 'DESC';
     const skipCount = (pageNumber - 1) * pageSize;
-
     const orderBy = sortBy === 'blogName' ? 'blog.name' : `post.${sortBy}`;
 
-    qb.orderBy(orderBy, direction).take(pageSize).skip(skipCount);
+    const totalCount = await qb.clone().getCount();
+    const rawPosts = await qb
+      .clone()
+      .orderBy(orderBy, direction)
+      .offset(skipCount)
+      .limit(pageSize)
+      .getRawMany<{
+        id: number;
+        title: string;
+        shortDescription: string;
+        content: string;
+        blogId: number;
+        blogName: string;
+        createdAt: Date;
+      }>();
 
-    const totalCount = await qb.getCount();
     const pagesCount = Math.ceil(totalCount / pageSize);
-
-    const rawPosts = await qb.getRawMany<{
-      id: number;
-      title: string;
-      shortDescription: string;
-      content: string;
-      blogId: number;
-      blogName: string;
-      createdAt: Date;
-    }>();
-
     const postIds = rawPosts.map((post) => post.id);
     const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds, userId });
 

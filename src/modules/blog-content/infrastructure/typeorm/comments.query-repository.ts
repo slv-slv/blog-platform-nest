@@ -80,15 +80,17 @@ export class CommentsQueryRepository {
       .createQueryBuilder('comment')
       .innerJoinAndSelect('comment.user', 'user')
       .innerJoinAndSelect('comment.post', 'post')
-      .where('post.id = :postId', { postId: +postId })
-      .orderBy(orderBy, direction)
-      .take(pageSize)
-      .skip(skipCount);
+      .where('post.id = :postId', { postId: +postId });
 
-    const totalCount = await qb.getCount();
+    const totalCount = await qb.clone().getCount();
     const pagesCount = Math.ceil(totalCount / pageSize);
 
-    const commentsEntities = await qb.getMany();
+    const commentsEntities = await qb
+      .clone()
+      .orderBy(orderBy, direction)
+      .take(pageSize)
+      .skip(skipCount)
+      .getMany();
     const commentIds = commentsEntities.map((comment) => comment.id);
     const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({ commentIds, userId });
     const comments = commentsEntities.map((comment) => ({
