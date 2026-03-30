@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   ConfirmationInfoModel,
   CreateUserRepoParams,
@@ -16,7 +16,9 @@ import {
   IncorrectEmailDomainException,
   RecoveryCodeInvalidDomainException,
   UnauthorizedDomainException,
+  UserNotFoundDomainException,
 } from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class UsersRepository {
@@ -142,8 +144,15 @@ export class UsersRepository {
     );
   }
 
-  async deleteUser(id: string): Promise<boolean> {
+  async deleteUser(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new UserNotFoundDomainException();
+    }
+
     const deleteResult = await this.userEntityRepository.softDelete({ id: +id });
-    return deleteResult.affected! > 0;
+
+    if (deleteResult.affected === 0) {
+      throw new UserNotFoundDomainException();
+    }
   }
 }
