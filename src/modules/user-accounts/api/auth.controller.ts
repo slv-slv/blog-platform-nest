@@ -109,7 +109,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AccessTokenGuard)
-  async me(@UserId() userId: string): Promise<CurrentUserViewModel> {
+  async getCurrentUser(@UserId() userId: string): Promise<CurrentUserViewModel> {
     return await this.usersQueryRepository.getCurrentUser(userId);
   }
 
