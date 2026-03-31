@@ -12,7 +12,7 @@ export class CreateUserCommand extends Command<UserViewModel> {
 export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
   constructor(private readonly usersService: UsersService) {}
 
-  async execute(command: CreateUserCommand): Promise<UserViewModel> {
+  async execute(command: CreateUserCommand) {
     return await this.usersService.createUser(command.params);
   }
 }

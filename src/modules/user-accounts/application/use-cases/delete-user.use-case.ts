@@ -11,7 +11,7 @@ export class DeleteUserCommand extends Command<void> {
 export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
   constructor(private readonly usersService: UsersService) {}
 
-  async execute(command: DeleteUserCommand): Promise<void> {
+  async execute(command: DeleteUserCommand) {
     await this.usersService.deleteUser(command.id);
   }
 }
