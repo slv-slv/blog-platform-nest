@@ -17,6 +17,7 @@ import { authConfig } from '../../config/auth.config.js';
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case.js';
 import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case.js';
 import { GetUsersUseCase } from './application/use-cases/get-users.use-case.js';
+import { GetDevicesUseCase } from './application/use-cases/get-devices.use-case.js';
 import { Device } from './infrastructure/typeorm/sessions.entities.js';
 import { User } from './infrastructure/typeorm/users.entities.js';
 
@@ -44,6 +45,7 @@ import { User } from './infrastructure/typeorm/users.entities.js';
     CreateUserUseCase,
     DeleteUserUseCase,
     GetUsersUseCase,
+    GetDevicesUseCase,
   ],
   exports: [UsersQueryRepository, UsersRepository],
 })
