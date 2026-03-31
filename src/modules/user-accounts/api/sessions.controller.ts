@@ -4,14 +4,16 @@ import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js
 import { UserId } from '../../../common/decorators/userId.js';
 import { DeviceId } from '../../../common/decorators/deviceId.js';
 import { DeviceViewModel } from '../types/sessions.types.js';
-import { QueryBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetDevicesQuery } from '../application/use-cases/get-devices.use-case.js';
+import { DeleteOtherDevicesCommand } from '../application/use-cases/delete-other-devices.use-case.js';
 
 @Controller('security/devices')
 @UseGuards(RefreshTokenGuard)
 export class SessionsController {
   constructor(
     @Inject(SessionsService) private readonly sessionsService: SessionsService,
+    private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
 
@@ -23,7 +25,7 @@ export class SessionsController {
   @Delete()
   @HttpCode(204)
   async deleteOtherDevices(@DeviceId() deviceId: string): Promise<void> {
-    await this.sessionsService.deleteOtherDevices(deviceId);
+    await this.commandBus.execute(new DeleteOtherDevicesCommand(deviceId));
   }
 
   @Delete(':deviceId')
