@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 import { getPostgresConfig } from './postgres.config.js';
 import { DataSource } from 'typeorm';
 
-config();
+config({ path: `.env.${process.env.NODE_ENV}.local` });
 
 const postgres = getPostgresConfig();
 
