@@ -18,7 +18,8 @@
     "test:watch": "cross-env NODE_ENV=testing vitest",
     "test:cov": "cross-env NODE_ENV=testing vitest run --coverage",
     "test:debug": "cross-env NODE_ENV=testing vitest run --inspect-brk",
-    "test:e2e": "cross-env NODE_ENV=testing vitest run src/__tests__"
+    "test:e2e": "cross-env NODE_ENV=testing vitest run src/__tests__",
+    "migration:generate": "typeorm-ts-node-esm migration:generate -d src/config/typeorm.config.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.3.4",
