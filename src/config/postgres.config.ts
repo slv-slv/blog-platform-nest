@@ -1,16 +1,35 @@
 import { registerAs } from '@nestjs/config';
-import { plainToInstance, Type } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
+import { plainToInstance, Transform, Type } from 'class-transformer';
+import { IsBoolean, IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
 import { validateOrThrow } from './validate-or-throw.js';
 
 class PostgresConfig {
   @IsString()
   @IsNotEmpty()
-  declare connectionString: string;
-
-  @IsString()
-  @IsNotEmpty()
   declare url: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  @Type(() => Number)
+  declare port: number;
+
+  @IsBoolean()
+  @Transform(({ value }) => {
+    if (typeof value !== 'string') return value;
+    const normalized = value.trim().toLowerCase();
+
+    if (normalized === 'true') {
+      return true;
+    }
+
+    if (normalized === 'false') {
+      return false;
+    }
+
+    return value;
+  })
+  declare ssl: boolean;
 
   @IsString()
   @IsNotEmpty()
@@ -23,24 +42,19 @@ class PostgresConfig {
   @IsString()
   @IsNotEmpty()
   declare database: string;
-
-  @IsInt()
-  @Min(1)
-  @Max(65535)
-  @Type(() => Number)
-  declare port: number;
 }
 
-export const postgresConfig = registerAs('postgres', () => {
-  const postgresConfigEnvInput = {
-    connectionString: process.env.POSTGRES_CONNECTION_STRING,
+export function getPostgresConfig() {
+  const postgresEnvInput = {
     url: process.env.POSTGRES_URL,
+    port: process.env.POSTGRES_PORT,
+    ssl: process.env.POSTGRES_SSL,
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DATABASE,
-    port: 5432,
   };
+  const postgresSettings = plainToInstance(PostgresConfig, postgresEnvInput);
+  return validateOrThrow(postgresSettings, 'postgres config');
+}
 
-  const postgresConfigEnv = plainToInstance(PostgresConfig, postgresConfigEnvInput);
-  return validateOrThrow(postgresConfigEnv, 'postgres config');
-});
+export const postgresConfig = registerAs('postgres', () => getPostgresConfig());
