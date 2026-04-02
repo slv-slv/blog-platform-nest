@@ -36,7 +36,7 @@ export class Post {
   @Column('timestamptz')
   declare createdAt: Date;
 
-  @DeleteDateColumn({ type: 'timestamptz', select: false })
+  @DeleteDateColumn({ type: 'timestamptz' })
   declare deletedAt: Date;
 
   @OneToMany(() => Comment, (comment) => comment.post)

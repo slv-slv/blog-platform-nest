@@ -21,7 +21,7 @@ export class Blog {
   @Column()
   declare isMembership: boolean;
 
-  @DeleteDateColumn({ type: 'timestamptz', select: false })
+  @DeleteDateColumn({ type: 'timestamptz' })
   declare deletedAt: Date;
 
   @OneToMany(() => Post, (post) => post.blog)
