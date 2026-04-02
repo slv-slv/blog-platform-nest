@@ -97,7 +97,7 @@ export class CommentsRepository {
       throw new CommentNotFoundDomainException();
     }
 
-    const result = await this.commentEntityRepository.delete({ id: +id });
+    const result = await this.commentEntityRepository.softDelete({ id: +id });
 
     if (result.affected === 0) {
       throw new CommentNotFoundDomainException();
