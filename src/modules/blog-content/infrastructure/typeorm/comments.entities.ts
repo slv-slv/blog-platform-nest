@@ -1,4 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 import { Post } from './posts.entities.js';
 import { User } from '../../../user-accounts/infrastructure/typeorm/users.entities.js';
 import { CommentDislike, CommentLike } from './comment-likes.entities.js';
@@ -22,6 +31,9 @@ export class Comment {
 
   @Column('timestamptz')
   declare createdAt: Date;
+
+  @DeleteDateColumn({ type: 'timestamptz' })
+  declare deletedAt: Date;
 
   @OneToMany(() => CommentLike, (commentLike) => commentLike.comment)
   declare likes: Relation<CommentLike[]>;
