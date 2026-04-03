@@ -2,6 +2,7 @@ import {
   Column,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -18,6 +19,7 @@ export class Post {
   declare id: number;
 
   @Column()
+  @Index()
   declare blogId: number;
 
   @ManyToOne(() => Blog, (blog) => blog.posts)
