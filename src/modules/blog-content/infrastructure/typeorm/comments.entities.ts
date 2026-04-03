@@ -2,6 +2,7 @@ import {
   Column,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -18,8 +19,12 @@ export class Comment {
   @PrimaryGeneratedColumn('identity')
   declare id: number;
 
+  @Column()
+  @Index()
+  declare postId: number;
+
   @ManyToOne(() => Post, (post) => post.comments)
-  @JoinColumn()
+  @JoinColumn({ name: 'postId' })
   declare post: Relation<Post>;
 
   @ManyToOne(() => User, (user) => user.comments)
