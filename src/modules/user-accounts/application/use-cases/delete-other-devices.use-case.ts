@@ -1,5 +1,5 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SessionsService } from '../sessions.service.js';
+import { SessionsRepository } from '../../infrastructure/typeorm/sessions.repository.js';
 
 export class DeleteOtherDevicesCommand extends Command<void> {
   constructor(public readonly deviceId: string) {
@@ -9,9 +9,9 @@ export class DeleteOtherDevicesCommand extends Command<void> {
 
 @CommandHandler(DeleteOtherDevicesCommand)
 export class DeleteOtherDevicesUseCase implements ICommandHandler<DeleteOtherDevicesCommand> {
-  constructor(private readonly sessionsService: SessionsService) {}
+  constructor(private readonly sessionsRepository: SessionsRepository) {}
 
   async execute(command: DeleteOtherDevicesCommand) {
-    await this.sessionsService.deleteOtherDevices(command.deviceId);
+    await this.sessionsRepository.deleteOtherDevices(command.deviceId);
   }
 }

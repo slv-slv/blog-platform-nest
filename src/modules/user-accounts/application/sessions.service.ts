@@ -32,8 +32,4 @@ export class SessionsService {
 
     await this.sessionsRepository.deleteDevice(deviceId);
   }
-
-  async deleteOtherDevices(deviceId: string): Promise<void> {
-    await this.sessionsRepository.deleteOtherDevices(deviceId);
-  }
 }
