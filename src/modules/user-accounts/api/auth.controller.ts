@@ -20,6 +20,7 @@ import { NoActiveSessionGuard } from '../../../common/guards/no-active-session.g
 import { User } from '../../../common/decorators/user.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { DeviceId } from '../../../common/decorators/deviceId.js';
+import { LogoutCommand } from '../application/use-cases/logout.use-case.js';
 import { NewPasswordCommand } from '../application/use-cases/new-password.use-case.js';
 import { PasswordRecoveryCommand } from '../application/use-cases/password-recovery.use-case.js';
 import { RegistrationConfirmationCommand } from '../application/use-cases/registration-confirmation.use-case.js';
@@ -109,7 +110,7 @@ export class AuthController {
     @UserId() userId: string,
     @DeviceId() deviceId: string,
   ): Promise<void> {
-    await this.sessionsService.deleteDevice(userId, deviceId);
+    await this.commandBus.execute(new LogoutCommand(userId, deviceId));
     res.clearCookie('refreshToken');
   }
 
