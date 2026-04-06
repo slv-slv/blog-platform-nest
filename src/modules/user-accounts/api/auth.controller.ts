@@ -1,8 +1,7 @@
 import { Response } from 'express';
 import { Body, Controller, Get, Headers, HttpCode, Ip, Post, Res, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CommandBus } from '@nestjs/cqrs';
-import { UsersQueryRepository } from '../infrastructure/typeorm/users.query-repository.js';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UsersService } from '../application/users.service.js';
 import {
   CreateUserInputDto,
@@ -25,13 +24,14 @@ import { NewPasswordCommand } from '../application/use-cases/new-password.use-ca
 import { PasswordRecoveryCommand } from '../application/use-cases/password-recovery.use-case.js';
 import { RegistrationConfirmationCommand } from '../application/use-cases/registration-confirmation.use-case.js';
 import { RegistrationEmailResendingCommand } from '../application/use-cases/registration-email-resending.use-case.js';
+import { GetCurrentUserQuery } from '../application/use-cases/get-current-user.use-case.js';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
     private readonly usersService: UsersService,
-    private readonly usersQueryRepository: UsersQueryRepository,
     private readonly authService: AuthService,
     private readonly sessionsService: SessionsService,
     private readonly jwtService: JwtService,
@@ -116,7 +116,7 @@ export class AuthController {
   @Get('me')
   @UseGuards(AccessTokenGuard)
   async getCurrentUser(@UserId() userId: string): Promise<CurrentUserViewModel> {
-    return await this.usersQueryRepository.getCurrentUser(userId);
+    return await this.queryBus.execute(new GetCurrentUserQuery(userId));
   }
 
   @Post('registration')

@@ -16,6 +16,7 @@ import { ConfigType } from '@nestjs/config';
 import { authConfig } from '../../config/auth.config.js';
 import { CreateUserUseCase } from './application/use-cases/create-user.use-case.js';
 import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case.js';
+import { GetCurrentUserUseCase } from './application/use-cases/get-current-user.use-case.js';
 import { GetUsersUseCase } from './application/use-cases/get-users.use-case.js';
 import { GetDevicesUseCase } from './application/use-cases/get-devices.use-case.js';
 import { DeleteOtherDevicesUseCase } from './application/use-cases/delete-other-devices.use-case.js';
@@ -50,6 +51,7 @@ import { User } from './infrastructure/typeorm/users.entities.js';
     SessionsQueryRepository,
     CreateUserUseCase,
     DeleteUserUseCase,
+    GetCurrentUserUseCase,
     GetUsersUseCase,
     GetDevicesUseCase,
     DeleteOtherDevicesUseCase,
