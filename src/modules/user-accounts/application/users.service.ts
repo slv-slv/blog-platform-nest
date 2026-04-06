@@ -132,10 +132,6 @@ export class UsersService {
     await this.usersRepository.confirmUser(code);
   }
 
-  async deleteUser(id: string): Promise<void> {
-    await this.usersRepository.deleteUser(id);
-  }
-
   async isLoginExists(login: string): Promise<boolean> {
     return await this.usersRepository.isLoginExists(login);
   }

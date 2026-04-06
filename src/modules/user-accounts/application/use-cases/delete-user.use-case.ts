@@ -1,5 +1,5 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersService } from '../users.service.js';
+import { UsersRepository } from '../../infrastructure/typeorm/users.repository.js';
 
 export class DeleteUserCommand extends Command<void> {
   constructor(public readonly id: string) {
@@ -9,9 +9,9 @@ export class DeleteUserCommand extends Command<void> {
 
 @CommandHandler(DeleteUserCommand)
 export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute(command: DeleteUserCommand) {
-    await this.usersService.deleteUser(command.id);
+    await this.usersRepository.deleteUser(command.id);
   }
 }
