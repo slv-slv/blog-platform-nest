@@ -13,6 +13,14 @@ import { CommentNotFoundDomainException } from '../../../../common/exceptions/do
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import { SortDirection } from '../../../../common/types/paging-params.types.js';
 
+type RawCommentRow = {
+  id: number;
+  content: string;
+  createdAt: Date | string;
+  userId: number;
+  userLogin: string;
+};
+
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
@@ -27,10 +35,16 @@ export class CommentsQueryRepository {
       throw new CommentNotFoundDomainException();
     }
 
-    const comment = await this.commentEntityRepository.findOne({
-      where: { id: +id },
-      relations: { user: true },
-    });
+    const comment = await this.commentEntityRepository
+      .createQueryBuilder('comment')
+      .select('comment.id', 'id')
+      .addSelect('comment.content', 'content')
+      .addSelect('comment.createdAt', 'createdAt')
+      .addSelect('comment.userId', 'userId')
+      .addSelect('user.login', 'userLogin')
+      .innerJoin('users', 'user', 'user.id = comment.userId')
+      .where('comment.id = :id', { id: +id })
+      .getRawOne<RawCommentRow>();
 
     if (!comment) {
       throw new CommentNotFoundDomainException();
@@ -42,7 +56,7 @@ export class CommentsQueryRepository {
     });
 
     return {
-      ...comment.toModel(),
+      ...this.mapToCommentViewModel(comment),
       likesInfo: likesInfoMap.get(comment.id)!,
     };
   }
@@ -67,7 +81,7 @@ export class CommentsQueryRepository {
     let orderBy: string;
     switch (sortBy) {
       case 'commentatorInfo':
-        orderBy = 'user.id';
+        orderBy = 'comment.userId';
         break;
       case 'createdAt':
         orderBy = 'comment.createdAt';
@@ -78,23 +92,27 @@ export class CommentsQueryRepository {
 
     const qb = this.commentEntityRepository
       .createQueryBuilder('comment')
-      .innerJoinAndSelect('comment.user', 'user')
-      .innerJoinAndSelect('comment.post', 'post')
-      .where('post.id = :postId', { postId: +postId });
+      .select('comment.id', 'id')
+      .addSelect('comment.content', 'content')
+      .addSelect('comment.createdAt', 'createdAt')
+      .addSelect('comment.userId', 'userId')
+      .addSelect('user.login', 'userLogin')
+      .innerJoin('users', 'user', 'user.id = comment.userId')
+      .where('comment.postId = :postId', { postId: +postId });
 
     const totalCount = await qb.clone().getCount();
     const pagesCount = Math.ceil(totalCount / pageSize);
 
-    const commentsEntities = await qb
+    const comments = await qb
       .clone()
       .orderBy(orderBy, direction)
       .take(pageSize)
       .skip(skipCount)
-      .getMany();
-    const commentIds = commentsEntities.map((comment) => comment.id);
+      .getRawMany<RawCommentRow>();
+    const commentIds = comments.map((comment) => comment.id);
     const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({ commentIds, userId });
-    const comments = commentsEntities.map((comment) => ({
-      ...comment.toModel(),
+    const items = comments.map((comment) => ({
+      ...this.mapToCommentViewModel(comment),
       likesInfo: likesInfoMap.get(comment.id)!,
     }));
 
@@ -103,7 +121,19 @@ export class CommentsQueryRepository {
       page: pageNumber,
       pageSize,
       totalCount,
-      items: comments,
+      items,
+    };
+  }
+
+  private mapToCommentViewModel(comment: RawCommentRow): Omit<CommentViewModel, 'likesInfo'> {
+    return {
+      id: comment.id.toString(),
+      content: comment.content,
+      commentatorInfo: {
+        userId: comment.userId.toString(),
+        userLogin: comment.userLogin,
+      },
+      createdAt: new Date(comment.createdAt).toISOString(),
     };
   }
 }

@@ -36,15 +36,31 @@ export class CommentsRepository {
     }
 
     const comment = await this.commentEntityRepository.findOne({
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        userId: true,
+      },
       where: { id: +id },
-      relations: { user: true },
     });
 
     if (!comment) {
       throw new CommentNotFoundDomainException();
     }
 
-    return this.mapToCommentModel(comment);
+    const user = await this.commentEntityRepository.manager
+      .createQueryBuilder()
+      .select('user.login', 'login')
+      .from('users', 'user')
+      .where('user.id = :userId', { userId: comment.userId })
+      .getRawOne<{ login: string }>();
+
+    if (!user) {
+      throw new CommentNotFoundDomainException();
+    }
+
+    return this.mapToCommentModel(comment, user.login);
   }
 
   async createComment(params: CreateCommentRepoParams): Promise<CommentModel> {
@@ -62,8 +78,8 @@ export class CommentsRepository {
     const userIdNum = +commentatorInfo.userId;
 
     const result = await this.commentEntityRepository.insert({
-      post: { id: postIdNum },
-      user: { id: userIdNum },
+      postId: postIdNum,
+      userId: userIdNum,
       content,
       createdAt,
     });
@@ -104,13 +120,13 @@ export class CommentsRepository {
     }
   }
 
-  private mapToCommentModel(comment: Comment): CommentModel {
+  private mapToCommentModel(comment: Comment, userLogin: string): CommentModel {
     return {
       id: comment.id.toString(),
       content: comment.content,
       commentatorInfo: {
-        userId: comment.user.id.toString(),
-        userLogin: comment.user.login,
+        userId: comment.userId.toString(),
+        userLogin,
       },
       createdAt: comment.createdAt.toISOString(),
     };

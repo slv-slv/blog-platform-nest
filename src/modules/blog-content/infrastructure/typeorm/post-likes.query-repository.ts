@@ -6,7 +6,6 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { PostDislike, PostLike } from './post-likes.entities.js';
-import { User } from '../../../user-accounts/infrastructure/typeorm/users.entities.js';
 
 @Injectable()
 export class PostLikesQueryRepository {
@@ -137,7 +136,7 @@ export class PostLikesQueryRepository {
       .addSelect('lrn."userId"', 'userId')
       .addSelect('user.login', 'login')
       .from('LikeRowNumbers', 'lrn')
-      .innerJoin(User, 'user', 'lrn."userId" = user.id')
+      .innerJoin('users', 'user', 'lrn."userId" = user.id')
       .where('lrn.rn <= :newestLikesNumber', { newestLikesNumber })
       .orderBy('lrn."postId"', 'ASC')
       .addOrderBy('lrn."createdAt"', 'DESC')
