@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { Body, Controller, Get, Headers, HttpCode, Ip, Post, Res, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { CommandBus } from '@nestjs/cqrs';
 import { UsersQueryRepository } from '../infrastructure/typeorm/users.query-repository.js';
 import { UsersService } from '../application/users.service.js';
 import {
@@ -20,10 +21,12 @@ import { NoActiveSessionGuard } from '../../../common/guards/no-active-session.g
 import { User } from '../../../common/decorators/user.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { DeviceId } from '../../../common/decorators/deviceId.js';
+import { NewPasswordCommand } from '../application/use-cases/new-password.use-case.js';
 
 @Controller('auth')
 export class AuthController {
   constructor(
+    private readonly commandBus: CommandBus,
     private readonly usersService: UsersService,
     private readonly usersQueryRepository: UsersQueryRepository,
     private readonly authService: AuthService,
@@ -144,6 +147,6 @@ export class AuthController {
   @HttpCode(204)
   async newPassword(@Body() body: NewPasswordInputDto): Promise<void> {
     const { newPassword, recoveryCode } = body;
-    await this.usersService.updatePassword(recoveryCode, newPassword);
+    await this.commandBus.execute(new NewPasswordCommand(recoveryCode, newPassword));
   }
 }

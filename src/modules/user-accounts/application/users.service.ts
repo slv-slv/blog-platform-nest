@@ -16,7 +16,6 @@ import {
   EmailAlreadyExistsDomainException,
   IncorrectEmailDomainException,
   LoginAlreadyExistsDomainException,
-  RecoveryCodeExpiredDomainException,
 } from '../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
@@ -131,20 +130,6 @@ export class UsersService {
     }
 
     await this.usersRepository.confirmUser(code);
-  }
-
-  async updatePassword(recoveryCode: string, newPassword: string): Promise<void> {
-    const passwordRecoveryInfo = await this.usersRepository.getPasswordRecoveryInfo(recoveryCode);
-
-    const expirationDate = passwordRecoveryInfo.expiration!;
-    const currentDate = new Date();
-
-    if (expirationDate < currentDate) {
-      throw new RecoveryCodeExpiredDomainException();
-    }
-
-    const hash = await this.authService.hashPassword(newPassword);
-    await this.usersRepository.updatePassword(recoveryCode, hash);
   }
 
   async deleteUser(id: string): Promise<void> {
