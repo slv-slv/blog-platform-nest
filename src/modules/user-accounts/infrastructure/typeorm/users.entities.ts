@@ -1,11 +1,5 @@
 import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { Device } from './sessions.entities.js';
-import { Comment } from '../../../blog-content/infrastructure/typeorm/comments.entities.js';
-import {
-  CommentDislike,
-  CommentLike,
-} from '../../../blog-content/infrastructure/typeorm/comment-likes.entities.js';
-import { PostDislike, PostLike } from '../../../blog-content/infrastructure/typeorm/post-likes.entities.js';
 import { CurrentUserViewModel, UserModel, UserViewModel } from '../../types/users.types.js';
 
 export class ConfirmationInfo {
@@ -55,21 +49,6 @@ export class User {
 
   @OneToMany(() => Device, (device) => device.user)
   declare devices: Relation<Device[]>;
-
-  @OneToMany(() => Comment, (comment) => comment.user)
-  declare comments: Relation<Comment[]>;
-
-  @OneToMany(() => CommentLike, (commentLike) => commentLike.user)
-  declare commentLikes: Relation<CommentLike[]>;
-
-  @OneToMany(() => CommentDislike, (commentDislike) => commentDislike.user)
-  declare commentDislikes: Relation<CommentDislike[]>;
-
-  @OneToMany(() => PostLike, (postLike) => postLike.user)
-  declare postLikes: Relation<PostLike[]>;
-
-  @OneToMany(() => PostDislike, (postDislike) => postDislike.user)
-  declare postDislikes: Relation<PostDislike[]>;
 
   toModel(): UserModel {
     return {

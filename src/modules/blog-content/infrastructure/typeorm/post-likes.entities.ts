@@ -1,6 +1,5 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import { Column, Entity, ForeignKey, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
 import { Post } from './posts.entities.js';
-import { User } from '../../../user-accounts/infrastructure/typeorm/users.entities.js';
 
 @Entity({ name: 'post_likes' })
 export class PostLike {
@@ -12,11 +11,8 @@ export class PostLike {
   declare post: Relation<Post>;
 
   @PrimaryColumn()
+  @ForeignKey('users', 'id')
   declare userId: number;
-
-  @ManyToOne(() => User, (user) => user.postLikes)
-  @JoinColumn({ name: 'userId' })
-  declare user: Relation<User>;
 
   @Column('timestamptz')
   declare createdAt: Date;
@@ -32,11 +28,8 @@ export class PostDislike {
   declare post: Relation<Post>;
 
   @PrimaryColumn()
+  @ForeignKey('users', 'id')
   declare userId: number;
-
-  @ManyToOne(() => User, (user) => user.postDislikes)
-  @JoinColumn({ name: 'userId' })
-  declare user: Relation<User>;
 
   @Column('timestamptz')
   declare createdAt: Date;
