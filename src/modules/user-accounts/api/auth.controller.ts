@@ -24,6 +24,7 @@ import { DeviceId } from '../../../common/decorators/deviceId.js';
 import { NewPasswordCommand } from '../application/use-cases/new-password.use-case.js';
 import { PasswordRecoveryCommand } from '../application/use-cases/password-recovery.use-case.js';
 import { RegistrationConfirmationCommand } from '../application/use-cases/registration-confirmation.use-case.js';
+import { RegistrationEmailResendingCommand } from '../application/use-cases/registration-email-resending.use-case.js';
 
 @Controller('auth')
 export class AuthController {
@@ -128,7 +129,7 @@ export class AuthController {
   @Post('registration-email-resending')
   @HttpCode(204)
   async registrationEmailResending(@Body() body: EmailInputDto): Promise<void> {
-    await this.usersService.resendConfirmationCode(body.email);
+    await this.commandBus.execute(new RegistrationEmailResendingCommand(body.email));
   }
 
   @Post('registration-confirmation')

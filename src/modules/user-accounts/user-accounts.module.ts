@@ -23,6 +23,7 @@ import { DeleteDeviceUseCase } from './application/use-cases/delete-device.use-c
 import { NewPasswordUseCase } from './application/use-cases/new-password.use-case.js';
 import { PasswordRecoveryUseCase } from './application/use-cases/password-recovery.use-case.js';
 import { RegistrationConfirmationUseCase } from './application/use-cases/registration-confirmation.use-case.js';
+import { RegistrationEmailResendingUseCase } from './application/use-cases/registration-email-resending.use-case.js';
 import { Device } from './infrastructure/typeorm/sessions.entities.js';
 import { User } from './infrastructure/typeorm/users.entities.js';
 
@@ -56,6 +57,7 @@ import { User } from './infrastructure/typeorm/users.entities.js';
     NewPasswordUseCase,
     PasswordRecoveryUseCase,
     RegistrationConfirmationUseCase,
+    RegistrationEmailResendingUseCase,
   ],
   exports: [UsersQueryRepository, UsersRepository],
 })

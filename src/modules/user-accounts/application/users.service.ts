@@ -11,9 +11,7 @@ import {
 } from '../types/users.types.js';
 import { authConfig } from '../../../config/auth.config.js';
 import {
-  EmailAlreadyConfirmedDomainException,
   EmailAlreadyExistsDomainException,
-  IncorrectEmailDomainException,
   LoginAlreadyExistsDomainException,
 } from '../../../common/exceptions/domain-exceptions.js';
 
@@ -75,27 +73,6 @@ export class UsersService {
     await this.emailService.sendConfirmationCode(email, code);
 
     return await this.createUser({ login, email, password, confirmation, passwordRecovery });
-  }
-
-  async resendConfirmationCode(email: string): Promise<void> {
-    const user = await this.usersRepository.findUser(email);
-    if (!user) {
-      throw new IncorrectEmailDomainException();
-    }
-
-    if (user.confirmation.isConfirmed) {
-      throw new EmailAlreadyConfirmedDomainException();
-    }
-
-    const code = crypto.randomUUID();
-
-    const expiration = new Date();
-    const hours = expiration.getHours();
-    expiration.setHours(hours + this.auth.confirmationCodeExpiresIn);
-
-    await this.emailService.sendConfirmationCode(email, code);
-
-    await this.usersRepository.updateConfirmationCode({ email, code, expiration });
   }
 
   async isLoginExists(login: string): Promise<boolean> {
