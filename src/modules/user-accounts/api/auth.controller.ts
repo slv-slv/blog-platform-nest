@@ -22,6 +22,7 @@ import { User } from '../../../common/decorators/user.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { DeviceId } from '../../../common/decorators/deviceId.js';
 import { NewPasswordCommand } from '../application/use-cases/new-password.use-case.js';
+import { PasswordRecoveryCommand } from '../application/use-cases/password-recovery.use-case.js';
 
 @Controller('auth')
 export class AuthController {
@@ -126,8 +127,7 @@ export class AuthController {
   @Post('registration-email-resending')
   @HttpCode(204)
   async registrationEmailResending(@Body() body: EmailInputDto): Promise<void> {
-    const { email } = body;
-    await this.usersService.resendConfirmationCode(email);
+    await this.usersService.resendConfirmationCode(body.email);
   }
 
   @Post('registration-confirmation')
@@ -139,14 +139,12 @@ export class AuthController {
   @Post('password-recovery')
   @HttpCode(204)
   async passwordRecovery(@Body() body: EmailInputDto): Promise<void> {
-    const { email } = body;
-    await this.usersService.sendRecoveryCode(email);
+    await this.commandBus.execute(new PasswordRecoveryCommand(body.email));
   }
 
   @Post('new-password')
   @HttpCode(204)
   async newPassword(@Body() body: NewPasswordInputDto): Promise<void> {
-    const { newPassword, recoveryCode } = body;
-    await this.commandBus.execute(new NewPasswordCommand(recoveryCode, newPassword));
+    await this.commandBus.execute(new NewPasswordCommand(body.recoveryCode, body.newPassword));
   }
 }

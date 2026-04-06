@@ -21,6 +21,7 @@ import { GetDevicesUseCase } from './application/use-cases/get-devices.use-case.
 import { DeleteOtherDevicesUseCase } from './application/use-cases/delete-other-devices.use-case.js';
 import { DeleteDeviceUseCase } from './application/use-cases/delete-device.use-case.js';
 import { NewPasswordUseCase } from './application/use-cases/new-password.use-case.js';
+import { PasswordRecoveryUseCase } from './application/use-cases/password-recovery.use-case.js';
 import { Device } from './infrastructure/typeorm/sessions.entities.js';
 import { User } from './infrastructure/typeorm/users.entities.js';
 
@@ -52,6 +53,7 @@ import { User } from './infrastructure/typeorm/users.entities.js';
     DeleteOtherDevicesUseCase,
     DeleteDeviceUseCase,
     NewPasswordUseCase,
+    PasswordRecoveryUseCase,
   ],
   exports: [UsersQueryRepository, UsersRepository],
 })

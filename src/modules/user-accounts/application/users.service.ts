@@ -99,22 +99,6 @@ export class UsersService {
     await this.usersRepository.updateConfirmationCode({ email, code, expiration });
   }
 
-  async sendRecoveryCode(email: string): Promise<void> {
-    const code = crypto.randomUUID();
-
-    const expiration = new Date();
-    const hours = expiration.getHours();
-    expiration.setHours(hours + this.auth.recoveryCodeExpiresIn);
-
-    const result = await this.usersRepository.updateRecoveryCode({ email, code, expiration });
-
-    if (!result) {
-      return; // Чтобы контроллер выбросил 204 статус, даже если такого email нет в БД
-    }
-
-    await this.emailService.sendRecoveryCode(email, code);
-  }
-
   async confirmUser(code: string): Promise<void> {
     const confirmationInfo = await this.usersRepository.getConfirmationInfo(code);
 
