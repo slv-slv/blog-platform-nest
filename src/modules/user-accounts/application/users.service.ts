@@ -11,7 +11,6 @@ import {
 } from '../types/users.types.js';
 import { authConfig } from '../../../config/auth.config.js';
 import {
-  ConfirmationCodeExpiredDomainException,
   EmailAlreadyConfirmedDomainException,
   EmailAlreadyExistsDomainException,
   IncorrectEmailDomainException,
@@ -97,23 +96,6 @@ export class UsersService {
     await this.emailService.sendConfirmationCode(email, code);
 
     await this.usersRepository.updateConfirmationCode({ email, code, expiration });
-  }
-
-  async confirmUser(code: string): Promise<void> {
-    const confirmationInfo = await this.usersRepository.getConfirmationInfo(code);
-
-    if (confirmationInfo.isConfirmed) {
-      throw new EmailAlreadyConfirmedDomainException();
-    }
-
-    const expirationDate = new Date(confirmationInfo.expiration!);
-    const currentDate = new Date();
-
-    if (expirationDate < currentDate) {
-      throw new ConfirmationCodeExpiredDomainException();
-    }
-
-    await this.usersRepository.confirmUser(code);
   }
 
   async isLoginExists(login: string): Promise<boolean> {

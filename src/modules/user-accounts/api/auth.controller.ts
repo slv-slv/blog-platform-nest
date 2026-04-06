@@ -23,6 +23,7 @@ import { UserId } from '../../../common/decorators/userId.js';
 import { DeviceId } from '../../../common/decorators/deviceId.js';
 import { NewPasswordCommand } from '../application/use-cases/new-password.use-case.js';
 import { PasswordRecoveryCommand } from '../application/use-cases/password-recovery.use-case.js';
+import { RegistrationConfirmationCommand } from '../application/use-cases/registration-confirmation.use-case.js';
 
 @Controller('auth')
 export class AuthController {
@@ -133,7 +134,7 @@ export class AuthController {
   @Post('registration-confirmation')
   @HttpCode(204)
   async registrationConfirmation(@Body('code') code: string): Promise<void> {
-    await this.usersService.confirmUser(code);
+    await this.commandBus.execute(new RegistrationConfirmationCommand(code));
   }
 
   @Post('password-recovery')
