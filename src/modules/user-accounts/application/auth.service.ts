@@ -37,7 +37,7 @@ export class AuthService {
     return user;
   }
 
-  async generateAcessToken(userId: string): Promise<string> {
+  async generateAccessToken(userId: string): Promise<string> {
     const jwtAccessPayload = { sub: userId };
     const accessToken = await this.jwtService.signAsync(jwtAccessPayload, {
       expiresIn: this.auth.accessTokenExpiresIn,

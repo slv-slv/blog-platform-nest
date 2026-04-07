@@ -52,7 +52,7 @@ export class AuthController {
     const userId = user.id;
     const deviceName = userAgent ?? 'unknown';
 
-    const accessToken = await this.authService.generateAcessToken(userId);
+    const accessToken = await this.authService.generateAccessToken(userId);
     const refreshToken = await this.authService.generateRefreshToken(userId);
 
     const { deviceId, jti, iat, exp } = this.jwtService.decode(refreshToken);
@@ -80,7 +80,7 @@ export class AuthController {
   ): Promise<{ accessToken: string }> {
     const deviceName = userAgent ?? 'unknown';
 
-    const accessToken = await this.authService.generateAcessToken(userId);
+    const accessToken = await this.authService.generateAccessToken(userId);
     const refreshToken = await this.authService.generateRefreshToken(userId, deviceId);
 
     const { jti, iat, exp } = this.jwtService.decode(refreshToken);
