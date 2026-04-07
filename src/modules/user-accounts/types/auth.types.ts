@@ -16,3 +16,10 @@ export type JwtPairType = {
   accessToken: string;
   refreshToken: string;
 };
+
+export type GenerateTokenPairParams = {
+  userId: string;
+  ip: string;
+  deviceName: string;
+  deviceId?: string;
+};

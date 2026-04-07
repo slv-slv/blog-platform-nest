@@ -35,8 +35,6 @@ export class AuthController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly authService: AuthService,
-    private readonly sessionsService: SessionsService,
-    private readonly jwtService: JwtService,
     @Inject(authConfig.KEY) private readonly auth: ConfigType<typeof authConfig>,
   ) {}
 
@@ -52,11 +50,11 @@ export class AuthController {
     const userId = user.id;
     const deviceName = userAgent ?? 'unknown';
 
-    const accessToken = await this.authService.generateAccessToken(userId);
-    const refreshToken = await this.authService.generateRefreshToken(userId);
-
-    const { deviceId, jti, iat, exp } = this.jwtService.decode(refreshToken);
-    await this.sessionsService.createSession({ userId, deviceId, deviceName, ip, jti, iat, exp });
+    const { accessToken, refreshToken } = await this.authService.generateTokenPair({
+      userId,
+      ip,
+      deviceName,
+    });
 
     res.cookie('refreshToken', refreshToken, {
       maxAge: this.auth.refreshTokenCookieMaxAgeMs,
@@ -80,11 +78,12 @@ export class AuthController {
   ): Promise<{ accessToken: string }> {
     const deviceName = userAgent ?? 'unknown';
 
-    const accessToken = await this.authService.generateAccessToken(userId);
-    const refreshToken = await this.authService.generateRefreshToken(userId, deviceId);
-
-    const { jti, iat, exp } = this.jwtService.decode(refreshToken);
-    await this.sessionsService.createSession({ userId, deviceId, deviceName, ip, jti, iat, exp });
+    const { accessToken, refreshToken } = await this.authService.generateTokenPair({
+      userId,
+      ip,
+      deviceName,
+      deviceId,
+    });
 
     res.cookie('refreshToken', refreshToken, {
       maxAge: this.auth.refreshTokenCookieMaxAgeMs,

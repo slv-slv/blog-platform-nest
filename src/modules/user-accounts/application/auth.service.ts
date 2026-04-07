@@ -9,11 +9,14 @@ import {
   UserNotFoundDomainException,
 } from '../../../common/exceptions/domain-exceptions.js';
 import { UserModel } from '../types/users.types.js';
+import { SessionsService } from './sessions.service.js';
+import { GenerateTokenPairParams, JwtPairType, JwtRefreshPayload } from '../types/auth.types.js';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
+    private readonly sessionsService: SessionsService,
     private readonly jwtService: JwtService,
     @Inject(authConfig.KEY) private readonly auth: ConfigType<typeof authConfig>,
   ) {}
@@ -37,6 +40,17 @@ export class AuthService {
     return user;
   }
 
+  async generateTokenPair(params: GenerateTokenPairParams): Promise<JwtPairType> {
+    const { userId, ip, deviceName, deviceId = crypto.randomUUID() } = params;
+    const accessToken = await this.generateAccessToken(userId);
+    const refreshToken = await this.generateRefreshToken(userId, deviceId);
+
+    const { jti, iat, exp } = this.jwtService.decode<JwtRefreshPayload>(refreshToken);
+    await this.sessionsService.createSession({ userId, deviceId, deviceName, ip, jti, iat, exp });
+
+    return { accessToken, refreshToken };
+  }
+
   async generateAccessToken(userId: string): Promise<string> {
     const jwtAccessPayload = { sub: userId };
     const accessToken = await this.jwtService.signAsync(jwtAccessPayload, {
@@ -45,7 +59,7 @@ export class AuthService {
     return accessToken;
   }
 
-  async generateRefreshToken(userId: string, deviceId: string = crypto.randomUUID()): Promise<string> {
+  async generateRefreshToken(userId: string, deviceId: string): Promise<string> {
     const jti = crypto.randomUUID();
     const jwtRefreshPayload = { sub: userId, deviceId, jti };
     const refreshToken = await this.jwtService.signAsync(jwtRefreshPayload, {
