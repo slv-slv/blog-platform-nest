@@ -24,6 +24,10 @@ export class AuthConfigProvider {
 
   @IsInt()
   @Min(1)
+  readonly refreshTokenCookieMaxAgeMs: number;
+
+  @IsInt()
+  @Min(1)
   readonly confirmationCodeExpiresIn: number;
 
   @IsInt()
@@ -37,6 +41,9 @@ export class AuthConfigProvider {
       this.configService.getOrThrow<JwtSignOptions['expiresIn']>('ACCESS_TOKEN_EXPIRES_IN');
     this.refreshTokenExpiresIn =
       this.configService.getOrThrow<JwtSignOptions['expiresIn']>('REFRESH_TOKEN_EXPIRES_IN');
+    this.refreshTokenCookieMaxAgeMs = this.configService.getOrThrow<number>(
+      'REFRESH_TOKEN_COOKIE_MAX_AGE_MS',
+    );
     this.confirmationCodeExpiresIn = this.configService.getOrThrow<number>('CONFIRMATION_CODE_EXPIRES_IN');
     this.recoveryCodeExpiresIn = this.configService.getOrThrow<number>('RECOVERY_CODE_EXPIRES_IN');
   }

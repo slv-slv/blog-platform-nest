@@ -1,7 +1,8 @@
 import { Response } from 'express';
-import { Body, Controller, Get, Headers, HttpCode, Ip, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Inject, Ip, Post, Res, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ConfigType } from '@nestjs/config';
 import {
   CreateUserInputDto,
   CurrentUserViewModel,
@@ -26,6 +27,7 @@ import { RegistrationConfirmationCommand } from '../application/use-cases/regist
 import { RegistrationEmailResendingCommand } from '../application/use-cases/registration-email-resending.use-case.js';
 import { RegisterUserCommand } from '../application/use-cases/register-user.use-case.js';
 import { GetCurrentUserQuery } from '../application/use-cases/get-current-user.use-case.js';
+import { authConfig } from '../../../config/auth.config.js';
 
 @Controller('auth')
 export class AuthController {
@@ -35,6 +37,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly sessionsService: SessionsService,
     private readonly jwtService: JwtService,
+    @Inject(authConfig.KEY) private readonly auth: ConfigType<typeof authConfig>,
   ) {}
 
   @Post('login')
@@ -55,12 +58,8 @@ export class AuthController {
     const { deviceId, jti, iat, exp } = this.jwtService.decode(refreshToken);
     await this.sessionsService.createSession({ userId, deviceId, deviceName, ip, jti, iat, exp });
 
-    const cookieExpiration = new Date();
-    const years = cookieExpiration.getFullYear();
-    cookieExpiration.setFullYear(years + 1);
-
     res.cookie('refreshToken', refreshToken, {
-      expires: cookieExpiration,
+      maxAge: this.auth.refreshTokenCookieMaxAgeMs,
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
@@ -87,12 +86,8 @@ export class AuthController {
     const { jti, iat, exp } = this.jwtService.decode(refreshToken);
     await this.sessionsService.createSession({ userId, deviceId, deviceName, ip, jti, iat, exp });
 
-    const cookieExpiration = new Date();
-    const years = cookieExpiration.getFullYear();
-    cookieExpiration.setFullYear(years + 1);
-
     res.cookie('refreshToken', refreshToken, {
-      expires: cookieExpiration,
+      maxAge: this.auth.refreshTokenCookieMaxAgeMs,
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
