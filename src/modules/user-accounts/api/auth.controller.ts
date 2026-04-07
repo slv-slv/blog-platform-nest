@@ -22,6 +22,7 @@ import { LoginCommand } from '../application/use-cases/login.use-case.js';
 import { LogoutCommand } from '../application/use-cases/logout.use-case.js';
 import { NewPasswordCommand } from '../application/use-cases/new-password.use-case.js';
 import { PasswordRecoveryCommand } from '../application/use-cases/password-recovery.use-case.js';
+import { RefreshTokenCommand } from '../application/use-cases/refresh-token.use-case.js';
 import { RegistrationConfirmationCommand } from '../application/use-cases/registration-confirmation.use-case.js';
 import { RegistrationEmailResendingCommand } from '../application/use-cases/registration-email-resending.use-case.js';
 import { RegisterUserCommand } from '../application/use-cases/register-user.use-case.js';
@@ -33,7 +34,6 @@ export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-    private readonly authService: AuthService,
     @Inject(authConfig.KEY) private readonly auth: ConfigType<typeof authConfig>,
   ) {}
 
@@ -79,12 +79,14 @@ export class AuthController {
   ): Promise<{ accessToken: string }> {
     const deviceName = userAgent ?? 'unknown';
 
-    const { accessToken, refreshToken } = await this.authService.generateTokenPair({
-      userId,
-      ip,
-      deviceName,
-      deviceId,
-    });
+    const { accessToken, refreshToken } = await this.commandBus.execute(
+      new RefreshTokenCommand({
+        userId,
+        ip,
+        deviceName,
+        deviceId,
+      }),
+    );
 
     res.cookie('refreshToken', refreshToken, {
       maxAge: this.auth.refreshTokenCookieMaxAgeMs,
