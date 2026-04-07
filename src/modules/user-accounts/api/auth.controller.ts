@@ -2,7 +2,6 @@ import { Response } from 'express';
 import { Body, Controller, Get, Headers, HttpCode, Ip, Post, Res, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { UsersService } from '../application/users.service.js';
 import {
   CreateUserInputDto,
   CurrentUserViewModel,
@@ -25,6 +24,7 @@ import { NewPasswordCommand } from '../application/use-cases/new-password.use-ca
 import { PasswordRecoveryCommand } from '../application/use-cases/password-recovery.use-case.js';
 import { RegistrationConfirmationCommand } from '../application/use-cases/registration-confirmation.use-case.js';
 import { RegistrationEmailResendingCommand } from '../application/use-cases/registration-email-resending.use-case.js';
+import { RegisterUserCommand } from '../application/use-cases/register-user.use-case.js';
 import { GetCurrentUserQuery } from '../application/use-cases/get-current-user.use-case.js';
 
 @Controller('auth')
@@ -32,7 +32,6 @@ export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-    private readonly usersService: UsersService,
     private readonly authService: AuthService,
     private readonly sessionsService: SessionsService,
     private readonly jwtService: JwtService,
@@ -124,7 +123,7 @@ export class AuthController {
   @HttpCode(204)
   async registration(@Body() body: CreateUserInputDto): Promise<void> {
     const { login, email, password } = body;
-    await this.usersService.registerUser({ login, email, password });
+    await this.commandBus.execute(new RegisterUserCommand({ login, email, password }));
   }
 
   @Post('registration-email-resending')

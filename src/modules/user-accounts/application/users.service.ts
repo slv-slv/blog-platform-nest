@@ -70,9 +70,11 @@ export class UsersService {
 
     const passwordRecovery: PasswordRecoveryInfoModel = { code: null, expiration: null };
 
+    const newUser = await this.createUser({ login, email, password, confirmation, passwordRecovery });
+
     await this.emailService.sendConfirmationCode(email, code);
 
-    return await this.createUser({ login, email, password, confirmation, passwordRecovery });
+    return newUser;
   }
 
   async isLoginExists(login: string): Promise<boolean> {

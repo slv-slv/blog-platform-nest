@@ -26,6 +26,7 @@ import { NewPasswordUseCase } from './application/use-cases/new-password.use-cas
 import { PasswordRecoveryUseCase } from './application/use-cases/password-recovery.use-case.js';
 import { RegistrationConfirmationUseCase } from './application/use-cases/registration-confirmation.use-case.js';
 import { RegistrationEmailResendingUseCase } from './application/use-cases/registration-email-resending.use-case.js';
+import { RegisterUserUseCase } from './application/use-cases/register-user.use-case.js';
 import { Device } from './infrastructure/typeorm/sessions.entities.js';
 import { User } from './infrastructure/typeorm/users.entities.js';
 
@@ -60,6 +61,7 @@ import { User } from './infrastructure/typeorm/users.entities.js';
     LogoutUseCase,
     NewPasswordUseCase,
     PasswordRecoveryUseCase,
+    RegisterUserUseCase,
     RegistrationConfirmationUseCase,
     RegistrationEmailResendingUseCase,
   ],
