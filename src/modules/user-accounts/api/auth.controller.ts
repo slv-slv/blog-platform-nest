@@ -1,6 +1,5 @@
 import { Response } from 'express';
 import { Body, Controller, Get, Headers, HttpCode, Inject, Ip, Post, Res, UseGuards } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ConfigType } from '@nestjs/config';
 import {
@@ -11,7 +10,6 @@ import {
   UserViewModel,
 } from '../types/users.types.js';
 import { AuthService } from '../application/auth.service.js';
-import { SessionsService } from '../application/sessions.service.js';
 import { CredentialsGuard } from '../../../common/guards/credentials.guard.js';
 import { EmailConfirmationGuard } from '../../../common/guards/email-confirmation.guard.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
@@ -20,6 +18,7 @@ import { NoActiveSessionGuard } from '../../../common/guards/no-active-session.g
 import { User } from '../../../common/decorators/user.js';
 import { UserId } from '../../../common/decorators/userId.js';
 import { DeviceId } from '../../../common/decorators/deviceId.js';
+import { LoginCommand } from '../application/use-cases/login.use-case.js';
 import { LogoutCommand } from '../application/use-cases/logout.use-case.js';
 import { NewPasswordCommand } from '../application/use-cases/new-password.use-case.js';
 import { PasswordRecoveryCommand } from '../application/use-cases/password-recovery.use-case.js';
@@ -50,11 +49,13 @@ export class AuthController {
     const userId = user.id;
     const deviceName = userAgent ?? 'unknown';
 
-    const { accessToken, refreshToken } = await this.authService.generateTokenPair({
-      userId,
-      ip,
-      deviceName,
-    });
+    const { accessToken, refreshToken } = await this.commandBus.execute(
+      new LoginCommand({
+        userId,
+        ip,
+        deviceName,
+      }),
+    );
 
     res.cookie('refreshToken', refreshToken, {
       maxAge: this.auth.refreshTokenCookieMaxAgeMs,
