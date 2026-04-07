@@ -13,6 +13,6 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
   constructor(private readonly authService: AuthService) {}
 
   async execute(command: LoginCommand): Promise<JwtPairType> {
-    return await this.authService.generateTokenPair(command.params);
+    return await this.authService.createSessionTokens(command.params);
   }
 }

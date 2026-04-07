@@ -40,7 +40,7 @@ export class AuthService {
     return user;
   }
 
-  async generateTokenPair(params: GenerateTokenPairParams): Promise<JwtPairType> {
+  async createSessionTokens(params: GenerateTokenPairParams): Promise<JwtPairType> {
     const { userId, ip, deviceName, deviceId = crypto.randomUUID() } = params;
     const accessToken = await this.generateAccessToken(userId);
     const refreshToken = await this.generateRefreshToken(userId, deviceId);
