@@ -6,7 +6,7 @@ export class CorrectAnswer {
   @PrimaryGeneratedColumn('identity')
   declare id: number;
 
-  @ManyToOne(() => Question, (question) => question.correctAnswers)
+  @ManyToOne(() => Question, (question) => question.correctAnswers, { nullable: false })
   @JoinColumn()
   declare question: Relation<Question>;
 
