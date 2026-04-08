@@ -9,7 +9,6 @@ import {
   NewPasswordInputDto,
   UserViewModel,
 } from '../types/users.types.js';
-import { AuthService } from '../application/auth.service.js';
 import { CredentialsGuard } from '../../../common/guards/credentials.guard.js';
 import { EmailConfirmationGuard } from '../../../common/guards/email-confirmation.guard.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
