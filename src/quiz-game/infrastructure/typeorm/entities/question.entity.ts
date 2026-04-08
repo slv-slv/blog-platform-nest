@@ -24,12 +24,12 @@ export class Question {
   @OneToMany(() => CorrectAnswer, (correctAnswer) => correctAnswer.question)
   declare correctAnswers: Relation<CorrectAnswer[]>;
 
-  @CreateDateColumn('timestamptz')
+  @CreateDateColumn({ type: 'timestamptz' })
   declare createdAt: Date;
 
-  @UpdateDateColumn('timestamptz')
+  @UpdateDateColumn({ type: 'timestamptz' })
   declare updatedAt: Date;
 
-  @DeleteDateColumn('timestamptz')
+  @DeleteDateColumn({ type: 'timestamptz' })
   declare deletedAt: Date;
 }
