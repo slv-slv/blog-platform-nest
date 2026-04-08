@@ -10,6 +10,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { DomainExceptionFilter } from './common/exception-filters/domain-exception-filter.js';
 import { CoreModule } from './core/core.module.js';
 import { CqrsModule } from '@nestjs/cqrs';
+import { QuizGameModule } from './quiz-game/quiz-game.module.js';
 
 @Global()
 @Module({
@@ -20,6 +21,7 @@ import { CqrsModule } from '@nestjs/cqrs';
     BlogContentModule,
     UserAccountsModule,
     NotificationsModule,
+    QuizGameModule,
   ],
   controllers: [AppController],
   providers: [
