@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePostRepoParams, PostModel, UpdatePostRepoParams } from '../../types/posts.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Post } from './posts.entities.js';
+import { Post } from './entities/post.entity.js';
 import { Repository } from 'typeorm';
 import {
   BlogNotFoundDomainException,

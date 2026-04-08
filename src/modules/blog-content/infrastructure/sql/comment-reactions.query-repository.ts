@@ -5,7 +5,7 @@ import { Pool } from 'pg';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
-export class CommentLikesQueryRepository {
+export class CommentReactionsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getLikesInfo(params: GetCommentLikesInfoParams<number>): Promise<Map<number, LikesInfoViewModel>> {

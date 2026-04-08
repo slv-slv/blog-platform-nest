@@ -5,10 +5,11 @@ import { coreConfig } from '../../../../config/core.config.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { PostDislike, PostLike } from './post-likes.entities.js';
+import { PostDislike } from './entities/post-dislike.entity.js';
+import { PostLike } from './entities/post-like.entity.js';
 
 @Injectable()
-export class PostLikesQueryRepository {
+export class PostReactionsQueryRepository {
   constructor(
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
     @InjectDataSource() private readonly dataSource: DataSource,

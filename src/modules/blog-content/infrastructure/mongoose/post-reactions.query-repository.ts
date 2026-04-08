@@ -2,16 +2,16 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ExtendedLikesInfoViewModel, GetPostLikesInfoParams, LikeStatus } from '../../types/likes.types.js';
 import { UsersQueryRepository } from '../../../user-accounts/infrastructure/mongoose/users.query-repository.js';
-import { PostLikes } from './post-likes.schemas.js';
+import { PostReactions } from './post-reactions.schemas.js';
 import { Model } from 'mongoose';
 import { PostLikesModel } from '../../types/post-likes.types.js';
 import { ConfigType } from '@nestjs/config';
 import { coreConfig } from '../../../../config/core.config.js';
 
 @Injectable()
-export class PostLikesQueryRepository {
+export class PostReactionsQueryRepository {
   constructor(
-    @InjectModel(PostLikes.name) private readonly model: Model<PostLikesModel>,
+    @InjectModel(PostReactions.name) private readonly model: Model<PostLikesModel>,
     private readonly usersQueryRepository: UsersQueryRepository,
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}

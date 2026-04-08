@@ -6,7 +6,7 @@ import { SetPostLikeRepoParams, SetPostNoneRepoParams } from '../../types/post-l
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
-export class PostLikesRepository {
+export class PostReactionsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getLikeStatus(

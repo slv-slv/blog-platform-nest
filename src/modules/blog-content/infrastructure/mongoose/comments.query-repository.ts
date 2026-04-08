@@ -9,13 +9,13 @@ import {
   FindCommentRepoQueryParams,
   GetCommentsRepoQueryParams,
 } from '../../types/comments.types.js';
-import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
+import { CommentReactionsQueryRepository } from './comment-reactions.query-repository.js';
 
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
     @InjectModel(Comment.name) private readonly model: Model<Comment>,
-    private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
+    private readonly commentReactionsQueryRepository: CommentReactionsQueryRepository,
   ) {}
 
   async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewModel | null> {
@@ -29,7 +29,10 @@ export class CommentsQueryRepository {
       return null;
     }
 
-    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({ commentIds: [id], userId });
+    const likesInfoMap = await this.commentReactionsQueryRepository.getLikesInfo({
+      commentIds: [id],
+      userId,
+    });
 
     return { id, ...comment, likesInfo: likesInfoMap.get(id)! };
   }
@@ -49,7 +52,7 @@ export class CommentsQueryRepository {
       .lean();
 
     const commentIds = commentsWithObjectId.map((comment) => comment._id.toString());
-    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({ commentIds, userId });
+    const likesInfoMap = await this.commentReactionsQueryRepository.getLikesInfo({ commentIds, userId });
 
     const comments = commentsWithObjectId.map((comment) => {
       const commentId = comment._id.toString();

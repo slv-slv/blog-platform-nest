@@ -29,8 +29,8 @@ import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-c
 import { RegistrationConfirmationUseCase } from './application/use-cases/registration-confirmation.use-case.js';
 import { RegistrationEmailResendingUseCase } from './application/use-cases/registration-email-resending.use-case.js';
 import { RegisterUserUseCase } from './application/use-cases/register-user.use-case.js';
-import { Device } from './infrastructure/typeorm/sessions.entities.js';
-import { User } from './infrastructure/typeorm/users.entities.js';
+import { Device } from './infrastructure/typeorm/entities/device.entity.js';
+import { User } from './infrastructure/typeorm/entities/user.entity.js';
 
 @Module({
   imports: [

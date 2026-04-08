@@ -16,6 +16,6 @@ export default new DataSource({
   type: 'postgres',
   schema: 'typeorm',
   migrations: ['src/migrations/*{.js,.ts}'],
-  entities: ['src/**/*.entities.ts'],
+  entities: ['src/**/entities/*.entity{.ts,.js}'],
   migrationsRun: false,
 });

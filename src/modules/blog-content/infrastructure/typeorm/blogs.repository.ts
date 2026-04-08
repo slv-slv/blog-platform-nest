@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BlogModel, CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Blog } from './blogs.entities.js';
+import { Blog } from './entities/blog.entity.js';
 import { Repository } from 'typeorm';
 import { BlogNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';

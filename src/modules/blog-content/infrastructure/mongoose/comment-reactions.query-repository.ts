@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { GetCommentLikesInfoParams, LikeStatus, LikesInfoViewModel } from '../../types/likes.types.js';
-import { CommentLikes } from './comment-likes.schemas.js';
+import { CommentReactions } from './comment-reactions.schemas.js';
 import { Model } from 'mongoose';
 import { CommentLikesModel } from '../../types/comment-likes.types.js';
 
 @Injectable()
-export class CommentLikesQueryRepository {
-  constructor(@InjectModel(CommentLikes.name) private readonly model: Model<CommentLikesModel>) {}
+export class CommentReactionsQueryRepository {
+  constructor(@InjectModel(CommentReactions.name) private readonly model: Model<CommentLikesModel>) {}
 
   async getLikesInfo(params: GetCommentLikesInfoParams<string>): Promise<Map<string, LikesInfoViewModel>> {
     const { commentIds, userId = null } = params;

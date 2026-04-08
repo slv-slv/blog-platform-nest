@@ -1,7 +1,7 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { LikeStatus, SetCommentLikeStatusParams } from '../../types/likes.types.js';
 import { CommentsRepository } from '../../infrastructure/typeorm/comments.repository.js';
-import { CommentLikesRepository } from '../../infrastructure/typeorm/comment-likes.repository.js';
+import { CommentReactionsRepository } from '../../infrastructure/typeorm/comment-reactions.repository.js';
 
 export class SetCommentLikeStatusCommand extends Command<void> {
   constructor(public readonly params: SetCommentLikeStatusParams) {
@@ -13,7 +13,7 @@ export class SetCommentLikeStatusCommand extends Command<void> {
 export class SetCommentLikeStatusUseCase implements ICommandHandler<SetCommentLikeStatusCommand> {
   constructor(
     private readonly commentsRepository: CommentsRepository,
-    private readonly commentLikesRepository: CommentLikesRepository,
+    private readonly commentReactionsRepository: CommentReactionsRepository,
   ) {}
 
   async execute(command: SetCommentLikeStatusCommand) {
@@ -22,7 +22,7 @@ export class SetCommentLikeStatusUseCase implements ICommandHandler<SetCommentLi
     await this.commentsRepository.checkCommentExists(commentId);
 
     const currentLikeStatus = (
-      await this.commentLikesRepository.getLikeStatus([parseInt(commentId)], userId)
+      await this.commentReactionsRepository.getLikeStatus([parseInt(commentId)], userId)
     )[0].myStatus;
     if (likeStatus === currentLikeStatus) return;
 
@@ -30,13 +30,13 @@ export class SetCommentLikeStatusUseCase implements ICommandHandler<SetCommentLi
 
     switch (likeStatus) {
       case LikeStatus.None:
-        await this.commentLikesRepository.setNone({ commentId, userId });
+        await this.commentReactionsRepository.setNone({ commentId, userId });
         break;
       case LikeStatus.Like:
-        await this.commentLikesRepository.setLike({ commentId, userId, createdAt });
+        await this.commentReactionsRepository.setLike({ commentId, userId, createdAt });
         break;
       case LikeStatus.Dislike:
-        await this.commentLikesRepository.setDislike({ commentId, userId, createdAt });
+        await this.commentReactionsRepository.setDislike({ commentId, userId, createdAt });
         break;
     }
   }

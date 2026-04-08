@@ -5,9 +5,9 @@ import {
   PostsPaginatedViewModel,
   PostViewModel,
 } from '../../types/posts.types.js';
-import { PostLikesQueryRepository } from './post-likes.query-repository.js';
+import { PostReactionsQueryRepository } from './post-reactions.query-repository.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Post } from './posts.entities.js';
+import { Post } from './entities/post.entity.js';
 import { Repository } from 'typeorm';
 import { PostNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
@@ -17,7 +17,7 @@ import { SortDirection } from '../../../../common/types/paging-params.types.js';
 export class PostsQueryRepository {
   constructor(
     @InjectRepository(Post) private readonly postEntityRepository: Repository<Post>,
-    private readonly postLikesQueryRepository: PostLikesQueryRepository,
+    private readonly postReactionsQueryRepository: PostReactionsQueryRepository,
   ) {}
 
   async checkPostExists(id: string): Promise<void> {
@@ -48,7 +48,7 @@ export class PostsQueryRepository {
       throw new PostNotFoundDomainException();
     }
 
-    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds: [post.id], userId });
+    const likesInfoMap = await this.postReactionsQueryRepository.getLikesInfo({ postIds: [post.id], userId });
 
     return {
       id: post.id.toString(),
@@ -113,7 +113,7 @@ export class PostsQueryRepository {
 
     const pagesCount = Math.ceil(totalCount / pageSize);
     const postIds = rawPosts.map((post) => post.id);
-    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds, userId });
+    const likesInfoMap = await this.postReactionsQueryRepository.getLikesInfo({ postIds, userId });
 
     const posts = rawPosts.map((post) => ({
       id: post.id.toString(),

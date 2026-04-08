@@ -6,7 +6,7 @@ import {
   GetCommentsRepoQueryParams,
 } from '../../types/comments.types.js';
 import { Pool } from 'pg';
-import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
+import { CommentReactionsQueryRepository } from './comment-reactions.query-repository.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { CommentNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
@@ -15,7 +15,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class CommentsQueryRepository {
   constructor(
     @Inject(PG_POOL) private readonly pool: Pool,
-    private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
+    private readonly commentReactionsQueryRepository: CommentReactionsQueryRepository,
   ) {}
 
   async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewModel> {
@@ -53,7 +53,7 @@ export class CommentsQueryRepository {
     }
 
     const { id: commentId, content, created_at, commentator_id, commentator_login } = result.rows[0];
-    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({
+    const likesInfoMap = await this.commentReactionsQueryRepository.getLikesInfo({
       commentIds: [commentId],
       userId,
     });
@@ -136,7 +136,7 @@ export class CommentsQueryRepository {
 
     const rawComments = commentsResult.rows;
     const commentIds = rawComments.map((comment) => comment.id);
-    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({
+    const likesInfoMap = await this.commentReactionsQueryRepository.getLikesInfo({
       commentIds,
       userId,
     });

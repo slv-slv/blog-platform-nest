@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { PostLikes } from './post-likes.schemas.js';
+import { PostReactions } from './post-reactions.schemas.js';
 import {
   PostLikesModel,
   SetPostLikeRepoParams,
@@ -12,9 +12,9 @@ import { ConfigType } from '@nestjs/config';
 import { coreConfig } from '../../../../config/core.config.js';
 
 @Injectable()
-export class PostLikesRepository {
+export class PostReactionsRepository {
   constructor(
-    @InjectModel(PostLikes.name) private readonly model: Model<PostLikesModel>,
+    @InjectModel(PostReactions.name) private readonly model: Model<PostLikesModel>,
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,
   ) {}
 

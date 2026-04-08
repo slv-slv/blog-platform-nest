@@ -5,7 +5,7 @@ import {
   UsersPaginatedViewModel,
 } from '../../types/users.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './users.entities.js';
+import { User } from './entities/user.entity.js';
 import { ILike, Repository } from 'typeorm';
 import { UnauthorizedDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';

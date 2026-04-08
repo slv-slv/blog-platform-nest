@@ -1,7 +1,7 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { LikeStatus, SetPostLikeStatusParams } from '../../types/likes.types.js';
 import { PostsRepository } from '../../infrastructure/typeorm/posts.repository.js';
-import { PostLikesRepository } from '../../infrastructure/typeorm/post-likes.repository.js';
+import { PostReactionsRepository } from '../../infrastructure/typeorm/post-reactions.repository.js';
 
 export class SetPostLikeStatusCommand extends Command<void> {
   constructor(public readonly params: SetPostLikeStatusParams) {
@@ -13,7 +13,7 @@ export class SetPostLikeStatusCommand extends Command<void> {
 export class SetPostLikeStatusUseCase implements ICommandHandler<SetPostLikeStatusCommand> {
   constructor(
     private readonly postsRepository: PostsRepository,
-    private readonly postLikesRepository: PostLikesRepository,
+    private readonly postReactionsRepository: PostReactionsRepository,
   ) {}
 
   async execute(command: SetPostLikeStatusCommand) {
@@ -21,21 +21,22 @@ export class SetPostLikeStatusUseCase implements ICommandHandler<SetPostLikeStat
     const { postId, userId, likeStatus } = params;
     await this.postsRepository.checkPostExists(postId);
 
-    const currentLikeStatus = (await this.postLikesRepository.getLikeStatus([parseInt(postId)], userId))[0]
-      .myStatus;
+    const currentLikeStatus = (
+      await this.postReactionsRepository.getLikeStatus([parseInt(postId)], userId)
+    )[0].myStatus;
     if (likeStatus === currentLikeStatus) return;
 
     const createdAt = new Date();
 
     switch (likeStatus) {
       case LikeStatus.None:
-        await this.postLikesRepository.setNone({ postId, userId });
+        await this.postReactionsRepository.setNone({ postId, userId });
         break;
       case LikeStatus.Like:
-        await this.postLikesRepository.setLike({ postId, userId, createdAt });
+        await this.postReactionsRepository.setLike({ postId, userId, createdAt });
         break;
       case LikeStatus.Dislike:
-        await this.postLikesRepository.setDislike({ postId, userId, createdAt });
+        await this.postReactionsRepository.setDislike({ postId, userId, createdAt });
         break;
     }
   }

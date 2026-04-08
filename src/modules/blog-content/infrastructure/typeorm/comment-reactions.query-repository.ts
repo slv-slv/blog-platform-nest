@@ -3,10 +3,11 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { GetCommentLikesInfoParams, LikesInfoViewModel, LikeStatus } from '../../types/likes.types.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
-import { CommentDislike, CommentLike } from './comment-likes.entities.js';
+import { CommentDislike } from './entities/comment-dislike.entity.js';
+import { CommentLike } from './entities/comment-like.entity.js';
 
 @Injectable()
-export class CommentLikesQueryRepository {
+export class CommentReactionsQueryRepository {
   constructor(
     @InjectDataSource() private readonly dataSource: DataSource,
     @InjectRepository(CommentLike) private readonly commentLikesEntityRepository: Repository<CommentLike>,

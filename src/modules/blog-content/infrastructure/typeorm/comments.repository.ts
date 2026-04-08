@@ -4,7 +4,7 @@ import {
   CreateCommentRepoParams,
   UpdateCommentRepoParams,
 } from '../../types/comments.types.js';
-import { Comment } from './comments.entities.js';
+import { Comment } from './entities/comment.entity.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {

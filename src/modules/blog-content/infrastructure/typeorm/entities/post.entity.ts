@@ -9,9 +9,10 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { Blog } from './blogs.entities.js';
-import { Comment } from './comments.entities.js';
-import { PostDislike, PostLike } from './post-likes.entities.js';
+import { Blog } from './blog.entity.js';
+import { Comment } from './comment.entity.js';
+import { PostDislike } from './post-dislike.entity.js';
+import { PostLike } from './post-like.entity.js';
 
 @Entity({ name: 'posts' })
 export class Post {

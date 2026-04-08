@@ -6,7 +6,7 @@ import {
   PostViewModel,
 } from '../../types/posts.types.js';
 import { Pool } from 'pg';
-import { PostLikesQueryRepository } from './post-likes.query-repository.js';
+import { PostReactionsQueryRepository } from './post-reactions.query-repository.js';
 import { PG_POOL } from '../../../../common/constants.js';
 import { PostNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
@@ -15,7 +15,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class PostsQueryRepository {
   constructor(
     @Inject(PG_POOL) private readonly pool: Pool,
-    private readonly postLikesQueryRepository: PostLikesQueryRepository,
+    private readonly postReactionsQueryRepository: PostReactionsQueryRepository,
   ) {}
 
   async checkPostExists(id: string): Promise<void> {
@@ -80,7 +80,10 @@ export class PostsQueryRepository {
       createdAt: rawPost.created_at.toISOString(),
     };
 
-    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds: [postIdInt], userId });
+    const likesInfoMap = await this.postReactionsQueryRepository.getLikesInfo({
+      postIds: [postIdInt],
+      userId,
+    });
 
     return { ...post, extendedLikesInfo: likesInfoMap.get(postIdInt)! };
   }
@@ -151,7 +154,7 @@ export class PostsQueryRepository {
 
     const rawPosts = postsResult.rows;
     const postIds = rawPosts.map((post) => post.id);
-    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds, userId });
+    const likesInfoMap = await this.postReactionsQueryRepository.getLikesInfo({ postIds, userId });
 
     const posts = rawPosts.map((post) => ({
       id: post.id.toString(),

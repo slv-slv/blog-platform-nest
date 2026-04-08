@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DeviceViewModel } from '../../types/sessions.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Device } from './sessions.entities.js';
+import { Device } from './entities/device.entity.js';
 import { Repository } from 'typeorm';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 

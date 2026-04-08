@@ -7,7 +7,7 @@ import { coreConfig } from '../../../../config/core.config.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
-export class PostLikesQueryRepository {
+export class PostReactionsQueryRepository {
   constructor(
     @Inject(PG_POOL) private readonly pool: Pool,
     @Inject(coreConfig.KEY) private readonly core: ConfigType<typeof coreConfig>,

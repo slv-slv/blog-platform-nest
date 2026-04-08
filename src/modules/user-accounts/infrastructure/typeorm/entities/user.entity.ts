@@ -1,6 +1,6 @@
 import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
-import { Device } from './sessions.entities.js';
-import { CurrentUserViewModel, UserModel, UserViewModel } from '../../types/users.types.js';
+import { Device } from './device.entity.js';
+import { CurrentUserViewModel, UserModel, UserViewModel } from '../../../types/users.types.js';
 
 export class ConfirmationInfo {
   @Column()

@@ -10,8 +10,9 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { Post } from './posts.entities.js';
-import { CommentDislike, CommentLike } from './comment-likes.entities.js';
+import { CommentDislike } from './comment-dislike.entity.js';
+import { CommentLike } from './comment-like.entity.js';
+import { Post } from './post.entity.js';
 
 @Entity({ name: 'comments' })
 export class Comment {

@@ -9,7 +9,7 @@ import {
   UserViewModel,
 } from '../../types/users.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './users.entities.js';
+import { User } from './entities/user.entity.js';
 import { Repository } from 'typeorm';
 import {
   ConfirmationCodeInvalidDomainException,

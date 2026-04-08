@@ -9,10 +9,10 @@ import { PostsQueryRepository } from './infrastructure/typeorm/posts.query-repos
 import { CommentsController } from './api/comments.controller.js';
 import { CommentsRepository } from './infrastructure/typeorm/comments.repository.js';
 import { CommentsQueryRepository } from './infrastructure/typeorm/comments.query-repository.js';
-import { PostLikesRepository } from './infrastructure/typeorm/post-likes.repository.js';
-import { PostLikesQueryRepository } from './infrastructure/typeorm/post-likes.query-repository.js';
-import { CommentLikesRepository } from './infrastructure/typeorm/comment-likes.repository.js';
-import { CommentLikesQueryRepository } from './infrastructure/typeorm/comment-likes.query-repository.js';
+import { PostReactionsRepository } from './infrastructure/typeorm/post-reactions.repository.js';
+import { PostReactionsQueryRepository } from './infrastructure/typeorm/post-reactions.query-repository.js';
+import { CommentReactionsRepository } from './infrastructure/typeorm/comment-reactions.repository.js';
+import { CommentReactionsQueryRepository } from './infrastructure/typeorm/comment-reactions.query-repository.js';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
 import { BlogsSuperadminController } from './api/blogs.superadmin.controller.js';
 import { CreateBlogUseCase } from './application/use-cases/create-blog.use-case.js';
@@ -32,11 +32,13 @@ import { GetPostUseCase } from './application/use-cases/get-post.use-case.js';
 import { GetPostsUseCase } from './application/use-cases/get-posts.use-case.js';
 import { GetCommentUseCase } from './application/use-cases/get-comment.use-case.js';
 import { GetCommentsUseCase } from './application/use-cases/get-comments.use-case.js';
-import { Blog } from './infrastructure/typeorm/blogs.entities.js';
-import { CommentDislike, CommentLike } from './infrastructure/typeorm/comment-likes.entities.js';
-import { Comment } from './infrastructure/typeorm/comments.entities.js';
-import { PostDislike, PostLike } from './infrastructure/typeorm/post-likes.entities.js';
-import { Post } from './infrastructure/typeorm/posts.entities.js';
+import { Blog } from './infrastructure/typeorm/entities/blog.entity.js';
+import { CommentDislike } from './infrastructure/typeorm/entities/comment-dislike.entity.js';
+import { CommentLike } from './infrastructure/typeorm/entities/comment-like.entity.js';
+import { Comment } from './infrastructure/typeorm/entities/comment.entity.js';
+import { PostDislike } from './infrastructure/typeorm/entities/post-dislike.entity.js';
+import { PostLike } from './infrastructure/typeorm/entities/post-like.entity.js';
+import { Post } from './infrastructure/typeorm/entities/post.entity.js';
 
 @Module({
   imports: [
@@ -51,10 +53,10 @@ import { Post } from './infrastructure/typeorm/posts.entities.js';
     PostsQueryRepository,
     CommentsRepository,
     CommentsQueryRepository,
-    PostLikesRepository,
-    PostLikesQueryRepository,
-    CommentLikesRepository,
-    CommentLikesQueryRepository,
+    PostReactionsRepository,
+    PostReactionsQueryRepository,
+    CommentReactionsRepository,
+    CommentReactionsQueryRepository,
     GetBlogUseCase,
     GetBlogsUseCase,
     CreateBlogUseCase,

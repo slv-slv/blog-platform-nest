@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSessionParams, DeviceViewModel } from '../../types/sessions.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Device } from './sessions.entities.js';
+import { Device } from './entities/device.entity.js';
 import { Not, Repository } from 'typeorm';
 import {
   DeviceNotFoundDomainException,

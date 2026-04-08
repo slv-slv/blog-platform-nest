@@ -5,8 +5,8 @@ import {
   FindCommentRepoQueryParams,
   GetCommentsRepoQueryParams,
 } from '../../types/comments.types.js';
-import { CommentLikesQueryRepository } from './comment-likes.query-repository.js';
-import { Comment } from './comments.entities.js';
+import { CommentReactionsQueryRepository } from './comment-reactions.query-repository.js';
+import { Comment } from './entities/comment.entity.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CommentNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
@@ -25,7 +25,7 @@ type RawCommentRow = {
 export class CommentsQueryRepository {
   constructor(
     @InjectRepository(Comment) private readonly commentEntityRepository: Repository<Comment>,
-    private readonly commentLikesQueryRepository: CommentLikesQueryRepository,
+    private readonly commentReactionsQueryRepository: CommentReactionsQueryRepository,
   ) {}
 
   async getComment(params: FindCommentRepoQueryParams): Promise<CommentViewModel> {
@@ -50,7 +50,7 @@ export class CommentsQueryRepository {
       throw new CommentNotFoundDomainException();
     }
 
-    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({
+    const likesInfoMap = await this.commentReactionsQueryRepository.getLikesInfo({
       commentIds: [comment.id],
       userId,
     });
@@ -110,7 +110,7 @@ export class CommentsQueryRepository {
       .skip(skipCount)
       .getRawMany<RawCommentRow>();
     const commentIds = comments.map((comment) => comment.id);
-    const likesInfoMap = await this.commentLikesQueryRepository.getLikesInfo({ commentIds, userId });
+    const likesInfoMap = await this.commentReactionsQueryRepository.getLikesInfo({ commentIds, userId });
     const items = comments.map((comment) => ({
       ...this.mapToCommentViewModel(comment),
       likesInfo: likesInfoMap.get(comment.id)!,

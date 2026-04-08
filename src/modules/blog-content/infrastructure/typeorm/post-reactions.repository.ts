@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { LikeStatus } from '../../types/likes.types.js';
 import { SetPostLikeRepoParams, SetPostNoneRepoParams } from '../../types/post-likes.types.js';
-import { PostDislike, PostLike } from './post-likes.entities.js';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
+import { PostDislike } from './entities/post-dislike.entity.js';
+import { PostLike } from './entities/post-like.entity.js';
 
 @Injectable()
-export class PostLikesRepository {
+export class PostReactionsRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async getLikeStatus(

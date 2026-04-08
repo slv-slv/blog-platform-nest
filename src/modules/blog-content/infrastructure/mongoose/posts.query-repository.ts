@@ -9,13 +9,13 @@ import {
   PostViewModel,
 } from '../../types/posts.types.js';
 import { ObjectId } from 'mongodb';
-import { PostLikesQueryRepository } from './post-likes.query-repository.js';
+import { PostReactionsQueryRepository } from './post-reactions.query-repository.js';
 
 @Injectable()
 export class PostsQueryRepository {
   constructor(
     @InjectModel(Post.name) private readonly model: Model<Post>,
-    private readonly postLikesQueryRepository: PostLikesQueryRepository,
+    private readonly postReactionsQueryRepository: PostReactionsQueryRepository,
   ) {}
 
   async getPost(params: FindPostRepoQueryParams): Promise<PostViewModel | null> {
@@ -29,7 +29,7 @@ export class PostsQueryRepository {
       return null;
     }
 
-    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds: [id], userId });
+    const likesInfoMap = await this.postReactionsQueryRepository.getLikesInfo({ postIds: [id], userId });
 
     return { id, ...post, extendedLikesInfo: likesInfoMap.get(id)! };
   }
@@ -51,7 +51,7 @@ export class PostsQueryRepository {
       .lean();
 
     const postIds = postsWithObjectId.map((post) => post._id.toString());
-    const likesInfoMap = await this.postLikesQueryRepository.getLikesInfo({ postIds, userId });
+    const likesInfoMap = await this.postReactionsQueryRepository.getLikesInfo({ postIds, userId });
 
     const posts = postsWithObjectId.map((post) => {
       const postId = post._id.toString();
