@@ -33,4 +33,16 @@ export class QuestionsRepository {
       throw new QuestionNotFoundDomainException();
     }
   }
+
+  async deleteQuestion(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new QuestionNotFoundDomainException();
+    }
+
+    const result = await this.questionsRepository.softDelete({ id: +id });
+
+    if (result.affected === 0) {
+      throw new QuestionNotFoundDomainException();
+    }
+  }
 }
