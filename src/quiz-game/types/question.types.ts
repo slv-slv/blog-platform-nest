@@ -1,7 +1,7 @@
 export type QuestionViewModel = {
   id: string;
   body: string;
-  correctAnswers: string;
+  correctAnswers: string[];
   published: boolean;
   createdAt: string;
   updatedAt: string;
