@@ -87,6 +87,14 @@ export class IncorrectEmailDomainException extends DomainException {
   }
 }
 
+// Quiz
+export class QuestionNotFoundDomainException extends DomainException {
+  constructor(message = 'Question not found') {
+    super(message);
+    this.status = DomainExceptionStatus.QUESTION_NOT_FOUND;
+  }
+}
+
 // Auth
 export class CredentialsIncorrectDomainException extends DomainException {
   constructor(message = 'Incorrect login/password') {
