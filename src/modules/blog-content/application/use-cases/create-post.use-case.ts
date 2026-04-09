@@ -2,7 +2,7 @@ import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreatePostParams, CreatePostRepoParams, PostViewModel } from '../../types/posts.types.js';
 import { PostsRepository } from '../../infrastructure/typeorm/posts.repository.js';
 import { BlogsRepository } from '../../infrastructure/typeorm/blogs.repository.js';
-import { createDefaultPostLikesInfo } from '../../helpers/create-default-post-likes-info.js';
+import { mapPostToViewModel } from '../../mappers/post-view.mapper.js';
 
 export class CreatePostCommand extends Command<PostViewModel> {
   constructor(public readonly params: CreatePostParams) {
@@ -32,8 +32,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
       createdAt,
     };
     const newPost = await this.postsRepository.createPost(repoParams);
-    const extendedLikesInfo = createDefaultPostLikesInfo();
 
-    return { ...newPost, createdAt: newPost.createdAt.toISOString(), extendedLikesInfo };
+    return mapPostToViewModel(newPost, blogName);
   }
 }

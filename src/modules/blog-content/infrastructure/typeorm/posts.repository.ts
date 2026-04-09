@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreatePostRepoParams, PostModel, UpdatePostRepoParams } from '../../types/posts.types.js';
+import { CreatePostRepoParams, UpdatePostRepoParams } from '../../types/posts.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity.js';
 import { Repository } from 'typeorm';
@@ -13,7 +13,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class PostsRepository {
   constructor(@InjectRepository(Post) private readonly postEntityRepository: Repository<Post>) {}
 
-  async getPost(id: string): Promise<PostModel> {
+  async getPost(id: string): Promise<Post> {
     if (!isPositiveIntegerString(id)) {
       throw new PostNotFoundDomainException();
     }
@@ -27,7 +27,7 @@ export class PostsRepository {
       throw new PostNotFoundDomainException();
     }
 
-    return this.mapToPostModel(post);
+    return post;
   }
 
   async checkPostExists(id: string): Promise<void> {
@@ -42,31 +42,21 @@ export class PostsRepository {
     }
   }
 
-  async createPost(params: CreatePostRepoParams): Promise<PostModel> {
-    const { title, shortDescription, content, blogId, blogName, createdAt } = params;
+  async createPost(params: CreatePostRepoParams): Promise<Post> {
+    const { title, shortDescription, content, blogId, createdAt } = params;
     if (!isPositiveIntegerString(blogId)) {
       throw new BlogNotFoundDomainException();
     }
 
-    const result = await this.postEntityRepository.insert({
+    const post = this.postEntityRepository.create({
       blogId: +blogId,
       title,
       shortDescription,
       content,
       createdAt,
     });
-    const identifier = result.identifiers[0] as { id: number };
-    const id = identifier.id.toString();
 
-    return {
-      id,
-      title,
-      shortDescription,
-      content,
-      blogId,
-      blogName,
-      createdAt,
-    };
+    return await this.postEntityRepository.save(post);
   }
 
   async updatePost(params: UpdatePostRepoParams): Promise<void> {
@@ -93,17 +83,5 @@ export class PostsRepository {
     if (result.affected === 0) {
       throw new PostNotFoundDomainException();
     }
-  }
-
-  private mapToPostModel(post: Post): PostModel {
-    return {
-      id: post.id.toString(),
-      title: post.title,
-      shortDescription: post.shortDescription,
-      content: post.content,
-      blogId: post.blogId.toString(),
-      blogName: post.blog.name,
-      createdAt: post.createdAt,
-    };
   }
 }
