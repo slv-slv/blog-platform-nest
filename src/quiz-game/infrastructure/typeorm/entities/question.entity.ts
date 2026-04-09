@@ -18,7 +18,7 @@ export class Question {
   @Column()
   declare body: string;
 
-  @Column()
+  @Column({ default: false })
   declare published: boolean;
 
   @OneToMany(() => CorrectAnswer, (correctAnswer) => correctAnswer.question)
