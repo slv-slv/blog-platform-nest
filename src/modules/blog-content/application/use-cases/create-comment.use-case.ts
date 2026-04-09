@@ -7,7 +7,7 @@ import {
 import { CommentsRepository } from '../../infrastructure/typeorm/comments.repository.js';
 import { UsersRepository } from '../../../user-accounts/infrastructure/typeorm/users.repository.js';
 import { PostsRepository } from '../../infrastructure/typeorm/posts.repository.js';
-import { createDefaultCommentLikesInfo } from '../../helpers/create-default-comment-likes-info.js';
+import { mapCommentToViewModel } from '../../mappers/comment-view.mapper.js';
 
 export class CreateCommentCommand extends Command<CommentViewModel> {
   constructor(public readonly params: CreateCommentParams) {
@@ -35,7 +35,6 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
     const repoParams: CreateCommentRepoParams = { postId, content, createdAt, commentatorInfo };
     const newComment = await this.commentsRepository.createComment(repoParams);
 
-    const likesInfo = createDefaultCommentLikesInfo();
-    return { ...newComment, likesInfo };
+    return mapCommentToViewModel(newComment, userLogin);
   }
 }

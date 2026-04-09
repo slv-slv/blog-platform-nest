@@ -18,7 +18,7 @@ export class DeleteCommentUseCase implements ICommandHandler<DeleteCommentComman
     const { commentId, userId } = params;
     const comment = await this.commentsRepository.getComment(commentId);
 
-    const ownerId = comment.commentatorInfo.userId;
+    const ownerId = comment.userId.toString();
     if (userId !== ownerId) throw new AccessDeniedDomainException();
 
     await this.commentsRepository.deleteComment(commentId);

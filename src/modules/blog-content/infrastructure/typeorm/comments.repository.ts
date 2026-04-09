@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  CommentModel,
-  CreateCommentRepoParams,
-  UpdateCommentRepoParams,
-} from '../../types/comments.types.js';
+import { CreateCommentRepoParams, UpdateCommentRepoParams } from '../../types/comments.types.js';
 import { Comment } from './entities/comment.entity.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -30,40 +26,21 @@ export class CommentsRepository {
     }
   }
 
-  async getComment(id: string): Promise<CommentModel> {
+  async getComment(id: string): Promise<Comment> {
     if (!isPositiveIntegerString(id)) {
       throw new CommentNotFoundDomainException();
     }
 
-    const comment = await this.commentEntityRepository.findOne({
-      select: {
-        id: true,
-        content: true,
-        createdAt: true,
-        userId: true,
-      },
-      where: { id: +id },
-    });
+    const comment = await this.commentEntityRepository.findOneBy({ id: +id });
 
     if (!comment) {
       throw new CommentNotFoundDomainException();
     }
 
-    const user = await this.commentEntityRepository.manager
-      .createQueryBuilder()
-      .select('user.login', 'login')
-      .from('users', 'user')
-      .where('user.id = :userId', { userId: comment.userId })
-      .getRawOne<{ login: string }>();
-
-    if (!user) {
-      throw new CommentNotFoundDomainException();
-    }
-
-    return this.mapToCommentModel(comment, user.login);
+    return comment;
   }
 
-  async createComment(params: CreateCommentRepoParams): Promise<CommentModel> {
+  async createComment(params: CreateCommentRepoParams): Promise<Comment> {
     const { postId, content, createdAt, commentatorInfo } = params;
 
     if (!isPositiveIntegerString(postId)) {
@@ -74,24 +51,14 @@ export class CommentsRepository {
       throw new UnauthorizedDomainException();
     }
 
-    const postIdNum = +postId;
-    const userIdNum = +commentatorInfo.userId;
-
-    const result = await this.commentEntityRepository.insert({
-      postId: postIdNum,
-      userId: userIdNum,
+    const comment = this.commentEntityRepository.create({
+      postId: +postId,
+      userId: +commentatorInfo.userId,
       content,
       createdAt,
     });
-    const identifier = result.identifiers[0] as { id: number };
-    const id = identifier.id.toString();
 
-    return {
-      id,
-      content,
-      commentatorInfo,
-      createdAt: createdAt.toISOString(),
-    };
+    return await this.commentEntityRepository.save(comment);
   }
 
   async updateComment(params: UpdateCommentRepoParams): Promise<void> {
@@ -118,17 +85,5 @@ export class CommentsRepository {
     if (result.affected === 0) {
       throw new CommentNotFoundDomainException();
     }
-  }
-
-  private mapToCommentModel(comment: Comment, userLogin: string): CommentModel {
-    return {
-      id: comment.id.toString(),
-      content: comment.content,
-      commentatorInfo: {
-        userId: comment.userId.toString(),
-        userLogin,
-      },
-      createdAt: comment.createdAt.toISOString(),
-    };
   }
 }
