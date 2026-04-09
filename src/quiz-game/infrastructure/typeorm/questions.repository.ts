@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from './entities/question.entity.js';
 import { Repository } from 'typeorm';
+import { QuestionNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class QuestionsRepository {
@@ -15,5 +17,20 @@ export class QuestionsRepository {
     });
 
     return await this.questionsRepository.save(question);
+  }
+
+  async updateQuestion(id: string, body: string, correctAnswers: string[]): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new QuestionNotFoundDomainException();
+    }
+
+    const result = await this.questionsRepository.update(
+      { id: +id },
+      { body, correctAnswers: correctAnswers.map((answer) => ({ answer })) },
+    );
+
+    if (result.affected === 0) {
+      throw new QuestionNotFoundDomainException();
+    }
   }
 }
