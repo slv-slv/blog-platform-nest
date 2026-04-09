@@ -1,6 +1,7 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogViewModel, CreateBlogParams, CreateBlogRepoParams } from '../../types/blogs.types.js';
 import { BlogsRepository } from '../../infrastructure/typeorm/blogs.repository.js';
+import { mapBlogToViewModel } from '../../mappers/blog-view.mapper.js';
 
 export class CreateBlogCommand extends Command<BlogViewModel> {
   constructor(public readonly params: CreateBlogParams) {
@@ -19,6 +20,6 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
     const repoParams: CreateBlogRepoParams = { name, description, websiteUrl, createdAt, isMembership };
     const newBlog = await this.blogsRepository.createBlog(repoParams);
 
-    return { ...newBlog, createdAt: newBlog.createdAt.toISOString() };
+    return mapBlogToViewModel(newBlog);
   }
 }

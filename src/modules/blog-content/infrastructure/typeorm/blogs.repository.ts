@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BlogModel, CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
+import { CreateBlogRepoParams, UpdateBlogRepoParams } from '../../types/blogs.types.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from './entities/blog.entity.js';
 import { Repository } from 'typeorm';
@@ -10,7 +10,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 export class BlogsRepository {
   constructor(@InjectRepository(Blog) private readonly blogEntityRepository: Repository<Blog>) {}
 
-  async getBlog(id: string): Promise<BlogModel> {
+  async getBlog(id: string): Promise<Blog> {
     if (!isPositiveIntegerString(id)) {
       throw new BlogNotFoundDomainException();
     }
@@ -21,7 +21,7 @@ export class BlogsRepository {
       throw new BlogNotFoundDomainException();
     }
 
-    return this.mapToBlogModel(blog);
+    return blog;
   }
 
   async checkBlogExists(id: string): Promise<void> {
@@ -36,26 +36,18 @@ export class BlogsRepository {
     }
   }
 
-  async createBlog(params: CreateBlogRepoParams): Promise<BlogModel> {
+  async createBlog(params: CreateBlogRepoParams): Promise<Blog> {
     const { name, description, websiteUrl, createdAt, isMembership } = params;
-    const result = await this.blogEntityRepository.insert({
+
+    const blog = this.blogEntityRepository.create({
       name,
       description,
       websiteUrl,
       createdAt,
       isMembership,
     });
-    const identifier = result.identifiers[0] as { id: number };
-    const id = identifier.id.toString();
 
-    return {
-      id,
-      name,
-      description,
-      websiteUrl,
-      createdAt,
-      isMembership,
-    };
+    return await this.blogEntityRepository.save(blog);
   }
 
   async updateBlog(params: UpdateBlogRepoParams): Promise<void> {
@@ -82,16 +74,5 @@ export class BlogsRepository {
     if (result.affected === 0) {
       throw new BlogNotFoundDomainException();
     }
-  }
-
-  private mapToBlogModel(blog: Blog): BlogModel {
-    return {
-      id: blog.id.toString(),
-      name: blog.name,
-      description: blog.description,
-      websiteUrl: blog.websiteUrl,
-      createdAt: blog.createdAt,
-      isMembership: blog.isMembership,
-    };
   }
 }

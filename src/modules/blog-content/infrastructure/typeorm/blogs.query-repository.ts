@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { BlogNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import { SortDirection } from '../../../../common/types/paging-params.types.js';
+import { mapBlogToViewModel } from '../../mappers/blog-view.mapper.js';
 
 @Injectable()
 export class BlogsQueryRepository {
@@ -22,7 +23,7 @@ export class BlogsQueryRepository {
       throw new BlogNotFoundDomainException();
     }
 
-    return this.mapToBlogViewModel(blog);
+    return mapBlogToViewModel(blog);
   }
 
   async checkBlogExists(id: string): Promise<void> {
@@ -61,18 +62,7 @@ export class BlogsQueryRepository {
       page: pageNumber,
       pageSize,
       totalCount,
-      items: blogs.map((blog) => this.mapToBlogViewModel(blog)),
-    };
-  }
-
-  private mapToBlogViewModel(blog: Blog): BlogViewModel {
-    return {
-      id: blog.id.toString(),
-      name: blog.name,
-      description: blog.description,
-      websiteUrl: blog.websiteUrl,
-      createdAt: blog.createdAt.toISOString(),
-      isMembership: blog.isMembership,
+      items: blogs.map((blog) => mapBlogToViewModel(blog)),
     };
   }
 }
