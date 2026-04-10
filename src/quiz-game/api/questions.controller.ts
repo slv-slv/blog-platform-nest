@@ -15,7 +15,7 @@ import { DeleteQuestionCommand } from '../application/use-cases/delete-question.
 import { PublishQuestionCommand } from '../application/use-cases/publish-question.use-case.js';
 import { GetQuestionsQuery } from '../application/use-cases/get-questions.use-case.js';
 
-@Controller('sa/questions')
+@Controller('sa/quiz/questions')
 @UseGuards(BasicAuthGuard)
 export class QuestionsController {
   constructor(
