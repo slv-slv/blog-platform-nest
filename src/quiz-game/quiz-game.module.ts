@@ -7,6 +7,7 @@ import { PublishQuestionUseCase } from './application/use-cases/publish-question
 import { QuestionsRepository } from './infrastructure/typeorm/questions.repository.js';
 import { Question } from './infrastructure/typeorm/entities/question.entity.js';
 import { CorrectAnswer } from './infrastructure/typeorm/entities/correct-answer.entity.js';
+import { QuestionsController } from './api/questions.controller.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Question, CorrectAnswer])],
@@ -17,5 +18,6 @@ import { CorrectAnswer } from './infrastructure/typeorm/entities/correct-answer.
     DeleteQuestionUseCase,
     PublishQuestionUseCase,
   ],
+  controllers: [QuestionsController],
 })
 export class QuizGameModule {}
