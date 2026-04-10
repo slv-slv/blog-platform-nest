@@ -1,6 +1,33 @@
-import { IsArray, IsBoolean, IsString, Length } from 'class-validator';
-import { PagingParamsType } from '../../common/types/paging-params.types.js';
+import { IsArray, IsBoolean, IsEnum, IsOptional, IsString, Length } from 'class-validator';
+import { BasicPagingParams, PagingParamsType } from '../../common/types/paging-params.types.js';
 import { Trim } from '../../common/decorators/trim.js';
+
+export enum QuestionsSortBy {
+  body = 'body',
+  published = 'published',
+  createdAt = 'createdAt',
+}
+
+export enum PublishedStatus {
+  all = 'all',
+  published = 'published',
+  notPublished = 'notPublished',
+}
+
+export class GetQuestionsQueryDto extends BasicPagingParams {
+  @IsOptional()
+  @IsString()
+  @Trim()
+  bodySearchTerm: string | null = null;
+
+  @IsOptional()
+  @IsEnum(PublishedStatus)
+  publishedStatus: PublishedStatus = PublishedStatus.all;
+
+  @IsOptional()
+  @IsEnum(QuestionsSortBy)
+  sortBy: QuestionsSortBy = QuestionsSortBy.createdAt;
+}
 
 export class CreateQuestionInputDto {
   @IsString()
@@ -34,18 +61,6 @@ export type UpdateQuestionParams = {
   body: string;
   correctAnswers: string[];
 };
-
-export enum QuestionsSortBy {
-  body = 'body',
-  published = 'published',
-  createdAt = 'createdAt',
-}
-
-export enum PublishedStatus {
-  all = 'all',
-  published = 'published',
-  notPublished = 'notPublished',
-}
 
 export type GetQuestionsParams = {
   bodySearchTerm: string | null;
