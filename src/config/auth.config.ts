@@ -1,8 +1,8 @@
 import { registerAs } from '@nestjs/config';
+import type { JwtSignOptions } from '@nestjs/jwt';
 import { plainToInstance, Type } from 'class-transformer';
 import { IsBase64, IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 import { validateOrThrow } from './validate-or-throw.js';
-import type { JwtSignOptions } from '@nestjs/jwt';
 
 class AuthConfig {
   @IsString()
