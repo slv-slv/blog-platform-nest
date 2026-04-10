@@ -45,4 +45,15 @@ export class QuestionsRepository {
       throw new QuestionNotFoundDomainException();
     }
   }
+
+  async publishQuestion(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new QuestionNotFoundDomainException();
+    }
+
+    const result = await this.questionsRepository.update({ id: +id }, { published: true });
+    if (result.affected === 0) {
+      throw new QuestionNotFoundDomainException();
+    }
+  }
 }
