@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { QuestionNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
 import { CorrectAnswer } from './entities/correct-answer.entity.js';
+import { UpdateQuestionParams } from '../../types/question.types.js';
 
 @Injectable()
 export class QuestionsRepository {
@@ -20,7 +21,7 @@ export class QuestionsRepository {
     return await this.questionsRepository.save(question);
   }
 
-  async updateQuestion(id: string, body: string, correctAnswers: string[]): Promise<void> {
+  async updateQuestion({ id, body, correctAnswers }: UpdateQuestionParams): Promise<void> {
     if (!isPositiveIntegerString(id)) {
       throw new QuestionNotFoundDomainException();
     }

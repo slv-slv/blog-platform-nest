@@ -6,3 +6,9 @@ export type QuestionViewModel = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type UpdateQuestionParams = {
+  id: string;
+  body: string;
+  correctAnswers: string[];
+};
