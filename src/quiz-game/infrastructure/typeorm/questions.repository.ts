@@ -56,4 +56,15 @@ export class QuestionsRepository {
       throw new QuestionNotFoundDomainException();
     }
   }
+
+  async unpublishQuestion(id: string): Promise<void> {
+    if (!isPositiveIntegerString(id)) {
+      throw new QuestionNotFoundDomainException();
+    }
+
+    const result = await this.questionsRepository.update({ id: +id }, { published: false });
+    if (result.affected === 0) {
+      throw new QuestionNotFoundDomainException();
+    }
+  }
 }
