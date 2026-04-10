@@ -13,6 +13,8 @@ export class CreateQuestionInputDto {
   declare correctAnswers: string[];
 }
 
+export class UpdateQuestionInputDto extends CreateQuestionInputDto {}
+
 export type QuestionViewModel = {
   id: string;
   body: string;
