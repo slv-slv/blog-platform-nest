@@ -22,7 +22,8 @@ export class Question {
   declare published: boolean;
 
   @OneToMany(() => CorrectAnswer, (correctAnswer) => correctAnswer.question, {
-    cascade: ['insert'],
+    cascade: true,
+    orphanedRowAction: 'delete',
   })
   declare correctAnswers: Relation<CorrectAnswer[]>;
 
