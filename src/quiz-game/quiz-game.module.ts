@@ -8,6 +8,7 @@ import { QuestionsRepository } from './infrastructure/typeorm/questions.reposito
 import { Question } from './infrastructure/typeorm/entities/question.entity.js';
 import { CorrectAnswer } from './infrastructure/typeorm/entities/correct-answer.entity.js';
 import { QuestionsController } from './api/questions.controller.js';
+import { QuestionsQueryRepository } from './infrastructure/typeorm/questions.query-repository.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Question, CorrectAnswer])],
@@ -17,6 +18,7 @@ import { QuestionsController } from './api/questions.controller.js';
     UpdateQuestionUseCase,
     DeleteQuestionUseCase,
     PublishQuestionUseCase,
+    QuestionsQueryRepository,
   ],
   controllers: [QuestionsController],
 })
