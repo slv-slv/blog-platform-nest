@@ -95,7 +95,7 @@ export type FindPostRepoQueryParams = {
 };
 
 export type GetPostsRepoQueryParams = {
-  pagingParams: PagingParamsType;
+  pagingParams: PagingParamsType<PostsSortBy>;
   userId?: string;
   blogId?: string;
 };

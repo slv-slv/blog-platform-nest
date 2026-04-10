@@ -24,8 +24,8 @@ export class BasicPagingParams {
   pageSize: number = 10;
 }
 
-export type PagingParamsType = {
-  sortBy: string;
+export type PagingParamsType<TSortBy extends string = string> = {
+  sortBy: TSortBy;
   sortDirection: SortDirection;
   pageNumber: number;
   pageSize: number;

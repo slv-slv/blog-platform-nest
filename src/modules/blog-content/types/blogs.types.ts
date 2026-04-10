@@ -65,7 +65,7 @@ export class GetBlogsQueryDto extends BasicPagingParams {
 
 export type GetBlogsRepoQueryParams = {
   searchNameTerm?: string;
-  pagingParams: PagingParamsType;
+  pagingParams: PagingParamsType<BlogsSortBy>;
 };
 
 export type CreateBlogParams = {

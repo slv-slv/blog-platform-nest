@@ -126,7 +126,7 @@ export class NewPasswordInputDto {
 export type GetUsersParams = {
   searchLoginTerm: string | null;
   searchEmailTerm: string | null;
-  pagingParams: PagingParamsType;
+  pagingParams: PagingParamsType<UsersSortBy>;
 };
 
 export type CreateUserParams = {

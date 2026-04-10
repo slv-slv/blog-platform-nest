@@ -75,7 +75,7 @@ export type FindCommentRepoQueryParams = {
 export type GetCommentsRepoQueryParams = {
   postId: string;
   userId?: string;
-  pagingParams: PagingParamsType;
+  pagingParams: PagingParamsType<CommentsSortBy>;
 };
 
 export type CreateCommentRepoParams = {
