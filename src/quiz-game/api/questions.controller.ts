@@ -31,4 +31,10 @@ export class QuestionsController {
       new UpdateQuestionCommand({ id, body: body.body, correctAnswers: body.correctAnswers }),
     );
   }
+
+  @Delete(':id')
+  @HttpCode(204)
+  async deleteQuestion(@Param('id') id: string): Promise<void> {
+    await this.commandBus.execute(new DeleteQuestionCommand(id));
+  }
 }
