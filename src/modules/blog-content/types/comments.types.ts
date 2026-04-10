@@ -44,7 +44,7 @@ export class CreateCommentInputDto {
 
 export class UpdateCommentInputDto extends CreateCommentInputDto {}
 
-export class GetCommentsQueryParams extends BasicPagingParams {
+export class GetCommentsQueryDto extends BasicPagingParams {
   @IsOptional()
   @IsEnum(CommentsSortBy)
   sortBy: CommentsSortBy = CommentsSortBy.createdAt;

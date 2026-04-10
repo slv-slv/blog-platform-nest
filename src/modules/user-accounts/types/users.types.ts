@@ -83,7 +83,7 @@ export class CreateUserInputDto {
   declare email: string;
 }
 
-export class GetUsersQueryParams extends BasicPagingParams {
+export class GetUsersQueryDto extends BasicPagingParams {
   @IsOptional()
   @IsString()
   @IsNotEmpty()

@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, UseGuards } from '@nestjs/common';
 import {
   CreateUserInputDto,
-  GetUsersQueryParams,
+  GetUsersQueryDto,
   UsersPaginatedViewModel,
   UserViewModel,
 } from '../types/users.types.js';
@@ -20,7 +20,7 @@ export class UsersController {
   ) {}
 
   @Get()
-  async getUsers(@Query() query: GetUsersQueryParams): Promise<UsersPaginatedViewModel> {
+  async getUsers(@Query() query: GetUsersQueryDto): Promise<UsersPaginatedViewModel> {
     const { searchLoginTerm, searchEmailTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
     return await this.queryBus.execute(

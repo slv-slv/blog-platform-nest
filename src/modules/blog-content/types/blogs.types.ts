@@ -52,7 +52,7 @@ export class CreateBlogInputDto {
 
 export class UpdateBlogInputDto extends CreateBlogInputDto {}
 
-export class GetBlogsQueryParams extends BasicPagingParams {
+export class GetBlogsQueryDto extends BasicPagingParams {
   @IsOptional()
   @IsString()
   @IsNotEmpty()

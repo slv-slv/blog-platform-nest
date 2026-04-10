@@ -67,7 +67,7 @@ export class CreatePostForBlogInputDto extends CreatePostInputDto {
 
 export class UpdatePostForBlogInputDto extends CreatePostForBlogInputDto {}
 
-export class GetPostsQueryParams extends BasicPagingParams {
+export class GetPostsQueryDto extends BasicPagingParams {
   @IsOptional()
   @IsEnum(PostsSortBy)
   sortBy: PostsSortBy = PostsSortBy.createdAt;

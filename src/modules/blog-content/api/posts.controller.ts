@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import {
   CreatePostForBlogInputDto,
-  GetPostsQueryParams,
+  GetPostsQueryDto,
   PostsPaginatedViewModel,
   PostViewModel,
   UpdatePostForBlogInputDto,
@@ -10,7 +10,7 @@ import {
   CommentsPaginatedViewModel,
   CommentViewModel,
   CreateCommentInputDto,
-  GetCommentsQueryParams,
+  GetCommentsQueryDto,
 } from '../types/comments.types.js';
 import { SetLikeStatusDto } from '../types/likes.types.js';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
@@ -36,7 +36,10 @@ export class PostsController {
   @Get()
   @Public()
   @UseGuards(AccessTokenGuard)
-  async getPosts(@Query() query: GetPostsQueryParams, @UserId() userId: string): Promise<PostsPaginatedViewModel> {
+  async getPosts(
+    @Query() query: GetPostsQueryDto,
+    @UserId() userId: string,
+  ): Promise<PostsPaginatedViewModel> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
     return await this.queryBus.execute(new GetPostsQuery({ pagingParams, userId }));
@@ -72,7 +75,7 @@ export class PostsController {
   @UseGuards(AccessTokenGuard)
   async getCommentsForPost(
     @Param('postId') postId: string,
-    @Query() query: GetCommentsQueryParams,
+    @Query() query: GetCommentsQueryDto,
     @UserId() userId: string,
   ): Promise<CommentsPaginatedViewModel> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
