@@ -1,4 +1,4 @@
-import { IsArray, IsString, Length } from 'class-validator';
+import { IsArray, IsBoolean, IsString, Length } from 'class-validator';
 import { PagingParamsType } from '../../common/types/paging-params.types.js';
 import { Trim } from '../../common/decorators/trim.js';
 
@@ -14,6 +14,11 @@ export class CreateQuestionInputDto {
 }
 
 export class UpdateQuestionInputDto extends CreateQuestionInputDto {}
+
+export class PublishQuestionInputDto {
+  @IsBoolean()
+  declare published: boolean;
+}
 
 export type QuestionViewModel = {
   id: string;
