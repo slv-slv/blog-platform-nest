@@ -53,7 +53,9 @@ export class AppController {
         typeorm.comment_likes,
         typeorm.comment_dislikes,
         typeorm.post_likes,
-        typeorm.post_dislikes
+        typeorm.post_dislikes,
+        typeorm.questions,
+        typeorm.correct_answers,
       RESTART IDENTITY CASCADE
     `);
   }
