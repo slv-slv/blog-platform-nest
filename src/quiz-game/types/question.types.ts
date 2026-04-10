@@ -53,7 +53,7 @@ export type QuestionViewModel = {
   correctAnswers: string[];
   published: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
 };
 
 export type UpdateQuestionParams = {

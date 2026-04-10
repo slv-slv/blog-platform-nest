@@ -8,6 +8,6 @@ export const mapQuestionToViewModel = (question: Question): QuestionViewModel =>
     correctAnswers: question.correctAnswers.map((correctAnswer) => correctAnswer.answer),
     published: question.published,
     createdAt: question.createdAt.toISOString(),
-    updatedAt: question.updatedAt.toISOString(),
+    updatedAt: question.createdAt.getTime() === question.updatedAt.getTime() ? null : question.updatedAt.toISOString()
   };
 };
