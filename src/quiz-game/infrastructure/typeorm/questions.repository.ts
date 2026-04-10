@@ -57,23 +57,12 @@ export class QuestionsRepository {
     }
   }
 
-  async publishQuestion(id: string): Promise<void> {
+  async setPublishedStatus(id: string, published: boolean): Promise<void> {
     if (!isPositiveIntegerString(id)) {
       throw new QuestionNotFoundDomainException();
     }
 
-    const result = await this.questionsRepository.update({ id: +id }, { published: true });
-    if (result.affected === 0) {
-      throw new QuestionNotFoundDomainException();
-    }
-  }
-
-  async unpublishQuestion(id: string): Promise<void> {
-    if (!isPositiveIntegerString(id)) {
-      throw new QuestionNotFoundDomainException();
-    }
-
-    const result = await this.questionsRepository.update({ id: +id }, { published: false });
+    const result = await this.questionsRepository.update({ id: +id }, { published });
     if (result.affected === 0) {
       throw new QuestionNotFoundDomainException();
     }
