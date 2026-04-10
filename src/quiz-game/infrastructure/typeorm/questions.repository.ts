@@ -39,6 +39,7 @@ export class QuestionsRepository {
     question.correctAnswers = correctAnswers.map((answer) => {
       const correctAnswer = new CorrectAnswer();
       correctAnswer.answer = answer;
+      correctAnswer.question = question;
       return correctAnswer;
     });
 
