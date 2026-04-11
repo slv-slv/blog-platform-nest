@@ -11,6 +11,19 @@ import { UpdateQuestionParams } from '../../types/question.types.js';
 export class QuestionsRepository {
   constructor(@InjectRepository(Question) private readonly questionsRepository: Repository<Question>) {}
 
+  async getQuestion(id: string): Promise<Question> {
+    if (!isPositiveIntegerString(id)) {
+      throw new QuestionNotFoundDomainException();
+    }
+
+    const question = await this.questionsRepository.findOneBy({ id: +id });
+    if (!question) {
+      throw new QuestionNotFoundDomainException();
+    }
+
+    return question;
+  }
+
   async createQuestion(body: string, correctAnswers: string[]): Promise<Question> {
     const question = this.questionsRepository.create({
       body,
