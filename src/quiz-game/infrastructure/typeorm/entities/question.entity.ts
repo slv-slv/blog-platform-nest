@@ -21,7 +21,9 @@ export class Question {
   @Column({ default: false })
   declare published: boolean;
 
-  @OneToMany(() => CorrectAnswer, (correctAnswer) => correctAnswer.question)
+  @OneToMany(() => CorrectAnswer, (correctAnswer) => correctAnswer.question, {
+    cascade: true,
+  })
   declare correctAnswers: Relation<CorrectAnswer[]>;
 
   @CreateDateColumn({ type: 'timestamptz' })
