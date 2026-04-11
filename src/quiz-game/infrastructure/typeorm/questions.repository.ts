@@ -9,14 +9,18 @@ import { UpdateQuestionParams } from '../../types/question.types.js';
 
 @Injectable()
 export class QuestionsRepository {
-  constructor(@InjectRepository(Question) private readonly questionsRepository: Repository<Question>) {}
+  constructor(@InjectRepository(Question) private readonly questionEntityRepository: Repository<Question>) {}
+
+  async save(question: Question): Promise<Question> {
+    return await this.questionEntityRepository.save(question);
+  }
 
   async getQuestion(id: string): Promise<Question> {
     if (!isPositiveIntegerString(id)) {
       throw new QuestionNotFoundDomainException();
     }
 
-    const question = await this.questionsRepository.findOneBy({ id: +id });
+    const question = await this.questionEntityRepository.findOneBy({ id: +id });
     if (!question) {
       throw new QuestionNotFoundDomainException();
     }
@@ -25,13 +29,13 @@ export class QuestionsRepository {
   }
 
   async createQuestion(body: string, correctAnswers: string[]): Promise<Question> {
-    const question = this.questionsRepository.create({
+    const question = this.questionEntityRepository.create({
       body,
       published: false,
       correctAnswers: correctAnswers.map((answer) => ({ answer })),
     });
 
-    return await this.questionsRepository.save(question);
+    return await this.questionEntityRepository.save(question);
   }
 
   async updateQuestion({ id, body, correctAnswers }: UpdateQuestionParams): Promise<void> {
@@ -39,7 +43,7 @@ export class QuestionsRepository {
       throw new QuestionNotFoundDomainException();
     }
 
-    const question = await this.questionsRepository.findOne({
+    const question = await this.questionEntityRepository.findOne({
       where: { id: +id },
       relations: { correctAnswers: true },
     });
@@ -55,7 +59,7 @@ export class QuestionsRepository {
       return correctAnswer;
     });
 
-    await this.questionsRepository.save(question);
+    await this.questionEntityRepository.save(question);
   }
 
   async deleteQuestion(id: string): Promise<void> {
@@ -63,19 +67,8 @@ export class QuestionsRepository {
       throw new QuestionNotFoundDomainException();
     }
 
-    const result = await this.questionsRepository.softDelete({ id: +id });
+    const result = await this.questionEntityRepository.softDelete({ id: +id });
 
-    if (result.affected === 0) {
-      throw new QuestionNotFoundDomainException();
-    }
-  }
-
-  async setPublishedStatus(id: string, published: boolean): Promise<void> {
-    if (!isPositiveIntegerString(id)) {
-      throw new QuestionNotFoundDomainException();
-    }
-
-    const result = await this.questionsRepository.update({ id: +id }, { published });
     if (result.affected === 0) {
       throw new QuestionNotFoundDomainException();
     }

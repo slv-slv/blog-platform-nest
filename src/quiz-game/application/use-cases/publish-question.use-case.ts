@@ -15,6 +15,8 @@ export class PublishQuestionUseCase implements ICommandHandler<PublishQuestionCo
   constructor(private readonly questionsRepository: QuestionsRepository) {}
 
   async execute(command: PublishQuestionCommand) {
-    await this.questionsRepository.setPublishedStatus(command.id, command.published);
+    const question = await this.questionsRepository.getQuestion(command.id);
+    await question.setPublishedStatus(command.published);
+    await this.questionsRepository.save(question);
   }
 }

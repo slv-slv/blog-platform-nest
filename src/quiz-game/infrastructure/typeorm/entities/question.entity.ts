@@ -35,4 +35,8 @@ export class Question {
 
   @DeleteDateColumn({ type: 'timestamptz' })
   declare deletedAt: Date;
+
+  setPublishedStatus(published: boolean): void {
+    this.published = published;
+  }
 }

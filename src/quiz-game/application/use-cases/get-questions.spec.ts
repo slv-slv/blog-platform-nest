@@ -52,10 +52,14 @@ describe('GetQuestionsUseCase Integration', () => {
     await questionsRepository.createQuestion('Gamma other body', ['correct-1']);
 
     const betaQuestion = await questionsRepository.createQuestion('Beta search body', ['beta-correct']);
-    await questionsRepository.setPublishedStatus(betaQuestion.id.toString(), true);
+    const betaQuestionToPublish = await questionsRepository.getQuestion(betaQuestion.id.toString());
+    await betaQuestionToPublish.setPublishedStatus(true);
+    await questionsRepository.save(betaQuestionToPublish);
 
     const deltaQuestion = await questionsRepository.createQuestion('Delta search body', ['delta-correct']);
-    await questionsRepository.setPublishedStatus(deltaQuestion.id.toString(), true);
+    const deltaQuestionToPublish = await questionsRepository.getQuestion(deltaQuestion.id.toString());
+    await deltaQuestionToPublish.setPublishedStatus(true);
+    await questionsRepository.save(deltaQuestionToPublish);
 
     await questionsRepository.createQuestion('Alpha search body', ['alpha-correct']);
 
