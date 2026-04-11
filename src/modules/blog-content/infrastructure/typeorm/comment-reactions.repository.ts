@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { LikeStatus } from '../../types/likes.types.js';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { SetCommentLikeRepoParams, SetCommentNoneRepoParams } from '../../types/comment-likes.types.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import { CommentDislike } from './entities/comment-dislike.entity.js';
@@ -9,7 +9,12 @@ import { CommentLike } from './entities/comment-like.entity.js';
 
 @Injectable()
 export class CommentReactionsRepository {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(CommentLike) private readonly commentLikesEntityRepository: Repository<CommentLike>,
+    @InjectRepository(CommentDislike)
+    private readonly commentDislikesEntityRepository: Repository<CommentDislike>,
+  ) {}
 
   async getLikeStatus(
     commentIds: number[],
@@ -24,17 +29,15 @@ export class CommentReactionsRepository {
     }
 
     const userIdNum = +userId;
-    const commentLikesRepository = this.dataSource.getRepository(CommentLike);
-    const commentDislikesRepository = this.dataSource.getRepository(CommentDislike);
 
-    const dislikes = await commentDislikesRepository
+    const dislikes = await this.commentDislikesEntityRepository
       .createQueryBuilder('commentDislike')
       .select('commentDislike.commentId', 'commentId')
       .where('commentDislike.userId = :userId', { userId: userIdNum })
       .andWhere('commentDislike.commentId IN (:...commentIds)', { commentIds })
       .getRawMany<{ commentId: number }>();
 
-    const likes = await commentLikesRepository
+    const likes = await this.commentLikesEntityRepository
       .createQueryBuilder('commentLike')
       .select('commentLike.commentId', 'commentId')
       .where('commentLike.userId = :userId', { userId: userIdNum })

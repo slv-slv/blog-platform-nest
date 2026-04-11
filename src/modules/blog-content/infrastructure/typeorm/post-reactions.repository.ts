@@ -1,15 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { LikeStatus } from '../../types/likes.types.js';
 import { SetPostLikeRepoParams, SetPostNoneRepoParams } from '../../types/post-likes.types.js';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import { PostDislike } from './entities/post-dislike.entity.js';
 import { PostLike } from './entities/post-like.entity.js';
 
 @Injectable()
 export class PostReactionsRepository {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(PostLike) private readonly postLikesEntityRepository: Repository<PostLike>,
+    @InjectRepository(PostDislike) private readonly postDislikesEntityRepository: Repository<PostDislike>,
+  ) {}
 
   async getLikeStatus(
     postIds: number[],
@@ -24,17 +28,15 @@ export class PostReactionsRepository {
     }
 
     const userIdNum = +userId;
-    const postLikesRepository = this.dataSource.getRepository(PostLike);
-    const postDislikesRepository = this.dataSource.getRepository(PostDislike);
 
-    const dislikes = await postDislikesRepository
+    const dislikes = await this.postDislikesEntityRepository
       .createQueryBuilder('postDislike')
       .select('postDislike.postId', 'postId')
       .where('postDislike.userId = :userId', { userId: userIdNum })
       .andWhere('postDislike.postId IN (:...postIds)', { postIds })
       .getRawMany<{ postId: number }>();
 
-    const likes = await postLikesRepository
+    const likes = await this.postLikesEntityRepository
       .createQueryBuilder('postLike')
       .select('postLike.postId', 'postId')
       .where('postLike.userId = :userId', { userId: userIdNum })
