@@ -23,7 +23,10 @@ export class QuestionsRepository {
       throw new QuestionNotFoundDomainException();
     }
 
-    const question = await this.questionEntityRepository.findOneBy({ id: +id });
+    const question = await this.questionEntityRepository.findOne({
+      where: { id: +id },
+      relations: { correctAnswers: true },
+    });
     if (!question) {
       throw new QuestionNotFoundDomainException();
     }
