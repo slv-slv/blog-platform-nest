@@ -21,7 +21,7 @@ export class Game {
 
   @ForeignKey('users', 'id')
   @Column({ nullable: true, default: null })
-  declare secondPlayerId: number;
+  declare secondPlayerId: number | null;
 
   @OneToMany(() => GameQuestion, (gameQuestion) => gameQuestion.game)
   declare questionEntries: Relation<GameQuestion[]>;

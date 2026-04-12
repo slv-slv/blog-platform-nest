@@ -1,8 +1,9 @@
-import { Check, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation } from 'typeorm';
+import { Check, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, Relation, Unique } from 'typeorm';
 import { Game } from './game.entity.js';
 import { Question } from './question.entity.js';
 
 @Entity({ name: 'game_questions' })
+@Unique(['gameId', 'questionNumber'])
 export class GameQuestion {
   @PrimaryColumn()
   declare gameId: number;
@@ -10,7 +11,7 @@ export class GameQuestion {
   @PrimaryColumn()
   declare questionId: number;
 
-  @Column({ type: 'smallint', default: 1 })
+  @Column({ type: 'smallint' })
   @Check('"questionNumber" >= 1 AND "questionNumber" <= 5')
   declare questionNumber: number;
 

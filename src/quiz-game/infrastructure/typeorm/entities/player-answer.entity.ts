@@ -6,8 +6,8 @@ export enum AnswerStatus {
   incorrect = 'incorrect',
 }
 
-@ForeignKey(() => GameQuestion, ['gameId', 'questionId'], ['gameId', 'questionId'])
 @Entity({ name: 'player_answers' })
+@ForeignKey(() => GameQuestion, ['gameId', 'questionId'], ['gameId', 'questionId'])
 export class PlayerAnswer {
   @PrimaryColumn()
   declare gameId: number;
