@@ -10,15 +10,15 @@ export class GameQuestion {
   @PrimaryColumn()
   declare questionId: number;
 
-  @ManyToOne(() => Game)
+  @Column({ type: 'smallint', default: 1 })
+  @Check('"questionNumber" >= 1 AND "questionNumber" <= 5')
+  declare questionNumber: number;
+
+  @ManyToOne(() => Game, (game) => game.questionEntries)
   @JoinColumn({ name: 'gameId' })
   declare game: Relation<Game>;
 
   @ManyToOne(() => Question)
   @JoinColumn({ name: 'questionId' })
   declare question: Relation<Question>;
-
-  @Column({ type: 'smallint' })
-  @Check('"questionNumber" >= 1 AND "questionNumber" <= 5')
-  declare questionNumber: number;
 }
