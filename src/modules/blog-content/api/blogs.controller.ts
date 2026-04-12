@@ -17,7 +17,7 @@ export class BlogsController {
   async getBlogs(@Query() query: GetBlogsQueryDto): Promise<BlogsPaginatedViewModel> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-    return await this.queryBus.execute(new GetBlogsQuery({ searchNameTerm, pagingParams }));
+    return this.queryBus.execute(new GetBlogsQuery({ searchNameTerm, pagingParams }));
   }
 
   @Get(':blogId/posts')
@@ -30,11 +30,11 @@ export class BlogsController {
   ): Promise<PostsPaginatedViewModel> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
-    return await this.queryBus.execute(new GetPostsQuery({ pagingParams, userId, blogId }));
+    return this.queryBus.execute(new GetPostsQuery({ pagingParams, userId, blogId }));
   }
 
   @Get(':id')
   async getBlog(@Param('id') id: string): Promise<BlogViewModel> {
-    return await this.queryBus.execute(new GetBlogQuery(id));
+    return this.queryBus.execute(new GetBlogQuery(id));
   }
 }

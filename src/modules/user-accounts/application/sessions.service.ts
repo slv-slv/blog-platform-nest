@@ -17,7 +17,7 @@ export class SessionsService {
   }
 
   async checkSession(jti: string, deviceId: string): Promise<boolean> {
-    return await this.sessionsRepository.isSessionActive(jti, deviceId);
+    return this.sessionsRepository.isSessionActive(jti, deviceId);
   }
 
   async deleteDevice(userId: string, deviceId: string): Promise<void> {

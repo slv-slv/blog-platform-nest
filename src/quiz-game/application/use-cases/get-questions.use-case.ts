@@ -13,6 +13,6 @@ export class GetQuestionsUseCase implements IQueryHandler<GetQuestionsQuery> {
   constructor(private readonly questionsQueryRepository: QuestionsQueryRepository) {}
 
   async execute(query: GetQuestionsQuery) {
-    return await this.questionsQueryRepository.getQuestions(query.params);
+    return this.questionsQueryRepository.getQuestions(query.params);
   }
 }

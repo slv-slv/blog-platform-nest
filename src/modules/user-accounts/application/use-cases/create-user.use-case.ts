@@ -13,6 +13,6 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
   constructor(private readonly usersService: UsersService) {}
 
   async execute(command: CreateUserCommand) {
-    return await this.usersService.createUser(command.params);
+    return this.usersService.createUser(command.params);
   }
 }

@@ -47,7 +47,7 @@ export class BlogsRepository {
       isMembership,
     });
 
-    return await this.blogEntityRepository.save(blog);
+    return this.blogEntityRepository.save(blog);
   }
 
   async updateBlog(params: UpdateBlogRepoParams): Promise<void> {

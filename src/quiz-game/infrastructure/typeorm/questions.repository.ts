@@ -15,7 +15,7 @@ export class QuestionsRepository {
   ) {}
 
   async save(question: Question): Promise<Question> {
-    return await this.questionEntityRepository.save(question);
+    return this.questionEntityRepository.save(question);
   }
 
   async getQuestion(id: string): Promise<Question> {
@@ -41,7 +41,7 @@ export class QuestionsRepository {
       correctAnswers: correctAnswers.map((answer) => ({ answer })),
     });
 
-    return await this.questionEntityRepository.save(question);
+    return this.questionEntityRepository.save(question);
   }
 
   async updateQuestion({ id, body, correctAnswers }: UpdateQuestionParams): Promise<void> {

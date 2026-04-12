@@ -58,7 +58,7 @@ export class CommentsRepository {
       createdAt,
     });
 
-    return await this.commentEntityRepository.save(comment);
+    return this.commentEntityRepository.save(comment);
   }
 
   async updateComment(params: UpdateCommentRepoParams): Promise<void> {

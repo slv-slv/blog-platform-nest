@@ -13,6 +13,6 @@ export class GetDevicesQuery extends Query<DeviceViewModel[]> {
 export class GetDevicesUseCase implements IQueryHandler<GetDevicesQuery> {
   constructor(@Inject(SessionsQueryRepository) private sessionsQueryRepository: SessionsQueryRepository) {}
   async execute(query: GetDevicesQuery) {
-    return await this.sessionsQueryRepository.getActiveDevices(query.userId);
+    return this.sessionsQueryRepository.getActiveDevices(query.userId);
   }
 }

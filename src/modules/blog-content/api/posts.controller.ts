@@ -42,14 +42,14 @@ export class PostsController {
   ): Promise<PostsPaginatedViewModel> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
-    return await this.queryBus.execute(new GetPostsQuery({ pagingParams, userId }));
+    return this.queryBus.execute(new GetPostsQuery({ pagingParams, userId }));
   }
 
   @Get(':id')
   @Public()
   @UseGuards(AccessTokenGuard)
   async getPost(@Param('id') id: string, @UserId() userId: string): Promise<PostViewModel> {
-    return await this.queryBus.execute(new GetPostQuery({ postId: id, userId }));
+    return this.queryBus.execute(new GetPostQuery({ postId: id, userId }));
   }
 
   @Post()
@@ -57,7 +57,7 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   async createPost(@Body() body: CreatePostForBlogInputDto): Promise<PostViewModel> {
     const { title, shortDescription, content, blogId } = body;
-    return await this.commandBus.execute(new CreatePostCommand({ title, shortDescription, content, blogId }));
+    return this.commandBus.execute(new CreatePostCommand({ title, shortDescription, content, blogId }));
   }
 
   @Put(':id')
@@ -80,7 +80,7 @@ export class PostsController {
   ): Promise<CommentsPaginatedViewModel> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-    return await this.queryBus.execute(new GetCommentsQuery({ postId, userId, pagingParams }));
+    return this.queryBus.execute(new GetCommentsQuery({ postId, userId, pagingParams }));
   }
 
   @Post(':postId/comments')
@@ -92,7 +92,7 @@ export class PostsController {
     @UserId() userId: string,
   ): Promise<CommentViewModel> {
     const content = body.content;
-    return await this.commandBus.execute(new CreateCommentCommand({ postId, content, userId }));
+    return this.commandBus.execute(new CreateCommentCommand({ postId, content, userId }));
   }
 
   @Put(':postId/like-status')

@@ -13,6 +13,6 @@ export class GetBlogsUseCase implements IQueryHandler<GetBlogsQuery> {
   constructor(private readonly blogsQueryRepository: BlogsQueryRepository) {}
   async execute(query: GetBlogsQuery) {
     const { params } = query;
-    return await this.blogsQueryRepository.getBlogs(params);
+    return this.blogsQueryRepository.getBlogs(params);
   }
 }

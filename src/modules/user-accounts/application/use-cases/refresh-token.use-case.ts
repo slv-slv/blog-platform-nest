@@ -13,6 +13,6 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand>
   constructor(private readonly authService: AuthService) {}
 
   async execute(command: RefreshTokenCommand): Promise<JwtPairType> {
-    return await this.authService.createSessionTokens(command.params);
+    return this.authService.createSessionTokens(command.params);
   }
 }

@@ -54,7 +54,7 @@ export class PostReactionsQueryRepository {
   }
 
   private async getLikesCount(postIds: number[]): Promise<{ postId: number; likesCount: number }[]> {
-    return await this.postLikesEntityRepository
+    return this.postLikesEntityRepository
       .createQueryBuilder('postLike')
       .select('postLike.postId', 'postId')
       .addSelect('COUNT(postLike.userId)::int', 'likesCount')
@@ -64,7 +64,7 @@ export class PostReactionsQueryRepository {
   }
 
   private async getDislikesCount(postIds: number[]): Promise<{ postId: number; dislikesCount: number }[]> {
-    return await this.postDislikesEntityRepository
+    return this.postDislikesEntityRepository
       .createQueryBuilder('postDislike')
       .select('postDislike.postId', 'postId')
       .addSelect('COUNT(postDislike.userId)::int', 'dislikesCount')
@@ -129,7 +129,7 @@ export class PostReactionsQueryRepository {
       .addSelect('ROW_NUMBER() OVER (PARTITION BY postLike.postId ORDER BY postLike.createdAt DESC)', 'rn')
       .where('postLike.postId = ANY(:postIds)', { postIds });
 
-    return await this.dataSource
+    return this.dataSource
       .createQueryBuilder()
       .addCommonTableExpression(likeRowNumbersQuery, 'LikeRowNumbers')
       .select('lrn."postId"', 'postId')

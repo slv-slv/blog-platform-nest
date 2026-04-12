@@ -112,7 +112,7 @@ export class AuthController {
   @Get('me')
   @UseGuards(AccessTokenGuard)
   async getCurrentUser(@UserId() userId: string): Promise<CurrentUserViewModel> {
-    return await this.queryBus.execute(new GetCurrentUserQuery(userId));
+    return this.queryBus.execute(new GetCurrentUserQuery(userId));
   }
 
   @Post('registration')

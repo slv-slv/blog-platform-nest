@@ -37,19 +37,19 @@ export class BlogsSuperadminController {
   async getBlogs(@Query() query: GetBlogsQueryDto): Promise<BlogsPaginatedViewModel> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-    return await this.queryBus.execute(new GetBlogsQuery({ searchNameTerm, pagingParams }));
+    return this.queryBus.execute(new GetBlogsQuery({ searchNameTerm, pagingParams }));
   }
 
   @Get(':id')
   async getBlog(@Param('id') id: string): Promise<BlogViewModel> {
-    return await this.queryBus.execute(new GetBlogQuery(id));
+    return this.queryBus.execute(new GetBlogQuery(id));
   }
 
   @Post()
   @HttpCode(201)
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewModel> {
     const { name, description, websiteUrl } = body;
-    return await this.commandBus.execute(new CreateBlogCommand({ name, description, websiteUrl }));
+    return this.commandBus.execute(new CreateBlogCommand({ name, description, websiteUrl }));
   }
 
   @Put(':id')
@@ -72,7 +72,7 @@ export class BlogsSuperadminController {
   ): Promise<PostsPaginatedViewModel> {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortDirection, pageNumber, pageSize, sortBy };
-    return await this.queryBus.execute(new GetPostsQuery({ pagingParams, blogId }));
+    return this.queryBus.execute(new GetPostsQuery({ pagingParams, blogId }));
   }
 
   @Post(':blogId/posts')
@@ -82,7 +82,7 @@ export class BlogsSuperadminController {
     @Body() body: CreatePostInputDto,
   ): Promise<PostViewModel> {
     const { title, shortDescription, content } = body;
-    return await this.commandBus.execute(new CreatePostCommand({ title, shortDescription, content, blogId }));
+    return this.commandBus.execute(new CreatePostCommand({ title, shortDescription, content, blogId }));
   }
 
   @Put(':blogId/posts/:postId')

@@ -78,10 +78,10 @@ export class UsersService {
   }
 
   async isLoginExists(login: string): Promise<boolean> {
-    return await this.usersRepository.isLoginExists(login);
+    return this.usersRepository.isLoginExists(login);
   }
 
   async isEmailExists(email: string): Promise<boolean> {
-    return await this.usersRepository.isEmailExists(email);
+    return this.usersRepository.isEmailExists(email);
   }
 }

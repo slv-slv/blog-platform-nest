@@ -14,6 +14,6 @@ export class GamesRepository {
       secondPlayerId: null,
       status: GameStatus.pending,
     });
-    return await this.gameEntityRepository.save(game);
+    return this.gameEntityRepository.save(game);
   }
 }

@@ -12,6 +12,6 @@ export class GetCommentQuery extends Query<CommentViewModel> {
 export class GetCommentUseCase implements IQueryHandler<GetCommentQuery> {
   constructor(private readonly commentsQueryRepository: CommentsQueryRepository) {}
   async execute(query: GetCommentQuery) {
-    return await this.commentsQueryRepository.getComment(query.params);
+    return this.commentsQueryRepository.getComment(query.params);
   }
 }

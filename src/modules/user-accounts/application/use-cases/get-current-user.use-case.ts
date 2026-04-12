@@ -13,6 +13,6 @@ export class GetCurrentUserUseCase implements IQueryHandler<GetCurrentUserQuery>
   constructor(private readonly usersQueryRepository: UsersQueryRepository) {}
 
   async execute(query: GetCurrentUserQuery) {
-    return await this.usersQueryRepository.getCurrentUser(query.userId);
+    return this.usersQueryRepository.getCurrentUser(query.userId);
   }
 }

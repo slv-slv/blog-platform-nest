@@ -21,7 +21,7 @@ export class CommentsController {
   @Get(':id')
   @Public()
   async getComment(@Param('id') id: string, @UserId() userId: string): Promise<CommentViewModel> {
-    return await this.queryBus.execute(new GetCommentQuery({ commentId: id, userId }));
+    return this.queryBus.execute(new GetCommentQuery({ commentId: id, userId }));
   }
 
   @Put(':commentId')

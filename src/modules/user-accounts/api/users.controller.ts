@@ -23,7 +23,7 @@ export class UsersController {
   async getUsers(@Query() query: GetUsersQueryDto): Promise<UsersPaginatedViewModel> {
     const { searchLoginTerm, searchEmailTerm, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-    return await this.queryBus.execute(
+    return this.queryBus.execute(
       new GetUsersQuery({
         searchLoginTerm,
         searchEmailTerm,
@@ -36,7 +36,7 @@ export class UsersController {
   @HttpCode(201)
   async createUser(@Body() body: CreateUserInputDto): Promise<UserViewModel> {
     const { login, password, email } = body;
-    return await this.commandBus.execute(new CreateUserCommand({ login, email, password }));
+    return this.commandBus.execute(new CreateUserCommand({ login, email, password }));
   }
 
   @Delete(':id')

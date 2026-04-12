@@ -19,6 +19,6 @@ export class GetCommentsUseCase implements IQueryHandler<GetCommentsQuery> {
   async execute(query: GetCommentsQuery) {
     const { params } = query;
     await this.postsQueryRepository.checkPostExists(params.postId);
-    return await this.commentsQueryRepository.getComments(params);
+    return this.commentsQueryRepository.getComments(params);
   }
 }

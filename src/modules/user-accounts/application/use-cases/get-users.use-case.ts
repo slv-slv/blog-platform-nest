@@ -12,6 +12,6 @@ export class GetUsersQuery extends Query<UsersPaginatedViewModel> {
 export class GetUsersUseCase implements IQueryHandler<GetUsersQuery> {
   constructor(private readonly usersQueryRepository: UsersQueryRepository) {}
   async execute(query: GetUsersQuery) {
-    return await this.usersQueryRepository.getUsers(query.params);
+    return this.usersQueryRepository.getUsers(query.params);
   }
 }

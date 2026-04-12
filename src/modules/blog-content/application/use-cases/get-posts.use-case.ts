@@ -22,6 +22,6 @@ export class GetPostsUseCase implements IQueryHandler<GetPostsQuery> {
       await this.blogsQueryRepository.checkBlogExists(params.blogId);
     }
 
-    return await this.postsQueryRepository.getPosts(query.params);
+    return this.postsQueryRepository.getPosts(query.params);
   }
 }

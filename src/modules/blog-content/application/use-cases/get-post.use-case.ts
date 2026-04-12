@@ -13,6 +13,6 @@ export class GetPostUseCase implements IQueryHandler<GetPostQuery> {
   constructor(private readonly postsQueryRepository: PostsQueryRepository) {}
   async execute(query: GetPostQuery) {
     const { params } = query;
-    return await this.postsQueryRepository.getPost(params);
+    return this.postsQueryRepository.getPost(params);
   }
 }

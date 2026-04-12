@@ -56,7 +56,7 @@ export class PostsRepository {
       createdAt,
     });
 
-    return await this.postEntityRepository.save(post);
+    return this.postEntityRepository.save(post);
   }
 
   async updatePost(params: UpdatePostRepoParams): Promise<void> {

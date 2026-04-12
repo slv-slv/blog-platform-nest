@@ -41,7 +41,7 @@ export class CommentReactionsQueryRepository {
   }
 
   private async getLikesCount(commentIds: number[]): Promise<{ commentId: number; likesCount: number }[]> {
-    return await this.commentLikesEntityRepository
+    return this.commentLikesEntityRepository
       .createQueryBuilder('commentLike')
       .select('commentLike.commentId', 'commentId')
       .addSelect('COUNT(commentLike.userId)::int', 'likesCount')
@@ -53,7 +53,7 @@ export class CommentReactionsQueryRepository {
   private async getDislikesCount(
     commentIds: number[],
   ): Promise<{ commentId: number; dislikesCount: number }[]> {
-    return await this.commentDislikesEntityRepository
+    return this.commentDislikesEntityRepository
       .createQueryBuilder('commentDislike')
       .select('commentDislike.commentId', 'commentId')
       .addSelect('COUNT(commentDislike.userId)::int', 'dislikesCount')

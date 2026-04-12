@@ -27,7 +27,7 @@ export class QuestionsController {
   async getQuestions(@Query() query: GetQuestionsQueryDto): Promise<QuestionsPaginatedViewModel> {
     const { bodySearchTerm, publishedStatus, sortBy, sortDirection, pageNumber, pageSize } = query;
     const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
-    return await this.queryBus.execute(
+    return this.queryBus.execute(
       new GetQuestionsQuery({ bodySearchTerm, publishedStatus, pagingParams }),
     );
   }
@@ -35,7 +35,7 @@ export class QuestionsController {
   @Post()
   // @HttpCode(201)
   async createQuestion(@Body() body: CreateQuestionInputDto): Promise<QuestionViewModel> {
-    return await this.commandBus.execute(new CreateQuestionCommand(body.body, body.correctAnswers));
+    return this.commandBus.execute(new CreateQuestionCommand(body.body, body.correctAnswers));
   }
 
   @Put(':id')
