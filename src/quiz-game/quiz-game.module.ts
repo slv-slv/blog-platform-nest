@@ -13,6 +13,7 @@ import { QuestionsQueryRepository } from './infrastructure/typeorm/questions.que
 import { Game } from './infrastructure/typeorm/entities/game.entity.js';
 import { GameQuestion } from './infrastructure/typeorm/entities/game-question.entity.js';
 import { PlayerAnswer } from './infrastructure/typeorm/entities/player-answer.entity.js';
+import { GamesRepository } from './infrastructure/typeorm/games.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Question, CorrectAnswer, Game, GameQuestion, PlayerAnswer])],
@@ -24,6 +25,7 @@ import { PlayerAnswer } from './infrastructure/typeorm/entities/player-answer.en
     PublishQuestionUseCase,
     GetQuestionsUseCase,
     QuestionsQueryRepository,
+    GamesRepository,
   ],
   controllers: [QuestionsController],
 })
