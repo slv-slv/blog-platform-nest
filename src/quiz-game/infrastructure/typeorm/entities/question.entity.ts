@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { CorrectAnswer } from './correct-answer.entity.js';
+import { GameQuestion } from './game-question.entity.js';
 
 @Entity({ name: 'questions' })
 export class Question {
@@ -25,6 +26,9 @@ export class Question {
     cascade: true,
   })
   declare correctAnswers: Relation<CorrectAnswer[]>;
+
+  // @OneToMany(() => GameQuestion, (gameQuestion) => gameQuestion.question)
+  // declare gameQuestions: Relation<GameQuestion[]>;
 
   @CreateDateColumn({ type: 'timestamptz' })
   declare createdAt: Date;
