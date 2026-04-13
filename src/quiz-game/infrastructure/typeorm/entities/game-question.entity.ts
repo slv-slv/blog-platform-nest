@@ -12,7 +12,6 @@ export class GameQuestion {
   declare questionId: number;
 
   @Column({ type: 'smallint' })
-  @Check('"questionNumber" >= 1 AND "questionNumber" <= 5')
   declare questionNumber: number;
 
   @ManyToOne(() => Game, (game) => game.questionEntries)
