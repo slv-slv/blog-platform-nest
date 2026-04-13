@@ -10,6 +10,7 @@ import { coreConfig } from '../config/core.config.js';
 import { emailConfig } from '../config/email.config.js';
 import { mongoConfig } from '../config/mongo.config.js';
 import { postgresConfig } from '../config/postgres.config.js';
+import { quizConfig } from '../config/quiz.config.js';
 
 @Global()
 @Module({
@@ -22,7 +23,7 @@ import { postgresConfig } from '../config/postgres.config.js';
         `.env.${process.env.NODE_ENV}`,
         `.env.production`,
       ],
-      load: [coreConfig, mongoConfig, postgresConfig, authConfig, emailConfig],
+      load: [coreConfig, mongoConfig, postgresConfig, authConfig, emailConfig, quizConfig],
     }),
     MongooseModule.forRootAsync({
       inject: [mongoConfig.KEY],
