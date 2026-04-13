@@ -15,7 +15,6 @@ import {
   GameIsNotPendingDomainException,
   NotEnoughQuestionsToStartGameDomainException,
   SecondPlayerAlreadyJoinedDomainException,
-  SecondPlayerNotJoinedDomainException,
 } from '../../../../common/exceptions/domain-exceptions.js';
 import { Question } from './question.entity.js';
 
@@ -48,39 +47,24 @@ export class Game {
   @Column({ type: 'timestamptz', nullable: true, default: null })
   declare finishGameDate: Date | null;
 
-  // async startGame(userId: number): Promise<Game> {
-  //   this.secondPlayerId = userId;
-
-  // }
-
-  joinSecondPlayer(userId: number): void {
-    if (this.firstPlayerId === userId) {
-      throw new CannotJoinOwnGameDomainException();
-    }
-
+  startGame(secondPlayerId: number, questions: Question[], requiredQuestionsCount: number): void {
     if (this.status !== GameStatus.pending) {
       throw new GameIsNotPendingDomainException();
+    }
+
+    if (this.firstPlayerId === secondPlayerId) {
+      throw new CannotJoinOwnGameDomainException();
     }
 
     if (this.secondPlayerId !== null) {
       throw new SecondPlayerAlreadyJoinedDomainException();
     }
 
-    this.secondPlayerId = userId;
-  }
-
-  startGame(questions: Question[], requiredQuestionsCount: number): void {
-    if (this.status !== GameStatus.pending) {
-      throw new GameIsNotPendingDomainException();
-    }
-
-    if (this.secondPlayerId === null) {
-      throw new SecondPlayerNotJoinedDomainException();
-    }
-
     if (questions.length < requiredQuestionsCount) {
       throw new NotEnoughQuestionsToStartGameDomainException(requiredQuestionsCount);
     }
+
+    this.secondPlayerId = secondPlayerId;
 
     this.questionEntries = questions.map((question, index) => {
       const entry = new GameQuestion();

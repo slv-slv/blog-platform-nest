@@ -44,7 +44,6 @@ function mapDomainStatusToHttpCode(exceptionStatus: DomainExceptionStatus): Http
     case DomainExceptionStatus.CANNOT_JOIN_OWN_GAME:
     case DomainExceptionStatus.GAME_IS_NOT_PENDING:
     case DomainExceptionStatus.SECOND_PLAYER_ALREADY_JOINED:
-    case DomainExceptionStatus.SECOND_PLAYER_NOT_JOINED:
     case DomainExceptionStatus.NOT_ENOUGH_QUESTIONS_TO_START_GAME:
       return HttpStatus.FORBIDDEN;
 

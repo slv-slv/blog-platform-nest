@@ -116,13 +116,6 @@ export class SecondPlayerAlreadyJoinedDomainException extends DomainException {
   }
 }
 
-export class SecondPlayerNotJoinedDomainException extends DomainException {
-  constructor(message = 'Second player has not joined yet') {
-    super(message);
-    this.status = DomainExceptionStatus.SECOND_PLAYER_NOT_JOINED;
-  }
-}
-
 export class NotEnoughQuestionsToStartGameDomainException extends DomainException {
   constructor(
     requiredQuestionsCount: number,

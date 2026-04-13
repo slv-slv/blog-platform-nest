@@ -45,8 +45,7 @@ export class GamesRepository {
         .limit(this.quiz.questionsCount)
         .getMany();
 
-      pendingGame.joinSecondPlayer(userId);
-      pendingGame.startGame(questions, this.quiz.questionsCount);
+      pendingGame.startGame(userId, questions, this.quiz.questionsCount);
 
       return gameEntityRepository.save(pendingGame);
     });
