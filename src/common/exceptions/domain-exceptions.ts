@@ -95,6 +95,27 @@ export class QuestionNotFoundDomainException extends DomainException {
   }
 }
 
+export class CannotJoinOwnGameDomainException extends DomainException {
+  constructor(message = 'User cannot join his own game') {
+    super(message);
+    this.status = DomainExceptionStatus.CANNOT_JOIN_OWN_GAME;
+  }
+}
+
+export class GameIsNotPendingDomainException extends DomainException {
+  constructor(message = 'Game is not pending') {
+    super(message);
+    this.status = DomainExceptionStatus.GAME_IS_NOT_PENDING;
+  }
+}
+
+export class SecondPlayerAlreadyJoinedDomainException extends DomainException {
+  constructor(message = 'Second player already joined') {
+    super(message);
+    this.status = DomainExceptionStatus.SECOND_PLAYER_ALREADY_JOINED;
+  }
+}
+
 // Auth
 export class CredentialsIncorrectDomainException extends DomainException {
   constructor(message = 'Incorrect login/password') {

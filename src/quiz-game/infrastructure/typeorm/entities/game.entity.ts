@@ -10,6 +10,11 @@ import {
 } from 'typeorm';
 import { GameStatus } from '../../../types/game.types.js';
 import { GameQuestion } from './game-question.entity.js';
+import {
+  CannotJoinOwnGameDomainException,
+  GameIsNotPendingDomainException,
+  SecondPlayerAlreadyJoinedDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
 
 @Entity({ name: 'games' })
 export class Game {
@@ -44,4 +49,20 @@ export class Game {
   //   this.secondPlayerId = userId;
 
   // }
+
+  joinSecondPlayer(userId: number) {
+    if (this.firstPlayerId === userId) {
+      throw new CannotJoinOwnGameDomainException();
+    }
+
+    if (this.status !== GameStatus.pending) {
+      throw new GameIsNotPendingDomainException();
+    }
+
+    if (this.secondPlayerId !== null) {
+      throw new SecondPlayerAlreadyJoinedDomainException();
+    }
+
+    this.secondPlayerId = userId;
+  }
 }
