@@ -116,6 +116,23 @@ export class SecondPlayerAlreadyJoinedDomainException extends DomainException {
   }
 }
 
+export class SecondPlayerNotJoinedDomainException extends DomainException {
+  constructor(message = 'Second player has not joined yet') {
+    super(message);
+    this.status = DomainExceptionStatus.SECOND_PLAYER_NOT_JOINED;
+  }
+}
+
+export class NotEnoughQuestionsToStartGameDomainException extends DomainException {
+  constructor(
+    requiredQuestionsCount: number,
+    message = `At least ${requiredQuestionsCount} questions are required to start the game`,
+  ) {
+    super(message);
+    this.status = DomainExceptionStatus.NOT_ENOUGH_QUESTIONS_TO_START_GAME;
+  }
+}
+
 // Auth
 export class CredentialsIncorrectDomainException extends DomainException {
   constructor(message = 'Incorrect login/password') {
