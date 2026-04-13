@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   ForeignKey,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   Relation,
@@ -20,13 +21,14 @@ export class Game {
   declare firstPlayerId: number;
 
   @ForeignKey('users', 'id')
-  @Column({ nullable: true, default: null })
+  @Column('integer', { nullable: true, default: null })
   declare secondPlayerId: number | null;
 
   @OneToMany(() => GameQuestion, (gameQuestion) => gameQuestion.game)
   declare questionEntries: Relation<GameQuestion[]>;
 
   @Column({ type: 'enum', enum: GameStatus, default: GameStatus.pending })
+  @Index({ unique: true, where: `"status" = 'pending'` })
   declare status: GameStatus;
 
   @CreateDateColumn({ type: 'timestamptz' })
@@ -37,4 +39,9 @@ export class Game {
 
   @Column({ type: 'timestamptz', nullable: true, default: null })
   declare finishGameDate: Date | null;
+
+  // async startGame(userId: number): Promise<Game> {
+  //   this.secondPlayerId = userId;
+
+  // }
 }
