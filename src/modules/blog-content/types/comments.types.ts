@@ -1,5 +1,5 @@
 import { WithId } from 'mongodb';
-import { IsEnum, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
+import { IsEnum, IsOptional, IsString, Length } from 'class-validator';
 import { LikesInfoViewModel } from './likes.types.js';
 import { Trim } from '../../../common/decorators/trim.js';
 import { BasicPagingParams, PagingParamsType } from '../../../common/types/paging-params.types.js';
@@ -37,7 +37,6 @@ export type CommentsPaginatedViewModel = {
 export class CreateCommentInputDto {
   @IsString()
   @Trim()
-  @IsNotEmpty()
   @Length(20, 300)
   declare content: string;
 }
