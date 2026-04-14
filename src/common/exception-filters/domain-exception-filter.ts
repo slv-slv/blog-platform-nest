@@ -28,6 +28,7 @@ function mapDomainStatusToHttpCode(exceptionStatus: DomainExceptionStatus): Http
     case DomainExceptionStatus.DEVICE_NOT_FOUND:
     case DomainExceptionStatus.USER_NOT_FOUND:
     case DomainExceptionStatus.QUESTION_NOT_FOUND:
+    case DomainExceptionStatus.GAME_NOT_FOUND:
       return HttpStatus.NOT_FOUND;
 
     // 401

@@ -94,6 +94,13 @@ export class QuestionNotFoundDomainException extends DomainException {
   }
 }
 
+export class GameNotFoundDomainException extends DomainException {
+  constructor(message = 'Game not found') {
+    super(message);
+    this.status = DomainExceptionStatus.GAME_NOT_FOUND;
+  }
+}
+
 export class CannotJoinOwnGameDomainException extends DomainException {
   constructor(message = 'User cannot join his own game') {
     super(message);
