@@ -18,21 +18,15 @@ export class GamesRepository {
     return gameEntityRepository.save(game);
   }
 
-  async findActiveGameByUserId(userId: string): Promise<Game> {
+  async findActiveGameByUserId(userId: string): Promise<Game | null> {
     if (!isPositiveIntegerString(userId)) {
       throw new UnauthorizedDomainException();
     }
 
-    const game = await this.gameEntityRepository.findOneBy([
+    return this.gameEntityRepository.findOneBy([
       { firstPlayerId: +userId, status: GameStatus.active },
       { secondPlayerId: +userId, status: GameStatus.active },
     ]);
-
-    if (!game) {
-      throw new NoActivePairDomainException();
-    }
-
-    return game;
   }
 
   async createGame(userId: string, manager?: EntityManager): Promise<Game> {
