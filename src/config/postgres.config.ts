@@ -1,6 +1,7 @@
 import { registerAs } from '@nestjs/config';
-import { plainToInstance, Transform, Type } from 'class-transformer';
+import { plainToInstance, Type } from 'class-transformer';
 import { IsBoolean, IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
+import { ToBoolean } from '../common/decorators/to-boolean.js';
 import { validateOrThrow } from './validate-or-throw.js';
 
 class PostgresConfig {
@@ -15,20 +16,7 @@ class PostgresConfig {
   declare port: number;
 
   @IsBoolean()
-  @Transform(({ value }) => {
-    if (typeof value !== 'string') return value;
-    const normalized = value.trim().toLowerCase();
-
-    if (normalized === 'true') {
-      return true;
-    }
-
-    if (normalized === 'false') {
-      return false;
-    }
-
-    return value;
-  })
+  @ToBoolean()
   declare ssl: boolean;
 
   @IsString()
