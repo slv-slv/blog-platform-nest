@@ -85,4 +85,30 @@ export class GamesRepository {
 
     return nextQuestion;
   }
+
+  async submitAnswer(
+    gameId: string,
+    userId: string,
+    questionId: string,
+    answer: string,
+    status: AnswerStatus,
+  ): Promise<PlayerAnswer> {
+    await this.playerAnswerEntityRepository.insert({
+      gameId: +gameId,
+      questionId: +questionId,
+      userId: +userId,
+      answer,
+      status,
+    });
+
+    const newAnswer = this.playerAnswerEntityRepository.create({
+      gameId: +gameId,
+      questionId: +questionId,
+      userId: +userId,
+      answer,
+      status,
+    });
+
+    return this.playerAnswerEntityRepository.save(newAnswer);
+  }
 }
