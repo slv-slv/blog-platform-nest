@@ -8,7 +8,10 @@ import { Inject } from '@nestjs/common';
 import { quizConfig } from '../../../config/quiz.config.js';
 import { ConfigType } from '@nestjs/config';
 import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
-import { UnauthorizedDomainException } from '../../../common/exceptions/domain-exceptions.js';
+import {
+  AccessDeniedDomainException,
+  UnauthorizedDomainException,
+} from '../../../common/exceptions/domain-exceptions.js';
 
 export class ConnectUserCommand extends Command<Game> {
   constructor(public readonly userId: string) {
@@ -32,6 +35,11 @@ export class ConnectUserUseCase implements ICommandHandler<ConnectUserCommand> {
     const userId = +command.userId;
 
     return this.dataSource.transaction(async (manager) => {
+      const activeGame = await this.gamesRepository.findActiveGameByUserId(command.userId, manager);
+      if (activeGame) {
+        throw new AccessDeniedDomainException('Current user is already inside active pair');
+      }
+
       const pendingGame = await this.gamesRepository.findPendingGameWithLock(manager);
 
       if (!pendingGame) {
