@@ -2,7 +2,6 @@ import { Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common'
 import { BaseExceptionFilter } from '@nestjs/core';
 import { DomainException } from '../exceptions/domain-exceptions.js';
 import { DomainExceptionStatus } from '../exceptions/domain-exception-status.js';
-import { HTTP_STATUS } from '../../__tests__/utils/http-status.js';
 
 @Catch(DomainException)
 export class DomainExceptionFilter extends BaseExceptionFilter {

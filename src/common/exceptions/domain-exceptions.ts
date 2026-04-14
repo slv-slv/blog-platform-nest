@@ -1,4 +1,3 @@
-import { HttpStatus } from '@nestjs/common';
 import { DomainExceptionStatus } from './domain-exception-status.js';
 
 export abstract class DomainException extends Error {
