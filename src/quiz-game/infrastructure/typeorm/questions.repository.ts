@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Question } from './entities/question.entity.js';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { QuestionNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
 import { CorrectAnswer } from './entities/correct-answer.entity.js';
@@ -42,6 +42,17 @@ export class QuestionsRepository {
     });
 
     return this.questionEntityRepository.save(question);
+  }
+
+  async getRandomQuestions(manager: EntityManager, limit: number): Promise<Question[]> {
+    const questionEntityRepository = manager.getRepository(Question);
+
+    return questionEntityRepository
+      .createQueryBuilder('q')
+      .where('q.published = true')
+      .orderBy('RANDOM()')
+      .limit(limit)
+      .getMany();
   }
 
   async updateQuestion({ id, body, correctAnswers }: UpdateQuestionParams): Promise<void> {
