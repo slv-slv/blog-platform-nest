@@ -7,6 +7,8 @@ import { QuestionsRepository } from '../../infrastructure/typeorm/questions.repo
 import { Inject } from '@nestjs/common';
 import { quizConfig } from '../../../config/quiz.config.js';
 import { ConfigType } from '@nestjs/config';
+import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
+import { UnauthorizedDomainException } from '../../../common/exceptions/domain-exceptions.js';
 
 export class ConnectUserCommand extends Command<Game> {
   constructor(public readonly userId: string) {
@@ -23,6 +25,12 @@ export class ConnectUserUseCase implements ICommandHandler<ConnectUserCommand> {
     @Inject(quizConfig.KEY) private readonly quiz: ConfigType<typeof quizConfig>,
   ) {}
   async execute(command: ConnectUserCommand) {
+    if (!isPositiveIntegerString(command.userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
+    const userId = +command.userId;
+
     return this.dataSource.transaction(async (manager) => {
       const pendingGame = await this.gamesRepository.findPendingGameWithLock(manager);
 
@@ -33,7 +41,7 @@ export class ConnectUserUseCase implements ICommandHandler<ConnectUserCommand> {
       const requiredQuestionsCount = this.quiz.questionsCount;
       const questions = await this.questionsRepository.getRandomQuestions(manager, requiredQuestionsCount);
 
-      pendingGame.startGame(command.userId, questions, requiredQuestionsCount);
+      pendingGame.startGame(userId, questions, requiredQuestionsCount);
       return this.gamesRepository.save(pendingGame, manager);
     });
   }
