@@ -4,7 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { GameStatus } from '../../types/game.types.js';
 import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
-import { UnauthorizedDomainException } from '../../../common/exceptions/domain-exceptions.js';
+import {
+  NoActivePairDomainException,
+  UnauthorizedDomainException,
+} from '../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class GamesRepository {
@@ -26,7 +29,7 @@ export class GamesRepository {
     ]);
 
     if (!game) {
-      throw new UnauthorizedDomainException();
+      throw new NoActivePairDomainException();
     }
 
     return game;

@@ -6,6 +6,7 @@ import { PlayerAnswer } from './entities/player-answer.entity.js';
 import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
 import {
   GameNotFoundDomainException,
+  NoRemainingQuestionsDomainException,
   UnauthorizedDomainException,
 } from '../../../common/exceptions/domain-exceptions.js';
 
@@ -43,7 +44,7 @@ export class GameQuestionsRepository {
       .getOne();
 
     if (!nextQuestion) {
-      throw new UnauthorizedDomainException();
+      throw new NoRemainingQuestionsDomainException();
     }
 
     return nextQuestion;

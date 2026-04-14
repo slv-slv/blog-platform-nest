@@ -101,6 +101,20 @@ export class GameNotFoundDomainException extends DomainException {
   }
 }
 
+export class NoActivePairDomainException extends DomainException {
+  constructor(message = 'Current user is not inside active pair') {
+    super(message);
+    this.status = DomainExceptionStatus.NO_ACTIVE_PAIR;
+  }
+}
+
+export class NoRemainingQuestionsDomainException extends DomainException {
+  constructor(message = 'Current user has already answered all questions') {
+    super(message);
+    this.status = DomainExceptionStatus.NO_REMAINING_QUESTIONS;
+  }
+}
+
 export class CannotJoinOwnGameDomainException extends DomainException {
   constructor(message = 'User cannot join his own game') {
     super(message);
