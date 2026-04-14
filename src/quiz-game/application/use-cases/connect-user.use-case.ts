@@ -9,7 +9,7 @@ import { quizConfig } from '../../../config/quiz.config.js';
 import { ConfigType } from '@nestjs/config';
 
 export class ConnectUserCommand extends Command<Game> {
-  constructor(public readonly userId: number) {
+  constructor(public readonly userId: string) {
     super();
   }
 }

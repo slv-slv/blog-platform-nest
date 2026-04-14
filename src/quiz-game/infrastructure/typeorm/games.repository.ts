@@ -1,13 +1,15 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
+import { Injectable } from '@nestjs/common';
 import { Game } from './entities/game.entity.js';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { GameStatus } from '../../types/game.types.js';
-import { Question } from './entities/question.entity.js';
-import { quizConfig } from '../../../config/quiz.config.js';
 import { AnswerStatus, PlayerAnswer } from './entities/player-answer.entity.js';
 import { GameQuestion } from './entities/game-question.entity.js';
+import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
+import {
+  GameNotFoundDomainException,
+  UnauthorizedDomainException,
+} from '../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class GamesRepository {
@@ -16,7 +18,6 @@ export class GamesRepository {
     @InjectRepository(Game) private readonly gameEntityRepository: Repository<Game>,
     @InjectRepository(GameQuestion) private readonly gameQuestionEntityRepository: Repository<GameQuestion>,
     @InjectRepository(PlayerAnswer) private readonly playerAnswerEntityRepository: Repository<PlayerAnswer>,
-    @Inject(quizConfig.KEY) private readonly quiz: ConfigType<typeof quizConfig>,
   ) {}
 
   async save(game: Game, manager?: EntityManager): Promise<Game> {
@@ -24,10 +25,14 @@ export class GamesRepository {
     return gameEntityRepository.save(game);
   }
 
-  async createGame(userId: number, manager?: EntityManager): Promise<Game> {
+  async createGame(userId: string, manager?: EntityManager): Promise<Game> {
+    if (!isPositiveIntegerString(userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
     const gameEntityRepository = manager?.getRepository(Game) ?? this.gameEntityRepository;
     const game = gameEntityRepository.create({
-      firstPlayerId: userId,
+      firstPlayerId: +userId,
       secondPlayerId: null,
       status: GameStatus.pending,
     });
@@ -42,7 +47,15 @@ export class GamesRepository {
     });
   }
 
-  async submitAnswer(gameId: number, userId: number, answer: string): Promise<AnswerStatus | null> {
+  async submitAnswer(gameId: string, userId: string, answer: string): Promise<AnswerStatus | null> {
+    if (!isPositiveIntegerString(gameId)) {
+      throw new GameNotFoundDomainException();
+    }
+
+    if (!isPositiveIntegerString(userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
     const nextQuestion = await this.gameQuestionEntityRepository
       .createQueryBuilder('gq')
       .leftJoin(
@@ -51,11 +64,11 @@ export class GamesRepository {
         `gq."gameId" = pa."gameId"
         AND gq."questionId" = pa."questionId"
         AND pa."userId" = :userId`,
-        { userId },
+        { userId: +userId },
       )
       .leftJoinAndSelect('gq.question', 'q')
       .leftJoinAndSelect('q.correctAnswers', 'ca')
-      .where('gq.gameId = :gameId', { gameId })
+      .where('gq.gameId = :gameId', { gameId: +gameId })
       .andWhere('pa.questionId IS NULL')
       .orderBy('gq.questionNumber', 'ASC')
       .getOne();
@@ -71,9 +84,9 @@ export class GamesRepository {
     const status = isCorrect ? AnswerStatus.correct : AnswerStatus.incorrect;
 
     await this.playerAnswerEntityRepository.insert({
-      gameId,
+      gameId: +gameId,
       questionId: nextQuestion.questionId,
-      userId,
+      userId: +userId,
       answer,
       status,
     });
