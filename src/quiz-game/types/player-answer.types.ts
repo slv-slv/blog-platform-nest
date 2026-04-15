@@ -8,8 +8,20 @@ export class PlayerAnswerInputDto {
   declare answer: string;
 }
 
+export enum AnswerStatus {
+  correct = 'correct',
+  incorrect = 'incorrect',
+}
+
+export type AnswerStatusViewModel = Capitalize<`${AnswerStatus}`>;
+
+export const mapAnswerStatusToViewModel: Record<AnswerStatus, AnswerStatusViewModel> = {
+  [AnswerStatus.correct]: 'Correct',
+  [AnswerStatus.incorrect]: 'Incorrect',
+};
+
 export type PlayerAnswerViewModel = {
   questionId: string;
-  answerStatus: 'Correct' | 'Incorrect';
+  answerStatus: AnswerStatusViewModel;
   addedAt: string;
 };
