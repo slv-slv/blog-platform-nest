@@ -79,4 +79,9 @@ export class Game {
     this.status = GameStatus.active;
     this.startGameDate = new Date();
   }
+
+  finishGame(): void {
+    this.status = GameStatus.finished;
+    this.finishGameDate = new Date();
+  }
 }
