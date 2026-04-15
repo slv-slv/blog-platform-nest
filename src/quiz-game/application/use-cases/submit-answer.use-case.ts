@@ -8,6 +8,9 @@ import { AnswerStatus } from '../../infrastructure/typeorm/entities/player-answe
 import { NoActivePairDomainException } from '../../../common/exceptions/domain-exceptions.js';
 import { mapAnswerToViewModel } from '../../mappers/answer-view.mapper.js';
 import { DataSource } from 'typeorm';
+import { Inject } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import { quizConfig } from '../../../config/quiz.config.js';
 
 export class SubmitAnswerCommand extends Command<PlayerAnswerViewModel> {
   constructor(
@@ -25,16 +28,15 @@ export class SubmitAnswerUseCase implements ICommandHandler<SubmitAnswerCommand>
     private readonly gamesRepository: GamesRepository,
     private readonly gameQuestionsRepository: GameQuestionsRepository,
     private readonly playerAnswersRepository: PlayerAnswersRepository,
+    @Inject(quizConfig.KEY) private readonly quiz: ConfigType<typeof quizConfig>,
   ) {}
   async execute(command: SubmitAnswerCommand): Promise<PlayerAnswerViewModel> {
     return this.dataSource.transaction(async (manager) => {
-      const game = await this.gamesRepository.findActiveGameByUserId(command.userId, manager);
+      const game = await this.gamesRepository.findActiveGameWithLock(command.userId, manager);
 
       if (!game) {
         throw new NoActivePairDomainException();
       }
-
-      await this.gamesRepository.acquirePlayerLock(game.id, +command.userId, manager);
 
       const nextQuestion = await this.gameQuestionsRepository.getNextQuestion(
         game.id.toString(),
@@ -55,6 +57,22 @@ export class SubmitAnswerUseCase implements ICommandHandler<SubmitAnswerCommand>
         status,
         manager,
       );
+
+      if (nextQuestion.questionNumber === this.quiz.questionsCount) {
+        const anotherPlayerId =
+          game.firstPlayerId === +command.userId ? game.secondPlayerId!.toString() : game.firstPlayerId.toString();
+
+        const anotherPlayerAnswersCount = await this.playerAnswersRepository.countAnswersByPlayer(
+          game.id.toString(),
+          anotherPlayerId,
+          manager,
+        );
+
+        if (anotherPlayerAnswersCount === this.quiz.questionsCount) {
+          game.finishGame();
+          await this.gamesRepository.save(game, manager);
+        }
+      }
 
       return mapAnswerToViewModel(submittedAnswer);
     });
