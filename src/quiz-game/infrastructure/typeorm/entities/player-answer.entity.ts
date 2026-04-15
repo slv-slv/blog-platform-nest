@@ -1,10 +1,6 @@
 import { Column, CreateDateColumn, Entity, ForeignKey, PrimaryColumn } from 'typeorm';
 import { GameQuestion } from './game-question.entity.js';
-
-export enum AnswerStatus {
-  correct = 'correct',
-  incorrect = 'incorrect',
-}
+import { AnswerStatus } from '../../../types/player-answer.types.js';
 
 @Entity({ name: 'player_answers' })
 @ForeignKey(() => GameQuestion, ['gameId', 'questionId'], ['gameId', 'questionId'])
