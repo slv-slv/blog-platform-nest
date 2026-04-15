@@ -12,6 +12,7 @@ import { PlayerAnswer } from './entities/player-answer.entity.js';
 import { UsersRepository } from '../../../modules/user-accounts/infrastructure/typeorm/users.repository.js';
 import { AnswerStatus, mapAnswerStatusToViewModel } from '../../types/player-answer.types.js';
 import {
+  AccessDeniedDomainException,
   GameNotFoundDomainException,
   UnauthorizedDomainException,
 } from '../../../common/exceptions/domain-exceptions.js';
@@ -40,6 +41,34 @@ export class GamesQueryRepository {
 
     if (!game) {
       throw new GameNotFoundDomainException('Current game not found');
+    }
+
+    return this.getGameViewModel(game.id);
+  }
+
+  async getGameViewModelForUser(gameId: string, userId: string): Promise<GameViewModel> {
+    if (!isPositiveIntegerString(gameId)) {
+      throw new GameNotFoundDomainException();
+    }
+
+    if (!isPositiveIntegerString(userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
+    const game = await this.gameEntityRepository.findOne({
+      where: { id: +gameId },
+      select: { id: true, firstPlayerId: true, secondPlayerId: true },
+    });
+
+    if (!game) {
+      throw new GameNotFoundDomainException();
+    }
+
+    const currentUserId = +userId;
+    const isParticipant = game.firstPlayerId === currentUserId || game.secondPlayerId === currentUserId;
+
+    if (!isParticipant) {
+      throw new AccessDeniedDomainException();
     }
 
     return this.getGameViewModel(game.id);
