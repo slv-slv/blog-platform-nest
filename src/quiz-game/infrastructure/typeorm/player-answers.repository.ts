@@ -49,4 +49,22 @@ export class PlayerAnswersRepository {
 
     return playerAnswerEntityRepository.save(newAnswer);
   }
+
+  async countAnswersByPlayer(gameId: string, userId: string, manager?: EntityManager): Promise<number> {
+    if (!isPositiveIntegerString(gameId)) {
+      throw new GameNotFoundDomainException();
+    }
+
+    if (!isPositiveIntegerString(userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
+    const playerAnswerEntityRepository =
+      manager?.getRepository(PlayerAnswer) ?? this.playerAnswerEntityRepository;
+
+    return playerAnswerEntityRepository.countBy({
+      gameId: +gameId,
+      userId: +userId,
+    });
+  }
 }
