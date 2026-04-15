@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UserId } from '../../common/decorators/userId.js';
 import { AccessTokenGuard } from '../../common/guards/access-token.guard.js';
@@ -6,6 +6,8 @@ import { ConnectUserCommand } from '../application/use-cases/connect-user.use-ca
 import { GetCurrentGameQuery } from '../application/use-cases/get-current-game.use-case.js';
 import { GetGameByIdQuery } from '../application/use-cases/get-game-by-id.use-case.js';
 import { GameViewModel } from '../types/game.types.js';
+import { SubmitAnswerCommand } from '../application/use-cases/submit-answer.use-case.js';
+import { PlayerAnswerInputDto, PlayerAnswerViewModel } from '../types/player-answer.types.js';
 
 @Controller('pair-game-quiz/pairs')
 @UseGuards(AccessTokenGuard)
@@ -29,5 +31,14 @@ export class PairsController {
   @HttpCode(200)
   async connectUser(@UserId() userId: string): Promise<GameViewModel> {
     return this.commandBus.execute(new ConnectUserCommand(userId));
+  }
+
+  @Post('my-current/answers')
+  @HttpCode(200)
+  async submitAnswer(
+    @UserId() userId: string,
+    @Body() body: PlayerAnswerInputDto,
+  ): Promise<PlayerAnswerViewModel> {
+    return this.commandBus.execute(new SubmitAnswerCommand(userId, body.answer));
   }
 }
