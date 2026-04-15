@@ -7,6 +7,7 @@ import { DeleteQuestionUseCase } from './application/use-cases/delete-question.u
 import { PublishQuestionUseCase } from './application/use-cases/publish-question.use-case.js';
 import { GetQuestionsUseCase } from './application/use-cases/get-questions.use-case.js';
 import { GetCurrentGameUseCase } from './application/use-cases/get-current-game.use-case.js';
+import { GetGameByIdUseCase } from './application/use-cases/get-game-by-id.use-case.js';
 import { ConnectUserUseCase } from './application/use-cases/connect-user.use-case.js';
 import { SubmitAnswerUseCase } from './application/use-cases/submit-answer.use-case.js';
 import { QuestionsRepository } from './infrastructure/typeorm/questions.repository.js';
@@ -21,7 +22,7 @@ import { GamesRepository } from './infrastructure/typeorm/games.repository.js';
 import { GamesQueryRepository } from './infrastructure/typeorm/games.query-repository.js';
 import { GameQuestionsRepository } from './infrastructure/typeorm/game-questions.repository.js';
 import { PlayerAnswersRepository } from './infrastructure/typeorm/player-answers.repository.js';
-import { QuizGameController } from './api/pairs.controller.js';
+import { PairsController } from './api/pairs.controller.js';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { QuizGameController } from './api/pairs.controller.js';
     PublishQuestionUseCase,
     GetQuestionsUseCase,
     GetCurrentGameUseCase,
+    GetGameByIdUseCase,
     ConnectUserUseCase,
     SubmitAnswerUseCase,
     QuestionsQueryRepository,
@@ -44,6 +46,6 @@ import { QuizGameController } from './api/pairs.controller.js';
     GameQuestionsRepository,
     PlayerAnswersRepository,
   ],
-  controllers: [QuestionsController, QuizGameController],
+  controllers: [QuestionsController, PairsController],
 })
 export class QuizGameModule {}
