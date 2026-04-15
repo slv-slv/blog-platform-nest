@@ -15,17 +15,35 @@ export class GamesRepository {
     return gameEntityRepository.save(game);
   }
 
-  async findActiveGameByUserId(userId: string, manager?: EntityManager): Promise<Game | null> {
+  async findActiveGame(userId: string, manager: EntityManager): Promise<Game | null> {
     if (!isPositiveIntegerString(userId)) {
       throw new UnauthorizedDomainException();
     }
 
-    const gameEntityRepository = manager?.getRepository(Game) ?? this.gameEntityRepository;
+    const gameEntityRepository = manager.getRepository(Game);
 
-    return gameEntityRepository.findOneBy([
-      { firstPlayerId: +userId, status: GameStatus.active },
-      { secondPlayerId: +userId, status: GameStatus.active },
-    ]);
+    return gameEntityRepository.findOne({
+      where: [
+        { firstPlayerId: +userId, status: GameStatus.active },
+        { secondPlayerId: +userId, status: GameStatus.active },
+      ],
+    });
+  }
+
+  async findActiveGameWithLock(userId: string, manager: EntityManager): Promise<Game | null> {
+    if (!isPositiveIntegerString(userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
+    const gameEntityRepository = manager.getRepository(Game);
+
+    return gameEntityRepository.findOne({
+      where: [
+        { firstPlayerId: +userId, status: GameStatus.active },
+        { secondPlayerId: +userId, status: GameStatus.active },
+      ],
+      lock: { mode: 'pessimistic_write' },
+    });
   }
 
   async createGame(userId: string, manager?: EntityManager): Promise<Game> {
@@ -40,10 +58,6 @@ export class GamesRepository {
       status: GameStatus.pending,
     });
     return gameEntityRepository.save(game);
-  }
-
-  async acquirePlayerLock(gameId: number, userId: number, manager: EntityManager): Promise<void> {
-    await manager.query('SELECT pg_advisory_xact_lock($1, $2)', [gameId, userId]);
   }
 
   async findPendingGameWithLock(manager: EntityManager): Promise<Game | null> {
