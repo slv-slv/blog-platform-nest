@@ -42,6 +42,10 @@ export class GamesRepository {
     return gameEntityRepository.save(game);
   }
 
+  async acquirePlayerLock(gameId: number, userId: number, manager: EntityManager): Promise<void> {
+    await manager.query('SELECT pg_advisory_xact_lock($1, $2)', [gameId, userId]);
+  }
+
   async findPendingGameWithLock(manager: EntityManager): Promise<Game | null> {
     const gameEntityRepository = manager.getRepository(Game);
     return gameEntityRepository.findOne({
