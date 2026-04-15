@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { AnswerStatus, PlayerAnswer } from './entities/player-answer.entity.js';
+import { PlayerAnswer } from './entities/player-answer.entity.js';
+import { AnswerStatus } from '../../types/player-answer.types.js';
 import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
 import {
   GameNotFoundDomainException,
