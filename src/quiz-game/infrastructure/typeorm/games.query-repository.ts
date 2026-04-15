@@ -1,12 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Game } from './entities/game.entity.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GameViewModel, mapGameStatusToViewModel, PlayerProgressViewModel } from '../../types/game.types.js';
+import {
+  GameStatus,
+  GameViewModel,
+  mapGameStatusToViewModel,
+  PlayerProgressViewModel,
+} from '../../types/game.types.js';
 import { PlayerAnswer } from './entities/player-answer.entity.js';
 import { UsersRepository } from '../../../modules/user-accounts/infrastructure/typeorm/users.repository.js';
 import { AnswerStatus, mapAnswerStatusToViewModel } from '../../types/player-answer.types.js';
-import { GameNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
+import {
+  GameNotFoundDomainException,
+  UnauthorizedDomainException,
+} from '../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
 
 @Injectable()
 export class GamesQueryRepository {
@@ -16,9 +25,29 @@ export class GamesQueryRepository {
     private readonly usersRepository: UsersRepository,
   ) {}
 
-  async getGameViewModel(id: number): Promise<GameViewModel> {
+  async getCurrentGameViewModel(userId: string): Promise<GameViewModel> {
+    if (!isPositiveIntegerString(userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
     const game = await this.gameEntityRepository.findOne({
-      where: { id },
+      where: [
+        { firstPlayerId: +userId, status: In([GameStatus.pending, GameStatus.active]) },
+        { secondPlayerId: +userId, status: GameStatus.active },
+      ],
+      select: { id: true },
+    });
+
+    if (!game) {
+      throw new GameNotFoundDomainException('Current game not found');
+    }
+
+    return this.getGameViewModel(game.id);
+  }
+
+  async getGameViewModel(gameId: number): Promise<GameViewModel> {
+    const game = await this.gameEntityRepository.findOne({
+      where: { id: gameId },
       relations: { questionEntries: { question: true } },
     });
 
@@ -44,7 +73,7 @@ export class GamesQueryRepository {
     const finishGameDate = game.finishGameDate?.toISOString() ?? null;
 
     return {
-      id: id.toString(),
+      id: gameId.toString(),
       firstPlayerProgress,
       secondPlayerProgress,
       questions: status === 'PendingSecondPlayer' ? null : questions,
