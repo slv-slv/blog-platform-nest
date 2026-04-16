@@ -5,7 +5,7 @@ import { AccessTokenGuard } from '../../common/guards/access-token.guard.js';
 import { ConnectUserCommand } from '../application/use-cases/connect-user.use-case.js';
 import { GetCurrentGameQuery } from '../application/use-cases/get-current-game.use-case.js';
 import { GetGameByIdQuery } from '../application/use-cases/get-game-by-id.use-case.js';
-import { GameViewModel } from '../types/game.types.js';
+import { GameViewModel, GetGameByIdParamDto } from '../types/game.types.js';
 import { SubmitAnswerCommand } from '../application/use-cases/submit-answer.use-case.js';
 import { PlayerAnswerInputDto, PlayerAnswerViewModel } from '../types/player-answer.types.js';
 
@@ -23,7 +23,8 @@ export class PairsController {
   }
 
   @Get(':id')
-  async getGameById(@Param('id') id: string, @UserId() userId: string): Promise<GameViewModel> {
+  async getGameById(@Param() params: GetGameByIdParamDto, @UserId() userId: string): Promise<GameViewModel> {
+    const { id } = params;
     return this.queryBus.execute(new GetGameByIdQuery(id, userId));
   }
 

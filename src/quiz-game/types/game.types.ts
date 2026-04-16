@@ -1,4 +1,10 @@
+import { Matches } from 'class-validator';
 import { AnswerStatusViewModel } from './player-answer.types.js';
+
+export class GetGameByIdParamDto {
+  @Matches(/^[1-9]\d*$/, { message: 'Invalid id format' })
+  declare id: string;
+}
 
 export enum GameStatus {
   pending = 'pending',
