@@ -21,6 +21,9 @@ export class PlayerAnswer {
   @Column({ type: 'enum', enum: AnswerStatus })
   declare status: AnswerStatus;
 
+  @Column({ type: 'integer' })
+  declare points: number;
+
   @CreateDateColumn({ type: 'timestamptz' })
   declare addedAt: Date;
 }
