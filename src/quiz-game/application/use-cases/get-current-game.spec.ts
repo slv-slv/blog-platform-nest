@@ -1,53 +1,165 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { DataSource } from 'typeorm';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { AppModule } from '../../../app.module.js';
 import { GameNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
-import { GamesQueryRepository } from '../../infrastructure/typeorm/games.query-repository.js';
-import { GameViewModel } from '../../types/game.types.js';
+import { quizConfig } from '../../../config/quiz.config.js';
+import { UsersRepository } from '../../../modules/user-accounts/infrastructure/typeorm/users.repository.js';
+import { EmailService } from '../../../notifications/email/email.service.js';
+import { QuestionsRepository } from '../../infrastructure/typeorm/questions.repository.js';
+import { ConnectUserCommand, ConnectUserUseCase } from './connect-user.use-case.js';
 import { GetCurrentGameQuery, GetCurrentGameUseCase } from './get-current-game.use-case.js';
 
-describe('GetCurrentGameUseCase', () => {
-  let useCase: GetCurrentGameUseCase;
-  let gamesQueryRepository: Pick<GamesQueryRepository, 'getCurrentGameViewModel'>;
+describe('GetCurrentGameUseCase Integration', () => {
+  let app: INestApplication;
+  let dataSource: DataSource;
+  let usersRepository: UsersRepository;
+  let questionsRepository: QuestionsRepository;
+  let connectUserUseCase: ConnectUserUseCase;
+  let getCurrentGameUseCase: GetCurrentGameUseCase;
+  let questionsCount: number;
 
-  beforeEach(() => {
-    gamesQueryRepository = {
-      getCurrentGameViewModel: vi.fn(),
-    };
+  beforeAll(async () => {
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    })
+      .overrideProvider(EmailService)
+      .useValue({ sendConfirmationCode: () => {}, sendRecoveryCode: () => {} })
+      .compile();
 
-    useCase = new GetCurrentGameUseCase(gamesQueryRepository as GamesQueryRepository);
+    app = moduleRef.createNestApplication();
+    await app.init();
+
+    dataSource = app.get(DataSource);
+    usersRepository = app.get(UsersRepository);
+    questionsRepository = app.get(QuestionsRepository);
+    connectUserUseCase = app.get(ConnectUserUseCase);
+    getCurrentGameUseCase = app.get(GetCurrentGameUseCase);
+    questionsCount = app.get<{ questionsCount: number }>(quizConfig.KEY).questionsCount;
+  }, 30000);
+
+  beforeEach(async () => {
+    await dataSource.query(`
+      TRUNCATE
+        typeorm.player_answers,
+        typeorm.game_questions,
+        typeorm.games,
+        typeorm.correct_answers,
+        typeorm.questions,
+        typeorm.devices,
+        typeorm.users
+      RESTART IDENTITY CASCADE
+    `);
   });
 
-  it('should return current game view model from query repository', async () => {
-    const currentGameViewModel: GameViewModel = {
-      id: '1',
+  afterAll(async () => {
+    if (app) {
+      await app.close();
+    }
+  });
+
+  it('should return pending game view model for first player', async () => {
+    const firstPlayer = await createUser('first-player');
+
+    const createdGame = await connectUserUseCase.execute(new ConnectUserCommand(firstPlayer.id));
+
+    const result = await getCurrentGameUseCase.execute(new GetCurrentGameQuery(firstPlayer.id));
+
+    expect(result).toEqual({
+      id: createdGame.id,
       firstPlayerProgress: {
         answers: [],
         player: {
-          id: '10',
-          login: 'first-player',
+          id: firstPlayer.id,
+          login: firstPlayer.login,
         },
         score: 0,
       },
       secondPlayerProgress: null,
       questions: null,
       status: 'PendingSecondPlayer',
-      pairCreatedDate: new Date().toISOString(),
+      pairCreatedDate: createdGame.pairCreatedDate,
       startGameDate: null,
       finishGameDate: null,
-    };
-    vi.mocked(gamesQueryRepository.getCurrentGameViewModel).mockResolvedValue(currentGameViewModel);
-
-    const result = await useCase.execute(new GetCurrentGameQuery('10'));
-
-    expect(gamesQueryRepository.getCurrentGameViewModel).toHaveBeenCalledTimes(1);
-    expect(gamesQueryRepository.getCurrentGameViewModel).toHaveBeenCalledWith('10');
-    expect(result).toEqual(currentGameViewModel);
+    });
   });
 
-  it('should propagate repository error', async () => {
-    const error = new GameNotFoundDomainException('Current game not found');
-    vi.mocked(gamesQueryRepository.getCurrentGameViewModel).mockRejectedValue(error);
+  it('should return active game view model for current player', async () => {
+    const firstPlayer = await createUser('first-player');
+    const secondPlayer = await createUser('second-player');
+    const publishedQuestionBodies = await createPublishedQuestions(questionsCount);
 
-    await expect(useCase.execute(new GetCurrentGameQuery('10'))).rejects.toBe(error);
-    expect(gamesQueryRepository.getCurrentGameViewModel).toHaveBeenCalledWith('10');
+    const pendingGame = await connectUserUseCase.execute(new ConnectUserCommand(firstPlayer.id));
+    const startedGame = await connectUserUseCase.execute(new ConnectUserCommand(secondPlayer.id));
+
+    const result = await getCurrentGameUseCase.execute(new GetCurrentGameQuery(secondPlayer.id));
+
+    expect(startedGame.id).toBe(pendingGame.id);
+    expect(result.id).toBe(startedGame.id);
+    expect(result.status).toBe('Active');
+    expect(result.firstPlayerProgress).toEqual({
+      answers: [],
+      player: {
+        id: firstPlayer.id,
+        login: firstPlayer.login,
+      },
+      score: 0,
+    });
+    expect(result.secondPlayerProgress).toEqual({
+      answers: [],
+      player: {
+        id: secondPlayer.id,
+        login: secondPlayer.login,
+      },
+      score: 0,
+    });
+    expect(result.questions).not.toBeNull();
+    expect(result.questions).toHaveLength(questionsCount);
+    expect(result.questions!.map((question) => question.body).sort()).toEqual(publishedQuestionBodies.sort());
+    expect(result.startGameDate).not.toBeNull();
+    expect(result.finishGameDate).toBeNull();
   });
+
+  it('should throw GameNotFoundDomainException when current game does not exist', async () => {
+    const user = await createUser('lonely-player');
+
+    await expect(getCurrentGameUseCase.execute(new GetCurrentGameQuery(user.id))).rejects.toBeInstanceOf(
+      GameNotFoundDomainException,
+    );
+  });
+
+  async function createUser(login: string) {
+    return usersRepository.createUser({
+      login,
+      email: `${login}@example.com`,
+      hash: `${login}-hash`,
+      createdAt: new Date(),
+      confirmation: {
+        isConfirmed: true,
+        code: null,
+        expiration: null,
+      },
+      passwordRecovery: {
+        code: null,
+        expiration: null,
+      },
+    });
+  }
+
+  async function createPublishedQuestions(count: number): Promise<string[]> {
+    const bodies: string[] = [];
+
+    for (let index = 1; index <= count; index++) {
+      const body = `Question body ${index}`;
+      const question = await questionsRepository.createQuestion(body, [`answer-${index}`]);
+
+      question.setPublishedStatus(true);
+      await questionsRepository.save(question);
+
+      bodies.push(body);
+    }
+
+    return bodies;
+  }
 });
