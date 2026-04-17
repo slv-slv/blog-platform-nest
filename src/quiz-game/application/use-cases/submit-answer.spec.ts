@@ -180,6 +180,53 @@ describe('SubmitAnswerUseCase Integration', () => {
     expect(totalAnswers).toBe(questionsCount * 2);
   });
 
+  it('should give bonus to the player who finished earlier and has at least one correct answer', async () => {
+    const { firstPlayer, secondPlayer, gameId, orderedQuestions } = await createActiveGame();
+
+    for (const question of orderedQuestions) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(secondPlayer.id, question.correctAnswers[0]));
+    }
+
+    for (const question of orderedQuestions) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(firstPlayer.id, question.correctAnswers[0]));
+    }
+
+    const secondPlayerAnswers = await playerAnswerEntityRepository.find({
+      where: { gameId: +gameId, userId: +secondPlayer.id },
+      order: { addedAt: 'ASC' },
+    });
+
+    expect(secondPlayerAnswers).toHaveLength(questionsCount);
+    expect(secondPlayerAnswers.at(-1)!.points).toBe(2);
+    expect(getPlayerScore(secondPlayerAnswers)).toBe(questionsCount + 1);
+  });
+
+  it('should not give bonus when the faster player has no correct answers', async () => {
+    const { firstPlayer, secondPlayer, gameId, orderedQuestions } = await createActiveGame();
+
+    for (const question of orderedQuestions) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(secondPlayer.id, 'wrong-answer'));
+    }
+
+    for (const question of orderedQuestions) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(firstPlayer.id, question.correctAnswers[0]));
+    }
+
+    const firstPlayerAnswers = await playerAnswerEntityRepository.find({
+      where: { gameId: +gameId, userId: +firstPlayer.id },
+      order: { addedAt: 'ASC' },
+    });
+    const secondPlayerAnswers = await playerAnswerEntityRepository.find({
+      where: { gameId: +gameId, userId: +secondPlayer.id },
+      order: { addedAt: 'ASC' },
+    });
+
+    expect(getPlayerScore(firstPlayerAnswers)).toBe(questionsCount);
+    expect(getPlayerScore(secondPlayerAnswers)).toBe(0);
+    expect(firstPlayerAnswers.at(-1)!.points).toBe(1);
+    expect(secondPlayerAnswers.at(-1)!.points).toBe(0);
+  });
+
   async function createUser(login: string) {
     return usersRepository.createUser({
       login,
@@ -239,5 +286,9 @@ describe('SubmitAnswerUseCase Integration', () => {
       gameId: startedGame.id,
       orderedQuestions,
     };
+  }
+
+  function getPlayerScore(answers: PlayerAnswer[]): number {
+    return answers.reduce((score, answer) => score + answer.points, 0);
   }
 });
