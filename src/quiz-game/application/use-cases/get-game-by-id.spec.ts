@@ -10,6 +10,7 @@ import { UsersRepository } from '../../../modules/user-accounts/infrastructure/t
 import { QuestionsRepository } from '../../infrastructure/typeorm/questions.repository.js';
 import { ConnectUserCommand, ConnectUserUseCase } from './connect-user.use-case.js';
 import { GetGameByIdQuery, GetGameByIdUseCase } from './get-game-by-id.use-case.js';
+import { SubmitAnswerCommand, SubmitAnswerUseCase } from './submit-answer.use-case.js';
 
 describe('GetGameByIdUseCase Integration', () => {
   let app: INestApplication;
@@ -18,6 +19,7 @@ describe('GetGameByIdUseCase Integration', () => {
   let questionsRepository: QuestionsRepository;
   let connectUserUseCase: ConnectUserUseCase;
   let getGameByIdUseCase: GetGameByIdUseCase;
+  let submitAnswerUseCase: SubmitAnswerUseCase;
   let questionsCount: number;
 
   beforeAll(async () => {
@@ -36,6 +38,7 @@ describe('GetGameByIdUseCase Integration', () => {
     questionsRepository = app.get(QuestionsRepository);
     connectUserUseCase = app.get(ConnectUserUseCase);
     getGameByIdUseCase = app.get(GetGameByIdUseCase);
+    submitAnswerUseCase = app.get(SubmitAnswerUseCase);
     questionsCount = app.get<{ questionsCount: number }>(quizConfig.KEY).questionsCount;
   }, 30000);
 
@@ -130,6 +133,33 @@ describe('GetGameByIdUseCase Integration', () => {
     await expect(
       getGameByIdUseCase.execute(new GetGameByIdQuery(createdGame.id, outsider.id)),
     ).rejects.toBeInstanceOf(AccessDeniedDomainException);
+  });
+
+  it('should return finished game progress with bonus included in score', async () => {
+    const firstPlayer = await createUser('first-player');
+    const secondPlayer = await createUser('second-player');
+
+    await createPublishedQuestions(questionsCount);
+
+    await connectUserUseCase.execute(new ConnectUserCommand(firstPlayer.id));
+    const startedGame = await connectUserUseCase.execute(new ConnectUserCommand(secondPlayer.id));
+
+    const gameAtStart = await getGameByIdUseCase.execute(new GetGameByIdQuery(startedGame.id, secondPlayer.id));
+    const orderedQuestionIds = gameAtStart.questions!.map((question) => question.id);
+
+    for (const questionId of orderedQuestionIds) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(secondPlayer.id, `answer-${questionId}`));
+    }
+
+    for (const questionId of orderedQuestionIds) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(firstPlayer.id, `answer-${questionId}`));
+    }
+
+    const finishedGame = await getGameByIdUseCase.execute(new GetGameByIdQuery(startedGame.id, secondPlayer.id));
+
+    expect(finishedGame.status).toBe('Finished');
+    expect(finishedGame.secondPlayerProgress!.answers.map((answer) => answer.questionId)).toEqual(orderedQuestionIds);
+    expect(finishedGame.secondPlayerProgress!.score).toBe(questionsCount + 1);
   });
 
   async function createUser(login: string) {

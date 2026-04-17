@@ -10,6 +10,7 @@ import { EmailService } from '../../../notifications/email/email.service.js';
 import { QuestionsRepository } from '../../infrastructure/typeorm/questions.repository.js';
 import { ConnectUserCommand, ConnectUserUseCase } from './connect-user.use-case.js';
 import { GetCurrentGameQuery, GetCurrentGameUseCase } from './get-current-game.use-case.js';
+import { SubmitAnswerCommand, SubmitAnswerUseCase } from './submit-answer.use-case.js';
 
 describe('GetCurrentGameUseCase Integration', () => {
   let app: INestApplication;
@@ -18,6 +19,7 @@ describe('GetCurrentGameUseCase Integration', () => {
   let questionsRepository: QuestionsRepository;
   let connectUserUseCase: ConnectUserUseCase;
   let getCurrentGameUseCase: GetCurrentGameUseCase;
+  let submitAnswerUseCase: SubmitAnswerUseCase;
   let questionsCount: number;
 
   beforeAll(async () => {
@@ -36,6 +38,7 @@ describe('GetCurrentGameUseCase Integration', () => {
     questionsRepository = app.get(QuestionsRepository);
     connectUserUseCase = app.get(ConnectUserUseCase);
     getCurrentGameUseCase = app.get(GetCurrentGameUseCase);
+    submitAnswerUseCase = app.get(SubmitAnswerUseCase);
     questionsCount = app.get<{ questionsCount: number }>(quizConfig.KEY).questionsCount;
   }, 30000);
 
@@ -119,6 +122,28 @@ describe('GetCurrentGameUseCase Integration', () => {
     expect(result.questions!.map((question) => question.body).sort()).toEqual(publishedQuestionBodies.sort());
     expect(result.startGameDate).not.toBeNull();
     expect(result.finishGameDate).toBeNull();
+  });
+
+  it('should return questions in the same order as they are answered', async () => {
+    const firstPlayer = await createUser('first-player');
+    const secondPlayer = await createUser('second-player');
+
+    await createPublishedQuestions(questionsCount);
+
+    await connectUserUseCase.execute(new ConnectUserCommand(firstPlayer.id));
+    await connectUserUseCase.execute(new ConnectUserCommand(secondPlayer.id));
+
+    const gameBeforeAnswer = await getCurrentGameUseCase.execute(new GetCurrentGameQuery(firstPlayer.id));
+    const firstQuestionId = gameBeforeAnswer.questions![0].id;
+
+    const answerResult = await submitAnswerUseCase.execute(
+      new SubmitAnswerCommand(firstPlayer.id, `answer-${firstQuestionId}`),
+    );
+
+    const gameAfterAnswer = await getCurrentGameUseCase.execute(new GetCurrentGameQuery(firstPlayer.id));
+
+    expect(answerResult.questionId).toBe(firstQuestionId);
+    expect(gameAfterAnswer.firstPlayerProgress.answers[0].questionId).toBe(firstQuestionId);
   });
 
   it('should throw GameNotFoundDomainException when current game does not exist', async () => {

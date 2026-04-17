@@ -78,6 +78,11 @@ export class GamesQueryRepository {
     const game = await this.gameEntityRepository.findOne({
       where: { id: gameId },
       relations: { questionEntries: { question: true } },
+      order: {
+        questionEntries: {
+          questionNumber: 'ASC',
+        },
+      },
     });
 
     if (!game) {
@@ -122,6 +127,7 @@ export class GamesQueryRepository {
         addedAt: true,
       },
       where: { gameId, userId },
+      order: { addedAt: 'ASC' },
     });
 
     const answers = rawAnswers.map((ans) => ({
