@@ -25,3 +25,14 @@ export type PlayerAnswerViewModel = {
   answerStatus: AnswerStatusViewModel;
   addedAt: string;
 };
+
+export type PlayerAnswerStats = {
+  answersCount: number;
+  correctAnswersCount: number;
+  lastAnswerAt: Date | null;
+};
+
+export type BonusCandidate = {
+  userId: string;
+  stats: PlayerAnswerStats;
+};
