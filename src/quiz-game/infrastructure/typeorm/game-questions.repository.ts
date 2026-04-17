@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager } from 'typeorm';
 import { GameQuestion } from './entities/game-question.entity.js';
 import { PlayerAnswer } from './entities/player-answer.entity.js';
 import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
@@ -12,12 +11,7 @@ import {
 
 @Injectable()
 export class GameQuestionsRepository {
-  constructor(
-    @InjectRepository(GameQuestion)
-    private readonly gameQuestionEntityRepository: Repository<GameQuestion>,
-  ) {}
-
-  async getNextQuestion(gameId: string, userId: string, manager?: EntityManager): Promise<GameQuestion> {
+  async getNextQuestion(gameId: string, userId: string, manager: EntityManager): Promise<GameQuestion> {
     if (!isPositiveIntegerString(gameId)) {
       throw new GameNotFoundDomainException();
     }
@@ -26,8 +20,7 @@ export class GameQuestionsRepository {
       throw new UnauthorizedDomainException();
     }
 
-    const gameQuestionEntityRepository =
-      manager?.getRepository(GameQuestion) ?? this.gameQuestionEntityRepository;
+    const gameQuestionEntityRepository = manager.getRepository(GameQuestion);
 
     const nextQuestion = await gameQuestionEntityRepository
       .createQueryBuilder('gq')
