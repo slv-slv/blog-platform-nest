@@ -114,7 +114,16 @@ export class GamesQueryRepository {
   }
 
   async getPlayerProgress(gameId: number, userId: number): Promise<PlayerProgressViewModel> {
-    const rawAnswers = await this.playerAnswerEntityRepository.findBy({ gameId, userId });
+    const rawAnswers = await this.playerAnswerEntityRepository.find({
+      select: {
+        questionId: true,
+        status: true,
+        points: true,
+        addedAt: true,
+      },
+      where: { gameId, userId },
+    });
+
     const answers = rawAnswers.map((ans) => ({
       questionId: ans.questionId.toString(),
       answerStatus: mapAnswerStatusToViewModel[ans.status],
@@ -123,8 +132,7 @@ export class GamesQueryRepository {
 
     const login = await this.usersRepository.getLogin(userId.toString());
     const player = { id: userId.toString(), login };
-
-    const score = rawAnswers.filter((ans) => ans.status === AnswerStatus.correct).length;
+    const score = rawAnswers.reduce((acc, ans) => acc + ans.points, 0);
 
     return { answers, player, score };
   }
