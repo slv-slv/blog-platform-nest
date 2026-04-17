@@ -3,8 +3,8 @@ import { Game } from './entities/game.entity.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { GameStatus } from '../../types/game.types.js';
-import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
-import { UnauthorizedDomainException } from '../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
+import { UnauthorizedDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class GamesRepository {

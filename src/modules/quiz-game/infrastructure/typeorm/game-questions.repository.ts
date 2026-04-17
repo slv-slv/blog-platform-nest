@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { GameQuestion } from './entities/game-question.entity.js';
 import { PlayerAnswer } from './entities/player-answer.entity.js';
-import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import {
   GameNotFoundDomainException,
   NoRemainingQuestionsDomainException,
   UnauthorizedDomainException,
-} from '../../../common/exceptions/domain-exceptions.js';
+} from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class GameQuestionsRepository {

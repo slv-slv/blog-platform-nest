@@ -1,6 +1,6 @@
 import { IsArray, IsBoolean, IsEnum, IsOptional, IsString, Length } from 'class-validator';
-import { BasicPagingParams, PagingParamsType } from '../../common/types/paging-params.types.js';
-import { Trim } from '../../common/decorators/trim.js';
+import { BasicPagingParams, PagingParamsType } from '../../../common/types/paging-params.types.js';
+import { Trim } from '../../../common/decorators/trim.js';
 
 export enum QuestionsSortBy {
   body = 'body',

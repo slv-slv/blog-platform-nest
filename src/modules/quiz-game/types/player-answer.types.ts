@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString } from 'class-validator';
-import { Trim } from '../../common/decorators/trim.js';
+import { Trim } from '../../../common/decorators/trim.js';
 
 export class PlayerAnswerInputDto {
   @IsString()

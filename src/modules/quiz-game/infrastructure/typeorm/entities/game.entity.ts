@@ -15,7 +15,7 @@ import {
   GameIsNotPendingDomainException,
   NotEnoughQuestionsToStartGameDomainException,
   SecondPlayerAlreadyJoinedDomainException,
-} from '../../../../common/exceptions/domain-exceptions.js';
+} from '../../../../../common/exceptions/domain-exceptions.js';
 import { Question } from './question.entity.js';
 
 @Entity({ name: 'games' })

@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { BasicAuthGuard } from '../../common/guards/basic-auth.guard.js';
+import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   CreateQuestionInputDto,

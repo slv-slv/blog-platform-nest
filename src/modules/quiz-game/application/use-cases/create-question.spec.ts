@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { AppModule } from '../../../app.module.js';
+import { AppModule } from '../../../../app.module.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
 import { Question } from '../../infrastructure/typeorm/entities/question.entity.js';
 import { CreateQuestionCommand, CreateQuestionUseCase } from './create-question.use-case.js';

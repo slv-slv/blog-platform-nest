@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Question } from './entities/question.entity.js';
 import { DataSource, EntityManager, Repository } from 'typeorm';
-import { QuestionNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
-import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
+import { QuestionNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import { CorrectAnswer } from './entities/correct-answer.entity.js';
 import { UpdateQuestionParams } from '../../types/question.types.js';
 

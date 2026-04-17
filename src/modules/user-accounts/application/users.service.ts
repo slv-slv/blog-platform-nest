@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { UsersRepository } from '../infrastructure/typeorm/users.repository.js';
 import { AuthService } from './auth.service.js';
-import { EmailService } from '../../../notifications/email/email.service.js';
+import { EmailService } from '../../notifications/email/email.service.js';
 import {
   CreateUserParams,
   PasswordRecoveryInfoModel,

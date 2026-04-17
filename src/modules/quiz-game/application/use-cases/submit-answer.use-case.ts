@@ -5,12 +5,12 @@ import { GamesRepository } from '../../infrastructure/typeorm/games.repository.j
 import { GameQuestionsRepository } from '../../infrastructure/typeorm/game-questions.repository.js';
 import { PlayerAnswersRepository } from '../../infrastructure/typeorm/player-answers.repository.js';
 import { AnswerStatus } from '../../types/player-answer.types.js';
-import { NoActivePairDomainException } from '../../../common/exceptions/domain-exceptions.js';
+import { NoActivePairDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 import { mapAnswerToViewModel } from '../../mappers/answer-view.mapper.js';
 import { DataSource } from 'typeorm';
 import { Inject } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { quizConfig } from '../../../config/quiz.config.js';
+import { quizConfig } from '../../../../config/quiz.config.js';
 
 export class SubmitAnswerCommand extends Command<PlayerAnswerViewModel> {
   constructor(

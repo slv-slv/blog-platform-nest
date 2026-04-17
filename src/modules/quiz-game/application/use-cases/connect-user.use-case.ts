@@ -4,13 +4,13 @@ import { DataSource } from 'typeorm';
 import { GamesRepository } from '../../infrastructure/typeorm/games.repository.js';
 import { QuestionsRepository } from '../../infrastructure/typeorm/questions.repository.js';
 import { Inject } from '@nestjs/common';
-import { quizConfig } from '../../../config/quiz.config.js';
+import { quizConfig } from '../../../../config/quiz.config.js';
 import { ConfigType } from '@nestjs/config';
-import { isPositiveIntegerString } from '../../../common/helpers/is-positive-integer-string.js';
+import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import {
   AccessDeniedDomainException,
   UnauthorizedDomainException,
-} from '../../../common/exceptions/domain-exceptions.js';
+} from '../../../../common/exceptions/domain-exceptions.js';
 import { GameViewModel } from '../../types/game.types.js';
 import { GamesQueryRepository } from '../../infrastructure/typeorm/games.query-repository.js';
 

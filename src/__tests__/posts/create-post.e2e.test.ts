@@ -7,7 +7,7 @@ import { AppModule } from '../../app.module.js';
 import { authConfig } from '../../config/auth.config.js';
 import { appSetup } from '../../setup/app.setup.js';
 import { HTTP_STATUS } from '../utils/http-status.js';
-import { EmailService } from '../../notifications/email/email.service.js';
+import { EmailService } from '../../modules/notifications/email/email.service.js';
 
 describe('CREATE POST', () => {
   let app: INestApplication<App>;

@@ -6,7 +6,7 @@ import { UsersRepository } from './infrastructure/typeorm/users.repository.js';
 import { UsersQueryRepository } from './infrastructure/typeorm/users.query-repository.js';
 import { AuthController } from './api/auth.controller.js';
 import { AuthService } from './application/auth.service.js';
-import { NotificationsModule } from '../../notifications/notifications.module.js';
+import { NotificationsModule } from '../notifications/notifications.module.js';
 import { SessionsController } from './api/sessions.controller.js';
 import { SessionsService } from './application/sessions.service.js';
 import { SessionsRepository } from './infrastructure/typeorm/sessions.repository.js';

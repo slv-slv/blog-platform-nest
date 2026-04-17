@@ -2,7 +2,7 @@ import { Inject } from '@nestjs/common';
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ConfigType } from '@nestjs/config';
 import { UsersRepository } from '../../infrastructure/typeorm/users.repository.js';
-import { EmailService } from '../../../../notifications/email/email.service.js';
+import { EmailService } from '../../../notifications/email/email.service.js';
 import { authConfig } from '../../../../config/auth.config.js';
 import {
   EmailAlreadyConfirmedDomainException,

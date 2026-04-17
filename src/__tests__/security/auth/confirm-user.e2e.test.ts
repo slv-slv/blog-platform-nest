@@ -5,7 +5,7 @@ import { App } from 'supertest/types.js';
 import { AppModule } from '../../../app.module.js';
 import { appSetup } from '../../../setup/app.setup.js';
 import { HTTP_STATUS } from '../../utils/http-status.js';
-import { EmailService } from '../../../notifications/email/email.service.js';
+import { EmailService } from '../../../modules/notifications/email/email.service.js';
 import { UsersRepository } from '../../../modules/user-accounts/infrastructure/typeorm/users.repository.js';
 
 describe('CONFIRM USER', () => {

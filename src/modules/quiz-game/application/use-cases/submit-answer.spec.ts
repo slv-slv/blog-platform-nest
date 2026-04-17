@@ -2,13 +2,13 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource, Repository } from 'typeorm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { AppModule } from '../../../app.module.js';
+import { AppModule } from '../../../../app.module.js';
 import {
   NoActivePairDomainException,
   NoRemainingQuestionsDomainException,
-} from '../../../common/exceptions/domain-exceptions.js';
-import { quizConfig } from '../../../config/quiz.config.js';
-import { UsersRepository } from '../../../modules/user-accounts/infrastructure/typeorm/users.repository.js';
+} from '../../../../common/exceptions/domain-exceptions.js';
+import { quizConfig } from '../../../../config/quiz.config.js';
+import { UsersRepository } from '../../../user-accounts/infrastructure/typeorm/users.repository.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
 import { Game } from '../../infrastructure/typeorm/entities/game.entity.js';
 import { PlayerAnswer } from '../../infrastructure/typeorm/entities/player-answer.entity.js';

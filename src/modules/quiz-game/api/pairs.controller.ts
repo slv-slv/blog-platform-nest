@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { UserId } from '../../common/decorators/userId.js';
-import { AccessTokenGuard } from '../../common/guards/access-token.guard.js';
+import { UserId } from '../../../common/decorators/userId.js';
+import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { ConnectUserCommand } from '../application/use-cases/connect-user.use-case.js';
 import { GetCurrentGameQuery } from '../application/use-cases/get-current-game.use-case.js';
 import { GetGameByIdQuery } from '../application/use-cases/get-game-by-id.use-case.js';

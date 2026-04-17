@@ -3,12 +3,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { AppModule } from '../../../app.module.js';
+import { AppModule } from '../../../../app.module.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
 import { QuestionsRepository } from '../../infrastructure/typeorm/questions.repository.js';
 import { Question } from '../../infrastructure/typeorm/entities/question.entity.js';
 import { UpdateQuestionUseCase, UpdateQuestionCommand } from './update-question.use-case.js';
-import { QuestionNotFoundDomainException } from '../../../common/exceptions/domain-exceptions.js';
+import { QuestionNotFoundDomainException } from '../../../../common/exceptions/domain-exceptions.js';
 
 describe('UpdateQuestionUseCase Integration', () => {
   let app: INestApplication;

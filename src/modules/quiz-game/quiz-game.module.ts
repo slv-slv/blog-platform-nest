@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserAccountsModule } from '../modules/user-accounts/user-accounts.module.js';
+import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
 import { CreateQuestionUseCase } from './application/use-cases/create-question.use-case.js';
 import { UpdateQuestionUseCase } from './application/use-cases/update-question.use-case.js';
 import { DeleteQuestionUseCase } from './application/use-cases/delete-question.use-case.js';

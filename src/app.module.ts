@@ -3,14 +3,14 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { BlogContentModule } from './modules/blog-content/blog-content.module.js';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module.js';
-import { NotificationsModule } from './notifications/notifications.module.js';
+import { NotificationsModule } from './modules/notifications/notifications.module.js';
 import { ExtractUserId } from './common/middlewares/extract-userid.js';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER } from '@nestjs/core';
 import { DomainExceptionFilter } from './common/exception-filters/domain-exception-filter.js';
 import { CoreModule } from './core/core.module.js';
 import { CqrsModule } from '@nestjs/cqrs';
-import { QuizGameModule } from './quiz-game/quiz-game.module.js';
+import { QuizGameModule } from './modules/quiz-game/quiz-game.module.js';
 
 @Global()
 @Module({
