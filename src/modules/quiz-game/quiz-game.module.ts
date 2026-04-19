@@ -8,6 +8,7 @@ import { PublishQuestionUseCase } from './application/use-cases/publish-question
 import { GetQuestionsUseCase } from './application/use-cases/get-questions.use-case.js';
 import { GetCurrentGameUseCase } from './application/use-cases/get-current-game.use-case.js';
 import { GetGameByIdUseCase } from './application/use-cases/get-game-by-id.use-case.js';
+import { GetMyStatisticUseCase } from './application/use-cases/get-my-statistic.use-case.js';
 import { ConnectUserUseCase } from './application/use-cases/connect-user.use-case.js';
 import { SubmitAnswerUseCase } from './application/use-cases/submit-answer.use-case.js';
 import { QuestionsRepository } from './infrastructure/typeorm/questions.repository.js';
@@ -38,6 +39,7 @@ import { PairsController } from './api/pairs.controller.js';
     GetQuestionsUseCase,
     GetCurrentGameUseCase,
     GetGameByIdUseCase,
+    GetMyStatisticUseCase,
     ConnectUserUseCase,
     SubmitAnswerUseCase,
     QuestionsQueryRepository,
