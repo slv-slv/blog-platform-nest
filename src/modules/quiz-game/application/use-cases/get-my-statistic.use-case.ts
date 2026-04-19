@@ -13,6 +13,6 @@ export class GetMyStatisticUseCase implements IQueryHandler<GetMyStatisticQuery>
   constructor(private readonly gamesQueryRepository: GamesQueryRepository) {}
 
   async execute(query: GetMyStatisticQuery) {
-    return this.gamesQueryRepository.getMyStatisticViewModel(query.userId);
+    return this.gamesQueryRepository.getMyStatistic(query.userId);
   }
 }

@@ -6,6 +6,7 @@ import {
   GameStatus,
   GameViewModel,
   mapGameStatusToViewModel,
+  MyStatisticViewModel,
   PlayerProgressViewModel,
 } from '../../types/game.types.js';
 import { PlayerAnswer } from './entities/player-answer.entity.js';
@@ -18,6 +19,10 @@ import {
 } from '../../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 
+type RawMyStatisticViewModel = {
+  [K in keyof MyStatisticViewModel]: number;
+};
+
 @Injectable()
 export class GamesQueryRepository {
   constructor(
@@ -25,6 +30,67 @@ export class GamesQueryRepository {
     @InjectRepository(PlayerAnswer) private readonly playerAnswerEntityRepository: Repository<PlayerAnswer>,
     private readonly usersRepository: UsersRepository,
   ) {}
+
+  async getMyStatistic(userId: string): Promise<MyStatisticViewModel> {
+    if (!isPositiveIntegerString(userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
+    const myGamesCte = this.gameEntityRepository
+      .createQueryBuilder('g')
+      .select('g.id', 'id')
+      .addSelect(
+        `CASE
+          WHEN g."firstPlayerId" = :userId THEN g."firstPlayerId"
+          ELSE g."secondPlayerId"
+        END`,
+        'my_id',
+      )
+      .addSelect(
+        `CASE
+          WHEN g."firstPlayerId" = :userId THEN g."secondPlayerId"
+          ELSE g."firstPlayerId"
+        END`,
+        'opponent_id',
+      )
+      .where('g.status = :finishedStatus')
+      .andWhere('(g."firstPlayerId" = :userId OR g."secondPlayerId" = :userId)');
+
+    const myGamesScoresCte = this.gameEntityRepository.manager
+      .createQueryBuilder()
+      .select('mg.id', 'game_id')
+      .addSelect('SUM(pa.points) FILTER (WHERE pa."userId" = mg.my_id)::int', 'my_score')
+      .addSelect('SUM(pa.points) FILTER (WHERE pa."userId" = mg.opponent_id)::int', 'opponent_score')
+      .from('my_games', 'mg')
+      .innerJoin(PlayerAnswer, 'pa', 'mg.id = pa."gameId"')
+      .groupBy('mg.id');
+
+    const statistic = await this.gameEntityRepository.manager
+      .createQueryBuilder()
+      .addCommonTableExpression(myGamesCte, 'my_games')
+      .addCommonTableExpression(myGamesScoresCte, 'my_games_scores')
+      .select('COALESCE(SUM(mgs.my_score), 0)::int', 'sumScore')
+      .addSelect('COALESCE(ROUND(AVG(mgs.my_score)::numeric, 2), 0)::float', 'avgScores')
+      .addSelect('COUNT(mgs.game_id)::int', 'gamesCount')
+      .addSelect('COUNT(*) FILTER (WHERE mgs.my_score > mgs.opponent_score)::int', 'winsCount')
+      .addSelect('COUNT(*) FILTER (WHERE mgs.my_score < mgs.opponent_score)::int', 'lossesCount')
+      .addSelect('COUNT(*) FILTER (WHERE mgs.my_score = mgs.opponent_score)::int', 'drawsCount')
+      .from('my_games_scores', 'mgs')
+      .setParameters({
+        userId: +userId,
+        finishedStatus: GameStatus.finished,
+      })
+      .getRawOne<RawMyStatisticViewModel>();
+
+    return {
+      sumScore: statistic?.sumScore ?? 0,
+      avgScores: statistic?.avgScores ?? 0,
+      gamesCount: statistic?.gamesCount ?? 0,
+      winsCount: statistic?.winsCount ?? 0,
+      lossesCount: statistic?.lossesCount ?? 0,
+      drawsCount: statistic?.drawsCount ?? 0,
+    };
+  }
 
   async getCurrentGameViewModel(userId: string): Promise<GameViewModel> {
     if (!isPositiveIntegerString(userId)) {
