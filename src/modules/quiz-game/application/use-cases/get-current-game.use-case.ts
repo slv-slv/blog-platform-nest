@@ -12,7 +12,7 @@ export class GetCurrentGameQuery extends Query<GameViewModel> {
 export class GetCurrentGameUseCase implements IQueryHandler<GetCurrentGameQuery> {
   constructor(private readonly gamesQueryRepository: GamesQueryRepository) {}
 
-  async execute(query: GetCurrentGameQuery): Promise<GameViewModel> {
+  async execute(query: GetCurrentGameQuery) {
     return this.gamesQueryRepository.getCurrentGameViewModel(query.userId);
   }
 }

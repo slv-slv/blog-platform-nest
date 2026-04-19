@@ -15,7 +15,7 @@ export class GetGameByIdQuery extends Query<GameViewModel> {
 export class GetGameByIdUseCase implements IQueryHandler<GetGameByIdQuery> {
   constructor(private readonly gamesQueryRepository: GamesQueryRepository) {}
 
-  async execute(query: GetGameByIdQuery): Promise<GameViewModel> {
+  async execute(query: GetGameByIdQuery) {
     return this.gamesQueryRepository.getGameViewModelForUser(query.gameId, query.userId);
   }
 }

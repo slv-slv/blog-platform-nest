@@ -30,7 +30,7 @@ export class SubmitAnswerUseCase implements ICommandHandler<SubmitAnswerCommand>
     private readonly playerAnswersRepository: PlayerAnswersRepository,
     @Inject(quizConfig.KEY) private readonly quiz: ConfigType<typeof quizConfig>,
   ) {}
-  async execute(command: SubmitAnswerCommand): Promise<PlayerAnswerViewModel> {
+  async execute(command: SubmitAnswerCommand) {
     return this.dataSource.transaction(async (manager) => {
       const game = await this.gamesRepository.findActiveGameWithLock(command.userId, manager);
 
