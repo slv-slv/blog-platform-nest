@@ -48,3 +48,12 @@ export type GameViewModel = {
   startGameDate: string | null;
   finishGameDate: string | null;
 };
+
+export type MyStatisticViewModel = {
+  sumScore: number;
+  avgScores: number;
+  gamesCount: number;
+  winsCount: number;
+  lossesCount: number;
+  drawsCount: number;
+};
