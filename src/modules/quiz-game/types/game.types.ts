@@ -89,6 +89,21 @@ export type PlayerStatisticViewModel = {
   drawsCount: number;
 };
 
+export type PlayerStatisticWithLoginViewModel = PlayerStatisticViewModel & {
+  player: {
+    id: string;
+    login: string;
+  };
+};
+
+export type TopPlayersPaginatedViewModel = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: PlayerStatisticWithLoginViewModel[];
+};
+
 export enum PlayerStatisticSortBy {
   sumScore = 'sumScore',
   avgScores = 'avgScores',
