@@ -1,12 +1,19 @@
-import { Body, Controller, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UserId } from '../../../common/decorators/userId.js';
 import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
 import { ConnectUserCommand } from '../application/use-cases/connect-user.use-case.js';
 import { GetCurrentGameQuery } from '../application/use-cases/get-current-game.use-case.js';
 import { GetGameByIdQuery } from '../application/use-cases/get-game-by-id.use-case.js';
+import { GetMyGamesQuery } from '../application/use-cases/get-my-games.use-case.js';
 import { GetMyStatisticQuery } from '../application/use-cases/get-my-statistic.use-case.js';
-import { GameViewModel, GetGameByIdParamDto, MyStatisticViewModel } from '../types/game.types.js';
+import {
+  GamesPaginatedViewModel,
+  GameViewModel,
+  GetGameByIdParamDto,
+  GetMyGamesQueryDto,
+  MyStatisticViewModel,
+} from '../types/game.types.js';
 import { SubmitAnswerCommand } from '../application/use-cases/submit-answer.use-case.js';
 import { PlayerAnswerInputDto, PlayerAnswerViewModel } from '../types/player-answer.types.js';
 
@@ -21,6 +28,17 @@ export class PairsController {
   @Get('users/my-statistic')
   async getMyStatistic(@UserId() userId: string): Promise<MyStatisticViewModel> {
     return this.queryBus.execute(new GetMyStatisticQuery(userId));
+  }
+
+  @Get('pairs/my')
+  async getMyGames(
+    @UserId() userId: string,
+    @Query() query: GetMyGamesQueryDto,
+  ): Promise<GamesPaginatedViewModel> {
+    const { sortBy, sortDirection, pageNumber, pageSize } = query;
+    const pagingParams = { sortBy, sortDirection, pageNumber, pageSize };
+
+    return this.queryBus.execute(new GetMyGamesQuery(userId, { pagingParams }));
   }
 
   @Get('pairs/my-current')
