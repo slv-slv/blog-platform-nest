@@ -16,7 +16,6 @@ import {
 } from '../../types/game.types.js';
 import { PlayerAnswer } from './entities/player-answer.entity.js';
 import { UsersRepository } from '../../../user-accounts/infrastructure/typeorm/users.repository.js';
-import { User } from '../../../user-accounts/infrastructure/typeorm/entities/user.entity.js';
 import { AnswerStatus, mapAnswerStatusToViewModel } from '../../types/player-answer.types.js';
 import {
   AccessDeniedDomainException,
@@ -60,93 +59,80 @@ export class GamesQueryRepository {
     const topPlayersOrderBy = [
       ...params.sort.map(([sortBy, sortDirection]) => {
         const direction = sortDirection === SortDirection.asc ? 'ASC' : 'DESC';
-        return `tp."${sortBy}" ${direction}`;
+        return `tps."${sortBy}" ${direction}`;
       }),
-      'tp."playerId" ASC',
+      'tps."playerId" ASC',
     ].join(', ');
 
-    const playerGamesCte = this.playerAnswerEntityRepository
-      .createQueryBuilder('pa')
-      .select('DISTINCT g.id', 'gameId')
-      .addSelect('pa."userId"', 'playerId')
-      .addSelect(
-        `CASE
-          WHEN pa."userId" = g."firstPlayerId" THEN g."secondPlayerId"
-          ELSE g."firstPlayerId"
-        END`,
-        'opponentId',
+    const rows = (await this.gameEntityRepository.query(
+      `
+      WITH "PlayerGames" AS (
+        SELECT DISTINCT
+          g.id AS "gameId",
+          pa."userId" AS "playerId",
+          CASE
+            WHEN pa."userId" = g."firstPlayerId" THEN g."secondPlayerId"
+            ELSE g."firstPlayerId"
+          END AS "opponentId"
+        FROM typeorm.player_answers AS pa
+        JOIN typeorm.games AS g
+          ON pa."gameId" = g.id
+          AND (pa."userId" = g."firstPlayerId" OR pa."userId" = g."secondPlayerId")
+        WHERE g.status = $1
+      ),
+      "PlayerScores" AS (
+        SELECT
+          pg."gameId",
+          pg."playerId",
+          SUM(pa.points) FILTER (WHERE pa."userId" = pg."playerId") AS "playerScore",
+          SUM(pa.points) FILTER (WHERE pa."userId" = pg."opponentId") AS "opponentScore"
+        FROM "PlayerGames" AS pg
+        JOIN typeorm.player_answers AS pa
+          ON pg."gameId" = pa."gameId"
+        GROUP BY pg."gameId", pg."playerId", pg."opponentId"
+      ),
+      "TopPlayers" AS (
+        SELECT
+          ps."playerId",
+          COALESCE(SUM(ps."playerScore"), 0)::int AS "sumScore",
+          COALESCE(ROUND(AVG(ps."playerScore")::numeric, 2), 0)::float AS "avgScores",
+          COUNT(ps."gameId")::int AS "gamesCount",
+          COUNT(ps."gameId") FILTER (WHERE ps."playerScore" > ps."opponentScore")::int AS "winsCount",
+          COUNT(ps."gameId") FILTER (WHERE ps."playerScore" < ps."opponentScore")::int AS "lossesCount",
+          COUNT(ps."gameId") FILTER (WHERE ps."playerScore" = ps."opponentScore")::int AS "drawsCount"
+        FROM "PlayerScores" AS ps
+        GROUP BY ps."playerId"
+      ),
+      "TopPlayersTotalCount" AS (
+        SELECT COUNT(*)::int AS "totalCount"
+        FROM "TopPlayers"
+      ),
+      "TopPlayersPage" AS (
+        SELECT
+          tps.*,
+          ROW_NUMBER() OVER (ORDER BY ${topPlayersOrderBy})::int AS "rowNumber"
+        FROM "TopPlayers" AS tps
+        ORDER BY "rowNumber" ASC
+        LIMIT $2 OFFSET $3
       )
-      .innerJoin(
-        Game,
-        'g',
-        'pa."gameId" = g.id AND (pa."userId" = g."firstPlayerId" OR pa."userId" = g."secondPlayerId")',
-      )
-      .where('g.status = :finishedStatus');
+      SELECT
+        tc."totalCount" AS "totalCount",
+        tpp."playerId" AS "playerId",
+        u.login AS login,
+        tpp."sumScore" AS "sumScore",
+        tpp."avgScores" AS "avgScores",
+        tpp."gamesCount" AS "gamesCount",
+        tpp."winsCount" AS "winsCount",
+        tpp."lossesCount" AS "lossesCount",
+        tpp."drawsCount" AS "drawsCount"
+      FROM "TopPlayersTotalCount" AS tc
+      LEFT JOIN "TopPlayersPage" AS tpp ON TRUE
+      LEFT JOIN typeorm.users AS u ON u.id = tpp."playerId"
+      ORDER BY tpp."rowNumber" ASC
+      `,
+      [GameStatus.finished, params.pageSize, skipCount],
+    )) as RawTopPlayersResult[];
 
-    const playerScoresCte = this.gameEntityRepository.manager
-      .createQueryBuilder()
-      .select('pg."gameId"', 'gameId')
-      .addSelect('pg."playerId"', 'playerId')
-      .addSelect('SUM(pa.points) FILTER (WHERE pa."userId" = pg."playerId")', 'playerScore')
-      .addSelect('SUM(pa.points) FILTER (WHERE pa."userId" = pg."opponentId")', 'opponentScore')
-      .from('PlayerGames', 'pg')
-      .innerJoin(PlayerAnswer, 'pa', 'pg."gameId" = pa."gameId"')
-      .groupBy('pg."gameId"')
-      .addGroupBy('pg."playerId"')
-      .addGroupBy('pg."opponentId"');
-
-    const topPlayersCte = this.gameEntityRepository.manager
-      .createQueryBuilder()
-      .select('ps."playerId"', 'playerId')
-      .addSelect('COALESCE(SUM(ps."playerScore"), 0)::int', 'sumScore')
-      .addSelect('COALESCE(ROUND(AVG(ps."playerScore")::numeric, 2), 0)::float', 'avgScores')
-      .addSelect('COUNT(ps."gameId")::int', 'gamesCount')
-      .addSelect('COUNT(ps."gameId") FILTER (WHERE ps."playerScore" > ps."opponentScore")::int', 'winsCount')
-      .addSelect(
-        'COUNT(ps."gameId") FILTER (WHERE ps."playerScore" < ps."opponentScore")::int',
-        'lossesCount',
-      )
-      .addSelect('COUNT(ps."gameId") FILTER (WHERE ps."playerScore" = ps."opponentScore")::int', 'drawsCount')
-      .from('PlayerScores', 'ps')
-      .groupBy('ps."playerId"');
-
-    const topPlayersTotalCountCte = this.gameEntityRepository.manager
-      .createQueryBuilder()
-      .select('COUNT(*)::int', 'totalCount')
-      .from('TopPlayers', 'tp');
-
-    const topPlayersPageCte = this.gameEntityRepository.manager
-      .createQueryBuilder()
-      .select('tp.*')
-      .addSelect(`ROW_NUMBER() OVER (ORDER BY ${topPlayersOrderBy})::int`, 'rowNumber')
-      .from('TopPlayers', 'tp')
-      .orderBy('"rowNumber"', 'ASC')
-      .limit(params.pageSize)
-      .offset(skipCount);
-
-    const topPlayersQuery = this.gameEntityRepository.manager
-      .createQueryBuilder()
-      .addCommonTableExpression(playerGamesCte, 'PlayerGames')
-      .addCommonTableExpression(playerScoresCte, 'PlayerScores')
-      .addCommonTableExpression(topPlayersCte, 'TopPlayers')
-      .addCommonTableExpression(topPlayersTotalCountCte, 'TopPlayersTotalCount')
-      .addCommonTableExpression(topPlayersPageCte, 'TopPlayersPage')
-      .select('tc."totalCount"', 'totalCount')
-      .addSelect('tp."playerId"', 'playerId')
-      .addSelect('u.login', 'login')
-      .addSelect('tp."sumScore"', 'sumScore')
-      .addSelect('tp."avgScores"', 'avgScores')
-      .addSelect('tp."gamesCount"', 'gamesCount')
-      .addSelect('tp."winsCount"', 'winsCount')
-      .addSelect('tp."lossesCount"', 'lossesCount')
-      .addSelect('tp."drawsCount"', 'drawsCount')
-      .from('TopPlayersTotalCount', 'tc')
-      .leftJoin('TopPlayersPage', 'tp', 'TRUE')
-      .leftJoin(User, 'u', 'u.id = tp."playerId"')
-      .setParameter('finishedStatus', GameStatus.finished)
-      .orderBy('tp."rowNumber"', 'ASC');
-
-    const rows = await topPlayersQuery.getRawMany<RawTopPlayersResult>();
     const totalCount = rows[0]?.totalCount ?? 0;
     const pagesCount = Math.ceil(totalCount / params.pageSize);
     const items = rows
