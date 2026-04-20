@@ -8,12 +8,15 @@ import {
   GamesPaginatedViewModel,
   GamesSortBy,
   GetMyGamesParams,
+  GetTopPlayersParams,
   mapGameStatusToViewModel,
-  PlayerStatisticViewModel,
   PlayerProgressViewModel,
+  PlayerStatisticViewModel,
+  TopPlayersPaginatedViewModel,
 } from '../../types/game.types.js';
 import { PlayerAnswer } from './entities/player-answer.entity.js';
 import { UsersRepository } from '../../../user-accounts/infrastructure/typeorm/users.repository.js';
+import { User } from '../../../user-accounts/infrastructure/typeorm/entities/user.entity.js';
 import { AnswerStatus, mapAnswerStatusToViewModel } from '../../types/player-answer.types.js';
 import {
   AccessDeniedDomainException,
@@ -32,6 +35,18 @@ type RawMyGamesResult = {
   items: GameViewModel[] | string;
 };
 
+type RawTopPlayersResult = {
+  totalCount: number;
+  playerId: number | null;
+  login: string | null;
+  sumScore: number | null;
+  avgScores: number | null;
+  gamesCount: number | null;
+  winsCount: number | null;
+  lossesCount: number | null;
+  drawsCount: number | null;
+};
+
 @Injectable()
 export class GamesQueryRepository {
   constructor(
@@ -39,6 +54,124 @@ export class GamesQueryRepository {
     @InjectRepository(PlayerAnswer) private readonly playerAnswerEntityRepository: Repository<PlayerAnswer>,
     private readonly usersRepository: UsersRepository,
   ) {}
+
+  async getTopPlayers(params: GetTopPlayersParams): Promise<TopPlayersPaginatedViewModel> {
+    const skipCount = (params.pageNumber - 1) * params.pageSize;
+    const topPlayersOrderBy = [
+      ...params.sort.map(([sortBy, sortDirection]) => {
+        const direction = sortDirection === SortDirection.asc ? 'ASC' : 'DESC';
+        return `tp."${sortBy}" ${direction}`;
+      }),
+      'tp."playerId" ASC',
+    ].join(', ');
+
+    const playerGamesCte = this.playerAnswerEntityRepository
+      .createQueryBuilder('pa')
+      .select('DISTINCT g.id', 'gameId')
+      .addSelect('pa."userId"', 'playerId')
+      .addSelect(
+        `CASE
+          WHEN pa."userId" = g."firstPlayerId" THEN g."secondPlayerId"
+          ELSE g."firstPlayerId"
+        END`,
+        'opponentId',
+      )
+      .innerJoin(
+        Game,
+        'g',
+        'pa."gameId" = g.id AND (pa."userId" = g."firstPlayerId" OR pa."userId" = g."secondPlayerId")',
+      )
+      .where('g.status = :finishedStatus');
+
+    const playerScoresCte = this.gameEntityRepository.manager
+      .createQueryBuilder()
+      .select('pg."gameId"', 'gameId')
+      .addSelect('pg."playerId"', 'playerId')
+      .addSelect('SUM(pa.points) FILTER (WHERE pa."userId" = pg."playerId")', 'playerScore')
+      .addSelect('SUM(pa.points) FILTER (WHERE pa."userId" = pg."opponentId")', 'opponentScore')
+      .from('PlayerGames', 'pg')
+      .innerJoin(PlayerAnswer, 'pa', 'pg."gameId" = pa."gameId"')
+      .groupBy('pg."gameId"')
+      .addGroupBy('pg."playerId"')
+      .addGroupBy('pg."opponentId"');
+
+    const topPlayersCte = this.gameEntityRepository.manager
+      .createQueryBuilder()
+      .select('ps."playerId"', 'playerId')
+      .addSelect('COALESCE(SUM(ps."playerScore"), 0)::int', 'sumScore')
+      .addSelect('COALESCE(ROUND(AVG(ps."playerScore")::numeric, 2), 0)::float', 'avgScores')
+      .addSelect('COUNT(ps."gameId")::int', 'gamesCount')
+      .addSelect('COUNT(ps."gameId") FILTER (WHERE ps."playerScore" > ps."opponentScore")::int', 'winsCount')
+      .addSelect(
+        'COUNT(ps."gameId") FILTER (WHERE ps."playerScore" < ps."opponentScore")::int',
+        'lossesCount',
+      )
+      .addSelect('COUNT(ps."gameId") FILTER (WHERE ps."playerScore" = ps."opponentScore")::int', 'drawsCount')
+      .from('PlayerScores', 'ps')
+      .groupBy('ps."playerId"');
+
+    const topPlayersTotalCountCte = this.gameEntityRepository.manager
+      .createQueryBuilder()
+      .select('COUNT(*)::int', 'totalCount')
+      .from('TopPlayers', 'tp');
+
+    const topPlayersPageCte = this.gameEntityRepository.manager
+      .createQueryBuilder()
+      .select('tp.*')
+      .addSelect(`ROW_NUMBER() OVER (ORDER BY ${topPlayersOrderBy})::int`, 'rowNumber')
+      .from('TopPlayers', 'tp')
+      .orderBy('"rowNumber"', 'ASC')
+      .limit(params.pageSize)
+      .offset(skipCount);
+
+    const topPlayersQuery = this.gameEntityRepository.manager
+      .createQueryBuilder()
+      .addCommonTableExpression(playerGamesCte, 'PlayerGames')
+      .addCommonTableExpression(playerScoresCte, 'PlayerScores')
+      .addCommonTableExpression(topPlayersCte, 'TopPlayers')
+      .addCommonTableExpression(topPlayersTotalCountCte, 'TopPlayersTotalCount')
+      .addCommonTableExpression(topPlayersPageCte, 'TopPlayersPage')
+      .select('tc."totalCount"', 'totalCount')
+      .addSelect('tp."playerId"', 'playerId')
+      .addSelect('u.login', 'login')
+      .addSelect('tp."sumScore"', 'sumScore')
+      .addSelect('tp."avgScores"', 'avgScores')
+      .addSelect('tp."gamesCount"', 'gamesCount')
+      .addSelect('tp."winsCount"', 'winsCount')
+      .addSelect('tp."lossesCount"', 'lossesCount')
+      .addSelect('tp."drawsCount"', 'drawsCount')
+      .from('TopPlayersTotalCount', 'tc')
+      .leftJoin('TopPlayersPage', 'tp', 'TRUE')
+      .leftJoin(User, 'u', 'u.id = tp."playerId"')
+      .setParameter('finishedStatus', GameStatus.finished)
+      .orderBy('tp."rowNumber"', 'ASC');
+
+    const rows = await topPlayersQuery.getRawMany<RawTopPlayersResult>();
+    const totalCount = rows[0]?.totalCount ?? 0;
+    const pagesCount = Math.ceil(totalCount / params.pageSize);
+    const items = rows
+      .filter((row) => row.playerId !== null)
+      .map((row) => ({
+        sumScore: row.sumScore!,
+        avgScores: row.avgScores!,
+        gamesCount: row.gamesCount!,
+        winsCount: row.winsCount!,
+        lossesCount: row.lossesCount!,
+        drawsCount: row.drawsCount!,
+        player: {
+          id: String(row.playerId),
+          login: row.login!,
+        },
+      }));
+
+    return {
+      pagesCount,
+      page: params.pageNumber,
+      pageSize: params.pageSize,
+      totalCount,
+      items,
+    };
+  }
 
   async getMyGames(userId: string, params: GetMyGamesParams): Promise<GamesPaginatedViewModel> {
     if (!isPositiveIntegerString(userId)) {
