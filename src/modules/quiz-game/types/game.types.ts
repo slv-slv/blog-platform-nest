@@ -1,5 +1,10 @@
+import { Transform } from 'class-transformer';
 import { IsEnum, IsOptional, Matches } from 'class-validator';
-import { BasicPagingParams, PagingParamsType } from '../../../common/types/paging-params.types.js';
+import {
+  BasicPagingParams,
+  PagingParamsType,
+  SortDirection,
+} from '../../../common/types/paging-params.types.js';
 import { AnswerStatusViewModel } from './player-answer.types.js';
 
 export class GetGameByIdParamDto {
@@ -83,3 +88,25 @@ export type PlayerStatisticViewModel = {
   lossesCount: number;
   drawsCount: number;
 };
+
+export enum PlayerStatisticSortBy {
+  sumScore = 'sumScore',
+  avgScores = 'avgScores',
+  gamesCount = 'gamesCount',
+  winsCount = 'winsCount',
+  lossesCount = 'lossesCount',
+  drawsCount = 'drawsCount',
+}
+
+export type PlayerStatisticSort = [PlayerStatisticSortBy, SortDirection];
+
+export class GetTopPlayersQueryDto {
+  @Transform(({ value }) =>
+    (Array.isArray(value) ? value : [value]).map((item) => item.split(' ') as PlayerStatisticSort),
+  )
+  @IsOptional()
+  sort: PlayerStatisticSort[] = [
+    [PlayerStatisticSortBy.avgScores, SortDirection.desc],
+    [PlayerStatisticSortBy.sumScore, SortDirection.desc],
+  ];
+}
