@@ -75,7 +75,7 @@ export type GetMyGamesParams = {
   pagingParams: PagingParamsType<GamesSortBy>;
 };
 
-export type MyStatisticViewModel = {
+export type PlayerStatisticViewModel = {
   sumScore: number;
   avgScores: number;
   gamesCount: number;

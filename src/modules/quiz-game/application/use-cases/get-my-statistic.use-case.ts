@@ -1,8 +1,8 @@
 import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 import { GamesQueryRepository } from '../../infrastructure/typeorm/games.query-repository.js';
-import { MyStatisticViewModel } from '../../types/game.types.js';
+import { PlayerStatisticViewModel } from '../../types/game.types.js';
 
-export class GetMyStatisticQuery extends Query<MyStatisticViewModel> {
+export class GetMyStatisticQuery extends Query<PlayerStatisticViewModel> {
   constructor(public readonly userId: string) {
     super();
   }

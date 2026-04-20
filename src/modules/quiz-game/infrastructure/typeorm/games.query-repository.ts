@@ -9,7 +9,7 @@ import {
   GamesSortBy,
   GetMyGamesParams,
   mapGameStatusToViewModel,
-  MyStatisticViewModel,
+  PlayerStatisticViewModel,
   PlayerProgressViewModel,
 } from '../../types/game.types.js';
 import { PlayerAnswer } from './entities/player-answer.entity.js';
@@ -24,7 +24,7 @@ import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-
 import { SortDirection } from '../../../../common/types/paging-params.types.js';
 
 type RawMyStatisticViewModel = {
-  [K in keyof MyStatisticViewModel]: number;
+  [K in keyof PlayerStatisticViewModel]: number;
 };
 
 type RawMyGamesResult = {
@@ -205,7 +205,7 @@ export class GamesQueryRepository {
     };
   }
 
-  async getMyStatistic(userId: string): Promise<MyStatisticViewModel> {
+  async getMyStatistic(userId: string): Promise<PlayerStatisticViewModel> {
     if (!isPositiveIntegerString(userId)) {
       throw new UnauthorizedDomainException();
     }

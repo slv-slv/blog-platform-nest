@@ -12,7 +12,7 @@ import {
   GameViewModel,
   GetGameByIdParamDto,
   GetMyGamesQueryDto,
-  MyStatisticViewModel,
+  PlayerStatisticViewModel,
 } from '../types/game.types.js';
 import { SubmitAnswerCommand } from '../application/use-cases/submit-answer.use-case.js';
 import { PlayerAnswerInputDto, PlayerAnswerViewModel } from '../types/player-answer.types.js';
@@ -26,7 +26,7 @@ export class PairsController {
   ) {}
 
   @Get('users/my-statistic')
-  async getMyStatistic(@UserId() userId: string): Promise<MyStatisticViewModel> {
+  async getMyStatistic(@UserId() userId: string): Promise<PlayerStatisticViewModel> {
     return this.queryBus.execute(new GetMyStatisticQuery(userId));
   }
 
