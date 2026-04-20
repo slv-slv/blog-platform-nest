@@ -1,4 +1,5 @@
-import { Matches } from 'class-validator';
+import { IsEnum, IsOptional, Matches } from 'class-validator';
+import { BasicPagingParams, PagingParamsType } from '../../../common/types/paging-params.types.js';
 import { AnswerStatusViewModel } from './player-answer.types.js';
 
 export class GetGameByIdParamDto {
@@ -19,6 +20,19 @@ export const mapGameStatusToViewModel: Record<GameStatus, GameStatusViewModel> =
   [GameStatus.active]: 'Active',
   [GameStatus.finished]: 'Finished',
 };
+
+export enum GamesSortBy {
+  status = 'status',
+  pairCreatedDate = 'pairCreatedDate',
+  startGameDate = 'startGameDate',
+  finishGameDate = 'finishGameDate',
+}
+
+export class GetMyGamesQueryDto extends BasicPagingParams {
+  @IsOptional()
+  @IsEnum(GamesSortBy)
+  sortBy: GamesSortBy = GamesSortBy.pairCreatedDate;
+}
 
 export type PlayerProgressViewModel = {
   answers: {
@@ -47,6 +61,18 @@ export type GameViewModel = {
   pairCreatedDate: string;
   startGameDate: string | null;
   finishGameDate: string | null;
+};
+
+export type GamesPaginatedViewModel = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: GameViewModel[];
+};
+
+export type GetMyGamesParams = {
+  pagingParams: PagingParamsType<GamesSortBy>;
 };
 
 export type MyStatisticViewModel = {
