@@ -101,9 +101,7 @@ export enum PlayerStatisticSortBy {
 export type PlayerStatisticSort = [PlayerStatisticSortBy, SortDirection];
 
 export class GetTopPlayersQueryDto {
-  @Transform(({ value }) =>
-    (Array.isArray(value) ? value : [value]).map((item) => item.split(' ') as PlayerStatisticSort),
-  )
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]).map((item) => item.split(' ')))
   @IsOptional()
   sort: PlayerStatisticSort[] = [
     [PlayerStatisticSortBy.avgScores, SortDirection.desc],
