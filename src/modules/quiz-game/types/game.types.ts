@@ -1,5 +1,5 @@
-import { Transform } from 'class-transformer';
-import { IsEnum, IsOptional, Matches } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsEnum, IsInt, IsOptional, Matches, Min } from 'class-validator';
 import {
   BasicPagingParams,
   PagingParamsType,
@@ -115,6 +115,12 @@ export enum PlayerStatisticSortBy {
 
 export type PlayerStatisticSort = [PlayerStatisticSortBy, SortDirection];
 
+export type GetTopPlayersParams = {
+  sort: PlayerStatisticSort[];
+  pageNumber: number;
+  pageSize: number;
+};
+
 export class GetTopPlayersQueryDto {
   @Transform(({ value }) => (Array.isArray(value) ? value : [value]).map((item) => item.split(' ')))
   @IsOptional()
@@ -122,4 +128,16 @@ export class GetTopPlayersQueryDto {
     [PlayerStatisticSortBy.avgScores, SortDirection.desc],
     [PlayerStatisticSortBy.sumScore, SortDirection.desc],
   ];
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  pageNumber: number = 1;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  pageSize: number = 10;
 }
