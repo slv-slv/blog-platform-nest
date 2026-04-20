@@ -5,6 +5,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   GameStatus,
   GameViewModel,
+  GamesPaginatedViewModel,
+  GamesSortBy,
+  GetMyGamesParams,
   mapGameStatusToViewModel,
   MyStatisticViewModel,
   PlayerProgressViewModel,
@@ -18,9 +21,15 @@ import {
   UnauthorizedDomainException,
 } from '../../../../common/exceptions/domain-exceptions.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
+import { SortDirection } from '../../../../common/types/paging-params.types.js';
 
 type RawMyStatisticViewModel = {
   [K in keyof MyStatisticViewModel]: number;
+};
+
+type RawMyGamesResult = {
+  totalCount: number;
+  items: GameViewModel[] | string;
 };
 
 @Injectable()
@@ -30,6 +39,171 @@ export class GamesQueryRepository {
     @InjectRepository(PlayerAnswer) private readonly playerAnswerEntityRepository: Repository<PlayerAnswer>,
     private readonly usersRepository: UsersRepository,
   ) {}
+
+  async getMyGames(userId: string, params: GetMyGamesParams): Promise<GamesPaginatedViewModel> {
+    if (!isPositiveIntegerString(userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
+    const { sortBy, sortDirection, pageNumber, pageSize } = params.pagingParams;
+    const userIdInt = +userId;
+    const skipCount = (pageNumber - 1) * pageSize;
+
+    const sortColumns: Record<GamesSortBy, string> = {
+      [GamesSortBy.status]: 'status',
+      [GamesSortBy.pairCreatedDate]: '"pairCreatedDate"',
+      [GamesSortBy.startGameDate]: '"startGameDate"',
+      [GamesSortBy.finishGameDate]: '"finishGameDate"',
+    };
+
+    const orderBy = sortColumns[sortBy];
+    const direction = sortDirection === SortDirection.asc ? 'ASC' : 'DESC';
+    const pagePairCreatedDateFallback =
+      sortBy === GamesSortBy.pairCreatedDate ? '' : ', g."pairCreatedDate" DESC';
+    const resultPairCreatedDateFallback =
+      sortBy === GamesSortBy.pairCreatedDate ? '' : ', gp."pairCreatedDate" DESC';
+
+    const [result] = (await this.gameEntityRepository.query(
+      `
+      WITH filtered_games AS (
+        SELECT g.*
+        FROM typeorm.games AS g
+        WHERE g."firstPlayerId" = $1 OR g."secondPlayerId" = $1
+      ),
+      total_count AS (
+        SELECT COUNT(*)::int AS count
+        FROM filtered_games
+      ),
+      games_page AS (
+        SELECT g.*
+        FROM filtered_games AS g
+        ORDER BY g.${orderBy} ${direction}${pagePairCreatedDateFallback}, g.id DESC
+        LIMIT $2 OFFSET $3
+      ),
+      answers_by_player AS (
+        SELECT
+          pa."gameId",
+          pa."userId",
+          jsonb_agg(
+            jsonb_build_object(
+              'questionId', pa."questionId"::text,
+              'answerStatus',
+                CASE
+                  WHEN pa.status = $4 THEN 'Correct'
+                  ELSE 'Incorrect'
+                END,
+              'addedAt', to_char(pa."addedAt" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+            )
+            ORDER BY pa."addedAt", pa."questionId"
+          ) AS answers,
+          SUM(pa.points)::int AS score
+        FROM typeorm.player_answers AS pa
+        JOIN games_page AS gp ON gp.id = pa."gameId"
+        GROUP BY pa."gameId", pa."userId"
+      ),
+      questions_by_game AS (
+        SELECT
+          gq."gameId",
+          jsonb_agg(
+            jsonb_build_object(
+              'id', q.id::text,
+              'body', q.body
+            )
+            ORDER BY gq."questionNumber"
+          ) AS questions
+        FROM typeorm.game_questions AS gq
+        JOIN typeorm.questions AS q ON q.id = gq."questionId"
+        JOIN games_page AS gp ON gp.id = gq."gameId"
+        GROUP BY gq."gameId"
+      ),
+      items_json AS (
+        SELECT
+          COALESCE(
+            jsonb_agg(
+              jsonb_build_object(
+                'id', gp.id::text,
+                'firstPlayerProgress', jsonb_build_object(
+                  'answers', COALESCE(fpa.answers, '[]'::jsonb),
+                  'player', jsonb_build_object(
+                    'id', first_user.id::text,
+                    'login', first_user.login
+                  ),
+                  'score', COALESCE(fpa.score, 0)
+                ),
+                'secondPlayerProgress',
+                  CASE
+                    WHEN gp."secondPlayerId" IS NULL THEN NULL
+                    ELSE jsonb_build_object(
+                      'answers', COALESCE(spa.answers, '[]'::jsonb),
+                      'player', jsonb_build_object(
+                        'id', second_user.id::text,
+                        'login', second_user.login
+                      ),
+                      'score', COALESCE(spa.score, 0)
+                    )
+                  END,
+                'questions',
+                  CASE
+                    WHEN gp.status = $5 THEN NULL
+                    ELSE COALESCE(qg.questions, '[]'::jsonb)
+                  END,
+                'status',
+                  CASE
+                    WHEN gp.status = $5 THEN 'PendingSecondPlayer'
+                    WHEN gp.status = $6 THEN 'Active'
+                    ELSE 'Finished'
+                  END,
+                'pairCreatedDate', to_char(gp."pairCreatedDate" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                'startGameDate',
+                  CASE
+                    WHEN gp."startGameDate" IS NULL THEN NULL
+                    ELSE to_char(gp."startGameDate" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+                  END,
+                'finishGameDate',
+                  CASE
+                    WHEN gp."finishGameDate" IS NULL THEN NULL
+                    ELSE to_char(gp."finishGameDate" AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+                  END
+              )
+              ORDER BY gp.${orderBy} ${direction}${resultPairCreatedDateFallback}, gp.id DESC
+            ) FILTER (WHERE gp.id IS NOT NULL),
+            '[]'::jsonb
+          ) AS items
+        FROM games_page AS gp
+        LEFT JOIN typeorm.users AS first_user ON first_user.id = gp."firstPlayerId"
+        LEFT JOIN typeorm.users AS second_user ON second_user.id = gp."secondPlayerId"
+        LEFT JOIN answers_by_player AS fpa
+          ON fpa."gameId" = gp.id
+          AND fpa."userId" = gp."firstPlayerId"
+        LEFT JOIN answers_by_player AS spa
+          ON spa."gameId" = gp.id
+          AND spa."userId" = gp."secondPlayerId"
+        LEFT JOIN questions_by_game AS qg ON qg."gameId" = gp.id
+      )
+      SELECT
+        tc.count AS "totalCount",
+        ij.items AS items
+      FROM total_count AS tc
+      CROSS JOIN items_json AS ij;
+      `,
+      [userIdInt, pageSize, skipCount, AnswerStatus.correct, GameStatus.pending, GameStatus.active],
+    )) as RawMyGamesResult[];
+
+    const totalCount = result?.totalCount ?? 0;
+    const pagesCount = Math.ceil(totalCount / pageSize);
+    const items =
+      typeof result?.items === 'string'
+        ? (JSON.parse(result.items) as GameViewModel[])
+        : (result?.items ?? []);
+
+    return {
+      pagesCount,
+      page: pageNumber,
+      pageSize,
+      totalCount,
+      items,
+    };
+  }
 
   async getMyStatistic(userId: string): Promise<MyStatisticViewModel> {
     if (!isPositiveIntegerString(userId)) {
