@@ -47,6 +47,9 @@ export class Game {
   @Column({ type: 'timestamptz', nullable: true, default: null })
   declare finishGameDate: Date | null;
 
+  @Column({ type: 'timestamptz', nullable: true, default: null })
+  declare deadlineDate: Date | null;
+
   startGame(secondPlayerId: number, questions: Question[], requiredQuestionsCount: number): void {
     if (this.status !== GameStatus.pending) {
       throw new GameIsNotPendingDomainException();
