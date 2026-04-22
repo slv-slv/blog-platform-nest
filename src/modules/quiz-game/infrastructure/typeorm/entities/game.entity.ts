@@ -85,6 +85,7 @@ export class Game {
 
   finishGame(): void {
     this.status = GameStatus.finished;
+    this.deadlineDate = null;
     this.finishGameDate = new Date();
   }
 }
