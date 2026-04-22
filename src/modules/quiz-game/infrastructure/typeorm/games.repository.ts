@@ -8,6 +8,7 @@ import {
   GameNotFoundDomainException,
   UnauthorizedDomainException,
 } from '../../../../common/exceptions/domain-exceptions.js';
+import { PlayerAnswer } from './entities/player-answer.entity.js';
 
 @Injectable()
 export class GamesRepository {
@@ -71,11 +72,71 @@ export class GamesRepository {
     });
   }
 
-  async setDeadline(gameId: number, deadlineDate: Date, manager: EntityManager): Promise<void> {
+  async setDeadline(gameId: string, deadlineDate: Date, manager: EntityManager): Promise<void> {
+    if (!isPositiveIntegerString(gameId)) {
+      throw new GameNotFoundDomainException();
+    }
+
     const gameEntityRepository = manager.getRepository(Game);
-    const result = await gameEntityRepository.update({ id: gameId }, { deadlineDate });
+    const result = await gameEntityRepository.update({ id: +gameId }, { deadlineDate });
     if (result.affected === 0) {
       throw new GameNotFoundDomainException();
     }
+  }
+
+  async findDeadlineForPlayer(
+    gameId: string,
+    userId: string,
+    requiredAnswersCount: number,
+    manager: EntityManager,
+  ): Promise<Date | null> {
+    if (!isPositiveIntegerString(gameId)) {
+      throw new GameNotFoundDomainException();
+    }
+
+    if (!isPositiveIntegerString(userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
+    const gameEntityRepository = manager.getRepository(Game);
+    const playerAnswerEntityRepository = manager.getRepository(PlayerAnswer);
+
+    const game = await gameEntityRepository.findOneBy([
+      { id: +gameId, firstPlayerId: +userId, status: GameStatus.active },
+      { id: +gameId, secondPlayerId: +userId, status: GameStatus.active },
+    ]);
+
+    if (!game) {
+      throw new GameNotFoundDomainException();
+    }
+
+    if (!game.deadlineDate) {
+      return null;
+    }
+
+    if (game.secondPlayerId === null) {
+      return null;
+    }
+
+    const currentPlayerId = +userId;
+    const anotherPlayerId = game.firstPlayerId === currentPlayerId ? game.secondPlayerId : game.firstPlayerId;
+
+    const currentPlayerAnswersCount = await playerAnswerEntityRepository.countBy({
+      gameId: +gameId,
+      userId: currentPlayerId,
+    });
+    const anotherPlayerAnswersCount = await playerAnswerEntityRepository.countBy({
+      gameId: +gameId,
+      userId: anotherPlayerId,
+    });
+
+    if (
+      currentPlayerAnswersCount < requiredAnswersCount &&
+      anotherPlayerAnswersCount === requiredAnswersCount
+    ) {
+      return game.deadlineDate;
+    }
+
+    return null;
   }
 }
