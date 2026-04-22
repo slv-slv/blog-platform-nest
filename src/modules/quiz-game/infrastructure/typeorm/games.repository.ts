@@ -4,7 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { GameStatus } from '../../types/game.types.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
-import { UnauthorizedDomainException } from '../../../../common/exceptions/domain-exceptions.js';
+import {
+  GameNotFoundDomainException,
+  UnauthorizedDomainException,
+} from '../../../../common/exceptions/domain-exceptions.js';
 
 @Injectable()
 export class GamesRepository {
@@ -66,5 +69,13 @@ export class GamesRepository {
       where: { status: GameStatus.pending },
       lock: { mode: 'pessimistic_write' },
     });
+  }
+
+  async setDeadline(gameId: number, deadlineDate: Date, manager: EntityManager): Promise<void> {
+    const gameEntityRepository = manager.getRepository(Game);
+    const result = await gameEntityRepository.update({ id: gameId }, { deadlineDate });
+    if (result.affected === 0) {
+      throw new GameNotFoundDomainException();
+    }
   }
 }
