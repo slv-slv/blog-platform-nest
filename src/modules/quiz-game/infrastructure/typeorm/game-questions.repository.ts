@@ -11,6 +11,21 @@ import {
 
 @Injectable()
 export class GameQuestionsRepository {
+  async getQuestionIdsForGame(gameId: string, manager: EntityManager): Promise<number[]> {
+    if (!isPositiveIntegerString(gameId)) {
+      throw new GameNotFoundDomainException();
+    }
+
+    const gameQuestionEntityRepository = manager.getRepository(GameQuestion);
+    const questions = await gameQuestionEntityRepository.find({
+      where: { gameId: +gameId },
+      select: { questionId: true },
+      order: { questionNumber: 'ASC' },
+    });
+
+    return questions.map((question) => question.questionId);
+  }
+
   async getNextQuestion(gameId: string, userId: string, manager: EntityManager): Promise<GameQuestion> {
     if (!isPositiveIntegerString(gameId)) {
       throw new GameNotFoundDomainException();
