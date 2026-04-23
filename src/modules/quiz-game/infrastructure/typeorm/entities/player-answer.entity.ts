@@ -15,8 +15,8 @@ export class PlayerAnswer {
   @ForeignKey('users', 'id')
   declare userId: number;
 
-  @Column({ nullable: true })
-  declare answer: string;
+  @Column({ type: 'text', nullable: true })
+  declare answer: string | null;
 
   @Column({ type: 'enum', enum: AnswerStatus })
   declare status: AnswerStatus;
