@@ -8,9 +8,11 @@ import {
   QuestionNotFoundDomainException,
   UnauthorizedDomainException,
 } from '../../../../common/exceptions/domain-exceptions.js';
+import { GameQuestionsRepository } from './game-questions.repository.js';
 
 @Injectable()
 export class PlayerAnswersRepository {
+  constructor(private readonly gameQuestionsRepository: GameQuestionsRepository) {}
   async submitAnswer(
     gameId: string,
     userId: string,
@@ -98,5 +100,44 @@ export class PlayerAnswersRepository {
 
     lastAnswer.points += bonus;
     await playerAnswerEntityRepository.save(lastAnswer);
+  }
+
+  async createRemainingIncorrectAnswers(
+    gameId: string,
+    userId: string,
+    manager: EntityManager,
+  ): Promise<void> {
+    if (!isPositiveIntegerString(gameId)) {
+      throw new GameNotFoundDomainException();
+    }
+
+    if (!isPositiveIntegerString(userId)) {
+      throw new UnauthorizedDomainException();
+    }
+
+    const playerAnswerEntityRepository = manager.getRepository(PlayerAnswer);
+
+    const gameQuestionIds = await this.gameQuestionsRepository.getQuestionIdsForGame(gameId, manager);
+    const playerAnswers = await playerAnswerEntityRepository.findBy({ gameId: +gameId, userId: +userId });
+
+    const answeredQuestionIds = playerAnswers.map((answer) => answer.questionId);
+    const unansweredQuestionIds = gameQuestionIds.filter((id) => !answeredQuestionIds.includes(id));
+
+    const incorrectAnswers = [];
+
+    for (const id of unansweredQuestionIds) {
+      const answer = playerAnswerEntityRepository.create({
+        gameId: +gameId,
+        userId: +userId,
+        questionId: id,
+        answer: null,
+        points: 0,
+        status: AnswerStatus.incorrect,
+      });
+      incorrectAnswers.push(answer);
+    }
+
+    if (incorrectAnswers.length === 0) return;
+    await playerAnswerEntityRepository.insert(incorrectAnswers);
   }
 }
