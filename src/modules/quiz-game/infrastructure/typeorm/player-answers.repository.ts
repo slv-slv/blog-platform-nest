@@ -106,7 +106,7 @@ export class PlayerAnswersRepository {
     gameId: string,
     userId: string,
     manager: EntityManager,
-  ): Promise<void> {
+  ): Promise<PlayerAnswer[]> {
     if (!isPositiveIntegerString(gameId)) {
       throw new GameNotFoundDomainException();
     }
@@ -137,7 +137,7 @@ export class PlayerAnswersRepository {
       incorrectAnswers.push(answer);
     }
 
-    if (incorrectAnswers.length === 0) return;
-    await playerAnswerEntityRepository.insert(incorrectAnswers);
+    if (incorrectAnswers.length === 0) return [];
+    return playerAnswerEntityRepository.save(incorrectAnswers);
   }
 }
