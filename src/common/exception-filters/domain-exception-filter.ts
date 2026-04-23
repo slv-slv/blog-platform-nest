@@ -43,6 +43,7 @@ function mapDomainStatusToHttpCode(exceptionStatus: DomainExceptionStatus): Http
     case DomainExceptionStatus.ACCESS_DENIED:
     case DomainExceptionStatus.NO_ACTIVE_PAIR:
     case DomainExceptionStatus.NO_REMAINING_QUESTIONS:
+    case DomainExceptionStatus.GAME_DEADLINE_EXPIRED:
     case DomainExceptionStatus.CANNOT_JOIN_OWN_GAME:
     case DomainExceptionStatus.GAME_IS_NOT_PENDING:
     case DomainExceptionStatus.SECOND_PLAYER_ALREADY_JOINED:

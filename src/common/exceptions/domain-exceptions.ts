@@ -115,6 +115,13 @@ export class NoRemainingQuestionsDomainException extends DomainException {
   }
 }
 
+export class GameDeadlineExpiredDomainException extends DomainException {
+  constructor(message = 'The deadline for answering questions has expired') {
+    super(message);
+    this.status = DomainExceptionStatus.GAME_DEADLINE_EXPIRED;
+  }
+}
+
 export class CannotJoinOwnGameDomainException extends DomainException {
   constructor(message = 'User cannot join his own game') {
     super(message);
