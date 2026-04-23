@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Game } from './entities/game.entity.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, IsNull, LessThanOrEqual, Not, Repository } from 'typeorm';
 import { GameStatus } from '../../types/game.types.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import {
@@ -138,5 +138,14 @@ export class GamesRepository {
     }
 
     return null;
+  }
+
+  async findGamesWithExpiredDeadline(manager: EntityManager): Promise<Game[]> {
+    const gameEntityRepository = manager.getRepository(Game);
+
+    return gameEntityRepository.find({
+      where: { status: GameStatus.active, deadlineDate: LessThanOrEqual(new Date()) },
+      lock: { mode: 'pessimistic_write' },
+    });
   }
 }
