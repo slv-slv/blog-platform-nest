@@ -9,6 +9,7 @@ import {
   UnauthorizedDomainException,
 } from '../../../../common/exceptions/domain-exceptions.js';
 import { GameQuestionsRepository } from './game-questions.repository.js';
+import { Game } from './entities/game.entity.js';
 
 @Injectable()
 export class PlayerAnswersRepository {
@@ -102,33 +103,29 @@ export class PlayerAnswersRepository {
     await playerAnswerEntityRepository.save(lastAnswer);
   }
 
-  async createRemainingIncorrectAnswers(
-    gameId: string,
-    userId: string,
-    manager: EntityManager,
-  ): Promise<PlayerAnswer[]> {
-    if (!isPositiveIntegerString(gameId)) {
-      throw new GameNotFoundDomainException();
-    }
-
-    if (!isPositiveIntegerString(userId)) {
-      throw new UnauthorizedDomainException();
-    }
-
+  async createRemainingIncorrectAnswers(game: Game, manager: EntityManager): Promise<PlayerAnswer[]> {
     const playerAnswerEntityRepository = manager.getRepository(PlayerAnswer);
 
-    const gameQuestionIds = await this.gameQuestionsRepository.getQuestionIdsForGame(gameId, manager);
-    const playerAnswers = await playerAnswerEntityRepository.findBy({ gameId: +gameId, userId: +userId });
+    const gameQuestionIds = await this.gameQuestionsRepository.getQuestionIdsForGame(
+      game.id.toString(),
+      manager,
+    );
+    const bothPlayerAnswers = await playerAnswerEntityRepository.findBy({ gameId: game.id });
+    const firstPlayerAnswers = bothPlayerAnswers.filter((answer) => answer.userId === game.firstPlayerId);
+    const secondPlayerAnswers = bothPlayerAnswers.filter((answer) => answer.userId === game.secondPlayerId);
+    const loserAnswers =
+      firstPlayerAnswers.length < secondPlayerAnswers.length ? firstPlayerAnswers : secondPlayerAnswers;
+    const loserId = loserAnswers[0].userId;
 
-    const answeredQuestionIds = playerAnswers.map((answer) => answer.questionId);
+    const answeredQuestionIds = loserAnswers.map((answer) => answer.questionId);
     const unansweredQuestionIds = gameQuestionIds.filter((id) => !answeredQuestionIds.includes(id));
 
     const incorrectAnswers = [];
 
     for (const id of unansweredQuestionIds) {
       const answer = playerAnswerEntityRepository.create({
-        gameId: +gameId,
-        userId: +userId,
+        gameId: game.id,
+        userId: loserId,
         questionId: id,
         answer: null,
         points: 0,
