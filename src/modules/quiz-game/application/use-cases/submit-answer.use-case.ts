@@ -1,6 +1,6 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { BonusCandidate, PlayerAnswerViewModel } from '../../types/player-answer.types.js';
+import { PlayerAnswerStats, PlayerAnswerViewModel } from '../../types/player-answer.types.js';
 import { GamesRepository } from '../../infrastructure/typeorm/games.repository.js';
 import { GameQuestionsRepository } from '../../infrastructure/typeorm/game-questions.repository.js';
 import { PlayerAnswersRepository } from '../../infrastructure/typeorm/player-answers.repository.js';
@@ -32,10 +32,49 @@ export class SubmitAnswerUseCase implements ICommandHandler<SubmitAnswerCommand>
   ) {}
   async execute(command: SubmitAnswerCommand) {
     return this.dataSource.transaction(async (manager) => {
+      let anotherPlayerAnswersStats: PlayerAnswerStats;
       const game = await this.gamesRepository.findActiveGameWithLock(command.userId, manager);
 
       if (!game) {
         throw new NoActivePairDomainException();
+      }
+
+      const anotherPlayerId =
+        game.firstPlayerId === +command.userId
+          ? game.secondPlayerId!.toString()
+          : game.firstPlayerId.toString();
+
+      const deadlineDate = await this.gamesRepository.findDeadlineForPlayer(
+        game.id.toString(),
+        command.userId,
+        this.quiz.questionsCount,
+        manager,
+      );
+
+      if (deadlineDate && deadlineDate < new Date()) {
+        const incorrectAnswers = await this.playerAnswersRepository.createRemainingIncorrectAnswers(
+          game,
+          manager,
+        );
+
+        anotherPlayerAnswersStats = await this.playerAnswersRepository.getPlayerAnswerStats(
+          game.id.toString(),
+          anotherPlayerId,
+          manager,
+        );
+
+        if (anotherPlayerAnswersStats.correctAnswersCount > 0) {
+          await this.playerAnswersRepository.setBonus(
+            game.id.toString(),
+            anotherPlayerId,
+            this.quiz.bonusPoints,
+            manager,
+          );
+        }
+
+        game.finishGame();
+        await this.gamesRepository.save(game, manager);
+        return mapAnswerToViewModel(incorrectAnswers[0]);
       }
 
       const nextQuestion = await this.gameQuestionsRepository.getNextQuestion(
@@ -67,12 +106,7 @@ export class SubmitAnswerUseCase implements ICommandHandler<SubmitAnswerCommand>
         return mapAnswerToViewModel(submittedAnswer);
       }
 
-      const anotherPlayerId =
-        game.firstPlayerId === +command.userId
-          ? game.secondPlayerId!.toString()
-          : game.firstPlayerId.toString();
-
-      const anotherPlayerAnswersStats = await this.playerAnswersRepository.getPlayerAnswerStats(
+      anotherPlayerAnswersStats = await this.playerAnswersRepository.getPlayerAnswerStats(
         game.id.toString(),
         anotherPlayerId,
         manager,
@@ -80,6 +114,10 @@ export class SubmitAnswerUseCase implements ICommandHandler<SubmitAnswerCommand>
 
       const isAnotherPlayerFinished = anotherPlayerAnswersStats.answersCount === this.quiz.questionsCount;
       if (!isAnotherPlayerFinished) {
+        const deadlineDate = new Date();
+        deadlineDate.setSeconds(deadlineDate.getSeconds() + 10);
+        await this.gamesRepository.setDeadline(game.id.toString(), deadlineDate, manager);
+
         return mapAnswerToViewModel(submittedAnswer);
       }
 
@@ -109,8 +147,12 @@ export class SubmitAnswerUseCase implements ICommandHandler<SubmitAnswerCommand>
 
       // Ответы на вопросы сериализованы для обоих игроков через пессимистическую блокировку игры, поэтому просто проверяем, что у второго игрока был хотя бы 1 правильный ответ
       if (anotherPlayerAnswersStats.correctAnswersCount > 0) {
-        const bonus = 1;
-        await this.playerAnswersRepository.setBonus(game.id.toString(), anotherPlayerId, bonus, manager);
+        await this.playerAnswersRepository.setBonus(
+          game.id.toString(),
+          anotherPlayerId,
+          this.quiz.bonusPoints,
+          manager,
+        );
       }
 
       game.finishGame();

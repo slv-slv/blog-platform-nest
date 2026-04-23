@@ -28,6 +28,7 @@ describe('SubmitAnswerUseCase Integration', () => {
   let connectUserUseCase: ConnectUserUseCase;
   let submitAnswerUseCase: SubmitAnswerUseCase;
   let questionsCount: number;
+  let bonusPoints: number;
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -47,7 +48,9 @@ describe('SubmitAnswerUseCase Integration', () => {
     playerAnswerEntityRepository = dataSource.getRepository(PlayerAnswer);
     connectUserUseCase = app.get(ConnectUserUseCase);
     submitAnswerUseCase = app.get(SubmitAnswerUseCase);
-    questionsCount = app.get<{ questionsCount: number }>(quizConfig.KEY).questionsCount;
+    const quiz = app.get<{ questionsCount: number; bonusPoints: number }>(quizConfig.KEY);
+    questionsCount = quiz.questionsCount;
+    bonusPoints = quiz.bonusPoints;
   }, 30000);
 
   beforeEach(async () => {
@@ -148,6 +151,31 @@ describe('SubmitAnswerUseCase Integration', () => {
     ).rejects.toBeInstanceOf(NoRemainingQuestionsDomainException);
   });
 
+  it('should set deadline when current player submits the last answer before opponent finishes', async () => {
+    const { firstPlayer, gameId, orderedQuestions } = await createActiveGame();
+
+    for (const question of orderedQuestions.slice(0, -1)) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(firstPlayer.id, question.correctAnswers[0]));
+    }
+
+    const lastQuestion = orderedQuestions.at(-1)!;
+    const beforeLastAnswer = Date.now();
+
+    await submitAnswerUseCase.execute(
+      new SubmitAnswerCommand(firstPlayer.id, lastQuestion.correctAnswers[0]),
+    );
+
+    const afterLastAnswer = Date.now();
+    const savedGame = await gameEntityRepository.findOneBy({ id: +gameId });
+
+    expect(savedGame).not.toBeNull();
+    expect(savedGame!.status).toBe(GameStatus.active);
+    expect(savedGame!.finishGameDate).toBeNull();
+    expect(savedGame!.deadlineDate).not.toBeNull();
+    expect(savedGame!.deadlineDate!.getTime()).toBeGreaterThanOrEqual(beforeLastAnswer + 10_000);
+    expect(savedGame!.deadlineDate!.getTime()).toBeLessThanOrEqual(afterLastAnswer + 10_000);
+  });
+
   it('should finish game when current player submits the last answer after opponent answered all questions', async () => {
     const { firstPlayer, secondPlayer, gameId, orderedQuestions } = await createActiveGame();
 
@@ -180,6 +208,88 @@ describe('SubmitAnswerUseCase Integration', () => {
     expect(totalAnswers).toBe(questionsCount * 2);
   });
 
+  it('should finish game by deadline, create remaining incorrect answers and give bonus to faster player', async () => {
+    const { firstPlayer, secondPlayer, gameId, orderedQuestions } = await createActiveGame();
+
+    for (const question of orderedQuestions.slice(0, 2)) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(firstPlayer.id, question.correctAnswers[0]));
+    }
+
+    for (const question of orderedQuestions) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(secondPlayer.id, question.correctAnswers[0]));
+    }
+
+    await gameEntityRepository.update({ id: +gameId }, { deadlineDate: new Date(Date.now() - 1_000) });
+
+    const expectedQuestionId = orderedQuestions[2].id;
+    const result = await submitAnswerUseCase.execute(new SubmitAnswerCommand(firstPlayer.id, 'late-answer'));
+
+    const finishedGame = await gameEntityRepository.findOneBy({ id: +gameId });
+    const firstPlayerAnswers = await playerAnswerEntityRepository.find({
+      where: { gameId: +gameId, userId: +firstPlayer.id },
+      order: { addedAt: 'ASC', questionId: 'ASC' },
+    });
+    const secondPlayerAnswers = await playerAnswerEntityRepository.find({
+      where: { gameId: +gameId, userId: +secondPlayer.id },
+      order: { addedAt: 'ASC' },
+    });
+
+    expect(result.questionId).toBe(expectedQuestionId);
+    expect(result.answerStatus).toBe('Incorrect');
+    expect(finishedGame).not.toBeNull();
+    expect(finishedGame!.status).toBe(GameStatus.finished);
+    expect(finishedGame!.deadlineDate).toBeNull();
+    expect(finishedGame!.finishGameDate).not.toBeNull();
+    expect(firstPlayerAnswers).toHaveLength(questionsCount);
+    expect(firstPlayerAnswers.slice(2).every((answer) => answer.status === AnswerStatus.incorrect)).toBe(
+      true,
+    );
+    expect(firstPlayerAnswers.slice(2).every((answer) => answer.answer === null)).toBe(true);
+    expect(firstPlayerAnswers.slice(2).every((answer) => answer.points === 0)).toBe(true);
+    expect(secondPlayerAnswers.at(-1)!.points).toBe(1 + bonusPoints);
+    expect(getPlayerScore(secondPlayerAnswers)).toBe(questionsCount + bonusPoints);
+  });
+
+  it('should finish game by deadline without bonus when faster player has no correct answers', async () => {
+    const { firstPlayer, secondPlayer, gameId, orderedQuestions } = await createActiveGame();
+
+    for (const question of orderedQuestions.slice(0, 2)) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(firstPlayer.id, question.correctAnswers[0]));
+    }
+
+    for (let index = 0; index < orderedQuestions.length; index++) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(secondPlayer.id, 'wrong-answer'));
+    }
+
+    await gameEntityRepository.update({ id: +gameId }, { deadlineDate: new Date(Date.now() - 1_000) });
+
+    const expectedQuestionId = orderedQuestions[2].id;
+    const result = await submitAnswerUseCase.execute(new SubmitAnswerCommand(firstPlayer.id, 'late-answer'));
+
+    const finishedGame = await gameEntityRepository.findOneBy({ id: +gameId });
+    const firstPlayerAnswers = await playerAnswerEntityRepository.find({
+      where: { gameId: +gameId, userId: +firstPlayer.id },
+      order: { addedAt: 'ASC', questionId: 'ASC' },
+    });
+    const secondPlayerAnswers = await playerAnswerEntityRepository.find({
+      where: { gameId: +gameId, userId: +secondPlayer.id },
+      order: { addedAt: 'ASC' },
+    });
+
+    expect(result.questionId).toBe(expectedQuestionId);
+    expect(result.answerStatus).toBe('Incorrect');
+    expect(finishedGame).not.toBeNull();
+    expect(finishedGame!.status).toBe(GameStatus.finished);
+    expect(finishedGame!.deadlineDate).toBeNull();
+    expect(firstPlayerAnswers).toHaveLength(questionsCount);
+    expect(firstPlayerAnswers.slice(2).every((answer) => answer.status === AnswerStatus.incorrect)).toBe(
+      true,
+    );
+    expect(firstPlayerAnswers.slice(2).every((answer) => answer.answer === null)).toBe(true);
+    expect(getPlayerScore(secondPlayerAnswers)).toBe(0);
+    expect(secondPlayerAnswers.at(-1)!.points).toBe(0);
+  });
+
   it('should give bonus to the player who finished earlier and has at least one correct answer', async () => {
     const { firstPlayer, secondPlayer, gameId, orderedQuestions } = await createActiveGame();
 
@@ -197,14 +307,14 @@ describe('SubmitAnswerUseCase Integration', () => {
     });
 
     expect(secondPlayerAnswers).toHaveLength(questionsCount);
-    expect(secondPlayerAnswers.at(-1)!.points).toBe(2);
-    expect(getPlayerScore(secondPlayerAnswers)).toBe(questionsCount + 1);
+    expect(secondPlayerAnswers.at(-1)!.points).toBe(1 + bonusPoints);
+    expect(getPlayerScore(secondPlayerAnswers)).toBe(questionsCount + bonusPoints);
   });
 
   it('should not give bonus when the faster player has no correct answers', async () => {
     const { firstPlayer, secondPlayer, gameId, orderedQuestions } = await createActiveGame();
 
-    for (const question of orderedQuestions) {
+    for (let index = 0; index < orderedQuestions.length; index++) {
       await submitAnswerUseCase.execute(new SubmitAnswerCommand(secondPlayer.id, 'wrong-answer'));
     }
 
@@ -247,7 +357,9 @@ describe('SubmitAnswerUseCase Integration', () => {
 
   async function createPublishedQuestions(count: number): Promise<void> {
     for (let index = 1; index <= count; index++) {
-      const question = await questionsRepository.createQuestion(`Question body ${index}`, [`answer-${index}`]);
+      const question = await questionsRepository.createQuestion(`Question body ${index}`, [
+        `answer-${index}`,
+      ]);
 
       question.setPublishedStatus(true);
       await questionsRepository.save(question);

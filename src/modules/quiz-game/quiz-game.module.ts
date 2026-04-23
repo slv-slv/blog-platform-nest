@@ -13,6 +13,7 @@ import { GetMyStatisticUseCase } from './application/use-cases/get-my-statistic.
 import { GetTopPlayersUseCase } from './application/use-cases/get-top-players.use-case.js';
 import { ConnectUserUseCase } from './application/use-cases/connect-user.use-case.js';
 import { SubmitAnswerUseCase } from './application/use-cases/submit-answer.use-case.js';
+import { FinishExpiredGamesUseCase } from './application/use-cases/finish-expired-games.use-case.js';
 import { QuestionsRepository } from './infrastructure/typeorm/questions.repository.js';
 import { Question } from './infrastructure/typeorm/entities/question.entity.js';
 import { CorrectAnswer } from './infrastructure/typeorm/entities/correct-answer.entity.js';
@@ -46,6 +47,7 @@ import { PairsController } from './api/pairs.controller.js';
     GetTopPlayersUseCase,
     ConnectUserUseCase,
     SubmitAnswerUseCase,
+    FinishExpiredGamesUseCase,
     QuestionsQueryRepository,
     GamesRepository,
     GamesQueryRepository,
