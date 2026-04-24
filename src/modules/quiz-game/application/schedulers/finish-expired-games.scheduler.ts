@@ -9,7 +9,8 @@ export class FinishExpiredGamesScheduler {
 
   @Cron(CronExpression.EVERY_5_SECONDS, {
     waitForCompletion: true,
-    disabled: process.env.NODE_ENV === 'testing',
+    // disabled: process.env.NODE_ENV === 'testing',
+    disabled: true,
   })
   async handle(): Promise<void> {
     await this.commandBus.execute(new FinishExpiredGamesCommand());
