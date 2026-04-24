@@ -7,7 +7,7 @@ import { FinishExpiredGamesCommand } from '../use-cases/finish-expired-games.use
 export class FinishExpiredGamesScheduler {
   constructor(private readonly commandBus: CommandBus) {}
 
-  @Cron(CronExpression.EVERY_SECOND, { waitForCompletion: true })
+  @Cron(CronExpression.EVERY_5_SECONDS, { waitForCompletion: true, disabled: true })
   async handle(): Promise<void> {
     if (process.env.NODE_ENV === 'testing') {
       return;

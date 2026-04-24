@@ -11,6 +11,7 @@ import { DataSource } from 'typeorm';
 import { Inject } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { quizConfig } from '../../../../config/quiz.config.js';
+import { GameFinisher } from '../services/game-finisher.js';
 
 export class SubmitAnswerCommand extends Command<PlayerAnswerViewModel> {
   constructor(
@@ -28,6 +29,7 @@ export class SubmitAnswerUseCase implements ICommandHandler<SubmitAnswerCommand>
     private readonly gamesRepository: GamesRepository,
     private readonly gameQuestionsRepository: GameQuestionsRepository,
     private readonly playerAnswersRepository: PlayerAnswersRepository,
+    private readonly gameFinisher: GameFinisher,
     @Inject(quizConfig.KEY) private readonly quiz: ConfigType<typeof quizConfig>,
   ) {}
   async execute(command: SubmitAnswerCommand) {
@@ -117,6 +119,7 @@ export class SubmitAnswerUseCase implements ICommandHandler<SubmitAnswerCommand>
         const deadlineDate = new Date();
         deadlineDate.setSeconds(deadlineDate.getSeconds() + 10);
         await this.gamesRepository.setDeadline(game.id.toString(), deadlineDate, manager);
+        setTimeout(() => this.gameFinisher.finish(game, manager), 10000);
 
         return mapAnswerToViewModel(submittedAnswer);
       }
