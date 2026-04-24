@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Game } from './entities/game.entity.js';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, IsNull, LessThanOrEqual, Not, Repository } from 'typeorm';
+import { EntityManager, LessThanOrEqual, Repository } from 'typeorm';
 import { GameStatus } from '../../types/game.types.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import {
@@ -140,8 +140,7 @@ export class GamesRepository {
     return null;
   }
 
-  async findExpiredGameIds(): Promise<number[]> {
-    const currentTime = new Date();
+  async findExpiredGameIds(currentTime: Date): Promise<number[]> {
     const games = await this.gameEntityRepository.find({
       where: { status: GameStatus.active, deadlineDate: LessThanOrEqual(currentTime) },
       select: { id: true },
@@ -149,5 +148,26 @@ export class GamesRepository {
     });
 
     return games.map((game) => game.id);
+  }
+
+  async findExpiredGameByIdWithLock(
+    gameId: string,
+    currentTime: Date,
+    manager: EntityManager,
+  ): Promise<Game | null> {
+    if (!isPositiveIntegerString(gameId)) {
+      throw new GameNotFoundDomainException();
+    }
+
+    const gameEntityRepository = manager.getRepository(Game);
+
+    return gameEntityRepository.findOne({
+      where: {
+        id: +gameId,
+        status: GameStatus.active,
+        deadlineDate: LessThanOrEqual(currentTime),
+      },
+      lock: { mode: 'pessimistic_write' },
+    });
   }
 }
