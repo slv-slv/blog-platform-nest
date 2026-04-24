@@ -140,12 +140,14 @@ export class GamesRepository {
     return null;
   }
 
-  async findGamesWithExpiredDeadline(manager: EntityManager): Promise<Game[]> {
-    const gameEntityRepository = manager.getRepository(Game);
-
-    return gameEntityRepository.find({
-      where: { status: GameStatus.active, deadlineDate: LessThanOrEqual(new Date()) },
-      lock: { mode: 'pessimistic_write' },
+  async findExpiredGameIds(): Promise<number[]> {
+    const currentTime = new Date();
+    const games = await this.gameEntityRepository.find({
+      where: { status: GameStatus.active, deadlineDate: LessThanOrEqual(currentTime) },
+      select: { id: true },
+      order: { deadlineDate: 'ASC' },
     });
+
+    return games.map((game) => game.id);
   }
 }
