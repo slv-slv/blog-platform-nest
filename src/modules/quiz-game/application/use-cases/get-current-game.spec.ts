@@ -7,7 +7,9 @@ import { GameNotFoundDomainException } from '../../../../common/exceptions/domai
 import { quizConfig } from '../../../../config/quiz.config.js';
 import { UsersRepository } from '../../../user-accounts/infrastructure/typeorm/users.repository.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
+import { Game } from '../../infrastructure/typeorm/entities/game.entity.js';
 import { QuestionsRepository } from '../../infrastructure/typeorm/questions.repository.js';
+import { GameStatus } from '../../types/game.types.js';
 import { ConnectUserCommand, ConnectUserUseCase } from './connect-user.use-case.js';
 import { GetCurrentGameQuery, GetCurrentGameUseCase } from './get-current-game.use-case.js';
 import { SubmitAnswerCommand, SubmitAnswerUseCase } from './submit-answer.use-case.js';
@@ -152,6 +154,40 @@ describe('GetCurrentGameUseCase Integration', () => {
     await expect(getCurrentGameUseCase.execute(new GetCurrentGameQuery(user.id))).rejects.toBeInstanceOf(
       GameNotFoundDomainException,
     );
+  });
+
+  it('should finish expired active game before searching current game', async () => {
+    const firstPlayer = await createUser('first-player');
+    const secondPlayer = await createUser('second-player');
+
+    await createPublishedQuestions(questionsCount);
+
+    await connectUserUseCase.execute(new ConnectUserCommand(firstPlayer.id));
+    const startedGame = await connectUserUseCase.execute(new ConnectUserCommand(secondPlayer.id));
+    const gameAtStart = await getCurrentGameUseCase.execute(new GetCurrentGameQuery(secondPlayer.id));
+    const orderedQuestionIds = gameAtStart.questions!.map((question) => question.id);
+
+    for (const questionId of orderedQuestionIds.slice(0, 3)) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(secondPlayer.id, `answer-${questionId}`));
+    }
+
+    for (const questionId of orderedQuestionIds) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(firstPlayer.id, `answer-${questionId}`));
+    }
+
+    await dataSource
+      .getRepository(Game)
+      .update({ id: +startedGame.id }, { deadlineDate: new Date(Date.now() - 1_000) });
+
+    await expect(
+      getCurrentGameUseCase.execute(new GetCurrentGameQuery(secondPlayer.id)),
+    ).rejects.toBeInstanceOf(GameNotFoundDomainException);
+
+    const finishedGame = await dataSource.getRepository(Game).findOneBy({ id: +startedGame.id });
+
+    expect(finishedGame).not.toBeNull();
+    expect(finishedGame!.status).toBe(GameStatus.finished);
+    expect(finishedGame!.finishGameDate).not.toBeNull();
   });
 
   async function createUser(login: string) {

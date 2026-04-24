@@ -21,6 +21,7 @@ describe('GetGameByIdUseCase Integration', () => {
   let getGameByIdUseCase: GetGameByIdUseCase;
   let submitAnswerUseCase: SubmitAnswerUseCase;
   let questionsCount: number;
+  let bonusPoints: number;
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -39,7 +40,9 @@ describe('GetGameByIdUseCase Integration', () => {
     connectUserUseCase = app.get(ConnectUserUseCase);
     getGameByIdUseCase = app.get(GetGameByIdUseCase);
     submitAnswerUseCase = app.get(SubmitAnswerUseCase);
-    questionsCount = app.get<{ questionsCount: number }>(quizConfig.KEY).questionsCount;
+    const quiz = app.get<{ questionsCount: number; bonusPoints: number }>(quizConfig.KEY);
+    questionsCount = quiz.questionsCount;
+    bonusPoints = quiz.bonusPoints;
   }, 30000);
 
   beforeEach(async () => {
@@ -144,7 +147,9 @@ describe('GetGameByIdUseCase Integration', () => {
     await connectUserUseCase.execute(new ConnectUserCommand(firstPlayer.id));
     const startedGame = await connectUserUseCase.execute(new ConnectUserCommand(secondPlayer.id));
 
-    const gameAtStart = await getGameByIdUseCase.execute(new GetGameByIdQuery(startedGame.id, secondPlayer.id));
+    const gameAtStart = await getGameByIdUseCase.execute(
+      new GetGameByIdQuery(startedGame.id, secondPlayer.id),
+    );
     const orderedQuestionIds = gameAtStart.questions!.map((question) => question.id);
 
     for (const questionId of orderedQuestionIds) {
@@ -155,11 +160,48 @@ describe('GetGameByIdUseCase Integration', () => {
       await submitAnswerUseCase.execute(new SubmitAnswerCommand(firstPlayer.id, `answer-${questionId}`));
     }
 
-    const finishedGame = await getGameByIdUseCase.execute(new GetGameByIdQuery(startedGame.id, secondPlayer.id));
+    const finishedGame = await getGameByIdUseCase.execute(
+      new GetGameByIdQuery(startedGame.id, secondPlayer.id),
+    );
 
     expect(finishedGame.status).toBe('Finished');
-    expect(finishedGame.secondPlayerProgress!.answers.map((answer) => answer.questionId)).toEqual(orderedQuestionIds);
+    expect(finishedGame.secondPlayerProgress!.answers.map((answer) => answer.questionId)).toEqual(
+      orderedQuestionIds,
+    );
     expect(finishedGame.secondPlayerProgress!.score).toBe(questionsCount + 1);
+  });
+
+  it('should finish expired active game before returning view model', async () => {
+    const firstPlayer = await createUser('first-player');
+    const secondPlayer = await createUser('second-player');
+
+    await createPublishedQuestions(questionsCount);
+
+    await connectUserUseCase.execute(new ConnectUserCommand(firstPlayer.id));
+    const startedGame = await connectUserUseCase.execute(new ConnectUserCommand(secondPlayer.id));
+
+    const gameAtStart = await getGameByIdUseCase.execute(
+      new GetGameByIdQuery(startedGame.id, firstPlayer.id),
+    );
+    const orderedQuestionIds = gameAtStart.questions!.map((question) => question.id);
+
+    for (const questionId of orderedQuestionIds) {
+      await submitAnswerUseCase.execute(new SubmitAnswerCommand(firstPlayer.id, `answer-${questionId}`));
+    }
+
+    await dataSource
+      .getRepository('games')
+      .update({ id: +startedGame.id }, { deadlineDate: new Date(Date.now() - 1_000) });
+
+    const finishedGame = await getGameByIdUseCase.execute(
+      new GetGameByIdQuery(startedGame.id, firstPlayer.id),
+    );
+
+    expect(finishedGame.status).toBe('Finished');
+    expect(finishedGame.finishGameDate).not.toBeNull();
+    expect(finishedGame.firstPlayerProgress.score).toBe(questionsCount + bonusPoints);
+    expect(finishedGame.secondPlayerProgress!.score).toBe(0);
+    expect(finishedGame.secondPlayerProgress!.answers).toHaveLength(questionsCount);
   });
 
   async function createUser(login: string) {

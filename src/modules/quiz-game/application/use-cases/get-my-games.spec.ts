@@ -4,6 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { AppModule } from '../../../../app.module.js';
 import { SortDirection } from '../../../../common/types/paging-params.types.js';
+import { quizConfig } from '../../../../config/quiz.config.js';
 import { EmailService } from '../../../notifications/email/email.service.js';
 import { UsersRepository } from '../../../user-accounts/infrastructure/typeorm/users.repository.js';
 import { GameQuestion } from '../../infrastructure/typeorm/entities/game-question.entity.js';
@@ -23,6 +24,7 @@ describe('GetMyGamesUseCase Integration', () => {
   let gameQuestionEntityRepository: Repository<GameQuestion>;
   let playerAnswerEntityRepository: Repository<PlayerAnswer>;
   let getMyGamesUseCase: GetMyGamesUseCase;
+  let bonusPoints: number;
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -42,6 +44,7 @@ describe('GetMyGamesUseCase Integration', () => {
     gameQuestionEntityRepository = dataSource.getRepository(GameQuestion);
     playerAnswerEntityRepository = dataSource.getRepository(PlayerAnswer);
     getMyGamesUseCase = app.get(GetMyGamesUseCase);
+    bonusPoints = app.get<{ bonusPoints: number }>(quizConfig.KEY).bonusPoints;
   }, 30000);
 
   beforeEach(async () => {
@@ -254,6 +257,57 @@ describe('GetMyGamesUseCase Integration', () => {
     });
   });
 
+  it('should finish expired active games before returning my games', async () => {
+    const player = await createUser('player');
+    const opponent = await createUser('opponent');
+    const [firstQuestion, secondQuestion] = await createQuestions();
+
+    const expiredGame = await createGame({
+      firstPlayerId: +player.id,
+      secondPlayerId: +opponent.id,
+      status: GameStatus.active,
+      pairCreatedDate: new Date('2026-01-01T10:00:00.000Z'),
+      startGameDate: new Date('2026-01-01T10:01:00.000Z'),
+      deadlineDate: new Date(Date.now() - 1_000),
+      questions: [firstQuestion, secondQuestion],
+      answers: [
+        {
+          questionId: firstQuestion.id,
+          userId: +player.id,
+          status: AnswerStatus.correct,
+          points: 1,
+          addedAt: new Date('2026-01-01T10:02:00.000Z'),
+        },
+        {
+          questionId: secondQuestion.id,
+          userId: +player.id,
+          status: AnswerStatus.correct,
+          points: 1,
+          addedAt: new Date('2026-01-01T10:03:00.000Z'),
+        },
+      ],
+    });
+
+    const result = await getMyGamesUseCase.execute(
+      new GetMyGamesQuery(player.id, {
+        pagingParams: {
+          sortBy: GamesSortBy.pairCreatedDate,
+          sortDirection: SortDirection.desc,
+          pageNumber: 1,
+          pageSize: 10,
+        },
+      }),
+    );
+
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].id).toBe(expiredGame.id.toString());
+    expect(result.items[0].status).toBe('Finished');
+    expect(result.items[0].finishGameDate).not.toBeNull();
+    expect(result.items[0].firstPlayerProgress.score).toBe(2 + bonusPoints);
+    expect(result.items[0].secondPlayerProgress!.score).toBe(0);
+    expect(result.items[0].secondPlayerProgress!.answers).toHaveLength(2);
+  });
+
   async function createUser(login: string) {
     return usersRepository.createUser({
       login,
@@ -288,6 +342,7 @@ describe('GetMyGamesUseCase Integration', () => {
     pairCreatedDate: Date;
     startGameDate?: Date;
     finishGameDate?: Date;
+    deadlineDate?: Date;
     questions?: { id: number }[];
     answers?: {
       questionId: number;
@@ -305,6 +360,7 @@ describe('GetMyGamesUseCase Integration', () => {
         pairCreatedDate: params.pairCreatedDate,
         startGameDate: params.startGameDate ?? null,
         finishGameDate: params.finishGameDate ?? null,
+        deadlineDate: params.deadlineDate ?? null,
       }),
     );
 

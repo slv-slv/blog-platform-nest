@@ -12,7 +12,7 @@ import { QuestionsRepository } from '../../infrastructure/typeorm/questions.repo
 import { GameStatus } from '../../types/game.types.js';
 import { AnswerStatus } from '../../types/player-answer.types.js';
 import { ConnectUserCommand, ConnectUserUseCase } from './connect-user.use-case.js';
-import { FinishExpiredGamesUseCase } from './finish-expired-games.use-case.js';
+import { FinishExpiredGamesCommand, FinishExpiredGamesUseCase } from './finish-expired-games.use-case.js';
 import { SubmitAnswerCommand, SubmitAnswerUseCase } from './submit-answer.use-case.js';
 
 describe('FinishExpiredGamesUseCase Integration', () => {
@@ -78,7 +78,7 @@ describe('FinishExpiredGamesUseCase Integration', () => {
     await submitAllAnswers(secondPlayer.id, orderedQuestions, 'correct');
     await expireGameDeadline(gameId);
 
-    await finishExpiredGamesUseCase.execute();
+    await finishExpiredGamesUseCase.execute(new FinishExpiredGamesCommand());
 
     const finishedGame = await gameEntityRepository.findOneBy({ id: +gameId });
     const firstPlayerAnswers = await findPlayerAnswers(gameId, firstPlayer.id);
@@ -103,7 +103,7 @@ describe('FinishExpiredGamesUseCase Integration', () => {
     await submitAllAnswers(secondPlayer.id, orderedQuestions, 'wrong');
     await expireGameDeadline(gameId);
 
-    await finishExpiredGamesUseCase.execute();
+    await finishExpiredGamesUseCase.execute(new FinishExpiredGamesCommand());
 
     const finishedGame = await gameEntityRepository.findOneBy({ id: +gameId });
     const firstPlayerAnswers = await findPlayerAnswers(gameId, firstPlayer.id);
@@ -140,7 +140,7 @@ describe('FinishExpiredGamesUseCase Integration', () => {
     await expireGameDeadline(expiredGameWithoutBonus.gameId);
     await setGameDeadline(notExpiredGame.gameId, 60_000);
 
-    await finishExpiredGamesUseCase.execute();
+    await finishExpiredGamesUseCase.execute(new FinishExpiredGamesCommand());
 
     const expiredFinishedWithBonus = await gameEntityRepository.findOneBy({
       id: +expiredGameWithBonus.gameId,
