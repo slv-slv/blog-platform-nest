@@ -113,9 +113,21 @@ export class PlayerAnswersRepository {
     const bothPlayerAnswers = await playerAnswerEntityRepository.findBy({ gameId: game.id });
     const firstPlayerAnswers = bothPlayerAnswers.filter((answer) => answer.userId === game.firstPlayerId);
     const secondPlayerAnswers = bothPlayerAnswers.filter((answer) => answer.userId === game.secondPlayerId);
-    const loserAnswers =
-      firstPlayerAnswers.length < secondPlayerAnswers.length ? firstPlayerAnswers : secondPlayerAnswers;
-    const loserId = loserAnswers[0].userId;
+
+    if (firstPlayerAnswers.length === secondPlayerAnswers.length) {
+      return [];
+    }
+
+    let loserId: number;
+    let loserAnswers: PlayerAnswer[];
+
+    if (firstPlayerAnswers.length < secondPlayerAnswers.length) {
+      loserId = game.firstPlayerId;
+      loserAnswers = firstPlayerAnswers;
+    } else {
+      loserId = game.secondPlayerId!;
+      loserAnswers = secondPlayerAnswers;
+    }
 
     const answeredQuestionIds = loserAnswers.map((answer) => answer.questionId);
     const unansweredQuestionIds = gameQuestionIds.filter((id) => !answeredQuestionIds.includes(id));
