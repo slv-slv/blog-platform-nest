@@ -11,6 +11,7 @@ import { emailConfig } from '../config/email.config.js';
 import { mongoConfig } from '../config/mongo.config.js';
 import { postgresConfig } from '../config/postgres.config.js';
 import { quizConfig } from '../config/quiz.config.js';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Global()
 @Module({
@@ -59,6 +60,7 @@ import { quizConfig } from '../config/quiz.config.js';
         synchronize: false,
       }),
     }),
+    ScheduleModule.forRoot(),
   ],
 })
 export class CoreModule implements OnApplicationBootstrap, BeforeApplicationShutdown {
