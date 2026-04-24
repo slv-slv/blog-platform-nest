@@ -20,7 +20,7 @@ export class GetMyGamesUseCase implements IQueryHandler<GetMyGamesQuery> {
   ) {}
 
   async execute(query: GetMyGamesQuery) {
-    // await this.commandBus.execute(new FinishExpiredGamesCommand());
+    await this.commandBus.execute(new FinishExpiredGamesCommand());
     return this.gamesQueryRepository.getMyGames(query.userId, query.params);
   }
 }

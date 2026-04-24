@@ -17,7 +17,7 @@ export class GetCurrentGameUseCase implements IQueryHandler<GetCurrentGameQuery>
   ) {}
 
   async execute(query: GetCurrentGameQuery) {
-    // await this.commandBus.execute(new FinishExpiredGamesCommand());
+    await this.commandBus.execute(new FinishExpiredGamesCommand());
     return this.gamesQueryRepository.getCurrentGameViewModel(query.userId);
   }
 }

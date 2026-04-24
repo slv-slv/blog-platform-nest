@@ -119,7 +119,7 @@ export class SubmitAnswerUseCase implements ICommandHandler<SubmitAnswerCommand>
         const deadlineDate = new Date();
         deadlineDate.setSeconds(deadlineDate.getSeconds() + 10);
         await this.gamesRepository.setDeadline(game.id.toString(), deadlineDate, manager);
-        setTimeout(() => this.commandBus.execute(new FinishExpiredGamesCommand(game.id.toString())), 10000);
+        // setTimeout(() => this.commandBus.execute(new FinishExpiredGamesCommand(game.id.toString())), 10000);
 
         return mapAnswerToViewModel(submittedAnswer);
       }
