@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Trim } from '../../../common/decorators/trim.js';
+import { EntityManager } from 'typeorm';
 
 export class PlayerAnswerInputDto {
   @IsString()
@@ -35,4 +36,14 @@ export type PlayerAnswerStats = {
 export type BonusCandidate = {
   userId: string;
   stats: PlayerAnswerStats;
+};
+
+export type SubmitAnswerRepoParams = {
+  gameId: string;
+  userId: string;
+  questionId: string;
+  answer: string;
+  status: AnswerStatus;
+  points: number;
+  manager: EntityManager;
 };

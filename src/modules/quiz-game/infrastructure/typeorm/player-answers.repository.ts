@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { PlayerAnswer } from './entities/player-answer.entity.js';
-import { AnswerStatus, PlayerAnswerStats } from '../../types/player-answer.types.js';
+import { AnswerStatus, PlayerAnswerStats, SubmitAnswerRepoParams } from '../../types/player-answer.types.js';
 import { isPositiveIntegerString } from '../../../../common/helpers/is-positive-integer-string.js';
 import {
   GameNotFoundDomainException,
@@ -14,15 +14,9 @@ import { Game } from './entities/game.entity.js';
 @Injectable()
 export class PlayerAnswersRepository {
   constructor(private readonly gameQuestionsRepository: GameQuestionsRepository) {}
-  async submitAnswer(
-    gameId: string,
-    userId: string,
-    questionId: string,
-    answer: string,
-    status: AnswerStatus,
-    points: number,
-    manager: EntityManager,
-  ): Promise<PlayerAnswer> {
+  async submitAnswer(params: SubmitAnswerRepoParams): Promise<PlayerAnswer> {
+    const { gameId, userId, questionId, answer, status, points, manager } = params;
+
     if (!isPositiveIntegerString(gameId)) {
       throw new GameNotFoundDomainException();
     }

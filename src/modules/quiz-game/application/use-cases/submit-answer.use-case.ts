@@ -93,15 +93,15 @@ export class SubmitAnswerUseCase implements ICommandHandler<SubmitAnswerCommand>
 
       const points = status === AnswerStatus.correct ? 1 : 0;
 
-      const submittedAnswer = await this.playerAnswersRepository.submitAnswer(
-        game.id.toString(),
-        command.userId,
-        nextQuestion.questionId.toString(),
-        command.answer,
+      const submittedAnswer = await this.playerAnswersRepository.submitAnswer({
+        gameId: game.id.toString(),
+        userId: command.userId,
+        questionId: nextQuestion.questionId.toString(),
+        answer: command.answer,
         status,
         points,
         manager,
-      );
+      });
 
       const isCurrentPlayerFinished = nextQuestion.questionNumber === this.quiz.questionsCount;
       if (!isCurrentPlayerFinished) {
