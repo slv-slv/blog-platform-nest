@@ -14,7 +14,6 @@ import { GetTopPlayersUseCase } from './application/use-cases/get-top-players.us
 import { ConnectUserUseCase } from './application/use-cases/connect-user.use-case.js';
 import { SubmitAnswerUseCase } from './application/use-cases/submit-answer.use-case.js';
 import { FinishExpiredGamesUseCase } from './application/use-cases/finish-expired-games.use-case.js';
-import { GameFinisher } from './application/services/game-finisher.js';
 import { FinishExpiredGamesScheduler } from './application/schedulers/finish-expired-games.scheduler.js';
 import { QuestionsRepository } from './infrastructure/typeorm/questions.repository.js';
 import { Question } from './infrastructure/typeorm/entities/question.entity.js';
@@ -51,7 +50,6 @@ import { PairsController } from './presentation/http/pairs.controller.js';
     SubmitAnswerUseCase,
     FinishExpiredGamesUseCase,
     FinishExpiredGamesScheduler,
-    GameFinisher,
     QuestionsQueryRepository,
     GamesRepository,
     GamesQueryRepository,
