@@ -2,7 +2,6 @@ import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { GamesRepository } from '../../infrastructure/typeorm/games.repository.js';
-import { GameFinisher } from '../services/game-finisher.js';
 import { PlayerAnswerStats } from '../../types/player-answer.types.js';
 import { PlayerAnswersRepository } from '../../infrastructure/typeorm/player-answers.repository.js';
 import { Inject } from '@nestjs/common';
@@ -21,7 +20,6 @@ export class FinishExpiredGamesUseCase implements ICommandHandler<FinishExpiredG
     @InjectDataSource() private readonly dataSource: DataSource,
     private readonly gamesRepository: GamesRepository,
     private readonly playerAnswersRepository: PlayerAnswersRepository,
-    private readonly gameFinisher: GameFinisher,
     @Inject(quizConfig.KEY) private readonly quiz: ConfigType<typeof quizConfig>,
   ) {}
 
