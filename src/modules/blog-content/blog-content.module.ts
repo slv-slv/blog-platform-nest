@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BlogsController } from './api/blogs.controller.js';
+import { BlogsController } from './presentation/http/blogs.controller.js';
 import { BlogsRepository } from './infrastructure/typeorm/blogs.repository.js';
 import { BlogsQueryRepository } from './infrastructure/typeorm/blogs.query-repository.js';
-import { PostsController } from './api/posts.controller.js';
+import { PostsController } from './presentation/http/posts.controller.js';
 import { PostsRepository } from './infrastructure/typeorm/posts.repository.js';
 import { PostsQueryRepository } from './infrastructure/typeorm/posts.query-repository.js';
-import { CommentsController } from './api/comments.controller.js';
+import { CommentsController } from './presentation/http/comments.controller.js';
 import { CommentsRepository } from './infrastructure/typeorm/comments.repository.js';
 import { CommentsQueryRepository } from './infrastructure/typeorm/comments.query-repository.js';
 import { PostReactionsRepository } from './infrastructure/typeorm/post-reactions.repository.js';
@@ -14,7 +14,7 @@ import { PostReactionsQueryRepository } from './infrastructure/typeorm/post-reac
 import { CommentReactionsRepository } from './infrastructure/typeorm/comment-reactions.repository.js';
 import { CommentReactionsQueryRepository } from './infrastructure/typeorm/comment-reactions.query-repository.js';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module.js';
-import { BlogsSuperadminController } from './api/blogs.superadmin.controller.js';
+import { BlogsSuperadminController } from './presentation/http/blogs.superadmin.controller.js';
 import { CreateBlogUseCase } from './application/use-cases/create-blog.use-case.js';
 import { UpdateBlogUseCase } from './application/use-cases/update-blog.use-case.js';
 import { DeleteBlogUseCase } from './application/use-cases/delete-blog.use-case.js';

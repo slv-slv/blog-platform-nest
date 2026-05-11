@@ -4,12 +4,12 @@ import {
   GetUsersQueryDto,
   UsersPaginatedViewModel,
   UserViewModel,
-} from '../types/users.types.js';
-import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
+} from '../../types/users.types.js';
+import { BasicAuthGuard } from '../../../../common/guards/basic-auth.guard.js';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { GetUsersQuery } from '../application/use-cases/get-users.use-case.js';
-import { CreateUserCommand } from '../application/use-cases/create-user.use-case.js';
-import { DeleteUserCommand } from '../application/use-cases/delete-user.use-case.js';
+import { GetUsersQuery } from '../../application/use-cases/get-users.use-case.js';
+import { CreateUserCommand } from '../../application/use-cases/create-user.use-case.js';
+import { DeleteUserCommand } from '../../application/use-cases/delete-user.use-case.js';
 
 @Controller('sa/users')
 @UseGuards(BasicAuthGuard)

@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersController } from './api/users.controller.js';
+import { UsersController } from './presentation/http/users.controller.js';
 import { UsersService } from './application/users.service.js';
 import { UsersRepository } from './infrastructure/typeorm/users.repository.js';
 import { UsersQueryRepository } from './infrastructure/typeorm/users.query-repository.js';
-import { AuthController } from './api/auth.controller.js';
+import { AuthController } from './presentation/http/auth.controller.js';
 import { AuthService } from './application/auth.service.js';
 import { NotificationsModule } from '../notifications/notifications.module.js';
-import { SessionsController } from './api/sessions.controller.js';
+import { SessionsController } from './presentation/http/sessions.controller.js';
 import { SessionsService } from './application/sessions.service.js';
 import { SessionsRepository } from './infrastructure/typeorm/sessions.repository.js';
 import { SessionsQueryRepository } from './infrastructure/typeorm/sessions.query-repository.js';

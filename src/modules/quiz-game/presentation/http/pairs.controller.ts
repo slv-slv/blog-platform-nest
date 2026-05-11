@@ -1,14 +1,14 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { Public } from '../../../common/decorators/public.js';
-import { UserId } from '../../../common/decorators/userId.js';
-import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
-import { ConnectUserCommand } from '../application/use-cases/connect-user.use-case.js';
-import { GetCurrentGameQuery } from '../application/use-cases/get-current-game.use-case.js';
-import { GetGameByIdQuery } from '../application/use-cases/get-game-by-id.use-case.js';
-import { GetMyGamesQuery } from '../application/use-cases/get-my-games.use-case.js';
-import { GetMyStatisticQuery } from '../application/use-cases/get-my-statistic.use-case.js';
-import { GetTopPlayersQuery } from '../application/use-cases/get-top-players.use-case.js';
+import { Public } from '../../../../common/decorators/public.js';
+import { UserId } from '../../../../common/decorators/userId.js';
+import { AccessTokenGuard } from '../../../../common/guards/access-token.guard.js';
+import { ConnectUserCommand } from '../../application/use-cases/connect-user.use-case.js';
+import { GetCurrentGameQuery } from '../../application/use-cases/get-current-game.use-case.js';
+import { GetGameByIdQuery } from '../../application/use-cases/get-game-by-id.use-case.js';
+import { GetMyGamesQuery } from '../../application/use-cases/get-my-games.use-case.js';
+import { GetMyStatisticQuery } from '../../application/use-cases/get-my-statistic.use-case.js';
+import { GetTopPlayersQuery } from '../../application/use-cases/get-top-players.use-case.js';
 import {
   GamesPaginatedViewModel,
   GameViewModel,
@@ -17,9 +17,9 @@ import {
   GetTopPlayersQueryDto,
   PlayerStatisticViewModel,
   TopPlayersPaginatedViewModel,
-} from '../types/game.types.js';
-import { SubmitAnswerCommand } from '../application/use-cases/submit-answer.use-case.js';
-import { PlayerAnswerInputDto, PlayerAnswerViewModel } from '../types/player-answer.types.js';
+} from '../../types/game.types.js';
+import { SubmitAnswerCommand } from '../../application/use-cases/submit-answer.use-case.js';
+import { PlayerAnswerInputDto, PlayerAnswerViewModel } from '../../types/player-answer.types.js';
 
 @Controller('pair-game-quiz')
 @UseGuards(AccessTokenGuard)

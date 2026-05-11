@@ -8,25 +8,25 @@ import {
   EmailInputDto,
   NewPasswordInputDto,
   UserViewModel,
-} from '../types/users.types.js';
-import { CredentialsGuard } from '../../../common/guards/credentials.guard.js';
-import { EmailConfirmationGuard } from '../../../common/guards/email-confirmation.guard.js';
-import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
-import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
-import { NoActiveSessionGuard } from '../../../common/guards/no-active-session.guard.js';
-import { User } from '../../../common/decorators/user.js';
-import { UserId } from '../../../common/decorators/userId.js';
-import { DeviceId } from '../../../common/decorators/deviceId.js';
-import { LoginCommand } from '../application/use-cases/login.use-case.js';
-import { LogoutCommand } from '../application/use-cases/logout.use-case.js';
-import { NewPasswordCommand } from '../application/use-cases/new-password.use-case.js';
-import { PasswordRecoveryCommand } from '../application/use-cases/password-recovery.use-case.js';
-import { RefreshTokenCommand } from '../application/use-cases/refresh-token.use-case.js';
-import { RegistrationConfirmationCommand } from '../application/use-cases/registration-confirmation.use-case.js';
-import { RegistrationEmailResendingCommand } from '../application/use-cases/registration-email-resending.use-case.js';
-import { RegisterUserCommand } from '../application/use-cases/register-user.use-case.js';
-import { GetCurrentUserQuery } from '../application/use-cases/get-current-user.use-case.js';
-import { authConfig } from '../../../config/auth.config.js';
+} from '../../types/users.types.js';
+import { CredentialsGuard } from '../../../../common/guards/credentials.guard.js';
+import { EmailConfirmationGuard } from '../../../../common/guards/email-confirmation.guard.js';
+import { AccessTokenGuard } from '../../../../common/guards/access-token.guard.js';
+import { RefreshTokenGuard } from '../../../../common/guards/refresh-token.guard.js';
+import { NoActiveSessionGuard } from '../../../../common/guards/no-active-session.guard.js';
+import { User } from '../../../../common/decorators/user.js';
+import { UserId } from '../../../../common/decorators/userId.js';
+import { DeviceId } from '../../../../common/decorators/deviceId.js';
+import { LoginCommand } from '../../application/use-cases/login.use-case.js';
+import { LogoutCommand } from '../../application/use-cases/logout.use-case.js';
+import { NewPasswordCommand } from '../../application/use-cases/new-password.use-case.js';
+import { PasswordRecoveryCommand } from '../../application/use-cases/password-recovery.use-case.js';
+import { RefreshTokenCommand } from '../../application/use-cases/refresh-token.use-case.js';
+import { RegistrationConfirmationCommand } from '../../application/use-cases/registration-confirmation.use-case.js';
+import { RegistrationEmailResendingCommand } from '../../application/use-cases/registration-email-resending.use-case.js';
+import { RegisterUserCommand } from '../../application/use-cases/register-user.use-case.js';
+import { GetCurrentUserQuery } from '../../application/use-cases/get-current-user.use-case.js';
+import { authConfig } from '../../../../config/auth.config.js';
 
 @Controller('auth')
 export class AuthController {

@@ -1,12 +1,12 @@
 import { Controller, Delete, Get, HttpCode, Param, UseGuards } from '@nestjs/common';
-import { RefreshTokenGuard } from '../../../common/guards/refresh-token.guard.js';
-import { UserId } from '../../../common/decorators/userId.js';
-import { DeviceId } from '../../../common/decorators/deviceId.js';
-import { DeviceViewModel } from '../types/sessions.types.js';
+import { RefreshTokenGuard } from '../../../../common/guards/refresh-token.guard.js';
+import { UserId } from '../../../../common/decorators/userId.js';
+import { DeviceId } from '../../../../common/decorators/deviceId.js';
+import { DeviceViewModel } from '../../types/sessions.types.js';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { GetDevicesQuery } from '../application/use-cases/get-devices.use-case.js';
-import { DeleteOtherDevicesCommand } from '../application/use-cases/delete-other-devices.use-case.js';
-import { DeleteDeviceCommand } from '../application/use-cases/delete-device.use-case.js';
+import { GetDevicesQuery } from '../../application/use-cases/get-devices.use-case.js';
+import { DeleteOtherDevicesCommand } from '../../application/use-cases/delete-other-devices.use-case.js';
+import { DeleteDeviceCommand } from '../../application/use-cases/delete-device.use-case.js';
 
 @Controller('security/devices')
 @UseGuards(RefreshTokenGuard)

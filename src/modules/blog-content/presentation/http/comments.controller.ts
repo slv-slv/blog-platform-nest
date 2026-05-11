@@ -1,14 +1,14 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Put, UseGuards } from '@nestjs/common';
-import { CommentViewModel, UpdateCommentInputDto } from '../types/comments.types.js';
-import { SetLikeStatusDto } from '../types/likes.types.js';
-import { AccessTokenGuard } from '../../../common/guards/access-token.guard.js';
-import { Public } from '../../../common/decorators/public.js';
-import { UserId } from '../../../common/decorators/userId.js';
+import { CommentViewModel, UpdateCommentInputDto } from '../../types/comments.types.js';
+import { SetLikeStatusDto } from '../../types/likes.types.js';
+import { AccessTokenGuard } from '../../../../common/guards/access-token.guard.js';
+import { Public } from '../../../../common/decorators/public.js';
+import { UserId } from '../../../../common/decorators/userId.js';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { UpdateCommentCommand } from '../application/use-cases/update-comment.use-case.js';
-import { DeleteCommentCommand } from '../application/use-cases/delete-comment.use-case.js';
-import { SetCommentLikeStatusCommand } from '../application/use-cases/set-comment-like-status.use-case.js';
-import { GetCommentQuery } from '../application/use-cases/get-comment.use-case.js';
+import { UpdateCommentCommand } from '../../application/use-cases/update-comment.use-case.js';
+import { DeleteCommentCommand } from '../../application/use-cases/delete-comment.use-case.js';
+import { SetCommentLikeStatusCommand } from '../../application/use-cases/set-comment-like-status.use-case.js';
+import { GetCommentQuery } from '../../application/use-cases/get-comment.use-case.js';
 
 @Controller('comments')
 @UseGuards(AccessTokenGuard)

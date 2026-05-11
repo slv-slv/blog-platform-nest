@@ -5,25 +5,25 @@ import {
   CreateBlogInputDto,
   GetBlogsQueryDto,
   UpdateBlogInputDto,
-} from '../types/blogs.types.js';
+} from '../../types/blogs.types.js';
 import {
   CreatePostInputDto,
   GetPostsQueryDto,
   PostsPaginatedViewModel,
   PostViewModel,
   UpdatePostInputDto,
-} from '../types/posts.types.js';
-import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard.js';
+} from '../../types/posts.types.js';
+import { BasicAuthGuard } from '../../../../common/guards/basic-auth.guard.js';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateBlogCommand } from '../application/use-cases/create-blog.use-case.js';
-import { UpdateBlogCommand } from '../application/use-cases/update-blog.use-case.js';
-import { DeleteBlogCommand } from '../application/use-cases/delete-blog.use-case.js';
-import { CreatePostCommand } from '../application/use-cases/create-post.use-case.js';
-import { UpdatePostCommand } from '../application/use-cases/update-post.use-case.js';
-import { DeletePostCommand } from '../application/use-cases/delete-post.use-case.js';
-import { GetBlogsQuery } from '../application/use-cases/get-blogs.use-case.js';
-import { GetBlogQuery } from '../application/use-cases/get-blog.use-case.js';
-import { GetPostsQuery } from '../application/use-cases/get-posts.use-case.js';
+import { CreateBlogCommand } from '../../application/use-cases/create-blog.use-case.js';
+import { UpdateBlogCommand } from '../../application/use-cases/update-blog.use-case.js';
+import { DeleteBlogCommand } from '../../application/use-cases/delete-blog.use-case.js';
+import { CreatePostCommand } from '../../application/use-cases/create-post.use-case.js';
+import { UpdatePostCommand } from '../../application/use-cases/update-post.use-case.js';
+import { DeletePostCommand } from '../../application/use-cases/delete-post.use-case.js';
+import { GetBlogsQuery } from '../../application/use-cases/get-blogs.use-case.js';
+import { GetBlogQuery } from '../../application/use-cases/get-blog.use-case.js';
+import { GetPostsQuery } from '../../application/use-cases/get-posts.use-case.js';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)

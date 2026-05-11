@@ -19,7 +19,7 @@ import { FinishExpiredGamesScheduler } from './application/schedulers/finish-exp
 import { QuestionsRepository } from './infrastructure/typeorm/questions.repository.js';
 import { Question } from './infrastructure/typeorm/entities/question.entity.js';
 import { CorrectAnswer } from './infrastructure/typeorm/entities/correct-answer.entity.js';
-import { QuestionsController } from './api/questions.controller.js';
+import { QuestionsController } from './presentation/http/questions.controller.js';
 import { QuestionsQueryRepository } from './infrastructure/typeorm/questions.query-repository.js';
 import { Game } from './infrastructure/typeorm/entities/game.entity.js';
 import { GameQuestion } from './infrastructure/typeorm/entities/game-question.entity.js';
@@ -28,7 +28,7 @@ import { GamesRepository } from './infrastructure/typeorm/games.repository.js';
 import { GamesQueryRepository } from './infrastructure/typeorm/games.query-repository.js';
 import { GameQuestionsRepository } from './infrastructure/typeorm/game-questions.repository.js';
 import { PlayerAnswersRepository } from './infrastructure/typeorm/player-answers.repository.js';
-import { PairsController } from './api/pairs.controller.js';
+import { PairsController } from './presentation/http/pairs.controller.js';
 
 @Module({
   imports: [
