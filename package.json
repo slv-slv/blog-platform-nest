@@ -45,12 +45,12 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongodb": "^7.2.0",
-    "mongoose": "^9.6.1",
+    "mongoose": "^9.6.2",
     "nodemailer": "^8.0.7",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "typeorm": "^0.3.28",
+    "typeorm": "^0.3.29",
     "uuid": "^14.0.0"
   },
   "devDependencies": {
@@ -62,7 +62,7 @@
     "@swc/cli": "^0.8.1",
     "@swc/core": "^1.15.33",
     "@types/jest": "^30.0.0",
-    "@types/node": "^25.6.1",
+    "@types/node": "^25.7.0",
     "@types/nodemailer": "^8.0.0",
     "@types/pg": "^8.20.0",
     "@types/set-cookie-parser": "^2.4.10",
@@ -73,7 +73,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "globals": "^17.6.0",
-    "jest": "^30.4.0",
+    "jest": "^30.4.2",
     "mongodb-memory-server": "^11.1.0",
     "prettier": "^3.8.3",
     "set-cookie-parser": "^3.1.0",
@@ -84,9 +84,9 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.2",
+    "typescript-eslint": "^8.59.3",
     "unplugin-swc": "^1.5.9",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.6"
   },
   "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be"
 }
